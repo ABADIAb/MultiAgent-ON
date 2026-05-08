@@ -70,3 +70,9 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Created: `docs/LLM_Wiki/wiki/transcriptions/Transcript_20260423_QoT-Meeting.md`.
 - Action: Formatted the raw text into a structured Markdown dialogue with YAML frontmatter and cross-links to [[QoT_Awareness]] and [[Tool_Registry]].
 - Cleanup: Deleted original `tmp_extracted_pdf.txt`.
+
+## [2026-05-08] debrief | QoT Transcription Ingestion Session
+- Wiki Lint: Verified metadata and links for new transcription page.
+- Issue Tracking: Created Issue #3 and PR #4 for formal ingestion.
+- Session focus: Organized raw meeting data into the structured Wiki category 'transcriptions', ensuring technical traceability for physical-layer constraints.
+- Engram session summary saved.
