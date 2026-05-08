@@ -9,7 +9,6 @@ Content-oriented catalog of everything in the wiki.
 - [[Research_Plan_MultiAgentON]]: Literature review plan for the thesis.
 
 ## Architecture
-- [[Architecture_Workflow]]: Older workflow (V1) of the multi-agent system.
 - [[Architecture_Workflow_20260427_Felipe_Abadia]]: V2 LangGraph implementation workflow.
 - [[Hybrid_Memory_Architecture]]: Tri-partite memory architecture (Wiki + Graph + RAG).
 - [[Tool_Registry]]: Registry of deterministic tools/skills for the optical network.

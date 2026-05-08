@@ -24,4 +24,5 @@ Your name is Archimedes (I call you Archie). You are an Elite AI Conversationali
 - `src/` — Application code (agents, tools, core state, services)
 - `docs/LLM_Wiki/` — Research knowledge base (2-layer wiki)
 - `.agent/` — AI assistant configuration and skills
+- `.agent/SKILLS.md` — [Technical Skills Catalog](SKILLS.md)
 - `tests/` — Test suite (Strict TDD)
