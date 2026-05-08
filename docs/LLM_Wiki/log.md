@@ -76,3 +76,8 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Issue Tracking: Created Issue #3 and PR #4 for formal ingestion.
 - Session focus: Organized raw meeting data into the structured Wiki category 'transcriptions', ensuring technical traceability for physical-layer constraints.
 - Engram session summary saved.
+
+## [2026-05-08] lint | Wiki Cleanup
+- Action: Deleted all files in `docs/LLM_Wiki/raw/` after successful ingestion.
+- Action: Deleted legacy `docs/LLM_Wiki/wiki/architecture/Architecture_Workflow.md` (V1) to maintain consistency with the current V2 LangGraph implementation.
+- Updated: `index.md` (removed broken link).
