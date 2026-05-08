@@ -9,10 +9,10 @@ status: active
 This document details the step-by-step workflow of the "Slow Loop" Orchestrator in an Intent-Based Optical Network. It defines how semantic intents are translated, validated, and delegated to specialized multi-agent sub-systems using a **LangGraph** topology, supported by Hybrid Memory and Dynamic Skills.
 
 ## Phase 0: Memory & Knowledge Substrate
-Before parsing intents, the system relies on a hybrid memory foundation to manage state and scalability without exploding the context window.
-1. **Structural Memory (LLM Wiki):** A 3-layer Obsidian Wiki (`raw/`, `wiki/`, `output/`) acts as the deterministic, structured state memory. It stores strict operational policies, validated SLA matrices, and session history.
-2. **Vector Memory (RAG):** RAG is utilized for retrieving extended unstructured documentation (e.g., optical hardware manuals, vendor-specific MIBs, legacy SDN configs).
-3. **Tool-RAG Registry:** As the system scales to dozens of tools, the Orchestrator avoids prompt bloat by using RAG to dynamically fetch only the tool schemas required for the current intent.
+Before parsing intents, the system relies on a [[Hybrid_Memory_Architecture|Hybrid Memory Architecture]] foundation to manage state and scalability without exploding the context window.
+1. **Structural Memory (LLM Wiki):** Acts as the deterministic, structured state memory (Procedural Rules and Skills).
+2. **Knowledge Graph (State Tracker):** A technology-agnostic graph system explicitly tracks the current live topology, agent dependencies, and numerical SLA constraints.
+3. **Vector Memory (RAG):** RAG is utilized as an episodic memory for retrieving extended unstructured documentation (e.g., optical hardware manuals) and dynamically fetching specific tool schemas (Tool-RAG Registry) to avoid prompt bloat.
 
 ## Phase 1: Intent Parsing & Translation
 1. **The Human Intent:** A network operator inputs a high-level semantic command (e.g., *"Provide a highly reliable, low-latency network slice to stream 4K VR data from the central database to an edge node for rendering"*).

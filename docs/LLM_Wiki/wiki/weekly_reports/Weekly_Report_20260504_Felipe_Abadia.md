@@ -35,14 +35,14 @@ April 28, 2026 - May 4, 2026
 ## 2. Actual Progress This Week
 
 1. **LangGraph Exploration (Goal 1 — In Progress):** Started hands-on study of the LangGraph framework. Flowchart design still pending.
-2. **Skills.md → Tool Registry (Goal 3 — Completed with change of scope):** Instead of building `Skills.md` injection into LangGraph prompts, we resolved a deeper issue: the semantic confusion between AI assistant skills and application tools. The old `Skills.md` was renamed to [[Tool_Registry]] and moved into the wiki under `architecture/`. AI assistant skills now live in `.agent/skills/`, and application tools will live in `src/tools/`.
-3. **Screaming Architecture (Unplanned — Critical):** Identified that the flat repo structure would not scale. Restructured the entire repository into four top-level directories:
+2. **Screaming Architecture (Goal 1 — Repo Structure):** Identified that the flat repo structure would not scale. Restructured the entire repository into four top-level directories following Python/LangGraph best practices.
    - `src/` — Application code (`agents/`, `tools/`, `core/`, `services/`).
-   - `docs/` — Research knowledge base, including the [[index|LLM Wiki]] with its 2-layer architecture.
-   - `.agent/` — AI assistant persona (`AGENTS.md`) and modular skills (`wiki-protocol`, `langgraph-expert`).
+   - `docs/` — Research knowledge base, including the [[index|LLM Wiki]] (an md file that keeps track of all the research and progress).
    - `tests/` — Reserved for Strict TDD test suite.
-4. **QoT Tool Experiments (Goal 2 — Blocked):** Still waiting for the QoT script from the professor. Cannot proceed without it.
-5. **Deep Research Execution (Goal 4 — Deferred):** Deferred due to time spent on repository restructuring. Will resume this week.
+3. **QoT Tool Experiments (Goal 2 — Partially Done):** I mapped out the functional specification and architectural boundaries of the QoT tool (SNR threshold, -18 dBm receiver power, GN model). These parameters are now formally documented in the Wiki. However, the script is still pending.
+4. **Skills.md → Tool Registry (Goal 3 — Completed with change of scope):** The old `Skills.md` was renamed to [[Tool_Registry]] and moved into the wiki under `architecture/`, this file will keep track of the tools that the agents can use (for now it has the descriptions of the QoT tool). The actual scripts of the application tools will live in `src/tools/`.
+5. **Deep Research Execution (Goal 4 — In Progress):** Successfully ingested state-of-the-art literature to define the [[Hybrid_Memory_Architecture]] (Wiki + Graph + Vector). To be presented.
+
 
 ---
 
@@ -57,20 +57,23 @@ April 28, 2026 - May 4, 2026
 
 ### Issue 2
 
-- **Issue:** The QoT (Quality of Transmission) estimator tool has been mentioned but no code or specification has been received yet.
-- **What has already been tried:** Registered it as "Planning / In Development" in the [[Tool_Registry]].
-- **Result:** Waiting for the professor to provide the QoT function/code.
-- **Estimated possible solution:** Follow up with the professor in the next meeting to obtain the QoT tool code and its input/output specification.
+- **Issue:** The QoT (Quality of Transmission) estimator tool has been mentioned but the script has not been provided and the virtual environment for testing is not yet ready.
+- **What has already been tried:** Registered the tool as "Planning / In Development" in the [[Tool_Registry]] and secured VPN access to the network.
+- **Result:** VPN is active, but waiting to set up the virtual environment to replicate the testbed.
+- **Estimated possible solution:** Follow up with the professor next week regarding the status of the virtual environment setup and the QoT tool script.
+
+
+
 
 ---
 
 ## 4. Plan for Next Week
 
 *Carried forward from this week + new:*
-1. **LangGraph Prototyping (Continued):** Implement a minimal `StateGraph` in `src/graph.py` with a single Orchestrator node and one dummy tool to validate the end-to-end pipeline. Design the flowchart deferred from this week.
-2. **Deep Research Execution (Deferred from this week):** Run the generated [[Research_Plan_MultiAgentON|Deep Research plan]] to find literature supporting the mathematical objective.
-3. **Literature Ingestion:** Ingest at least one foundational paper into the wiki using the `Ingest` workflow.
-4. **QoT Tool Follow-up:** Request the QoT tool script and testbed control scripts from the professor.
+1. **LangGraph Prototyping (Continued):** Implement a minimal `StateGraph` in `src/graph.py` with a single Orchestrator node and one dummy tool to validate the end-to-end pipeline.
+2. **QoT Tool & Virtual Environment Follow-up:** Request the QoT tool script and track the status of the virtual environment setup.
+3. **Orchestrator Script Review:** Review the initial Orchestrator script provided by the professor, analyze it, and decide if it aligns with the architectural design; refine it based on feedback.
+
 
 ---
 
@@ -78,14 +81,14 @@ April 28, 2026 - May 4, 2026
 
 Write here: Yes. I need the following support to proceed efficiently:
 1. Access to the QoT tool script.
-2. Access to the scripts used to interact with the physical optical testbed so I can begin designing the LangGraph tool bindings.
-3. Feedback on the Screaming Architecture restructuring and whether the proposed `src/` layout aligns with team expectations.
+2. Status update and access to the virtual environment that replicates the physical testbed so I can begin designing and testing the LangGraph tool bindings.
+
 
 ---
 
 ## 6. One-Sentence Summary
 
-Write here: We restructured the entire repository following a Screaming Architecture pattern, separating application code, documentation, and AI configuration into modular directories, and are now ready to begin LangGraph prototyping.
+Write here: I restructured the entire repository following a Screaming Architecture pattern, designed the Hybrid Memory Architecture, and secured VPN access, leaving me ready to familiarize with QoT tool and the virtual environment. Continue to study LangGraph.
 
 ---
 
