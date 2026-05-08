@@ -34,26 +34,15 @@ This research plan is designed to gather literature supporting the mathematical 
 
 ---
 
-## Phase 3: Synthesizing the Unified Cost Function
-**Goal:** Find standard models that couple optical variables (spectrum fragmentation, EDFA power) with compute variables (GPU utilization, inference cost) into a unified system cost function $C_{sys}(r_i^*, b_i^*, c_i^*)$.
-
-### Database Queries (IEEE Xplore, arXiv, Scopus)
-- `"joint communication and computation" AND "resource allocation" AND "optical networks"`
-- `"multi-objective optimization" AND "compute and network" AND "cost function"`
-- `"edge computing" AND "optical routing" AND "GPU resource allocation"`
-
-### Gemini Web Deep Research Prompts
-> **Prompt 3:** "Perform a comprehensive literature review on the mathematical formulation of cost functions in 'joint communication and computation resource allocation' within optical networks. I am looking for specific equations where researchers combine optical network costs (such as spectrum fragmentation, link utilization, or EDFA power consumption) with compute node costs (such as GPU cycle utilization or VRAM allocation). Provide the explicit mathematical models used to balance these heterogeneous variables."
-
----
-
-## Phase 4: State-of-the-Art Memory Management in Intent-Based Optical Networks
-**Goal:** Research current strategies for managing context, memory, and state when using Large Language Models in complex telecommunication environments, specifically [[Concepts_and_Terminology|Intent-Based Optical Networks (IBON)]]. We need to validate if our "Hybrid Memory" approach (LLM Wiki + Vector RAG) aligns with or improves upon the state of the art.
+## Phase 3: State-of-the-Art Memory Management in Multi-Agent LLM Systems
+**Goal:** Research current strategies for managing context, memory, and state when using Large Language Models in complex environments. This includes specific applications in [[Concepts_and_Terminology|Intent-Based Optical Networks (IBON)]] and broader cross-domain applications of multi-agent systems (e.g., autonomous agents, software engineering, and complex system orchestration). We need to validate if our "Hybrid Memory" approach (LLM Wiki + Vector RAG) aligns with or improves upon the state of the art in memory architectures.
 
 ### Database Queries (IEEE Xplore, arXiv, Scopus)
 - `"large language model" AND "intent-based networking" AND ("memory management" OR "context window" OR "state management")`
-- `"generative AI" AND "optical networks" AND "RAG" AND "knowledge graph"`
-- `"multi-agent systems" AND "LLM" AND "persistent memory"`
+- `"multi-agent systems" AND "LLM" AND ("persistent memory" OR "long-term memory" OR "episodic memory")`
+- `"generative AI" AND "cross-domain agents" AND "memory architecture" AND "RAG"`
+- `"autonomous LLM agents" AND "state management" AND "distributed memory"`
 
 ### Gemini Web Deep Research Prompts
-> **Prompt 4:** "Conduct a deep research review on the state-of-the-art memory management techniques used by Large Language Models operating within Intent-Based Optical Networks or complex SDN orchestrators. Specifically, investigate how researchers handle the context window limitation when the agent needs access to both structured operational policies and unstructured, extensive hardware documentation. How are architectures combining RAG (Retrieval-Augmented Generation) with structural state memory (like Knowledge Graphs or hierarchical wikis)? Provide concrete examples of architectures from recent literature."
+> **Prompt 3:** "Conduct a deep research review on the state-of-the-art memory management techniques used by Large Language Models and Multi-Agent Systems (MAS). While the primary focus is Intent-Based Optical Networks, broaden the search to include other domains like autonomous robotics, software engineering agents, and complex system orchestration. Investigate how researchers handle long-term memory, episodic memory, and context window limitations. Specifically, look for architectures that combine RAG (Retrieval-Augmented Generation) with structural memory (Knowledge Graphs, Hierarchical Wikis, or Vector Databases) to maintain persistent state across agent interactions. Provide concrete examples and comparative analyses from recent literature."
+

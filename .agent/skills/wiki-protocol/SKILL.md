@@ -33,10 +33,9 @@ You execute these workflows when requested:
   3. **Presentation Proposal**: If applicable, suggest a structure and content for a presentation to the professor (to be saved as a `.md` in `docs/LLM_Wiki/wiki/presentations/`).
   4. **Create Implementation Plan**: Generate an `implementation_plan.md` to edit or create these files. Await user feedback and iterate until approved.
 - **Debrief Phase 2 (`/debrief2`)**: Session closure routine. Execute **ONLY** after `/debrief1`'s plan is approved and executed:
-  1. **Raw Ingestion Scan**: Check `docs/LLM_Wiki/raw/` for unprocessed documents. Ask user to ingest or defer.
-  2. **Wiki Lint**: Run the standard Lint to ensure metadata and links are intact after edits. Update `index.md` and cross-references.
-  3. **Engram Session Summary**: Execute `mem_session_summary` to persist state in long-term memory.
-  4. **Log Entry**: Append `## [YYYY-MM-DD] debrief | Session Summary` to `log.md`.
+  1. **Wiki Lint**: Run the standard Lint to ensure metadata and links are intact after edits. Update `index.md` and cross-references.
+  2. **Engram Session Summary**: Execute `mem_session_summary` to persist state in long-term memory.
+  3. **Log Entry**: Append `## [YYYY-MM-DD] debrief | Session Summary` to `log.md`.
 
 ## 3. Strict Rules
 - **Strict Metadata Rule**: EVERY note you create or edit in `wiki/` MUST contain a YAML frontmatter block at the top with `title`, `date`, `tags`, and `status`.
