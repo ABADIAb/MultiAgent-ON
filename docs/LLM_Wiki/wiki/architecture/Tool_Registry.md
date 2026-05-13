@@ -13,14 +13,10 @@ This document serves as the registry for the modular capabilities ("Skills") int
 ## 1. Installed Skills / Tools
 
 ### A. Quality of Transmission (QoT) Estimator
-- **Status:** Pending Integration (Simplified 3-function codebase expected)
-- **Description:** A deterministic Python script/tool to validate the feasibility of generated light paths across the optical network. Uses a network-based evaluation with the Gaussian Noise (GN) model.
+- **Detailed Documentation:** [[tools_wiki/QoT_Tool]]
+- **Status:** Pending Integration (Strategy designed in `experiments/QoT_Integration_Strategy.md`)
+- **Description:** A deterministic tool (pure Python port of the GN model physics) to validate the feasibility of generated light paths across the optical network.
 - **Agent Assigned:** Routing Agent / Orchestrator
-- **Dependencies:** Physical layer Python codebase (to be provided by the team)
-- **Evaluation Criteria:**
-  - **Receiver Power:** Must be greater than `-18 dB`.
-  - **SNR (Signal-to-Noise Ratio):** Must exceed a dynamically defined threshold.
-- **Usage Example:** Agent parses user intent -> identifies a need for QoT -> calls the QoT feasibility functions for the proposed paths -> receives feasibility status (1 or 0) -> reasons over the result to make a routing decision.
 
 ## 2. Pending Skills to Implement
 

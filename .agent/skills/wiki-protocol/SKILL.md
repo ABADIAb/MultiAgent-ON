@@ -33,7 +33,7 @@ You execute these workflows when requested:
   3. **Presentation Proposal**: If applicable, suggest a structure and content for a presentation to the professor (to be saved as a `.md` in `docs/LLM_Wiki/wiki/presentations/`).
   4. **Create Implementation Plan**: Generate an `implementation_plan.md` to edit or create these files. Await user feedback and iterate until approved.
 - **Debrief Phase 2 (`/debrief2`)**: Session closure routine. Execute **ONLY** after `/debrief1`'s plan is approved and executed:
-  1. **Wiki Lint**: Run the standard Lint to ensure metadata and links are intact after edits. Update `index.md` and cross-references.
+  1. **Wiki Deep Lint**: Identify all files created or modified during the session. For each file, perform a rigorous deep lint to proactively identify and add `[[wikilinks]]` to any core concepts or existing wiki pages mentioned in the text. Ensure `index.md` and all relevant cross-references are updated to maintain total wiki interconnectedness and persistence.
   2. **Engram Session Summary**: Execute `mem_session_summary` to persist state in long-term memory.
   3. **Log Entry**: Append `## [YYYY-MM-DD] debrief | Session Summary` to `log.md`.
 

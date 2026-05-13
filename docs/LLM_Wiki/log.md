@@ -81,3 +81,29 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Action: Deleted all files in `docs/LLM_Wiki/raw/` after successful ingestion.
 - Action: Deleted legacy `docs/LLM_Wiki/wiki/architecture/Architecture_Workflow.md` (V1) to maintain consistency with the current V2 LangGraph implementation.
 - Updated: `index.md` (removed broken link).
+
+## [2026-05-08] debrief | Skills Infrastructure Session
+- Wiki Lint: Verified all 13 pages (metadata + links clean).
+- Action: Created `.agent/SKILLS.md` and linked it from `AGENTS.md`.
+- Feature: Implemented `pdf-ingest` skill with `pymupdf4llm` motor.
+- GitHub: Opened Issue #5 and PR #6 for the new infrastructure.
+- Engram session summary saved.
+
+## [2026-05-11] ingest | QoT Tool Meeting & Repo Analysis
+- Ingested: `Transcript_20260505_QoT-Script.pdf`
+- Action: Analyzed the C++ GA simulator (`Code_for_Felipe`) and the Aryanaz meeting transcript.
+- Created: `docs/LLM_Wiki/wiki/transcriptions/Transcript_20260505_QoT-Script.md`.
+- Created: `docs/LLM_Wiki/wiki/architecture/tools_wiki/QoT_Tool.md` (Centralized documentation).
+- Created: `docs/LLM_Wiki/wiki/experiments/QoT_Integration_Strategy.md` (Python wrapper strategy).
+- Updated: `Weekly_Report_20260511_Felipe_Abadia.md` and `index.md`.
+
+## [2026-05-12] debrief2 | QoT Integration Strategy Session
+- Wiki Lint: All new files verified for YAML metadata and `index.md` cross-links are clean.
+- Session focus: Extracted physical constraints from the meeting transcript, documented the QoT C++ simulator architecture, and proposed the Python Wrapper (`subprocess`) strategy. Resolved VS Code SSH remote access. Generated formal Weekly and Issue Reports.
+- Engram session summary saved.
+
+## [2026-05-13] debrief2 | QoT Physics Port Pivot & Deep Lint
+- Wiki Lint: Executed a rigorous lint on all modified files (`QoT_Tool.md`, `Proposal_QoT_Integration.md`, `QoT_Integration_Strategy.md`, `Weekly_Report_20260519_Felipe_Abadia.md`, `Presentation_20260511_QoT_Integration.md`). Embedded missing `[[wikilinks]]` to core concepts (`QoT_Awareness`, `Architecture_Workflow`, `Tool_Registry`) to guarantee an interconnected and persistent knowledge base.
+- Session focus: Pivoted from the C++ Wrapper strategy to a Pure Python Physics Port for the QoT tool to ensure low latency and numeric feedback for the LLM. Drafted a formal proposal and a presentation for the professor pitching this new architecture. Generated a new Weekly Report (May 19th).
+- Cleanup: Deleted raw transcript source files (`raw/Transcript_20260505_QoT-Script.pdf/md`) as requested.
+- Engram session summary saved.
