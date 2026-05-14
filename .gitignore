@@ -40,3 +40,5 @@ docs/LLM_Wiki/raw/**
 !docs/LLM_Wiki/raw/**/*.c
 !docs/LLM_Wiki/raw/**/Makefile
 !docs/LLM_Wiki/raw/**/*.sh
+!docs/LLM_Wiki/raw/**/README
+!docs/LLM_Wiki/raw/**/README.md
