@@ -107,3 +107,6 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Pivoted from the C++ Wrapper strategy to a Pure Python Physics Port for the QoT tool to ensure low latency and numeric feedback for the LLM. Drafted a formal proposal and a presentation for the professor pitching this new architecture. Generated a new Weekly Report (May 19th).
 - Cleanup: Deleted raw transcript source files (`raw/Transcript_20260505_QoT-Script.pdf/md`) as requested.
 - Engram session summary saved.
+
+## [2026-05-14] lint | Raw Source Maintenance
+- Action: Replaced `docs/LLM_Wiki/raw/Code_for_Felipe/README` with a formatted `README.md` file to improve readability of the C++ simulator instructions.
