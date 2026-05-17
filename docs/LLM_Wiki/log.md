@@ -110,3 +110,16 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 
 ## [2026-05-14] lint | Raw Source Maintenance
 - Action: Replaced `docs/LLM_Wiki/raw/Code_for_Felipe/README` with a formatted `README.md` file to improve readability of the C++ simulator instructions.
+
+## [2026-05-17] ingest | ECOC 2024 Paper & Claude RAG Memory Paper
+- Ingested: `Open_Implementation...pdf` (ECOC 2024 orchestrator paper) and `_从论文到产品...pdf` (Claude Code Agent RAG memory management, Chinese → English translation).
+- Cloned: `ecoc2024-llm-orchestrator` repository into `raw/`.
+- Created: `docs/LLM_Wiki/raw/Claude_Code_Agent_RAG_Memory_Management.md`.
+- Created: `docs/LLM_Wiki/wiki/literature/OrchestratorScriptReport.md`.
+- Created: `docs/LLM_Wiki/wiki/experiments/Proposal_Orchestrator_Integration.md`.
+- Updated: `index.md` (Literature section populated, new Experiment and Presentation entries).
+
+## [2026-05-17] debrief2 | Orchestrator Architecture V2 Session
+- Wiki Deep Lint: Added YAML frontmatter to `OrchestratorScriptReport.md`. Embedded `[[wikilinks]]` across 4 files (`OrchestratorScriptReport`, `Proposal_Orchestrator_Integration`, `Presentation_20260519_Orchestrator_Architecture`, `Weekly_Report_20260519`). Updated `index.md` with 3 new entries (Literature, Experiments, Presentations).
+- Session focus: Analyzed the professor's orchestrator codebase, designed the V2 LangGraph architecture with dual-role Hybrid Memory, resolved Topology Extraction via RESTConf, and generated formal proposal + presentation for professor review.
+- Engram session summary saved.
