@@ -22,7 +22,7 @@ Content-oriented catalog of everything in the wiki.
 - [[Weekly_Report_20260424_Felipe_Abadia]]: Weekly report April 18-24, 2026.
 
 ## Literature
-*(Empty)*
+- [[literature/OrchestratorScriptReport]]: Analysis of the ECOC 2024 orchestrator codebase, Claude RAG memory paper, and comparison with our Hybrid Memory Architecture.
 
 ## Issues
 - [[Issue_Report_20260511_Felipe_Abadia]]: Solved QoT code delivery; pending SSH access, Python wrapper implementation, and Orchestrator review.
@@ -30,6 +30,7 @@ Content-oriented catalog of everything in the wiki.
 - [[Issue_Report_20260430_Felipe_Abadia]]: Solved repo structure confusion; pending LangGraph prototyping and QoT tool.
 
 ## Presentations
+- [[Presentation_20260519_Orchestrator_Architecture]]: V2 LangGraph Orchestrator architecture slide deck for professor review.
 - [[Presentation_20260511_QoT_Integration]]: Technical analysis of the C++ QoT simulator and the Pure Python Port integration proposal.
 - [[Presentation_Hybrid_Memory_MAS]]: Presentation outline proposing the Hybrid Memory Architecture to the professor.
 - [[Presentation_20260430_DevEnvironment]]: Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
@@ -39,6 +40,7 @@ Content-oriented catalog of everything in the wiki.
 - [[Transcript_20260423_QoT-Meeting]]: Meeting with Aryanaz and Qiaolun about QoT feasibility tool and GN model.
 
 ## Experiments
+- [[experiments/Proposal_Orchestrator_Integration]]: Formal proposal for modernizing the ECOC 2024 orchestrator into a LangGraph Multi-Agent architecture.
 - [[experiments/Proposal_QoT_Integration]]: Formal proposal for the Python Physics Port integration.
 - [[QoT_Integration_Strategy]]: Comprehensive strategy for porting the C++ physics equations into a native Python tool.
 
