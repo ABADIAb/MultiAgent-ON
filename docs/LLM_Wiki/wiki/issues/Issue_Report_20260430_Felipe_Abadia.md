@@ -27,14 +27,14 @@ Exploration
 #### Solved Issue 1
 
 - Original issue: The repository had no clear separation between AI assistant configuration, application code, documentation, and tests. Everything was in the root directory.
-- What was tried: Discussed architectural patterns (Screaming Architecture, src/ layout) and the role of `.agent/` vs `src/`.
-- Resolution / outcome: Restructured the entire repo into `src/`, `docs/`, `.agent/`, and `tests/`. Moved `LLM_Wiki` into `docs/`, split `AGENTS.md` into persona + modular skills.
+- What was tried: Discussed architectural patterns (Screaming Architecture, src/ layout) and the role of `.agents/` vs `src/`.
+- Resolution / outcome: Restructured the entire repo into `src/`, `docs/`, `.agents/`, and `tests/`. Moved `LLM_Wiki` into `docs/`, split `AGENTS.md` into persona + modular skills.
 
 #### Solved Issue 2
 
 - Original issue: Risk of confusing the AI assistant's own skills/tools with the LangGraph tools being built for the optical network system.
 - What was tried: Discussed the semantic difference and physical separation of both toolsets.
-- Resolution / outcome: AI assistant skills live in `.agent/skills/`. Application tools for the multi-agent system will live in `src/tools/`. The old `Skills.md` was renamed to `Tool_Registry.md` and moved into the wiki under `architecture/`.
+- Resolution / outcome: AI assistant skills live in `.agents/skills/`. Application tools for the multi-agent system will live in `src/tools/`. The old `Skills.md` was renamed to `Tool_Registry.md` and moved into the wiki under `architecture/`.
 
 ---
 

@@ -6,9 +6,10 @@
 
 | Trigger | Skill | Path |
 |---------|-------|------|
-| `docs/LLM_Wiki`, `ingest` | `wiki-protocol` | `/home/felipeab/MultiAgentON/.agent/skills/wiki-protocol/SKILL.md` |
-| `langgraph`, `src/graph.py` | `langgraph-expert` | `/home/felipeab/MultiAgentON/.agent/skills/langgraph-expert/SKILL.md` |
-| `extract pdf`, `ingest pdf` | `pdf-ingest` | `/home/felipeab/MultiAgentON/.agent/skills/pdf-ingest/SKILL.md` |
+| `docs/LLM_Wiki`, `ingest` | `wiki-protocol` | `/home/felipeab/MultiAgentON/.agents/skills/wiki-protocol/SKILL.md` |
+| `langgraph`, `src/graph.py` | `langgraph-expert` | `/home/felipeab/MultiAgentON/.agents/skills/langgraph-expert/SKILL.md` |
+| `extract pdf`, `ingest pdf` | `pdf-ingest` | `/home/felipeab/MultiAgentON/.agents/skills/pdf-ingest/SKILL.md` |
+| `presentation`, `slides`, `powerpoint` | `presentation-designer` | `/home/felipeab/MultiAgentON/.agents/skills/presentation-designer/SKILL.md` |
 
 ## Compact Rules
 
@@ -27,9 +28,13 @@
 - Save `.md` in the same directory as source PDF.
 - NEVER delete the source PDF.
 
+### presentation-designer
+- Use `---` for slide separators.
+- Keep content scannable (no long paragraphs).
+- Use `> [!LAYOUT]` blockquotes for visual distribution suggestions.
+- Use HTML comments `<!-- Speaker Notes: ... -->` for presenter notes.
+
 ## Project Conventions
 
 | File | Path | Notes |
 |------|------|-------|
-| `AGENTS.md` | `.agent/AGENTS.md` | Core Persona & Protocols |
-| `SKILLS.md` | `.agent/SKILLS.md` | Technical Skills Catalog |

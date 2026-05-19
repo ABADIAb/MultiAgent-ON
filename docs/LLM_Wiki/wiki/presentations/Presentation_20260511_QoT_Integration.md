@@ -28,19 +28,19 @@ status: active
 ---
 
 ## Slide 3: Integration Strategy: The Python Port
-- **Implementation:** Create `[[tools_wiki/QoT_Tool|src/tools/qot_tool.py]]` as a native LangGraph `@tool`.
+- **Implementation:** Create `[[tools_wiki/QoT_Tool|src/tools/qot_tool.py]]` as a native LangGraph `@tool` (ECOC 2024 JSON schemas mapped).
 - **Interaction Flow:**
   1. Routing Agent proposes a path.
-  2. Orchestrator fetches current Testbed topology (fiber lengths, OA locations).
-  3. Python Tool calculates SNR/Power in milliseconds.
-  4. Agent receives numeric data to validate or refine the route.
+  2. **TopologyAgent** dynamically fetches RESTConf payloads and updates the **Knowledge Graph** (Digital Twin).
+  3. Python Physics Tool queries the Graph and calculates SNR/Power in milliseconds.
+  4. Agent receives numeric data (or triggers a Fast Loop on failure) to validate/refine the route.
 
 ---
 
 ## Slide 4: Critical Questions for the Lab
-1. **Topology Extraction:** How do we pull real-time fiber lengths and OA locations from the testbed (REST API vs. Static Config)?
-2. **Hardware Constants:** Are the constants in `Network.cpp` (losses, attenuation) static for the lab hardware?
-3. **Verification Baseline:** Can we establish a "known-good" scenario to validate the Python math against the original C++ results?
+1. **Topology Extraction [RESOLVED]:** We will pull real-time fiber lengths and OA locations using RESTConf NBI `GET` requests to maintain our Graph.
+2. **Hardware Constants:** Are the constants in `Network.cpp` (losses, attenuation) static for the lab hardware, and can we map them to the `measurement_schema.json`?
+3. **Verification Baseline:** Can we get a RESTConf JSON payload dump of an active, verified service in the testbed to validate the Python math against the original C++ results?
 
 ---
 

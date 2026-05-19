@@ -84,7 +84,7 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 
 ## [2026-05-08] debrief | Skills Infrastructure Session
 - Wiki Lint: Verified all 13 pages (metadata + links clean).
-- Action: Created `.agent/SKILLS.md` and linked it from `AGENTS.md`.
+- Action: Created `.agents/SKILLS.md` and linked it from `AGENTS.md`.
 - Feature: Implemented `pdf-ingest` skill with `pymupdf4llm` motor.
 - GitHub: Opened Issue #5 and PR #6 for the new infrastructure.
 - Engram session summary saved.
@@ -122,4 +122,15 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 ## [2026-05-17] debrief2 | Orchestrator Architecture V2 Session
 - Wiki Deep Lint: Added YAML frontmatter to `OrchestratorScriptReport.md`. Embedded `[[wikilinks]]` across 4 files (`OrchestratorScriptReport`, `Proposal_Orchestrator_Integration`, `Presentation_20260519_Orchestrator_Architecture`, `Weekly_Report_20260519`). Updated `index.md` with 3 new entries (Literature, Experiments, Presentations).
 - Session focus: Analyzed the professor's orchestrator codebase, designed the V2 LangGraph architecture with dual-role Hybrid Memory, resolved Topology Extraction via RESTConf, and generated formal proposal + presentation for professor review.
+- Engram session summary saved.
+
+## [2026-05-18] lint | QoT Integration Strategy Refinement
+- Updated: `docs/LLM_Wiki/wiki/experiments/QoT_Integration_Strategy.md` and `docs/LLM_Wiki/wiki/experiments/Proposal_QoT_Integration.md`
+- Action: Refined the QoT integration strategy and professor proposal to align with the ECOC 2024 RESTConf dynamic topology extraction and structured schemas. Defined the single source of truth for physical topology via the Topology Agent updating the Knowledge Graph, aligned qot_tool schemas with controller lightpath schemas, and added Fast Loop error feedback logic for path recalculation.
+
+## [2026-05-18] debrief | Unified Presentation & Skills Standardization
+- Wiki Deep Lint: Embedded `[[wikilinks]]` to `OrchestratorScriptReport`, `Hybrid_Memory_Architecture`, `QoT_Tool` across the new unified presentation. Added `Presentation_20260519_QoT_&_Orchestrator_Integration` to `index.md`.
+- Presentations: Created unified `Presentation_20260519_QoT_&_Orchestrator_Integration.md` combining Orchestrator V2 and QoT physics port. Updated slides 3-4 of `Presentation_20260511_QoT_Integration.md` with RESTConf topology resolution.
+- Skills: Created `presentation-designer` skill. Optimized `wiki-protocol` and `langgraph-expert` skills to `skill-creator` standard. Migrated `SKILLS.md` content to `.atl/skill-registry.md` and deleted the duplicate.
+- Config: Refactored `AGENTS.md` into a clean System Prompt block. Renamed `.agent/` to `.agents/` and updated all references across the wiki.
 - Engram session summary saved.
