@@ -27,6 +27,7 @@ Specifically, I propose extracting the mathematical equations from the **Gaussia
 
 ### Why this path?
 *   **Strategic Rewrite:** We are NOT rewriting the Genetic Algorithm or the optimization logic. We are only porting the physics equations. This gives the agent an "in-memory" calculator to validate its own routing decisions instantly.
+*   **Decoupled & Dynamic Data:** Instead of using hardcoded files, this Python utility will read the physical network topology dynamically from the shared **Knowledge Graph (Pillar 2 of our Hybrid Memory)**, which is kept up-to-date in real-time by a dedicated **Topology Agent** executing RESTConf NBI GET queries.
 *   **Performance:** The agent can evaluate a path in milliseconds without spawning subprocesses or reading/writing temporary files.
 *   **Direct Feedback:** The Python tool will return a structured dictionary: `{"feasible": bool, "snr": float, "power": float, "cost": float}`, giving the agent the full context it needs.
 
@@ -34,16 +35,16 @@ Specifically, I propose extracting the mathematical equations from the **Gaussia
 We could still proceed with a **Subprocess Wrapper** (compiling the C++ code and calling it via Python). This would ensure 100% fidelity to the original code but would keep the system slow and dependent on external binary execution. I am open to your recommendation if you believe the complexity of the C++ logic makes a Python port risky.
 
 ## 4. Proposed Implementation Steps
-1.  **Topology Mapping:** Define a `topology.json` representing the testbed (span lengths and OA locations).
-2.  **Logic Port:** Translate the SNR/Power equations from C++ to Python.
-3.  **Validation:** Run the same path through both the original C++ simulator and the new Python tool to ensure the results match.
-4.  **Integration:** Bind the tool to the LangGraph Routing Agent.
+1.  **Topology Mapping via Knowledge Graph:** The **Topology Agent** parses RESTConf NBI payloads and dynamically populates the shared digital twin in our **Knowledge Graph (Pillar 2)**, eliminating static files.
+2.  **Logic Port:** Translate the SNR/Power equations of the Gaussian Noise (GN) model from C++ to Python.
+3.  **Validation & Unit Tests:** Run the same routing path through both the original C++ simulator and the new Python tool to ensure the results match.
+4.  **Integration & Fast Loop:** Bind the tool as a deterministic LangGraph `@tool` and implement the Fast Loop routing logic to allow self-correction on SNR failure.
 
 ## 5. Technical Questions for Guidance
 To ensure the accuracy of the Python model, I have a few questions regarding the testbed configuration:
-1.  **Topology Extraction:** What is the best way to extract the real-time fiber lengths (km) and amplifier locations from the lab environment (API, JSON config, etc.)?
-2.  **Hardware Constants:** Are the physical constants in the C++ code (e.g., `filter_loss_dB = 6`, `connector_loss_dB`, `att_coeff_dB_km`) static for the current testbed setup?
-3.  **Gold Standard Scenario:** Could you provide a "known good" scenario (e.g., a specific path that should yield a specific SNR) so I can validate my Python implementation against your established results?
+1.  **Topology Extraction [RESOLVED]:** We will dynamically extract fiber lengths (km), amplifier locations, and span characteristics directly from the controller's NBI via our newly designed `TopologyAgent` to populate the `Knowledge Graph`.
+2.  **Hardware Constants:** Are the physical constants in the C++ code (e.g., `filter_loss_dB = 6`, `connector_loss_dB`, `att_coeff_dB_km`) static for the current testbed hardware (and can we map them to the `measurement_schema.json` context), or do we need to query them dynamically as well?
+3.  **Gold Standard Scenario:** Could you provide a RESTConf JSON payload dump of an active, verified service in the testbed, along with its measured SNR? This will allow me to write a rigorous unit-test for the Python math port to guarantee it perfectly matches the laboratory's active calibration.
 
 Thank you for your time and support in refining this architecture.
 

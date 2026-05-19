@@ -32,8 +32,8 @@ We evaluated three potential integration options. We selected **Option 2** as th
 ## 3. Step-by-Step Integration Guide
 
 ### Step 1: Extracting Network Topology (The Digital Twin Link)
-Instead of relying on static C++ `.dat` files, our Python tool needs to read the current state of the network (nodes, fiber span lengths in km, and optical amplifier locations).
-- **Implementation:** We will extract this information from the Testbed or Digital Twin. For prototyping, we will use a static `topology.json` file. When the real testbed is connected, we will use REST API calls or NETCONF/YANG to dynamically pull the topology state.
+Instead of relying on static C++ `.dat` files or direct API requests from the math port, our Python tool will read from a shared digital twin representation.
+- **Implementation:** The orchestrator's **Topology Agent** will dynamically fetch physical testbed data (fiber spans, EDFA locations, and active channels) from the controller's NBI via **RESTConf API (GET)**. This data is mapped to update our shared **Knowledge Graph (Pillar 2)** in real-time. The **QoT Physics Agent** then queries the Knowledge Graph to extract the topology parameters, ensuring perfect decoupling and a live network model.
 
 ### Step 2: Porting the Physics Engine
 We will extract the Gaussian Noise (GN) model calculations from `Network.cpp`.
@@ -41,20 +41,20 @@ We will extract the Gaussian Noise (GN) model calculations from `Network.cpp`.
 - **Goal:** Translate the attenuation, ASE noise, and NLI noise equations into a standalone Python utility.
 
 ### Step 3: Defining the Tool Schema
-We will create `[[tools_wiki/QoT_Tool|src/tools/qot_tool.py]]`.
+We will create `[[tools_wiki/QoT_Tool|src/tools/qot_tool.py]]` aligned with the ECOC 2024 RESTConf schemas (`lightpath_schema.json` and `measurement_schema.json`):
 - **Inputs Required:** 
-  - `path` (list of nodes in the proposed route)
-  - `span_lengths` (list of fiber lengths in km between the nodes)
-  - `amplifier_locations` (list of active OAs on those spans)
+  - `service_id` (string): The identifier of the lightpath request.
+  - `route_nodes` (list of node names representing the path): Aligns with `lightpath_schema.json` route definitions.
+  - `channel_id` (string/int): The wavelength or channel index being evaluated.
 - **Outputs Returned to Agent:**
   - `snr_db` (float): The final Signal-to-Noise ratio.
   - `receiver_power_dbm` (float): The final power level at the destination.
-  - `feasible` (boolean): `True` if `snr_db > threshold` and `receiver_power_dbm > -18 dBm`.
+  - `feasible` (boolean): `True` if `snr_db > threshold` and `receiver_power_dbm > receiver_power_min`.
 
 *Note: Providing the numeric SNR and Power values allows the LLM to understand "how close" it is to the threshold, enabling it to reason and optimize its next routing attempt.*
 
-### Step 4: Binding to the Orchestrator
-The tool will be decorated with LangChain's `@tool` and added to the [[Tool_Registry]], making it deterministically available to the Routing Agent.
+### Step 4: Binding to the Orchestrator & Fast Loop Error Handling
+The tool will be decorated with LangChain's `@tool` and added to the [[Tool_Registry]]. If the QoT feasibility check fails (`feasible: False`), the agent returns specific physical bottlenecks (e.g., `"Span 3 SNR degraded below 12dB"`) alongside the metrics. This output is captured by the LangGraph supervisor node, triggering a **conditional routing edge (the Fast Loop)** to automatically recalculate the path or adjust launch power.
 
 ---
 
@@ -62,6 +62,6 @@ The tool will be decorated with LangChain's `@tool` and added to the [[Tool_Regi
 
 Before writing the Python port, we need clarification on the physical environment. Please discuss the following with your professor or lab assistants:
 
-1. **Testbed Data Access:** "To feed the python tool, how exactly will we extract the real-time fiber lengths (km) and optical amplifier (OA) locations from the testbed? Is there a REST API, a configuration JSON, or a NETCONF interface we can query?"
-2. **Model Constants:** "In `Network.cpp`, there are several constants (e.g., `filter_loss_dB = 6`, `connector_loss_dB`, `att_coeff_dB_km`). Are these constants fixed for the testbed hardware, or do we need to query them dynamically as well?"
-3. **Verification Baseline:** "Can you provide a simple, known-good scenario? For example, 'A path from Node 1 to Node 2 of 50km with one amplifier should yield an SNR of exactly X and a Power of Y'. This will allow me to unit-test my Python math port and guarantee it matches the C++ calculations perfectly."
+1. **Testbed Data Access [RESOLVED]:** We will use the RESTConf Northbound Interface (NBI) of the controller to dynamically query active network topology via the `TopologyAgent` and construct our `Knowledge Graph` digital twin.
+2. **Model Constants:** "In `Network.cpp`, there are several constants (e.g., `filter_loss_dB = 6`, `connector_loss_dB`, `att_coeff_dB_km`). Are these constants fixed for the testbed hardware (and can we map them to the `measurement_schema.json` context), or do we need to query them dynamically as well?"
+3. **Verification Baseline:** "Could you provide a RESTConf JSON payload dump of an active, verified service in the testbed, along with its measured SNR? This will allow me to write a rigorous unit-test for the Python math port to guarantee it perfectly matches the laboratory's active calibration."
