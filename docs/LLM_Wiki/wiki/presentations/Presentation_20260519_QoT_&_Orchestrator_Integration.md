@@ -75,26 +75,94 @@ One of our biggest open questions was how to extract physical topology. The ECOC
 > Two-column layout. Left: Bullet points explaining the physics port. Right: A code snippet or a visual representation of `qot_tool.py`.
 
 - **The Challenge:** The provided `Code_for_Felipe` is a heavy C++ Genetic Algorithm solver. Spawning subprocesses for every path evaluation is too slow.
-- **The Pivot (Python Port):** We are extracting the core Gaussian Noise (GN) math into a native LangGraph tool ([[tools_wiki/QoT_Tool|qot_tool.py]]).
-- **Data Source:** The tool reads topology directly from the **Knowledge Graph**, not from the testbed.
-- **Output:** Returns numeric SNR and Power in milliseconds directly to the agent's context.
+- **The Pivot (Python Port):** We are extracting the core Gaussian Noise (GN) math from `Network.cpp` into a native LangGraph tool ([[tools_wiki/QoT_Tool|qot_tool.py]]).
+- **Mapped Physics Functions:**
+  - `calculateDemandSNR`: Computes the end-to-end signal-to-noise ratio for a specific lightpath request.
+  - `calculatePropagatedSNR`: Models the accumulation of linear and nonlinear noise across successive spans.
+  - `spanSNR`: Evaluates the physical impairment contributions (ASE and NLI) per individual fiber/amplifier span.
+- **Data Source:** The tool queries topology directly from the in-memory **Knowledge Graph**, not from static files.
+- **Output:** Returns numeric SNR and Power in milliseconds directly to the agent's execution context.
 
 <!-- Speaker Notes: 
-With the digital twin established in our Knowledge Graph, the QoT validation becomes elegant. Instead of wrapping the heavy C++ optimization binary, we are porting just the core physics math to Python. This tool reads the topology from our graph and calculates the SNR in milliseconds, returning actionable numeric data to the LLM.
+With the digital twin established in our Knowledge Graph, the QoT validation becomes elegant. Instead of wrapping the heavy C++ optimization binary, we are porting just the core physics functions—calculateDemandSNR, calculatePropagatedSNR, and spanSNR—to Python. This tool reads the topology from our graph and calculates the SNR in milliseconds, returning actionable numeric data to the LLM.
 -->
 
 ---
 
-## Slide 5: The Fast Loop (Error Recovery)
+## Slide 5: Comprehensive Orchestration Architecture
+
+> [!LAYOUT]
+> Full slide Mermaid Diagram representing the global multi-agent orchestrator architecture.
+
+```mermaid
+graph TD
+    %% Define Nodes
+    UserIntent[User Intent / Prompt]
+    Memory[(Hybrid Memory<br>Wiki, Graph, RAG)]
+    MemoryPath[(Hybrid Memory)]
+    Supervisor(Supervisor Node<br><i>Replaces planning.py</i>)
+    HITL{Human-in-the-Loop<br>Approve Plan?}
+    
+    %% Sub-Agents
+    LightpathAgent(Lightpath Agent<br><i>Replaces execution.py</i>)
+    RoutingAgent(Routing Agent<br><i>uses qot_tool.py</i>)
+    TopologyAgent(Topology Agent<br><i>RESTConf NBI</i>)
+    
+    %% Tools / State
+    State[LangGraph Shared State<br>Task List & SLA Matrix]
+    Testbed[SDON Testbed API<br>RESTConf]
+    
+    %% Flow
+    UserIntent -->|1. Request| Supervisor
+    Memory -.->|Inject Schemas/Rules| Supervisor
+    Supervisor -->|2. Generate Task List| HITL
+    
+    HITL -- No --> UserIntent
+    HITL -- Yes --> State
+    
+    State -->|3. Route Tasks| TopologyAgent
+    TopologyAgent -->|Write Live Topology| Memory
+    Testbed -.->|RESTConf JSON Telemetry| TopologyAgent
+    TopologyAgent -.->|GET Requests| Testbed
+    
+    State -->|4. Route Tasks| RoutingAgent
+    MemoryPath -.->|Graph Read for Path/QoT| RoutingAgent
+    RoutingAgent -.->|Validate Feasibility| State
+    
+    State -->|5. Route Tasks| LightpathAgent
+    LightpathAgent -->|6. Final JSON Payload| Testbed
+    LightpathAgent -.->|Query RAG on Exception| Memory
+    
+    %% Styling
+    classDef node fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef testbed fill:#ffcc00,stroke:#333,stroke-width:2px;
+    classDef state fill:#4287f5,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef memory fill:#8fce00,stroke:#333,stroke-width:2px,color:#fff;
+    classDef hitl fill:#ff9999,stroke:#333,stroke-width:2px;
+    
+    class Testbed testbed;
+    class State state;
+    class Memory memory;
+    class MemoryPath memory;
+    class HITL hitl;
+```
+
+<!-- Speaker Notes: 
+This slide presents our complete, end-to-end multi-agent orchestration architecture. It starts with user intent being processed by a Supervisor Node that replaces the baseline planning script. After Human-in-the-Loop approval, tasks are written to the shared state and routed to our three specialized sub-agents: the Topology Agent to keep our memory synchronized, the Routing Agent with our native python QoT tool for fast path validation, and finally the Lightpath Agent to generate and push the RESTConf payload.
+-->
+
+---
+
+## Slide 6: The Fast Loop (Error Recovery)
 
 > [!LAYOUT]
 > Full slide Mermaid Diagram. You can render the Mermaid diagram directly or screenshot it.
 
 ```mermaid
 graph TD
-    RoutingAgent[Routing Agent] -->|Proposes Path| QoTAgent(QoT Physics Tool)
-    QoTAgent -->|Checks Graph| KnowledgeGraph[(Knowledge Graph)]
-    QoTAgent -->|Calculates SNR| Feasibility{Feasible?}
+    RoutingAgent[Routing Agent] -->|Proposes Path| QoTTool(QoT Physics Tool)
+    QoTTool -->|Checks Graph| KnowledgeGraph[(Knowledge Graph)]
+    QoTTool -->|Calculates SNR| Feasibility{Feasible?}
     Feasibility -- Yes --> Exec[Lightpath Agent]
     Feasibility -- No (Returns Error & Metrics) --> RoutingAgent
     
@@ -108,7 +176,7 @@ This brings us to the Fast Loop. When an agent proposes a route, the QoT tool ca
 
 ---
 
-## Slide 6: Next Steps & Lab Questions
+## Slide 7: Next Steps & Lab Questions
 
 > [!LAYOUT]
 > Standard bullet points.

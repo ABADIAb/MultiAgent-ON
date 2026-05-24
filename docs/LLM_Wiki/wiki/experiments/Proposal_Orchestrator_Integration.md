@@ -55,11 +55,11 @@ The Orchestrator relies on a tri-partite memory system (Wiki, Graph, RAG) that p
 ### 5.3 Phase 2: Sub-Agent Delegation (Replaces `execution.py`)
 The Supervisor delegates tasks to ephemeral, specialized sub-agents. Alongside the initial schemas they receive, agents maintain dynamic access to the memory:
 - **Topology & Measurement Agent**: Queries the RESTConf NBI to extract physical testbed data (fiber lengths, OAs) and actively **updates the Knowledge Graph state**.
-- **QoT Assessment Agent**: Wraps the newly ported Python Physics model (`qot_tool.py`, see [[experiments/Proposal_QoT_Integration]]). It calculates [[QoT_Awareness|SNR]] and feasibility *before* any routing payload is generated.
+- **Routing Agent**: Responsible for path selection. It directly wraps the newly ported Python Physics model (`qot_tool.py`, see [[experiments/Proposal_QoT_Integration]]) as a deterministic tool. This ensures mathematical [[QoT_Awareness|SNR]] validation in milliseconds *before* any payload is generated, minimizing Goal-Oriented Task (GoT) cost and latency by bypassing LLM semantic processing for physical calculations.
 - **Lightpath & Provisioning Agent**: Generates the exact RESTConf JSON payloads using the imported baseline schemas to establish valid connections.
 
 ### 5.4 Phase 3: Conflict Resolution & The "Fast Loop" Handoff
-- **Iterative Feedback**: If the SDON Testbed returns a REST error (e.g., "ID already taken", mimicking the paper's Step 3) or if the QoT Agent flags an infeasible path, a **Conditional Edge** routes the graph back to the responsible agent for self-correction.
+- **Iterative Feedback**: If the SDON Testbed returns a REST error (e.g., "ID already taken", mimicking the paper's Step 3) or if the Routing Agent's QoT tool flags an infeasible path, a **Conditional Edge** routes the graph back to the responsible agent for self-correction.
 - **Episodic Fallback (Dynamic RAG Access)**: During self-correction, if a standard fix isn't obvious, the agent dynamically **queries the Vector RAG** with the error context to fetch the correct historical workaround.
 - **Execution**: Once the multi-agent graph resolves all constraints, the Orchestrator pushes the final valid API payload down to the SDN Controller (The Fast Loop).
 
@@ -75,7 +75,7 @@ graph TD
     
     %% Sub-Agents
     LightpathAgent(Lightpath Agent<br><i>Replaces execution.py</i>)
-    QoTAgent(QoT Physics Agent<br><i>qot_tool.py</i>)
+    RoutingAgent(Routing Agent<br><i>uses qot_tool.py</i>)
     TopologyAgent(Topology Agent<br><i>RESTConf NBI</i>)
     
     %% Tools / State
@@ -91,11 +91,13 @@ graph TD
     HITL -- Yes --> State
     
     State -->|3. Route Tasks| TopologyAgent
-    TopologyAgent -.->|Update Graph State| Memory
-    TopologyAgent -.->|Fetch Topo Data| Testbed
+    TopologyAgent -->|Write Live Topology| Memory
+    Testbed -.->|RESTConf JSON Telemetry| TopologyAgent
+    TopologyAgent -.->|GET Requests| Testbed
     
-    State -->|4. Route Tasks| QoTAgent
-    QoTAgent -.->|Validate Feasibility| State
+    State -->|4. Route Tasks| RoutingAgent
+    Memory -.->|Graph Read for Path/QoT| RoutingAgent
+    RoutingAgent -.->|Validate Feasibility| State
     
     State -->|5. Route Tasks| LightpathAgent
     LightpathAgent -->|6. Final JSON Payload| Testbed

@@ -22,3 +22,12 @@ The quantifiable computational and operational overhead incurred by a Large Lang
 
 ### 5. TSR (Task Success Rate)
 A deterministic evaluation metric utilized to benchmark the efficacy of LLM-driven Intent-Based Networking systems. It quantifies the ratio of natural language intents that are autonomously and accurately parsed, translated into valid optical network configurations, and successfully provisioned without violating physical layer constraints or SLA parameters.
+
+### 6. NBI (Northbound Interface)
+An application programming interface (API) that exposes the logical control and state abstraction of a Software-Defined Optical Networking (SDON) controller to higher-level application layers, orchestrators, or autonomous multi-agent systems. The NBI abstracts low-level hardware configurations and Southbound Interface (SBI) protocols, enabling top-level orchestration systems to dynamically query physical network topologies, retrieve telemetry data, and request the provisioning of end-to-end lightpaths.
+
+### 7. RESTConf
+An HTTP-based network management protocol (defined in RFC 8040) designed to provide a programmatic web-based interface for accessing, manipulating, and configuring network devices and controllers. RESTConf uses standard HTTP operations (such as GET, POST, PUT, and DELETE) to transmit structured configuration and state data encoded in JSON or XML, mapped directly to underlying YANG data models. In autonomous optical orchestration, RESTConf serves as the standard interface for retrieving real-time network states and provisioning service intents.
+
+### 8. Baseline Reference System
+The standard comparative reference architecture or preexisting software implementation against which a new system's performance, scalability, and capability are evaluated. In this work, the baseline refers to the ECOC 2024 procedural LLM-based orchestrator, which utilizes static, stateless scripts and constrained generation to execute network management tasks. The proposed Multi-Agent System (MAS) builds upon this baseline by introducing stateful graph structures, hybrid memory architectures, and cyclical reasoning loops.
