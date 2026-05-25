@@ -134,3 +134,18 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Skills: Created `presentation-designer` skill. Optimized `wiki-protocol` and `langgraph-expert` skills to `skill-creator` standard. Migrated `SKILLS.md` content to `.atl/skill-registry.md` and deleted the duplicate.
 - Config: Refactored `AGENTS.md` into a clean System Prompt block. Renamed `.agent/` to `.agents/` and updated all references across the wiki.
 - Engram session summary saved.
+
+## [2026-05-25] lint | Agenda Maintenance & SOTA Inclusion
+- Agenda: Added YAML frontmatter block to `docs/LLM_Wiki/wiki/experiments/agenda.md` to guarantee Wiki Protocol metadata compliance.
+- SOTA Task: Spotted Prof. Qiaolun's request in the transcript for a comparison table/slides (at minutes 8:19 and 39:33) and formally added it to the development agenda under a dedicated section.
+- Indexing: Added a catalog entry for `[[experiments/agenda]]` under the Experiments section in `docs/LLM_Wiki/index.md`.
+
+## [2026-05-25] debrief | LangGraph Scaffolding & Post-Meeting Planning Session
+- Wiki Deep Lint: Embedded `[[wikilinks]]` across 4 files:
+  - `QoT_Integration_Architecture.md`: Added links to `[[LangGraph_Orchestrator_V2]]`, `[[QoT_Awareness]]`, `[[tools_wiki/QoT_Tool]]`, `[[Tool_Registry]]`.
+  - `LangGraph_Orchestrator_V2.md`: Added links to `[[literature/OrchestratorScriptReport]]`, `[[QoT_Integration_Architecture]]`, `[[QoT_Awareness]]`, `[[Tool_Registry]]`.
+  - `Tool_Registry.md`: Linked `[[QoT_Integration_Architecture]]` (was plain text).
+  - `agenda.md`: Added links to `[[tools_wiki/QoT_Tool]]`, `[[LangGraph_Orchestrator_V2]]`, `[[literature/OrchestratorScriptReport]]`, `[[Tool_Registry]]`.
+- Index: Added 6 new entries (2 architecture docs, 1 weekly report, 1 issue report, 1 transcript, V1 archived). Fixed issue report summary after fiber hardware removal.
+- Reports: Created `Weekly_Report_20260526_Felipe_Abadia.md` and `Issue_Report_20260525_Felipe_Abadia.md`. Solved 2 issues (LangGraph scaffolding, Orchestrator review). 2 pending (SSH access, SOTA comparison).
+- Session focus: Ingested May 19 meeting transcript, scaffolded the full LangGraph StateGraph (`state.py`, `graph.py`, 4 mock agents) with passing tests, created V2 architecture docs, formalized the development agenda with SOTA comparison and intent examples tasks, and produced formal weekly/issue reports.

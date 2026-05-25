@@ -14,13 +14,17 @@ This document serves as the registry for the modular capabilities ("Skills") int
 
 ### A. Quality of Transmission (QoT) Estimator
 - **Detailed Documentation:** [[tools_wiki/QoT_Tool]]
-- **Status:** Pending Integration (Strategy designed in `experiments/QoT_Integration_Strategy.md`)
+- **Status:** Development Phase (Architecture defined in [[QoT_Integration_Architecture]])
 - **Description:** A deterministic tool (pure Python port of the GN model physics) to validate the feasibility of generated light paths across the optical network.
-- **Agent Assigned:** Routing Agent / Orchestrator
+- **Agent Assigned:** Routing Agent
+
+### B. RESTConf Topology Fetcher
+- **Detailed Documentation:** TBD
+- **Status:** Pending Implementation
+- **Description:** A tool to execute GET requests via the RESTConf Northbound Interface (NBI) to dynamically extract the testbed topology and update the Knowledge Graph.
+- **Agent Assigned:** Topology Agent
 
 ## 2. Pending Skills to Implement
-
-- [ ] `fetch_topology`: A skill to retrieve the current state of the optical network test-bed.
 - [ ] `schedule_compute`: A skill to interface with the compute nodes to allocate processing tasks.
 - [ ] `github_sync`: A skill to automatically push updates or read from the Git repository.
 
