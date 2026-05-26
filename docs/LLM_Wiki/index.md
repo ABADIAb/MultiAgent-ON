@@ -9,8 +9,9 @@ Content-oriented catalog of everything in the wiki.
 - [[Research_Plan_MultiAgentON]]: Literature review plan for the thesis.
 
 ## Architecture
-- [[Architecture_Workflow_20260427_Felipe_Abadia]]: V2 LangGraph implementation workflow.
+- [[ArchitectureV2]]: V2 LangGraph implementation workflow.
 - [[Hybrid_Memory_Architecture]]: Tri-partite memory architecture (Wiki + Graph + RAG).
+- [[QoT_Physics_Port]]: Pure Python physics port integration.
 - [[Tool_Registry]]: Registry of deterministic tools/skills for the optical network.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
@@ -37,13 +38,17 @@ Content-oriented catalog of everything in the wiki.
 - [[Presentation_20260430_DevEnvironment]]: Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
 
 ## Transcriptions
+- [[Transcript_20260519_Orchestrator&QoT_ArchitectureV2]]: Meeting with team presenting Orchestrator V2 architecture and QoT physics port proposals.
 - [[Transcript_20260505_QoT-Script]]: Meeting with Aryanaz explaining the QoT tool repo structure and SNR/Power functions.
 - [[Transcript_20260423_QoT-Meeting]]: Meeting with Aryanaz and Qiaolun about QoT feasibility tool and GN model.
 
 ## Experiments
-- [[experiments/Proposal_Orchestrator_Integration]]: Formal proposal for modernizing the ECOC 2024 orchestrator into a LangGraph Multi-Agent architecture.
-- [[experiments/Proposal_QoT_Integration]]: Formal proposal for the Python Physics Port integration.
-- [[QoT_Integration_Strategy]]: Comprehensive strategy for porting the C++ physics equations into a native Python tool.
+- [[experiments/agenda]]: Project agenda and execution plan with implementation tracks.
+
+## Experiments Archive
+- [[experiments/archive/Proposal_Orchestrator_Integration]]: Formal proposal for modernizing the ECOC 2024 orchestrator into a LangGraph Multi-Agent architecture.
+- [[experiments/archive/Proposal_QoT_Integration]]: Formal proposal for the Python Physics Port integration.
+- [[experiments/archive/QoT_Integration_Strategy]]: Comprehensive strategy for porting the C++ physics equations into a native Python tool.
 
 
 ## Thesis Drafts

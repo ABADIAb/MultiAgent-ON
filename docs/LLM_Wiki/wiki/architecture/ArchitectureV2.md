@@ -1,5 +1,5 @@
 ---
-title: "Architecture Workflow (LangGraph)"
+title: "Architecture V2 (LangGraph)"
 date: 2026-04-27
 tags: [architecture, workflow, multi-agent, langgraph]
 status: active
@@ -28,16 +28,18 @@ The Orchestrator avoids solving the placement simultaneously by operating as a *
 
 6. **Supervisor Node Routing:** The Orchestrator reads the SLA matrix and routes the `State` to the necessary specialist node.
 7. **Ephemeral Sub-Agent Nodes:** The Supervisor spawns isolated sub-agents to preserve context window limits. 
-   - **Dynamic Skill Injection:** When spawning a node (e.g., `Optical_Agent_Node`), the Supervisor injects the relevant `Optical_Skill.md` file into the sub-agent's prompt, strictly defining its cognitive scope and granting it access to specific tool schemas retrieved from the Tool-RAG.
+   - **Topology Agent:** Queries the RESTConf NBI to dynamically extract physical testbed data (fiber lengths, OAs) and actively updates the Knowledge Graph state.
+   - **Routing Agent:** Responsible for path selection. Uses the [[QoT_Physics_Port|qot_tool.py]] to deterministically validate [[QoT_Awareness|QoT]] in memory.
+   - **Lightpath Agent:** Generates exact RESTConf JSON payloads to establish valid connections.
 
 ## Phase 4: Tool Nodes & Deterministic Execution
-8. **Deterministic ToolNodes:** Sub-Agents are reasoning engines, not calculators. When the `Optical_Agent_Node` needs to evaluate a path, it formats a JSON payload and triggers a `ToolNode`.
-9. **Execution:** The `ToolNode` executes deterministic Python scripts (e.g., [[Concepts_and_Terminology|Quality of Transmission (QoT)]] calculators, Dijkstra algorithms) against the physical network simulator/controller and returns the physical constraints (e.g., Optical SNR or Delay) back into the LangGraph `State`.
+8. **Deterministic ToolNodes:** Sub-Agents are reasoning engines, not calculators. 
+9. **Execution:** When the **Routing Agent** needs to evaluate a path, it triggers the [[QoT_Physics_Port|QoT Python Physics Port]] (`qot_tool.py`), querying the Knowledge Graph topology and returning physical constraints (e.g., Optical SNR or Delay) back into the LangGraph `State`.
 
 ## Phase 5: State Management & Conflict Resolution
-10. **Conditional Edges:** Conflict resolution is natively handled by LangGraph's routing. If the `Compute_Agent_Node` determines via its `ToolNode` that an edge server lacks the VRAM required for a proposed optical path, it flags a conflict in the shared `State`.
-11. **Iterative Feedback:** A `Conditional Edge` routes the graph back to the `Optical_Agent_Node` with the error context, triggering a re-calculation. This loop iterates until the state condition `is_resolved == True`.
+10. **Conditional Edges:** Conflict resolution is natively handled by LangGraph's routing. If the QoT tool flags a path as infeasible, or the Testbed returns a REST API error, it flags a conflict in the shared `State`.
+11. **Iterative Feedback (Fast Loop):** A `Conditional Edge` routes the graph back to the responsible agent (e.g., **Routing Agent**) with the error context, triggering a self-correction. This loop iterates until the state condition `is_resolved == True`.
 
 ## Phase 6: Fast Loop Handoff
-12. **Final Configuration Tuple:** Once the multi-agent graph resolves all constraints, the Supervisor synthesizes the final optimal configuration tuple: $A^* = (r^*, b^*, c^*)$.
-13. **Execution:** The Orchestrator formats this tuple into a strict API payload and pushes it down to the SDN Controller (The Fast Loop), physically configuring optical switches and VMs.
+12. **Final Configuration Payload:** Once the multi-agent graph resolves all constraints, the system synthesizes the final optimal RESTConf JSON payload.
+13. **Execution:** The **Lightpath Agent** formats this payload and pushes it down to the SDN Controller, physically configuring optical switches and VMs.

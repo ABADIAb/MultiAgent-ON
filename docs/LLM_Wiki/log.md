@@ -134,3 +134,8 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Skills: Created `presentation-designer` skill. Optimized `wiki-protocol` and `langgraph-expert` skills to `skill-creator` standard. Migrated `SKILLS.md` content to `.atl/skill-registry.md` and deleted the duplicate.
 - Config: Refactored `AGENTS.md` into a clean System Prompt block. Renamed `.agent/` to `.agents/` and updated all references across the wiki.
 - Engram session summary saved.
+
+## [2026-05-25] debrief | Wiki Reorganization & Agenda Creation
+- Wiki Deep Lint: Embedded `[[wikilinks]]` across 4 files (`ArchitectureV2`, `QoT_Physics_Port`, `agenda`, `index`). Added cross-references to `QoT_Awareness`, `Hybrid_Memory_Architecture`, `Tool_Registry`, `QoT_Tool`, and `ArchitectureV2`. Added `Transcript_20260519` and `experiments/agenda` entries to `index.md`.
+- Reorganization: Renamed `Architecture_Workflow_20260427_Felipe_Abadia.md` → `ArchitectureV2.md`. Created `QoT_Physics_Port.md`. Moved 3 approved proposals to `experiments/archive/`. Created `experiments/agenda.md` with 3 execution tracks (Documentation, Implementation, Project Management) incorporating team requests from the May 19th meeting.
+- Engram session summary saved.
