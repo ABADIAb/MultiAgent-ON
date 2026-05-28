@@ -38,7 +38,7 @@ We could still proceed with a **Subprocess Wrapper** (compiling the C++ code and
 1.  **Topology Mapping via Knowledge Graph:** The **Topology Agent** parses RESTConf NBI payloads and dynamically populates the shared digital twin in our **Knowledge Graph (Pillar 2)**, eliminating static files.
 2.  **Logic Port:** Translate the SNR/Power equations of the Gaussian Noise (GN) model from C++ to Python.
 3.  **Validation & Unit Tests:** Run the same routing path through both the original C++ simulator and the new Python tool to ensure the results match.
-4.  **Integration & Fast Loop:** Bind the tool as a deterministic LangGraph `@tool` and implement the Fast Loop routing logic to allow self-correction on SNR failure.
+4.  **Integration & Fast Loop:** Bind the tool as a deterministic LangGraph `@tool` and implement the Fast Loop routing logic to allow self-correction on SNR failure. Aligning with baseline schemas (like `lightpath_schema.json` alongside `measurement_schema.json`) ensures automated validation and clean error handling.
 
 ## 5. Technical Questions for Guidance
 To ensure the accuracy of the Python model, I have a few questions regarding the testbed configuration:

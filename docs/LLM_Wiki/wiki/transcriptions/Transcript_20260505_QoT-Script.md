@@ -1,1026 +1,760 @@
-# **LLM thesis weekly meeting-20260505_155023Transcripción de la reunión** 
+---
+title: "QoT-Script Meeting"
+date: 2026-05-05
+tags: [transcription, meeting]
+status: completed
+---
 
-May 5, 2026, 1:50PM 25m 18s 
+# Meeting Transcript: QoT-Script Meeting (2026-05-05)
 
-**==> picture [18 x 17] intentionally omitted <==**
+**Participants:**
+- **Aryanaz Attarpour**
+- **Felipe Abadia Bermeo**
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Context:** Weekly thesis meeting.
 
-**Felipe Abadia Bermeo** started transcription 
+---
 
-**Aryanaz Attarpour** 0:04 
+## Transcript
 
-Any desk doesn't work. 
+**Aryanaz Attarpour** [0:04]:
 
-Eight. Sure. Sun. Okay. It's not working in this way. 
+> Any desk doesn't work.
 
-You don't know value? That's okay. So maybe I can share it here just a second. 
+> Eight. Sure. Sun. Okay. It's not working in this way.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> You don't know value? That's okay. So maybe I can share it here just a second.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [0:28]:
+> Can I?
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [0:29]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So that...
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [0:30]:
 
-**Felipe Abadia Bermeo** 0:28 Can I? 
+> Can I record the? This.
 
-**Aryanaz Attarpour** 0:29 
+**Aryanaz Attarpour** [0:35]:
 
-So that... 
+> It's better to not because I'm going to, but I'm always available if you have any questions. So just tell me, okay? I mean, every day or whenever you have a question, just tell me, I'm going to, I can even.
 
-**Felipe Abadia Bermeo** 0:30 
+**Felipe Abadia Bermeo** [0:35]:
 
-Can I record the? This. 
+> Or not. Oh yeah, yeah, yeah, I, I know. Okay.
 
-**Aryanaz Attarpour** 0:35 
+**Aryanaz Attarpour** [0:54]:
 
-It's better to not because I'm going to, but I'm always available if you have any questions. So just tell me, okay? I mean, every day or whenever you have a question, just tell me, I'm going to, I can even. 
+> call you and have a call and we can go through the code. It's okay.
 
-**Felipe Abadia Bermeo** 0:35 
+**Felipe Abadia Bermeo** [0:58]:
+> Tareef.
 
-Or not. Oh yeah, yeah, yeah, I, I know. Okay. 
+**Aryanaz Attarpour** [1:00]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Um, yeah, and let me see. Chen. How was your weekend? Charles.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [1:30]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Good. I spent the time with my sister. I also had was working, but Friday I didn't do anything.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [1:43]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> I.
 
-## **Aryanaz Attarpour** 0:54 
+> Alright.
 
-call you and have a call and we can go through the code. It's okay. 
+**Felipe Abadia Bermeo** [1:44]:
 
-**Felipe Abadia Bermeo** 0:58 Tareef. 
+> Sunday, Saturday and Sunday I did some research. I it was like investigating.
 
-**Aryanaz Attarpour** 1:00 
+**Aryanaz Attarpour** [1:49]:
 
-Um, yeah, and let me see. Chen. How was your weekend? Charles. 
+> And just. Okay.
 
-**Felipe Abadia Bermeo** 1:30 
+> Okay, I mean, usually on the weekend, you should not work. So, yeah.
 
-Good. I spent the time with my sister. I also had was working, but Friday I didn't do anything. 
+**Felipe Abadia Bermeo** [2:00]:
 
-**Aryanaz Attarpour** 1:43 
+> No, well, it's...
 
-I. 
+**Aryanaz Attarpour** [2:02]:
 
-Alright. 
+> This is the, I'm not a fan of working on the weekends, to be honest, and I thank you. We can do something for us, but sometimes.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [2:14]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yeah, yeah, I understand.
 
-## **Felipe Abadia Bermeo** 1:44 
+**Aryanaz Attarpour** [2:15]:
 
-Sunday, Saturday and Sunday I did some research. I it was like investigating. 
+> I need to work and I don't like to work on weekends, you know.
 
-**Aryanaz Attarpour** 1:49 
+**Felipe Abadia Bermeo** [2:19]:
+> Yeah.
 
-And just. Okay. 
+**Aryanaz Attarpour** [2:22]:
 
-Okay, I mean, usually on the weekend, you should not work. So, yeah. 
+> Yeah, because of that, I'm not very.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> I think people should not work on the weekends, so the whole.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [2:31]:
 
-**Felipe Abadia Bermeo** 2:00 
+> I think the same. I think the same. I don't know why there are people that are work addicted, workaholic, you know, and they, no, I don't know how they do because I need the rest. I need some vacations or something. I want to go to a cruise.
 
-No, well, it's... 
+**Aryanaz Attarpour** [2:33]:
 
-## **Aryanaz Attarpour** 2:02 
+> Yeah, yeah. Yeah, work on. Show.
 
-This is the, I'm not a fan of working on the weekends, to be honest, and I thank you. We can do something for us, but sometimes. 
+> W.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [2:50]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Cruiser, Cruise.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [2:52]:
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [2:53]:
 
-## **Felipe Abadia Bermeo** 2:14 
+> I would like, because I will, I am, I have never been.
 
-Yeah, yeah, I understand. 
+**Aryanaz Attarpour** [2:55]:
+> And.
 
-## **Aryanaz Attarpour** 2:15 
+**Felipe Abadia Bermeo** [2:58]:
 
-I need to work and I don't like to work on weekends, you know. 
+> It would be nice that that that are good vacations.
 
-**Felipe Abadia Bermeo** 2:19 Yeah. 
+**Aryanaz Attarpour** [2:58]:
 
-**Aryanaz Attarpour** 2:22 
+> Mm.
 
-Yeah, because of that, I'm not very. 
+> Yeah, OK, so I managed to... Uh, I managed to, uh... So, can you see my screen?
 
-I think people should not work on the weekends, so the whole. 
+**Felipe Abadia Bermeo** [3:19]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yeah, I can see it.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [3:20]:
 
-## **Felipe Abadia Bermeo** 2:31 
+> Okay, so this is the code. These are these three node test and 12 underline node dot that. They are actually the that files that we use them in a common. They are giving us the topology. So if we look inside, you see that it has the number of the nodes, the unit fibers,
 
-I think the same. I think the same. I don't know why there are people that are work addicted, workaholic, you know, and they, no, I don't know how they do because I need the rest. I need some vacations or something. I want to go to a cruise. 
+> traffics and a set of candidate locations. So all of them are given or the input of the problem.
 
-## **Aryanaz Attarpour** 2:33 
+**Felipe Abadia Bermeo** [3:47]:
+> Mmh.
 
-Yeah, yeah. Yeah, work on. Show. 
+**Aryanaz Attarpour** [3:51]:
 
-W. 
+> Um...
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [3:51]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, so this is those are like the test better, right? Or okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [3:56]:
 
-**Felipe Abadia Bermeo** 2:50 
+> Yes, yes, yes, but virtually, you know, it's a virtual, yeah, yeah, yeah, hard coded,
 
-Cruiser, Cruise. 
+> exactly. So that I consider that I have a three node network, which these three nodes are connected together by a fibers. These fibers are bidirectional, meaning that we have connection from one to two and two to one.
 
-**Aryanaz Attarpour** 2:52 Okay. 
+**Felipe Abadia Bermeo** [3:59]:
+> Yeah, yeah, yeah, hard-coded. Mhm.
 
-**Felipe Abadia Bermeo** 2:53 
+**Aryanaz Attarpour** [4:17]:
 
-I would like, because I will, I am, I have never been. 
+> So we call this bidirectional. And I have a set of requests inside the network, which we assume, for example, from node one to node two, 100 G. From node one to node two, another 100 G, and from node two to node three, 100. So these are the traffic requests.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [4:34]:
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [4:37]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> The other things are not really important, so this is just the source, destination, and... Which rate, and these are the.
 
-**Aryanaz Attarpour** 2:55 And. 
+> optical amplifier locations that we can put. We don't care about them. Okay, so these are just. Okay. So none of them, these classes, you should not look at them.
 
-**Felipe Abadia Bermeo** 2:58 
+**Felipe Abadia Bermeo** [4:54]:
+> OK. Okay.
 
-It would be nice that that that are good vacations. 
+**Aryanaz Attarpour** [5:05]:
+> We just need to go to the network that's CPP.
 
-**Aryanaz Attarpour** 2:58 
+**Felipe Abadia Bermeo** [5:08]:
+> Network of Pain.
 
-Mm. 
+**Aryanaz Attarpour** [5:11]:
 
-Yeah, OK, so I managed to... Uh, I managed to, uh... So, can you see my screen? 
+> So we are going to the network that CPP and we need to go, so here I need to.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Check, let me, it was very null, okay. So what we are going to do here, so we have a function called get paths. This get paths actually calculates the paths.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [5:35]:
+> Huh?
 
-**Felipe Abadia Bermeo** 3:19 
+**Aryanaz Attarpour** [5:39]:
 
-Yeah, I can see it. 
+> Inside the network.
 
-## **Aryanaz Attarpour** 3:20 
+> Okay, you should not look at it because it's based on some OTN boards. Okay.
 
-Okay, so this is the code. These are these three node test and 12 underline node dot that. They are actually the that files that we use them in a common. They are giving us the topology. So if we look inside, you see that it has the number of the nodes, the unit fibers, 
+**Felipe Abadia Bermeo** [5:42]:
 
-traffics and a set of candidate locations. So all of them are given or the input of the problem. 
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> But what do you mean with calculate it?
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [5:49]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> It's like a shortest path, like shortest path or Dijkstra among the graph, the graph that you have. So we consider the topology, the tree node topology, and a tree node graph with edges, and we calculate the shortest paths for traffic requests.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [5:51]:
 
-**Felipe Abadia Bermeo** 3:47 Mmh. 
+> Okay. Yeah.
 
-**Aryanaz Attarpour** 3:51 
+**Aryanaz Attarpour** [6:09]:
+> So, but.
 
-Um... 
+**Felipe Abadia Bermeo** [6:09]:
+> Between 2 given nodes, right?
 
-**Felipe Abadia Bermeo** 3:51 
+**Aryanaz Attarpour** [6:12]:
 
-Okay, so this is those are like the test better, right? Or okay. 
+> Yes.
 
-**Aryanaz Attarpour** 3:56 
+> nodes are given, links are given, connection requests are given, and just we need to calculate the paths, possible paths to route the connection requests inside the network. This get packs is a very complicated get pack. So because it is based on some
 
-Yes, yes, yes, but virtually, you know, it's a virtual, yeah, yeah, yeah, hard coded, 
+**Felipe Abadia Bermeo** [6:20]:
 
-exactly. So that I consider that I have a three node network, which these three nodes are connected together by a fibers. These fibers are bidirectional, meaning that we have connection from one to two and two to one. 
+> Okay. OK.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [6:35]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> OTM boards and grooming, you just do not need to consider them at all.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [6:41]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Yes, I understand.
 
-**Felipe Abadia Bermeo** 3:59 Yeah, yeah, yeah, hard-coded. Mhm. 
+**Aryanaz Attarpour** [6:42]:
 
-**Aryanaz Attarpour** 4:17 
+> Okay, so just don't look at it.
 
-So we call this bidirectional. And I have a set of requests inside the network, which we assume, for example, from node one to node two, 100 G. From node one to node two, another 100 G, and from node two to node three, 100. So these are the traffic requests. 
+> So the main part that you need to look at it is get baseline population function. Okay. So we need to go to the definition. Okay, so this, it is all of them are inside the network that CPP. So what we are doing here, it's just the QOT awareness that I mentioned to you previously. So here we...
 
-**Felipe Abadia Bermeo** 4:34 Okay. 
+**Felipe Abadia Bermeo** [7:14]:
 
-**Aryanaz Attarpour** 4:37 
+> Okay.
 
-The other things are not really important, so this is just the source, destination, and... Which rate, and these are the. 
+**Aryanaz Attarpour** [7:17]:
 
-optical amplifier locations that we can put. We don't care about them. Okay, so these are just. Okay. So none of them, these classes, you should not look at them. 
+> Um...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Put some.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> We calculate some physical layer stuff, like filterless WSS, which again, you do not need to consider them.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [7:32]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Mhm.
 
-**Felipe Abadia Bermeo** 4:54 OK. Okay. 
+**Aryanaz Attarpour** [7:35]:
 
-**Aryanaz Attarpour** 5:05 We just need to go to the network that's CPP. 
+> Okay, so what we are going to do first, let me tell you what is the baseline. So. Wait a second. Okay.
 
-**Felipe Abadia Bermeo** 5:08 Network of Pain. 
+> Oh, okay. This one was not very useful for you. This one I made a mistake. This is the create SNR Aware Minutian oil placement.
 
-**Aryanaz Attarpour** 5:11 
+**Felipe Abadia Bermeo** [7:58]:
 
-So we are going to the network that CPP and we need to go, so here I need to. 
+> Okay.
 
-Check, let me, it was very null, okay. So what we are going to do here, so we have a function called get paths. This get paths actually calculates the paths. 
+**Aryanaz Attarpour** [7:58]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So this function is the main function in your case. So what does this function do? This function goes to this file, which is here, OAGA INFpolimiit underline V3.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [8:11]:
+> Yeah.
 
-**Felipe Abadia Bermeo** 5:35 Huh? 
+**Aryanaz Attarpour** [8:12]:
 
-## **Aryanaz Attarpour** 5:39 
+> Okay, so here we have a set of numbers. So these are the candidate location of optical amplifier. So you know here. Okay, so we had these candidate locations in the input file.
 
-Inside the network. 
+**Felipe Abadia Bermeo** [8:28]:
+> Yeah.
 
-Okay, you should not look at it because it's based on some OTN boards. Okay. 
+**Aryanaz Attarpour** [8:30]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, so for example, here it says 089. It means that we considered optical amplifier number 0, we considered optical amplifier number 8. So these are the IDs.
 
-## **Felipe Abadia Bermeo** 5:42 
+**Felipe Abadia Bermeo** [8:42]:
+> Eight.
 
-Okay. 
+**Aryanaz Attarpour** [8:46]:
 
-But what do you mean with calculate it? 
+> This is the link, this is the kilometer that we put the optical amplifier, and the others we don't, we do not share.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [8:55]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [8:56]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So here it says that, okay, this is my baseline optical amplifier, meaning that I have this optical amplifier deployed in my network.
 
-## **Aryanaz Attarpour** 5:49 
+**Felipe Abadia Bermeo** [9:08]:
+> Mhm.
 
-It's like a shortest path, like shortest path or Dijkstra among the graph, the graph that you have. So we consider the topology, the tree node topology, and a tree node graph with edges, and we calculate the shortest paths for traffic requests. 
+**Aryanaz Attarpour** [9:09]:
+> OK, I have it. OK, now.
 
-**Felipe Abadia Bermeo** 5:51 
+**Felipe Abadia Bermeo** [9:11]:
+> Yeah.
 
-Okay. Yeah. 
+**Aryanaz Attarpour** [9:14]:
 
-**Aryanaz Attarpour** 6:09 So, but. 
+> I need to place it. So, okay, I need to place it. So it goes and reads these numbers to cast to place the optical amplifiers in the simulator. Okay, so it is just doing this here.
 
-**Felipe Abadia Bermeo** 6:09 Between 2 given nodes, right? 
+**Felipe Abadia Bermeo** [9:27]:
+> Yeah.
 
-## **Aryanaz Attarpour** 6:12 
+**Aryanaz Attarpour** [9:34]:
 
-Yes. 
+> Yes, this is just this. Okay, so it just reads the optical amplifier and does this. Okay, it should be...
 
-nodes are given, links are given, connection requests are given, and just we need to calculate the paths, possible paths to route the connection requests inside the network. This get packs is a very complicated get pack. So because it is based on some 
+**Felipe Abadia Bermeo** [9:37]:
+> Okay.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [9:46]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> It's a long time that I didn't work with this code, so...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> S.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Search, that's it.
 
-**Felipe Abadia Bermeo** 6:20 
+> Okay. Yeah, these are reading. It sucks.
 
-Okay. OK. 
+> Just.
 
-**Aryanaz Attarpour** 6:35 
+> Okay, now we come back to the get baseline solution. So these are some physical layer parameters that it's going to check. For example, these are the some losses.
 
-OTM boards and grooming, you just do not need to consider them at all. 
+> Okay, so let me go into the detail. Otherwise, it's hard. So what is the filter less? So inside the optical network, we have some switches that these switches let us to
 
-**Felipe Abadia Bermeo** 6:41 
+> change the vape length. Okay. Sometimes we do not have this. Sometimes we do not have these switches. Sorry, just a second.
 
-Yes, I understand. 
+> Sorry.
 
-## **Aryanaz Attarpour** 6:42 
+> So sometimes we do not have these switches, which we call them filterless. Okay? Here, when you say it says, okay, filterless, these are the things that I'm telling you just because...
 
-Okay, so just don't look at it. 
+**Felipe Abadia Bermeo** [10:55]:
+> Okay.
 
-So the main part that you need to look at it is get baseline population function. Okay. So we need to go to the definition. Okay, so this, it is all of them are inside the network that CPP. So what we are doing here, it's just the QOT awareness that I mentioned to you previously. So here we... 
+**Aryanaz Attarpour** [11:05]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> You have a better view of what are these things means. Otherwise, it's not important things.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [11:09]:
+> Yeah, yeah, yeah.
 
-## **Felipe Abadia Bermeo** 7:14 
+**Aryanaz Attarpour** [11:13]:
 
-Okay. 
+> Um...
 
-## **Aryanaz Attarpour** 7:17 
+> So here filterless is false. When it is false, it means that we do not consider for the as a propagation. What is as a propagation? When you consider the optical amplifiers inside the network, you know that the signal goes to the amplifier and signal is going to be
 
-Um... 
+> somehow amplified. Okay, but this amplifier produces a noise, a type of a noise, which these noise is also amplified.
 
-Put some. 
+**Felipe Abadia Bermeo** [11:37]:
 
-We calculate some physical layer stuff, like filterless WSS, which again, you do not need to consider them. 
+> Yeah. Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [11:47]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, so this noise is called as annoying.
 
-## **Felipe Abadia Bermeo** 7:32 
+**Felipe Abadia Bermeo** [11:51]:
+> It's called Hao.
 
-Mhm. 
+**Aryanaz Attarpour** [11:52]:
+> As the ASE.
 
-## **Aryanaz Attarpour** 7:35 
+**Felipe Abadia Bermeo** [11:54]:
+> Hey, I'll get in there that day.
 
-Okay, so what we are going to do first, let me tell you what is the baseline. So. Wait a second. Okay. 
+**Aryanaz Attarpour** [11:56]:
 
-Oh, okay. This one was not very useful for you. This one I made a mistake. This is the create SNR Aware Minutian oil placement. 
+> It's as a noise. So this is bad for the network because when it is amplified a lot, it distorts your signal because you have a lot of noise and a very tiny signal, so you cannot
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [12:07]:
+> Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [12:14]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> It's not good for the network. When we consider it here, when we say filter, this is true, it means that we consider it as a noise. If it is false, we consider it. We do not consider it as a noise. For now, you can skip the as a noise. There is no need.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [12:15]:
+> Yes, I understand. OK. Tareef.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [12:32]:
+> For considering it at this moment, OK?
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [12:35]:
+> OK.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [12:37]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So these are also some physical layer topics like the degree of the node and how you calculate it. To be honest, I myself do not know how we can calculate these stuffs. So I just copy paste it directly from another code.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [12:50]:
+> Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> That's how we do, that's how it works.
 
-## **Felipe Abadia Bermeo** 7:58 
+**Aryanaz Attarpour** [12:57]:
 
-Okay. 
+> Yes, I mean, it works, so, yes.
 
-**Aryanaz Attarpour** 7:58 
+> And yeah, these are the losses. So for example, here it says that if you have the, if you have the WSS, then you need to consider the filter loss. And these are all of them are mentioned in the network that
 
-So this function is the main function in your case. So what does this function do? This function goes to this file, which is here, OAGA INFpolimiit underline V3. 
+> So most of them are defined here.
 
-**Felipe Abadia Bermeo** 8:11 Yeah. 
+> You see, for example, Sebastián, Beta, they are just a number.
 
-**Aryanaz Attarpour** 8:12 
+**Felipe Abadia Bermeo** [13:32]:
+> Yeah. Yeah.
 
-Okay, so here we have a set of numbers. So these are the candidate location of optical amplifier. So you know here. Okay, so we had these candidate locations in the input file. 
+**Aryanaz Attarpour** [13:34]:
+> For example, field told us DB is 6.
 
-**Felipe Abadia Bermeo** 8:28 Yeah. 
+**Felipe Abadia Bermeo** [13:38]:
+> Yes, OK.
 
-**Aryanaz Attarpour** 8:30 
+**Aryanaz Attarpour** [13:38]:
 
-Okay, so for example, here it says 089. It means that we considered optical amplifier number 0, we considered optical amplifier number 8. So these are the IDs. 
+> Okay, so for example, when we mention here that, okay, the loss is filter loss DB, it means it is six.
 
-**Felipe Abadia Bermeo** 8:42 Eight. 
+**Felipe Abadia Bermeo** [13:44]:
+> Yes.
 
-**Aryanaz Attarpour** 8:46 
+**Aryanaz Attarpour** [13:45]:
 
-This is the link, this is the kilometer that we put the optical amplifier, and the others we don't, we do not share. 
+> So I just want to be a little bit fancy, so I wrote it like this. And this code was written
 
-**Felipe Abadia Bermeo** 8:55 
+> in the time that there were no chat GPT and these stuff. And consider that I'm not a computer science guy, so.
 
-Okay. 
+**Felipe Abadia Bermeo** [13:50]:
 
-**Aryanaz Attarpour** 8:56 
+> Yeah, yeah, it's fine.
 
-Okay. 
+> Yeah, you know, it's good, it's very good.
 
-So here it says that, okay, this is my baseline optical amplifier, meaning that I have this optical amplifier deployed in my network. 
+**Aryanaz Attarpour** [14:05]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Please don't judge my colleague. And these things are actually not related to your topic because these are talking about the genetic algorithm, like the chromosome structure and these things. It is not important.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [14:07]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> No, no, don't worry.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Mm-hmm.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [14:24]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> The main thing is that you need to create a SNR.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> OA placement, which was actually this one.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So let me tell you how you need to do it. OK, we have a light path. OK, this light path needs to be checked from the.
 
-**Felipe Abadia Bermeo** 9:08 Mhm. 
+**Felipe Abadia Bermeo** [14:41]:
+> Okay.
 
-**Aryanaz Attarpour** 9:09 OK, I have it. OK, now. 
+**Aryanaz Attarpour** [14:56]:
 
-**Felipe Abadia Bermeo** 9:11 Yeah. 
+> from two points. The first point is power at the receiver side and the other one is SNR. Okay. How we do it? It's like this. SNR threshold.
 
-**Aryanaz Attarpour** 9:14 
+**Felipe Abadia Bermeo** [15:03]:
 
-I need to place it. So, okay, I need to place it. So it goes and reads these numbers to cast to place the optical amplifiers in the simulator. Okay, so it is just doing this here. 
+> Yes.
 
-**Felipe Abadia Bermeo** 9:27 Yeah. 
+**Aryanaz Attarpour** [15:12]:
 
-**Aryanaz Attarpour** 9:34 
+> So let me just don't give you a lot of not relevant information, just directly going to the what we have to do. So here in the function, yes, it's here. So the main physical
 
-Yes, this is just this. Okay, so it just reads the optical amplifier and does this. Okay, it should be... 
+> layer is from here, it's here.
 
-**Felipe Abadia Bermeo** 9:37 Okay. 
+> Get all a lock.
 
-**Aryanaz Attarpour** 9:46 
+> OK, this is going to use a genetic algorithm. The parts related to genetic algorithms must be...
 
-It's a long time that I didn't work with this code, so... 
+**Felipe Abadia Bermeo** [15:35]:
+> Mhm.
 
-S. 
+**Aryanaz Attarpour** [15:43]:
 
-Search, that's it. 
+> removed totally. Okay. So here you can see that it says it places the optical amplifier and power shapers using genetic algorithm. We do not consider power shapers. We just consider optical amplifiers. Which optical amplifiers? The optical amplifiers that already be mentioned in OA underline GA INFpolimiit V3.
 
-Okay. Yeah, these are reading. It sucks. 
+**Felipe Abadia Bermeo** [15:58]:
+> Okay. Yeah.
 
-Just. 
+**Aryanaz Attarpour** [16:05]:
 
-Okay, now we come back to the get baseline solution. So these are some physical layer parameters that it's going to check. For example, these are the some losses. 
+> So, we are going to consider that.
 
-Okay, so let me go into the detail. Otherwise, it's hard. So what is the filter less? So inside the optical network, we have some switches that these switches let us to 
+> And these are the other related to the genetic algorithm. So what you need is...
 
-change the vape length. Okay. Sometimes we do not have this. Sometimes we do not have these switches. Sorry, just a second. 
+> So these are, you can see this pop size is a population size for the genetic algorithm. It is not relevant. This is the chromosome structure, not relevant. What is relevant is Calculate, there is a function.
 
-Sorry. 
+> I'll calculate demand SNR. Okay, calculate demand, assistenza, here. Okay, this is the main function that calculates the SNR of the light path for you. So this is the main thing that you need to amplify.
 
-So sometimes we do not have these switches, which we call them filterless. Okay? Here, when you say it says, okay, filterless, these are the things that I'm telling you just because... 
+**Felipe Abadia Bermeo** [16:53]:
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [17:00]:
+> Sorry, you need to implement, OK?
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [17:02]:
+> Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [17:04]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> So it has a set of candidate paths, the shortest path, this is a case shortest path here. It calls this function as an input, it gets the SNR, which...
 
-**Felipe Abadia Bermeo** 10:55 Okay. 
+> It's a file, you can track it to see. I don't remember what was exactly here, but yes, and then here it checks, it does some calculations and then checks if the SNR demand is more than the defined threshold.
 
-## **Aryanaz Attarpour** 11:05 
+> and the power at the receiver side is more than minus dp, minus 18 dp then.
 
-You have a better view of what are these things means. Otherwise, it's not important things. 
+> It's okay. Otherwise, it's not okay otherwise. Okay, so the main thing that you need to follow is here in get OA lock underline GA. But consider that the GA, we do not care about it.
 
-**Felipe Abadia Bermeo** 11:09 Yeah, yeah, yeah. 
+**Felipe Abadia Bermeo** [17:48]:
 
-## **Aryanaz Attarpour** 11:13 
+> It's OK.
 
-Um... 
+> Okay.
 
-So here filterless is false. When it is false, it means that we do not consider for the as a propagation. What is as a propagation? When you consider the optical amplifiers inside the network, you know that the signal goes to the amplifier and signal is going to be 
+**Aryanaz Attarpour** [18:06]:
 
-somehow amplified. Okay, but this amplifier produces a noise, a type of a noise, which these noise is also amplified. 
+> Okay, then this is the calculate demand SNR function that I talked about it. So this is the main, the other main function, calculate demand SNR. So if you want to write the name, this is the main thing that calculates the demand SNR. So you see that there are some physical layer stuff you can.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> copy paste them. No need to, because you know, for example, current power DPM, these things are actually not very related to us.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So this is having a store on the links that demand use. So for example, when you go from node one to node two, which fibers did you use?
 
-## **Felipe Abadia Bermeo** 11:37 
+**Felipe Abadia Bermeo** [18:52]:
 
-Yeah. Yeah. 
+> Okay.
 
-**Aryanaz Attarpour** 11:47 
+**Aryanaz Attarpour** [18:53]:
 
-Okay, so this noise is called as annoying. 
+> So for an example, I used only fiber one to two. So it is a four on the number of the fibers that you used for rotating the patch. Then again, here, there are some
 
-**==> picture [23 x 22] intentionally omitted <==**
+> calculations. They're just the calculations. And
 
-**==> picture [23 x 23] intentionally omitted <==**
+> At the end?
 
-**==> picture [23 x 23] intentionally omitted <==**
+> It should return, we see that it's kind of a big function, unfortunately. Okay, in the end, it returns the SNR and power, the two things that we need.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [19:32]:
+> Yes.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [19:32]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Okay, SNR and power. So for each demand that you have in the network, for example,
 
-**==> picture [23 x 23] intentionally omitted <==**
+> I have node one and node two and node three. I have a connection request from
 
-**==> picture [23 x 23] intentionally omitted <==**
+> node one to node three. Okay, I need to check. Okay, if I go from node one to node three with the optical amplifiers that I have in this file, is it possible?
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [20:09]:
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [20:10]:
 
-**Felipe Abadia Bermeo** 11:51 It's called Hao. 
+> Or not visible, OK?
 
-**Aryanaz Attarpour** 11:52 As the ASE. 
+**Felipe Abadia Bermeo** [20:11]:
 
-**Felipe Abadia Bermeo** 11:54 Hey, I'll get in there that day. 
+> So it will be feasible if the SNR is above the SNR threshold and the power variable is more than minus 18 degrees, right?
 
-**Aryanaz Attarpour** 11:56 
+**Aryanaz Attarpour** [20:16]:
+> Exactly.
 
-It's as a noise. So this is bad for the network because when it is amplified a lot, it distorts your signal because you have a lot of noise and a very tiny signal, so you cannot 
+> Exactly, exactly. So, how I need to check Kitty?
 
-**Felipe Abadia Bermeo** 12:07 Yeah. 
+**Felipe Abadia Bermeo** [20:26]:
 
-**Aryanaz Attarpour** 12:14 
+> So, the output, the output is basically just feasible, not feasible.
 
-It's not good for the network. When we consider it here, when we say filter, this is true, it means that we consider it as a noise. If it is false, we consider it. We do not consider it as a noise. For now, you can skip the as a noise. There is no need. 
+**Aryanaz Attarpour** [20:32]:
 
-**Felipe Abadia Bermeo** 12:15 Yes, I understand. OK. Tareef. 
+> Exactly.
 
-**Aryanaz Attarpour** 12:32 For considering it at this moment, OK? 
+**Felipe Abadia Bermeo** [20:33]:
 
-**Felipe Abadia Bermeo** 12:35 OK. 
+> And the input is the the input is the are the amplifier topologies and the like the network the current state of the network or.
 
-**Aryanaz Attarpour** 12:37 
+**Aryanaz Attarpour** [20:40]:
 
-So these are also some physical layer topics like the degree of the node and how you calculate it. To be honest, I myself do not know how we can calculate these stuffs. So I just copy paste it directly from another code. 
+> Yes.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Exactly, the inputs are nodes, links, Uh, Patti?
 
-**Felipe Abadia Bermeo** 12:50 Yeah. 
+**Felipe Abadia Bermeo** [20:55]:
 
-That's how we do, that's how it works. 
+> But.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [20:55]:
 
-**Aryanaz Attarpour** 12:57 
+> that you, yeah, paths that you wrote the connection request to them. What are the paths? Paths are the links that you used.
 
-Yes, I mean, it works, so, yes. 
+**Felipe Abadia Bermeo** [21:04]:
 
-And yeah, these are the losses. So for example, here it says that if you have the, if you have the WSS, then you need to consider the filter loss. And these are all of them are mentioned in the network that 
+> Mhm.
 
-So most of them are defined here. 
+**Aryanaz Attarpour** [21:05]:
 
-You see, for example, Sebastián, Beta, they are just a number. 
+> to route the demand from node one to node two. Okay, which fiber I use, which edge I used.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [21:14]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [21:14]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So, these are the paths which you can use a K-shortest path algorithm for it to calculate it. And the...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> optical amplifiers of the network. So these are the four inputs.
 
-**Felipe Abadia Bermeo** 13:32 Yeah. Yeah. 
+> So, notes, links, demands.
 
-**Aryanaz Attarpour** 13:34 For example, field told us DB is 6. 
+> I forgot to say that traffic requests or demands, yeah, that are the traffic requests or demands, and optical amplifiers.
 
-**Felipe Abadia Bermeo** 13:38 Yes, OK. 
+**Felipe Abadia Bermeo** [21:38]:
 
-**Aryanaz Attarpour** 13:38 
+> Events.
 
-Okay, so for example, when we mention here that, okay, the loss is filter loss DB, it means it is six. 
+> Okay. Yes, at an optical.
 
-**Felipe Abadia Bermeo** 13:44 Yes. 
+**Aryanaz Attarpour** [21:51]:
+> Okay.
 
-**Aryanaz Attarpour** 13:45 
+**Felipe Abadia Bermeo** [21:51]:
+> Perfect.
 
-So I just want to be a little bit fancy, so I wrote it like this. And this code was written 
+**Aryanaz Attarpour** [21:53]:
 
-in the time that there were no chat GPT and these stuff. And consider that I'm not a computer science guy, so. 
+> And then how I need to check it. So the main, let me tell you, what is the main function? This is calculate demand SNR.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [22:06]:
 
-## **Felipe Abadia Bermeo** 13:50 
+> Ehsan.
 
-Yeah, yeah, it's fine. 
+**Aryanaz Attarpour** [22:07]:
 
-Yeah, you know, it's good, it's very good. 
+> Okay, and the checks of this calculate demand SNR is in the getaway lock underline GA function.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [22:16]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Get.
 
-## **Aryanaz Attarpour** 14:05 
+> Good, I will write it, good.
 
-Please don't judge my colleague. And these things are actually not related to your topic because these are talking about the genetic algorithm, like the chromosome structure and these things. It is not important. 
+**Aryanaz Attarpour** [22:19]:
 
-## **Felipe Abadia Bermeo** 14:07 
+> Yeah.
 
-No, no, don't worry. 
+> OK, so this is this should be enough, just this this function, calculate demand, and of course there are other functions inside it which are also related to the physical layers stuff, but they, I think there should be something. What is that?
 
-Mm-hmm. 
+> function do, it actually places the optical amplifiers that we have in this OAGA in it underlying V3.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [22:48]:
+> Mhm.
 
-## **Aryanaz Attarpour** 14:24 
+**Aryanaz Attarpour** [22:49]:
 
-The main thing is that you need to create a SNR. 
+> the optical amplifiers that put and checks if does that calculation regarding the SNR and the power at the receiver side and says, okay, is it feasible or it is infeasible? It's just this.
 
-OA placement, which was actually this one. 
+**Felipe Abadia Bermeo** [23:04]:
+> Okay, understood.
 
-So let me tell you how you need to do it. OK, we have a light path. OK, this light path needs to be checked from the. 
+**Aryanaz Attarpour** [23:05]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, so just take a look at this function. The other things are irrelevant. Okay, maybe I said that the other two functions in the beginning, they are irrelevant. They are the main is here. I'm sorry, it's a long time that I haven't worked with this code. So
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [23:13]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay. Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, because I am planning to feed this tool like this, this tool as a kind of a black box.
 
-**Felipe Abadia Bermeo** 14:41 Okay. 
+**Aryanaz Attarpour** [23:26]:
+> Ahmad.
 
-## **Aryanaz Attarpour** 14:56 
+**Felipe Abadia Bermeo** [23:36]:
 
-from two points. The first point is power at the receiver side and the other one is SNR. Okay. How we do it? It's like this. SNR threshold. 
+> So, my my system is only going to call this tool and get the result.
 
-## **Felipe Abadia Bermeo** 15:03 
+**Aryanaz Attarpour** [23:37]:
 
-Yes. 
+> And. Okay. Okay.
 
-## **Aryanaz Attarpour** 15:12 
+**Felipe Abadia Bermeo** [23:44]:
 
-So let me just don't give you a lot of not relevant information, just directly going to the what we have to do. So here in the function, yes, it's here. So the main physical 
+> But I have to check how to integrate it with Python, because this is C, right? So I will check.
 
-layer is from here, it's here. 
+**Aryanaz Attarpour** [23:50]:
 
-Get all a lock. 
+> Is.
 
-OK, this is going to use a genetic algorithm. The parts related to genetic algorithms must be... 
+> Yeah, this is the last one. Okay. Okay. Maybe there are some wrappers, Python wrappers that we can use.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [24:01]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yeah, I will.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [24:01]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> I mean, you know these things better than me because you are a computer science. Yeah. But if you need help, just please let me know. And about the thresholds, we define the thresholds here. So you see that these
 
-**Felipe Abadia Bermeo** 15:35 Mhm. 
+**Felipe Abadia Bermeo** [24:05]:
 
-**Aryanaz Attarpour** 15:43 
+> I...
 
-removed totally. Okay. So here you can see that it says it places the optical amplifier and power shapers using genetic algorithm. We do not consider power shapers. We just consider optical amplifiers. Which optical amplifiers? The optical amplifiers that already be mentioned in OA underline GA INFpolimiit V3. 
+> Okay, okay, I'll let you know.
 
-**Felipe Abadia Bermeo** 15:58 Okay. Yeah. 
+**Aryanaz Attarpour** [24:21]:
 
-**Aryanaz Attarpour** 16:05 
+> values that I mentioned, these variables are here, which we are going to use them in the calculate demand SNR. So if you need them, they are in the header file. SNR thresholds are these.
 
-So, we are going to consider that. 
+**Felipe Abadia Bermeo** [24:28]:
 
-And these are the other related to the genetic algorithm. So what you need is... 
+> Yeah, okay. Earth.
 
-So these are, you can see this pop size is a population size for the genetic algorithm. It is not relevant. This is the chromosome structure, not relevant. What is relevant is Calculate, there is a function. 
+**Aryanaz Attarpour** [24:36]:
 
-I'll calculate demand SNR. Okay, calculate demand, assistenza, here. Okay, this is the main function that calculates the SNR of the light path for you. So this is the main thing that you need to amplify. 
+> history. It is not this one. Okay, so there is one SNR, no, not this one. It is the ones that has a 10G, 100G and 200G.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [24:40]:
+> Okay. Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [24:48]:
+> So these are the threshold, like 12.2, 8.6, 15.2. You can change them if you want.
 
-**Felipe Abadia Bermeo** 16:53 Okay. 
+**Felipe Abadia Bermeo** [24:55]:
+> Yeah, you understood. **Aryanaz Attarpour** 24:57 Okay. **Felipe Abadia Bermeo** 24:59 OK, Aryanaz, thank you so much.
 
-**Aryanaz Attarpour** 17:00 Sorry, you need to implement, OK? 
+**Aryanaz Attarpour** [24:59]:
+> Yes.
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Okay, you're welcome. Just take a look at it and then let me know if you have further questions.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> **Felipe Abadia Bermeo** stopped transcription
 
-**Felipe Abadia Bermeo** 17:02 Yeah. 
-
-## **Aryanaz Attarpour** 17:04 
-
-So it has a set of candidate paths, the shortest path, this is a case shortest path here. It calls this function as an input, it gets the SNR, which... 
-
-It's a file, you can track it to see. I don't remember what was exactly here, but yes, and then here it checks, it does some calculations and then checks if the SNR demand is more than the defined threshold. 
-
-and the power at the receiver side is more than minus dp, minus 18 dp then. 
-
-It's okay. Otherwise, it's not okay otherwise. Okay, so the main thing that you need to follow is here in get OA lock underline GA. But consider that the GA, we do not care about it. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Felipe Abadia Bermeo** 17:48 
-
-It's OK. 
-
-Okay. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-## **Aryanaz Attarpour** 18:06 
-
-Okay, then this is the calculate demand SNR function that I talked about it. So this is the main, the other main function, calculate demand SNR. So if you want to write the name, this is the main thing that calculates the demand SNR. So you see that there are some physical layer stuff you can. 
-
-copy paste them. No need to, because you know, for example, current power DPM, these things are actually not very related to us. 
-
-So this is having a store on the links that demand use. So for example, when you go from node one to node two, which fibers did you use? 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Felipe Abadia Bermeo** 18:52 
-
-Okay. 
-
-## **Aryanaz Attarpour** 18:53 
-
-So for an example, I used only fiber one to two. So it is a four on the number of the fibers that you used for rotating the patch. Then again, here, there are some 
-
-calculations. They're just the calculations. And 
-
-At the end? 
-
-It should return, we see that it's kind of a big function, unfortunately. Okay, in the end, it returns the SNR and power, the two things that we need. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 19:32 Yes. 
-
-## **Aryanaz Attarpour** 19:32 
-
-Okay, SNR and power. So for each demand that you have in the network, for example, 
-
-I have node one and node two and node three. I have a connection request from 
-
-node one to node three. Okay, I need to check. Okay, if I go from node one to node three with the optical amplifiers that I have in this file, is it possible? 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 20:09 Okay. 
-
-**Aryanaz Attarpour** 20:10 
-
-Or not visible, OK? 
-
-## **Felipe Abadia Bermeo** 20:11 
-
-So it will be feasible if the SNR is above the SNR threshold and the power variable is more than minus 18 degrees, right? 
-
-**Aryanaz Attarpour** 20:16 Exactly. 
-
-Exactly, exactly. So, how I need to check Kitty? 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 20:26 
-
-So, the output, the output is basically just feasible, not feasible. 
-
-**Aryanaz Attarpour** 20:32 
-
-Exactly. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 20:33 
-
-And the input is the the input is the are the amplifier topologies and the like the network the current state of the network or. 
-
-**Aryanaz Attarpour** 20:40 
-
-Yes. 
-
-Exactly, the inputs are nodes, links, Uh, Patti? 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 20:55 
-
-But. 
-
-**Aryanaz Attarpour** 20:55 
-
-that you, yeah, paths that you wrote the connection request to them. What are the paths? Paths are the links that you used. 
-
-**Felipe Abadia Bermeo** 21:04 
-
-Mhm. 
-
-## **Aryanaz Attarpour** 21:05 
-
-to route the demand from node one to node two. Okay, which fiber I use, which edge I used. 
-
-**Felipe Abadia Bermeo** 21:14 
-
-Yeah. 
-
-**Aryanaz Attarpour** 21:14 
-
-Okay. 
-
-So, these are the paths which you can use a K-shortest path algorithm for it to calculate it. And the... 
-
-optical amplifiers of the network. So these are the four inputs. 
-
-So, notes, links, demands. 
-
-I forgot to say that traffic requests or demands, yeah, that are the traffic requests or demands, and optical amplifiers. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 21:38 
-
-Events. 
-
-Okay. Yes, at an optical. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Aryanaz Attarpour** 21:51 Okay. 
-
-**Felipe Abadia Bermeo** 21:51 Perfect. 
-
-## **Aryanaz Attarpour** 21:53 
-
-And then how I need to check it. So the main, let me tell you, what is the main function? This is calculate demand SNR. 
-
-## **Felipe Abadia Bermeo** 22:06 
-
-Ehsan. 
-
-## **Aryanaz Attarpour** 22:07 
-
-Okay, and the checks of this calculate demand SNR is in the getaway lock underline GA function. 
-
-## **Felipe Abadia Bermeo** 22:16 
-
-Get. 
-
-Good, I will write it, good. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Aryanaz Attarpour** 22:19 
-
-Yeah. 
-
-OK, so this is this should be enough, just this this function, calculate demand, and of course there are other functions inside it which are also related to the physical layers stuff, but they, I think there should be something. What is that? 
-
-function do, it actually places the optical amplifiers that we have in this OAGA in it underlying V3. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 22:48 Mhm. 
-
-**Aryanaz Attarpour** 22:49 
-
-the optical amplifiers that put and checks if does that calculation regarding the SNR and the power at the receiver side and says, okay, is it feasible or it is infeasible? It's just this. 
-
-**Felipe Abadia Bermeo** 23:04 Okay, understood. 
-
-## **Aryanaz Attarpour** 23:05 
-
-Okay, so just take a look at this function. The other things are irrelevant. Okay, maybe I said that the other two functions in the beginning, they are irrelevant. They are the main is here. I'm sorry, it's a long time that I haven't worked with this code. So 
-
-**Felipe Abadia Bermeo** 23:13 
-
-Okay. Yeah. 
-
-Okay, because I am planning to feed this tool like this, this tool as a kind of a black box. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Aryanaz Attarpour** 23:26 Ahmad. 
-
-**Felipe Abadia Bermeo** 23:36 
-
-So, my my system is only going to call this tool and get the result. 
-
-**Aryanaz Attarpour** 23:37 
-
-And. Okay. Okay. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Felipe Abadia Bermeo** 23:44 
-
-But I have to check how to integrate it with Python, because this is C, right? So I will check. 
-
-## **Aryanaz Attarpour** 23:50 
-
-Is. 
-
-Yeah, this is the last one. Okay. Okay. Maybe there are some wrappers, Python wrappers that we can use. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-## **Felipe Abadia Bermeo** 24:01 
-
-Yeah, I will. 
-
-## **Aryanaz Attarpour** 24:01 
-
-I mean, you know these things better than me because you are a computer science. Yeah. But if you need help, just please let me know. And about the thresholds, we define the thresholds here. So you see that these 
-
-## **Felipe Abadia Bermeo** 24:05 
-
-I... 
-
-Okay, okay, I'll let you know. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Aryanaz Attarpour** 24:21 
-
-values that I mentioned, these variables are here, which we are going to use them in the calculate demand SNR. So if you need them, they are in the header file. SNR thresholds are these. 
-
-## **Felipe Abadia Bermeo** 24:28 
-
-Yeah, okay. Earth. 
-
-## **Aryanaz Attarpour** 24:36 
-
-history. It is not this one. Okay, so there is one SNR, no, not this one. It is the ones that has a 10G, 100G and 200G. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 24:40 Okay. Okay. 
-
-**Aryanaz Attarpour** 24:48 So these are the threshold, like 12.2, 8.6, 15.2. You can change them if you want. 
-
-**Felipe Abadia Bermeo** 24:55 Yeah, you understood. **Aryanaz Attarpour** 24:57 Okay. **Felipe Abadia Bermeo** 24:59 OK, Aryanaz, thank you so much. 
-
-**Aryanaz Attarpour** 24:59 Yes. 
-
-Okay, you're welcome. Just take a look at it and then let me know if you have further questions. 
-
-**==> picture [18 x 18] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** stopped transcription 
 
