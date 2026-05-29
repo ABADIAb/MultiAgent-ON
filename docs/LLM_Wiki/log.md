@@ -134,3 +134,5 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Skills: Created `presentation-designer` skill. Optimized `wiki-protocol` and `langgraph-expert` skills to `skill-creator` standard. Migrated `SKILLS.md` content to `.atl/skill-registry.md` and deleted the duplicate.
 - Config: Refactored `AGENTS.md` into a clean System Prompt block. Renamed `.agent/` to `.agents/` and updated all references across the wiki.
 - Engram session summary saved.
+
+## [2026-05-28] debrief | Refactored Agent Context, Removed Engram, and Standardized Transcriptions

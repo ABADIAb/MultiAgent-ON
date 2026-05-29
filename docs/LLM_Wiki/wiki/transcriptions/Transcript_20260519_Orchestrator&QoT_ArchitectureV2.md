@@ -1,1878 +1,1368 @@
-# **LLM thesis weekly meeting-20260519_163225Transcripción de la reunión** 
+---
+title: "Orchestrator & QoT Architecture V2"
+date: 2026-05-19
+tags: [transcription, meeting]
+status: completed
+---
 
-May 19, 2026, 2:31PM 40m 36s 
+# Meeting Transcript: Orchestrator & QoT Architecture V2 (2026-05-19)
 
-**==> picture [18 x 17] intentionally omitted <==**
+**Participants:**
+- **Aryanaz Attarpour**
+- **Felipe Abadia Bermeo**
+- **Jiaheng Xiong**
+- **Qiaolun Zhang**
+- **Zheng Zhang**
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Context:** Weekly thesis meeting.
 
-**Felipe Abadia Bermeo** started transcription 
+---
 
-**Qiaolun Zhang** 0:03 
+## Transcript
 
-Um... 
+**Qiaolun Zhang** [0:03]:
 
-Me. 
+> Um...
 
-We will give you access to other API later, but you can first use this one to set up the simulation. 
+> Me.
 
-Um... 
+> We will give you access to other API later, but you can first use this one to set up the simulation.
 
-To like to obtain the initial code, so... 
+> Um...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> To like to obtain the initial code, so...
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [0:19]:
+> Okay.
 
-**Felipe Abadia Bermeo** 0:19 Okay. 
+**Qiaolun Zhang** [0:21]:
 
-**Qiaolun Zhang** 0:21 
+> OK, wait a second. Ohh. Yeah. Hey. Yes. But... Good. The. H.
 
-OK, wait a second. Ohh. Yeah. Hey. Yes. But... Good. The. H. 
+> Yeah, maybe you can first start briefly talk about your progress, and then I will give you the API later.
 
-Yeah, maybe you can first start briefly talk about your progress, and then I will give you the API later. 
+**Felipe Abadia Bermeo** [2:25]:
+> Yes, no problem.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [2:28]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay. So, maybe you can...
 
-**Felipe Abadia Bermeo** 2:25 Yes, no problem. 
+> Share the weekly report. I have already read it, but maybe others may not familiar with it. You can just quickly describe it and then we can discuss the next step or issues.
 
-**Qiaolun Zhang** 2:28 
+**Felipe Abadia Bermeo** [2:43]:
+> Yeah. Yes.
 
-Okay. So, maybe you can... 
+**Qiaolun Zhang** [2:58]:
+> ****.
 
-Share the weekly report. I have already read it, but maybe others may not familiar with it. You can just quickly describe it and then we can discuss the next step or issues. 
+**Felipe Abadia Bermeo** [2:58]:
+> Only. Can you see the screen?
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [3:11]:
+> Yes, I can see your screen.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [3:14]:
+> A. So, this was the...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> The report for for this week.
 
-**==> picture [23 x 22] intentionally omitted <==**
+> I talked with about it with Zhang yesterday, and basically I did.
 
-**==> picture [23 x 22] intentionally omitted <==**
+> I work on into two things, the implementation and also the integration of the orchestrator. I analyzed the code base that you sent to me, Professor, last day. I don't remember when, but I analyzed it and I see what things can be.
 
-**Felipe Abadia Bermeo** 2:43 Yeah. Yes. 
+> Fixed, not fixed, but improved from that script from that couple of days. I put them here.
 
-**Qiaolun Zhang** 2:58 ****. 
+> I also prepared a presentation. I don't know if you, if we should see, look at the presentation first, or I continue with the report.
 
-**Felipe Abadia Bermeo** 2:58 Only. Can you see the screen? 
+**Qiaolun Zhang** [4:16]:
 
-**Qiaolun Zhang** 3:11 Yes, I can see your screen. 
+> Yeah, if you have prepared the presentation, we can see it together, but we can just quickly get the updates here and then see the presentation together.
 
-**Felipe Abadia Bermeo** 3:14 A. So, this was the... 
+**Felipe Abadia Bermeo** [4:25]:
+> Yeah, yeah, OK, the plan goal.
 
-The report for for this week. 
+**Qiaolun Zhang** [4:26]:
+> Right.
 
-I talked with about it with Zhang yesterday, and basically I did. 
+**Aryanaz Attarpour** [4:27]:
 
-I work on into two things, the implementation and also the integration of the orchestrator. I analyzed the code base that you sent to me, Professor, last day. I don't remember when, but I analyzed it and I see what things can be. 
+> Here I can, can I say something? So I have a question. So do you plan to have the whole coat?
 
-Fixed, not fixed, but improved from that script from that couple of days. I put them here. 
+**Qiaolun Zhang** [4:36]:
+> Sexuality.
 
-I also prepared a presentation. I don't know if you, if we should see, look at the presentation first, or I continue with the report. 
+**Aryanaz Attarpour** [4:38]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> I mean, for the code that I sent you, do you plan to run the whole code?
 
-**Qiaolun Zhang** 4:16 
+**Qiaolun Zhang** [4:44]:
+> Chen. Looks cool.
 
-Yeah, if you have prepared the presentation, we can see it together, but we can just quickly get the updates here and then see the presentation together. 
+**Felipe Abadia Bermeo** [4:54]:
+> That was a question for me.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [4:54]:
+> Can you hear me? Yes, that's a question from you.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [4:57]:
+> Hello.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [4:58]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, no, I actually, that is something that I wanted to say in the presentation. I am not planning to use the whole code, only some functions.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [5:00]:
+> Alright. Chen. Store. So, yeah, yeah.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [5:10]:
+> Okay, okay. Okay, perfect. Thank you.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [5:13]:
+> So, it was for a minute, and then I'll do it.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [5:17]:
+> Okay, so the progress this week was that I...
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [5:20]:
+> Just. Chen.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [5:24]:
 
-**Felipe Abadia Bermeo** 4:25 Yeah, yeah, OK, the plan goal. 
+> Well, I conducted an extensive analysis in the code base that I had sent to me, that is a C code base, and I identified that the wrapper, the wrapper approach that I then the last week maybe is not optimal in this scenario.
 
-**Qiaolun Zhang** 4:26 Right. 
+**Qiaolun Zhang** [5:34]:
 
-**Aryanaz Attarpour** 4:27 
+> Sorry. Di. I.
 
-Here I can, can I say something? So I have a question. So do you plan to have the whole coat? 
+**Felipe Abadia Bermeo** [5:44]:
 
-**Qiaolun Zhang** 4:36 Sexuality. 
+> Because.
 
-**Aryanaz Attarpour** 4:38 
+> And...
 
-I mean, for the code that I sent you, do you plan to run the whole code? 
+> The code base is a simulation and it's a complex simulation. So I analyze it and I saw some functions that we can implement directly in Python and put them into a tool, a tool, a land graph tool, so the orchestration, so the multi-agent system can use them.
 
-**Qiaolun Zhang** 4:44 Chen. Looks cool. 
+**Qiaolun Zhang** [5:53]:
+> T. Yes. Next time.
 
-**Felipe Abadia Bermeo** 4:54 That was a question for me. 
+**Felipe Abadia Bermeo** [6:09]:
+> I also, well, I drafted a proposal to do this. Maybe we can see the proposal and we can decide what to do. I, this is not the report that I...
 
-**Aryanaz Attarpour** 4:54 Can you hear me? Yes, that's a question from you. 
+**Qiaolun Zhang** [6:15]:
+> ****. That was. **Felipe Abadia Bermeo** 6:23 This is, I'm sorry, this is not the report. report that I sent to you.
 
-**Qiaolun Zhang** 4:57 Hello. 
+**Qiaolun Zhang** [6:28]:
+> Shoot.
 
-**Felipe Abadia Bermeo** 4:58 
+**Felipe Abadia Bermeo** [6:30]:
+> It is this one.
 
-Okay, no, I actually, that is something that I wanted to say in the presentation. I am not planning to use the whole code, only some functions. 
+**Qiaolun Zhang** [6:33]:
+> See what we have to change a little bit.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [6:33]:
+> Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [6:35]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yeah. Hello.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [6:44]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> I think I have to stop sharing one. For a bit this way.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [6:57]:
+> That's right. That. Yeah, no problem. Guitar.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [7:05]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Now, can you see my screen? Sorry.
 
-**Qiaolun Zhang** 5:00 Alright. Chen. Store. So, yeah, yeah. 
+**Qiaolun Zhang** [7:07]:
 
-**Aryanaz Attarpour** 5:10 Okay, okay. Okay, perfect. Thank you. 
+> Yeah. Yes, we can see your screen.
 
-**Qiaolun Zhang** 5:13 So, it was for a minute, and then I'll do it. 
+**Felipe Abadia Bermeo** [7:11]:
 
-**Felipe Abadia Bermeo** 5:17 Okay, so the progress this week was that I... 
+> Sorry, sorry, sorry. I, well, I drafted a proposal, then I reviewed the orchestrator that you sent.
 
-**Qiaolun Zhang** 5:20 Just. Chen. 
+**Qiaolun Zhang** [7:12]:
 
-**Felipe Abadia Bermeo** 5:24 
+> Labib. Chen. So...
 
-Well, I conducted an extensive analysis in the code base that I had sent to me, that is a C code base, and I identified that the wrapper, the wrapper approach that I then the last week maybe is not optimal in this scenario. 
+> What's up?
 
-**Qiaolun Zhang** 5:34 
+**Felipe Abadia Bermeo** [7:21]:
 
-Sorry. Di. I. 
+> And I also draw crafted a proposal to implement the orchestration or to take some ideas ideas of that code base and reform it, is restructured to to a new orchestration strategy.
 
-**Felipe Abadia Bermeo** 5:44 
+**Qiaolun Zhang** [7:26]:
 
-Because. 
+> Di. Just. Cortana. It will be happy. Yes.
 
-And... 
+**Felipe Abadia Bermeo** [7:39]:
 
-The code base is a simulation and it's a complex simulation. So I analyze it and I saw some functions that we can implement directly in Python and put them into a tool, a tool, a land graph tool, so the orchestration, so the multi-agent system can use them. 
+> I am designing a second version of the architecture.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [7:41]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Smile. 20% longer.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [7:46]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> And I, with analyzing the orchestrator of code base, I see that the we can extract the topology of the test better.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [7:50]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> That's all.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> I.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [7:58]:
+> via, via, it is a protocol called a restconf, so... And which is what I did, I did it this week.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [8:11]:
 
-**Qiaolun Zhang** 5:53 T. Yes. Next time. 
+> Hosts.
 
-**Felipe Abadia Bermeo** 6:09 I also, well, I drafted a proposal to do this. Maybe we can see the proposal and we can decide what to do. I, this is not the report that I... 
+**Felipe Abadia Bermeo** [8:12]:
 
-**Qiaolun Zhang** 6:15 ****. That was. **Felipe Abadia Bermeo** 6:23 This is, I'm sorry, this is not the report. report that I sent to you. 
+> And then now I can present the implementation strategy that I that I worked on, yeah.
 
-**Qiaolun Zhang** 6:28 Shoot. 
+**Qiaolun Zhang** [8:19]:
 
-**Felipe Abadia Bermeo** 6:30 It is this one. 
+> I have a quick question: So, did you try to look at the...
 
-**Qiaolun Zhang** 6:33 See what we have to change a little bit. 
+**Felipe Abadia Bermeo** [8:22]:
 
-**Felipe Abadia Bermeo** 6:33 Yeah. 
+> Yeah.
 
-**Qiaolun Zhang** 6:35 
+**Qiaolun Zhang** [8:27]:
 
-Yeah. Hello. 
+> Differences of your current work compared to existing works about agentic AI for.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [8:31]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yes, I have. I have been doing that. I didn't prepare anything for today about that,
 
-**==> picture [23 x 23] intentionally omitted <==**
+> but I have I have read some papers, I have some literature, and the work I did today is based also on that research I have.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Qiaolun Zhang** [8:38]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Which? Nothing is like this.
 
-## **Felipe Abadia Bermeo** 6:44 
+> Chen.
 
-I think I have to stop sharing one. For a bit this way. 
+**Felipe Abadia Bermeo** [8:53]:
+> I have been doing.
 
-**Qiaolun Zhang** 6:57 That's right. That. Yeah, no problem. Guitar. 
+**Qiaolun Zhang** [8:56]:
 
-**Felipe Abadia Bermeo** 7:05 
+> Okay, perfect.
 
-Now, can you see my screen? Sorry. 
+**Felipe Abadia Bermeo** [8:59]:
+> OK, it's so.
 
-**Qiaolun Zhang** 7:07 
+**Qiaolun Zhang** [9:02]:
 
-Yeah. Yes, we can see your screen. 
+> Yeah.
 
-## **Felipe Abadia Bermeo** 7:11 
+**Felipe Abadia Bermeo** [9:04]:
 
-Sorry, sorry, sorry. I, well, I drafted a proposal, then I reviewed the orchestrator that you sent. 
+> This is a presentation of about the like.
 
-## **Qiaolun Zhang** 7:12 
+**Qiaolun Zhang** [9:05]:
 
-Labib. Chen. So... 
+> Okay. That's it.
 
-What's up? 
+**Felipe Abadia Bermeo** [9:08]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> A new orchestrator architecture, and how can we implement the QT tool into these into our multi-agent system? I'm going to present the orchestration integration, the QOT integration, and finally how it would look like together, everything together.
 
-## **Felipe Abadia Bermeo** 7:21 
+**Qiaolun Zhang** [9:11]:
 
-And I also draw crafted a proposal to implement the orchestration or to take some ideas ideas of that code base and reform it, is restructured to to a new orchestration strategy. 
+> Oops. Things. Singh. Exactly. So. ****.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [9:28]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So, about the orchestrator, the one in the in the GitHub.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [9:29]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Bing. Yes, I did.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [9:36]:
 
-**Qiaolun Zhang** 7:26 
+> Follows this logic: it first arrives to a planning phase, and then it arrives to an execution phase, and it is good. This actually is process of planning and execution is good and is the standard, and also another thing that is good about this orchestrator code base is that...
 
-Di. Just. Cortana. It will be happy. Yes. 
+**Qiaolun Zhang** [9:43]:
 
-**Felipe Abadia Bermeo** 7:39 
+> Sun.
 
-I am designing a second version of the architecture. 
+> Two.
 
-**Qiaolun Zhang** 7:41 
+> Yeah.
 
-Smile. 20% longer. 
+> Okay. Play.
 
-**Felipe Abadia Bermeo** 7:46 
+**Felipe Abadia Bermeo** [10:05]:
 
-And I, with analyzing the orchestrator of code base, I see that the we can extract the topology of the test better. 
+> Well, the communication with the API and the SDN controller is, well, very, very good for my work also, but the things that I think are important to note here is that this code base, this orchestrator is...
 
-**Qiaolun Zhang** 7:50 
+**Qiaolun Zhang** [10:11]:
+> So. Slow.
 
-That's all. 
+**Felipe Abadia Bermeo** [10:24]:
 
-I. 
+> and it is not, it doesn't use cyclical reasoning because it's not done with LangChain and LangGraph. LangChain and LangGraph and LangGraph are the today's standard for multi-agent systems. This orchestrator is linear.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [10:28]:
+> So, Peter.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Sure.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [10:44]:
 
-**Felipe Abadia Bermeo** 7:58 via, via, it is a protocol called a restconf, so... And which is what I did, I did it this week. 
+> So it will not, it's not possible to interact with it in the same like conversation.
 
-**Qiaolun Zhang** 8:11 
+**Qiaolun Zhang** [10:48]:
+> S.
 
-Hosts. 
+**Felipe Abadia Bermeo** [10:53]:
 
-**Felipe Abadia Bermeo** 8:12 
+> So, we can use this as base and transition to a line graph topology to a line graph. Topology, yes, so we can keep the pipeline logic, we can keep this step by step, like the intent, the planning, and the execution, and then the error handling, and we can keep the schemas and the way of communicating with the SDN controller.
 
-And then now I can present the implementation strategy that I that I worked on, yeah. 
+**Qiaolun Zhang** [11:09]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> The.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Hosts.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> A
 
-**==> picture [23 x 23] intentionally omitted <==**
+> I.
 
-## **Qiaolun Zhang** 8:19 
+> Yeah.
 
-I have a quick question: So, did you try to look at the... 
+**Felipe Abadia Bermeo** [11:25]:
 
-**Felipe Abadia Bermeo** 8:22 
+> With the API and the test bed. Sorry, but we can replace the procedural script with some cyclical reasoning and the stateless memory with a hybrid memory. As I said in the last presentation, we can use like a hybrid approach of memory in this multi-agent system.
 
-Yeah. 
+**Qiaolun Zhang** [11:31]:
+> Play.
 
-**Qiaolun Zhang** 8:27 
+**Felipe Abadia Bermeo** [11:48]:
 
-Differences of your current work compared to existing works about agentic AI for. 
+> with LM Wiki, with a state graph for the topology of the test bed, and with the rack for episodic memory and for documentation. And we can also introduce human in the loop in the validation for validation before the execution of
 
-**Felipe Abadia Bermeo** 8:31 
+> of anything into the test bed. And also we can implement different nodes of human in the loop in different parts of the cycle as well.
 
-Yeah. 
+> Now I can present some of the ideas that I had about the DQOT integration, and it is that now that we know that the topology that we can extract the topology, now that I know that I can extract the topology from the test bed.
 
-Yes, I have. I have been doing that. I didn't prepare anything for today about that, 
+> With the rest configuration, the rest protocol, we can. AM.
 
-but I have I have read some papers, I have some literature, and the work I did today is based also on that research I have. 
+> Imagine, I imagine we can use a topology, we can implement a topology agent, a new agent that is in charge of...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> speaking like speaking with the SDN controller and get the retrieve the topology of the network and update with this topology update a graph and all this graph that is going to be stored in the RAM. It's going to be a X and can be accessed by. Every each agent in the multi-agent system.
 
-**Qiaolun Zhang** 8:38 
+> This would be the role of the topology agent, and then when we have all the like mapped the topology of the test bed into a graph, we can use.
 
-Which? Nothing is like this. 
+> another agent like the routine agent to to to use use this tool of these QOT tool and extract the the or reason over the topology over over the graph the network the
 
-Chen. 
+> network graph that we
 
-**==> picture [23 x 22] intentionally omitted <==**
+> A hat that we retrieved from the code base from the test bed, sorry, so we can extract the most important functions of the network CPP that is the file in the code base that Aryanaz sent it to me, we can translate it. Translate them into Python.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Following the like the.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Language of LandGraph, like the framework of LandGraph, the functions that I think are important are the calculated demand SNR, the calculated propagated SNR, and the span SNR, and we can query the topology directly from the knowledge graph. So the tool can use this topology, like can use the nodes and the path that are stored in the knowledge graph. And it outputs the, it performs the calculation and outputs the SNR, the power, and the feasibility to the routing agent.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> And then the routine agent reason over these and passes the information to the orchestrator or to the whole system to act over the test bed or to return information to the operator.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> In the right, I put a flow graph. For example, we can see here that if the calculation returns that it is feasible to use this path, we can implement also a light path agent to control the test bed to access to the...
 
-**Felipe Abadia Bermeo** 8:53 I have been doing. 
+> ONDM controller.
 
-**Qiaolun Zhang** 8:56 
+> And this is how it would look like the whole architecture of the orchestrator with the routing agent, like the routing agent that is going to be using the QOT tool. We first begin with the user.
 
-Okay, perfect. 
+> Intent, like the operator intent, here we rip.
 
-**Felipe Abadia Bermeo** 8:59 OK, it's so. 
+**Qiaolun Zhang** [16:08]:
 
-**Qiaolun Zhang** 9:02 
+> Well, I think Aryanaz has a question. Maybe, Aryanaz, you can ask.
 
-Yeah. 
+**Felipe Abadia Bermeo** [16:12]:
 
-**Felipe Abadia Bermeo** 9:04 
+> Oh, sorry.
 
-This is a presentation of about the like. 
+**Aryanaz Attarpour** [16:15]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Thank you. Yes, I have a question from the previous slide.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [16:15]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Mostafa.
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Mostafa. But. Hello!
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [16:22]:
+> If you can show, yes, so here. **Felipe Abadia Bermeo** 16:22 Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [16:26]:
+> I...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Don't get that checks graph. So what is the output of that check graph?
 
-## **Qiaolun Zhang** 9:05 
+**Qiaolun Zhang** [16:33]:
+> Okay, no. **Felipe Abadia Bermeo** 16:35 And the chick.
 
-Okay. That's it. 
+**Aryanaz Attarpour** [16:36]:
 
-## **Felipe Abadia Bermeo** 9:08 
+> I mean, that checks graph go to the knowledge graph, right?
 
-A new orchestrator architecture, and how can we implement the QT tool into these into our multi-agent system? I'm going to present the orchestration integration, the QOT integration, and finally how it would look like together, everything together. 
+**Felipe Abadia Bermeo** [16:41]:
 
-## **Qiaolun Zhang** 9:11 
+> Yes, yes, yes. With this, I mean the knowledge graph is updated or is maintained by the topology agent that I showed here.
 
-Oops. Things. Singh. Exactly. So. ****. 
+**Aryanaz Attarpour** [16:42]:
+> Okay.
 
-**Felipe Abadia Bermeo** 9:28 
+**Qiaolun Zhang** [16:46]:
 
-So, about the orchestrator, the one in the in the GitHub. 
+> ****. Sam, thank you. She does.
 
-**Qiaolun Zhang** 9:29 
+**Aryanaz Attarpour** [16:52]:
+> Okay.
 
-Bing. Yes, I did. 
+**Felipe Abadia Bermeo** [16:54]:
 
-**Felipe Abadia Bermeo** 9:36 
+> The knowledge graph contains the topology of the SDN of the test bed, the current topology of the test bed.
 
-Follows this logic: it first arrives to a planning phase, and then it arrives to an execution phase, and it is good. This actually is process of planning and execution is good and is the standard, and also another thing that is good about this orchestrator code base is that... 
+**Qiaolun Zhang** [16:57]:
+> Chen.
 
-## **Qiaolun Zhang** 9:43 
+**Aryanaz Attarpour** [17:00]:
+> Piero.
 
-Sun. 
+**Felipe Abadia Bermeo** [17:03]:
 
-Two. 
+> A DQD tool can access to, yes, please.
 
-Yeah. 
+**Aryanaz Attarpour** [17:03]:
 
-Okay. Play. 
+> Yeah, I just have a question. I don't know this, to be honest, so I'm just asking. So, shouldn't the knowledge graph, I mean, the knowledge graph must be updated regardless of the feasibility of the road.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [17:15]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> It's for the paper now. Of course.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [17:22]:
+> Yeah.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [17:23]:
 
-**Felipe Abadia Bermeo** 10:05 
+> Okay.
 
-Well, the communication with the API and the SDN controller is, well, very, very good for my work also, but the things that I think are important to note here is that this code base, this orchestrator is... 
+**Qiaolun Zhang** [17:23]:
 
-**Qiaolun Zhang** 10:11 So. Slow. 
+> You know, I see.
 
-**Felipe Abadia Bermeo** 10:24 
+**Aryanaz Attarpour** [17:25]:
+> Okay.
 
-and it is not, it doesn't use cyclical reasoning because it's not done with LangChain and LangGraph. LangChain and LangGraph and LangGraph are the today's standard for multi-agent systems. This orchestrator is linear. 
+**Felipe Abadia Bermeo** [17:26]:
+> Yeah.
 
-**Qiaolun Zhang** 10:28 So, Peter. 
+**Aryanaz Attarpour** [17:27]:
 
-Sure. 
+> Perfect. Okay, now I understand. Thank you.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Qiaolun Zhang** [17:30]:
+> P.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [17:31]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay. Eh.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So I was explaining this, the flow chart. We begin with the intent of the operator. Here we replace the planning phase of the orchestrator script that you sent me. Here we replace it with a supervisor node, a Liangyu supervisor node.
 
-**Felipe Abadia Bermeo** 10:44 
+**Qiaolun Zhang** [17:35]:
 
-So it will not, it's not possible to interact with it in the same like conversation. 
+> The. HR. Right, okay. Hey, Cortana. Six.
 
-**Qiaolun Zhang** 10:48 S. 
+**Felipe Abadia Bermeo** [17:54]:
 
-**Felipe Abadia Bermeo** 10:53 
+> And we implement, we put here a node of human in the loop to iterate over the iterate over the intention of the operator, and just when the operator says that, or when the operator allows the system to.
 
-So, we can use this as base and transition to a line graph topology to a line graph. Topology, yes, so we can keep the pipeline logic, we can keep this step by step, like the intent, the planning, and the execution, and then the error handling, and we can keep the schemas and the way of communicating with the SDN controller. 
+**Qiaolun Zhang** [17:57]:
 
-**Qiaolun Zhang** 11:09 
+> So.
 
-The. 
+> Yes.
 
-Hosts. 
+**Felipe Abadia Bermeo** [18:16]:
 
-A 
+> Execute, then we implement this land graph land graph node to divide the tasks to send it to the agents what they should do, and we here it depends on the intent, but, but for example, we can go first to.
 
-I. 
+**Qiaolun Zhang** [18:35]:
 
-Yeah. 
+> So.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [18:37]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> To the topology agent, the topology agent will retrieve.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [18:38]:
 
-**Felipe Abadia Bermeo** 11:25 
+> Sing, Sing.
 
-With the API and the test bed. Sorry, but we can replace the procedural script with some cyclical reasoning and the stateless memory with a hybrid memory. As I said in the last presentation, we can use like a hybrid approach of memory in this multi-agent system. 
+**Felipe Abadia Bermeo** [18:43]:
 
-**Qiaolun Zhang** 11:31 Play. 
+> The.
 
-**Felipe Abadia Bermeo** 11:48 
+> We retrieve the topology from the test bed, and we'll update the graph with that topology. Then, with that graph updated, the routing agent can access to this graph and reason over that.
 
-with LM Wiki, with a state graph for the topology of the test bed, and with the rack for episodic memory and for documentation. And we can also introduce human in the loop in the validation for validation before the execution of 
+**Qiaolun Zhang** [18:54]:
 
-of anything into the test bed. And also we can implement different nodes of human in the loop in different parts of the cycle as well. 
+> The Hunt. Ehsan.
 
-Now I can present some of the ideas that I had about the DQOT integration, and it is that now that we know that the topology that we can extract the topology, now that I know that I can extract the topology from the test bed. 
+**Felipe Abadia Bermeo** [19:02]:
 
-With the rest configuration, the rest protocol, we can. AM. 
+> And and uses using the QOT tool and uses the QOT tool to.
 
-Imagine, I imagine we can use a topology, we can implement a topology agent, a new agent that is in charge of... 
+**Qiaolun Zhang** [19:04]:
+> Stop.
 
-speaking like speaking with the SDN controller and get the retrieve the topology of the network and update with this topology update a graph and all this graph that is going to be stored in the RAM. It's going to be a X and can be accessed by. Every each agent in the multi-agent system. 
+**Felipe Abadia Bermeo** [19:09]:
 
-This would be the role of the topology agent, and then when we have all the like mapped the topology of the test bed into a graph, we can use. 
+> To validate if a route or a path is feasible, depending on the also depending on the intent of the user, and the returns, the feasibility or not feasibility, and the value of the SNR to the orchestrator, and well, here we can, depending on the...
 
-another agent like the routine agent to to to use use this tool of these QOT tool and extract the the or reason over the topology over over the graph the network the 
+**Qiaolun Zhang** [19:15]:
 
-network graph that we 
+> Okay. Sorry. Yes.
 
-A hat that we retrieved from the code base from the test bed, sorry, so we can extract the most important functions of the network CPP that is the file in the code base that Aryanaz sent it to me, we can translate it. Translate them into Python. 
+**Felipe Abadia Bermeo** [19:29]:
+> On the intent, we can iterate through this. This is cyclical, and it's the main difference between this multi-agent system with the orchestrator of the repo. This is cyclical, so it has an end only when all tasks are done.
 
-Following the like the. 
+**Qiaolun Zhang** [19:30]:
 
-Language of LandGraph, like the framework of LandGraph, the functions that I think are important are the calculated demand SNR, the calculated propagated SNR, and the span SNR, and we can query the topology directly from the knowledge graph. So the tool can use this topology, like can use the nodes and the path that are stored in the knowledge graph. And it outputs the, it performs the calculation and outputs the SNR, the power, and the feasibility to the routing agent. 
+> Just. Yeah. Start. So.
 
-And then the routine agent reason over these and passes the information to the orchestrator or to the whole system to act over the test bed or to return information to the operator. 
+**Felipe Abadia Bermeo** [19:48]:
 
-In the right, I put a flow graph. For example, we can see here that if the calculation returns that it is feasible to use this path, we can implement also a light path agent to control the test bed to access to the... 
+> And the user has no more questions or nothing more to do with with the system.
 
-ONDM controller. 
+**Qiaolun Zhang** [19:53]:
 
-And this is how it would look like the whole architecture of the orchestrator with the routing agent, like the routing agent that is going to be using the QOT tool. We first begin with the user. 
+> Okay. Yes.
 
-Intent, like the operator intent, here we rip. 
+**Felipe Abadia Bermeo** [19:56]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> That is it. Well, the like path agent I put it here like is an idea. This would be with would be replacing the execution process, the execution path, because this like path agent would be in charge of.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [20:02]:
+> Listen.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [20:14]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Controlling, or yes, controlling the SDN to change the test bed. And that's it for the presentation.
 
-## **Qiaolun Zhang** 16:08 
+**Qiaolun Zhang** [20:25]:
 
-Well, I think Aryanaz has a question. Maybe, Aryanaz, you can ask. 
+> ****.
 
-## **Felipe Abadia Bermeo** 16:12 
+**Felipe Abadia Bermeo** [20:28]:
+> So, thank you. Yeah.
 
-Oh, sorry. 
+> Hey, I don't know if we can discuss so discuss on this, so...
 
-## **Aryanaz Attarpour** 16:15 
+**Qiaolun Zhang** [20:33]:
 
-Thank you. Yes, I have a question from the previous slide. 
+> Can you go back to? Shut up.
 
-**Qiaolun Zhang** 16:15 
+**Felipe Abadia Bermeo** [20:38]:
+> Yep.
 
-Mostafa. 
+**Qiaolun Zhang** [20:40]:
 
-Mostafa. But. Hello! 
+> Can I go back to the presentation? I just want to double-check.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [20:42]:
+> Yes.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> The chart, the flow chart is not the same that I sent it yesterday because I today I did some changes, but I can send it, send the new document, update it.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [20:47]:
+> That said, the latest that are not fixed. Okay. So, your first SEO and test bed API, there might be an REST error. So. You have, you first have the... Wait a second, so in step 5. You wrote the task.
 
-**Aryanaz Attarpour** 16:22 If you can show, yes, so here. **Felipe Abadia Bermeo** 16:22 Yeah. 
+**Felipe Abadia Bermeo** [21:27]:
 
-**Aryanaz Attarpour** 16:26 I... 
+> Yoann.
 
-Don't get that checks graph. So what is the output of that check graph? 
+**Qiaolun Zhang** [21:28]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> And then?
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Um...
 
-**==> picture [23 x 22] intentionally omitted <==**
+> After the task, you also send final JSON payload to the test bed to see if it works or not. If it doesn't work, we return the rest error. Is it correct?
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [21:48]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yes, that's correct. Actually, this everything after the...
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [21:49]:
 
-**Qiaolun Zhang** 16:33 Okay, no. **Felipe Abadia Bermeo** 16:35 And the chick. 
+> Play. Are you? Chen. It was cheap.
 
-**Aryanaz Attarpour** 16:36 
+**Felipe Abadia Bermeo** [21:56]:
 
-I mean, that checks graph go to the knowledge graph, right? 
+> The 5th step and everything related to the light path agent is speculative. It can be improved because till now, till now I have the routing agent idea and the topology agent idea. This is more like to act.
 
-**Felipe Abadia Bermeo** 16:41 
+**Qiaolun Zhang** [21:58]:
 
-Yes, yes, yes. With this, I mean the knowledge graph is updated or is maintained by the topology agent that I showed here. 
+> See it when. Oops. Yeah. Hello! Open contest.
 
-**Aryanaz Attarpour** 16:42 Okay. 
+**Felipe Abadia Bermeo** [22:14]:
 
-**Qiaolun Zhang** 16:46 
+> over the test bed, but we are not yet, I am not yet thinking or acting over the test bed, just retrieving information from it.
 
-****. Sam, thank you. She does. 
+**Qiaolun Zhang** [22:20]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Cesare.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, okay, got it. Yeah, one suggestion is that if you have numbers in some lines, it's better to put numbers before the lines.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [22:40]:
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yes, yes, yes.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [22:43]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Okay, yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> And.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> And then I need to, I think I need to remind Mam to give you access to the test bed. I think.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, I think she forgot to do it, but... Um...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> No.
 
-**Aryanaz Attarpour** 16:52 Okay. 
+**Aryanaz Attarpour** [23:09]:
 
-**Felipe Abadia Bermeo** 16:54 
+> Here, just a question, another question, so after that blue box.
 
-The knowledge graph contains the topology of the SDN of the test bed, the current topology of the test bed. 
+**Qiaolun Zhang** [23:10]:
+> In Boutaba.
 
-**Qiaolun Zhang** 16:57 Chen. 
+**Felipe Abadia Bermeo** [23:15]:
+> Yeah.
 
-**Aryanaz Attarpour** 17:00 Piero. 
+**Aryanaz Attarpour** [23:15]:
 
-**Felipe Abadia Bermeo** 17:03 
+> So we wrote the task simultaneously to topology agent and routing agent.
 
-A DQD tool can access to, yes, please. 
+**Qiaolun Zhang** [23:17]:
 
-**Aryanaz Attarpour** 17:03 
+> Next. Just.
 
-Yeah, I just have a question. I don't know this, to be honest, so I'm just asking. So, shouldn't the knowledge graph, I mean, the knowledge graph must be updated regardless of the feasibility of the road. 
+**Felipe Abadia Bermeo** [23:24]:
 
-**Qiaolun Zhang** 17:15 
+> Not necessary. It may not be simultaneous. It depends on the intent. The orchestrator
 
-It's for the paper now. Of course. 
+> or the this node in Liangyu is like smart enough to determine if the root, if it routes the task, the task first to an agent and then to another agent.
 
-**Felipe Abadia Bermeo** 17:22 Yeah. 
+**Qiaolun Zhang** [23:30]:
+> The.
 
-**Aryanaz Attarpour** 17:23 
+**Aryanaz Attarpour** [23:31]:
+> Okay.
 
-Okay. 
+**Felipe Abadia Bermeo** [23:43]:
+> Or...
 
-**Qiaolun Zhang** 17:23 
+> can be simultaneously. And it depends because maybe in some cases, one agent would need the output of another agent. So it cannot perform any task in that moment. So it depends. It depends. It can be simultaneously, or it can be one and then another.
 
-You know, I see. 
+**Aryanaz Attarpour** [23:54]:
+> Mëmëdhe.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Qiaolun Zhang** [23:55]:
+> Chen. Six. **Aryanaz Attarpour** 23:58 Okay. **Qiaolun Zhang** 23:59 Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [24:00]:
+> Okay. Okay, thank you.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [24:13]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Hi, Felipe. Maybe I lost. I want to ask you the...
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [24:14]:
+> Atazad.
 
-**Aryanaz Attarpour** 17:25 Okay. 
+**Felipe Abadia Bermeo** [24:15]:
+> Hello.
 
-**Felipe Abadia Bermeo** 17:26 Yeah. 
+**Qiaolun Zhang** [24:18]:
+> Okay.
 
-**Aryanaz Attarpour** 17:27 
+**Zheng Zhang** [24:21]:
 
-Perfect. Okay, now I understand. Thank you. 
+> Three, 4, 5, yeah, all routine tasks, right?
 
-**Qiaolun Zhang** 17:30 P. 
+**Qiaolun Zhang** [24:22]:
 
-**Felipe Abadia Bermeo** 17:31 
+> Bing. So.
 
-Okay. Eh. 
+**Zheng Zhang** [24:30]:
 
-So I was explaining this, the flow chart. We begin with the intent of the operator. Here we replace the planning phase of the orchestrator script that you sent me. Here we replace it with a supervisor node, a Liangyu supervisor node. 
+> What is the difference between among them, and you can do the routing task by different ways?
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [24:42]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Sorry, Chen, can you repeat the question? What is the difference between...
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [24:46]:
 
-**Qiaolun Zhang** 17:35 
+> Yeah, what I want to ask if the difference between the three, 4, 5.
 
-The. HR. Right, okay. Hey, Cortana. Six. 
+**Qiaolun Zhang** [24:52]:
 
-**Felipe Abadia Bermeo** 17:54 
+> Fox.
 
-And we implement, we put here a node of human in the loop to iterate over the iterate over the intention of the operator, and just when the operator says that, or when the operator allows the system to. 
+**Felipe Abadia Bermeo** [24:53]:
 
-**Qiaolun Zhang** 17:57 
+> Between this root task, this root task, and this root task, right? They are they are different tasks. They are not the same tasks, but the task depends on the intent of the user. It can be two tasks, it can be 10 tasks, and each agent is responsible of...
 
-So. 
+**Zheng Zhang** [24:58]:
+> Uh, yes, yes, I... Oh.
 
-Yes. 
+**Qiaolun Zhang** [25:09]:
+> So...
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [25:13]:
+> Doing a set of tasks depending on the profession of that agent. For example, the topology agent would be in charge would be in charge of the tasks related to extracting the topology from the test bed. Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [25:19]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So. S.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [25:22]:
+> Mm.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [25:33]:
 
-**Felipe Abadia Bermeo** 18:16 
+> And updating the knowledge graph, but the routing agent would be in charge of tasks related to the calculation of the of the SNR, or to see if a path is feasible or if not feasible, and all these routing tasks.
 
-Execute, then we implement this land graph land graph node to divide the tasks to send it to the agents what they should do, and we here it depends on the intent, but, but for example, we can go first to. 
+**Zheng Zhang** [25:36]:
 
-**Qiaolun Zhang** 18:35 
+> Okay.
 
-So. 
+**Felipe Abadia Bermeo** [25:52]:
 
-**Felipe Abadia Bermeo** 18:37 
+> Are done by the by this language of node, like the orchestrator, that it is smart enough to know which agent is which agent does which thing.
 
-To the topology agent, the topology agent will retrieve. 
+**Qiaolun Zhang** [26:00]:
 
-**Qiaolun Zhang** 18:38 
+> The.
 
-Sing, Sing. 
+> Chen.
 
-**Felipe Abadia Bermeo** 18:43 
+**Felipe Abadia Bermeo** [26:05]:
 
-The. 
+> Or which task?
 
-We retrieve the topology from the test bed, and we'll update the graph with that topology. Then, with that graph updated, the routing agent can access to this graph and reason over that. 
+**Qiaolun Zhang** [26:06]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> No.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [26:08]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, thank you. Now I understand. And I think you can show some examples of different intent requests.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [26:08]:
 
-**Qiaolun Zhang** 18:54 
+> Okay. Yeah. Stop. In the da. She said if you.
 
-The Hunt. Ehsan. 
+**Felipe Abadia Bermeo** [26:19]:
 
-**Felipe Abadia Bermeo** 19:02 
+> Oh, okay.
 
-And and uses using the QOT tool and uses the QOT tool to. 
+**Zheng Zhang** [26:19]:
 
-**Qiaolun Zhang** 19:04 Stop. 
+> And based on different intent promotes and requests, you can conduct different pipelines.
 
-**Felipe Abadia Bermeo** 19:09 
+**Qiaolun Zhang** [26:23]:
 
-To validate if a route or a path is feasible, depending on the also depending on the intent of the user, and the returns, the feasibility or not feasibility, and the value of the SNR to the orchestrator, and well, here we can, depending on the... 
+> Yeah.
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Is upward.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Chen.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [26:29]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> A.
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Yes, I would have to to see. I also want to think on on intense. I I am not sure about.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [26:35]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> The. Lost in heaven.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [26:38]:
+> Yeah.
 
-**Qiaolun Zhang** 19:15 
+**Qiaolun Zhang** [26:39]:
+> Yes.
 
-Okay. Sorry. Yes. 
+**Felipe Abadia Bermeo** [26:44]:
 
-**Felipe Abadia Bermeo** 19:29 On the intent, we can iterate through this. This is cyclical, and it's the main difference between this multi-agent system with the orchestrator of the repo. This is cyclical, so it has an end only when all tasks are done. 
+> exactly how an intent of a complete intent end to end would look like, but I imagine that an intent, a simple intent can be like the operator is the operator wants to know if establishing a light path between 2 nodes following a path is feasible or not feasible and asks the system.
 
-**Qiaolun Zhang** 19:30 
+**Qiaolun Zhang** [26:54]:
+> I.
 
-Just. Yeah. Start. So. 
+**Felipe Abadia Bermeo** [27:04]:
 
-**Felipe Abadia Bermeo** 19:48 
+> Can I establish a server, a service between these two nodes and the system calls the routing agent, uses the QoT tool, and then replies to the user responding, saying if it is not feasible or it is not feasible and...
 
-And the user has no more questions or nothing more to do with with the system. 
+**Qiaolun Zhang** [27:06]:
+> Sezin. You. Stop. It. Big. Yeah.
 
-**Qiaolun Zhang** 19:53 
+**Felipe Abadia Bermeo** [27:27]:
+> What suggestions does it have?
 
-Okay. Yes. 
+**Zheng Zhang** [27:30]:
 
-**Felipe Abadia Bermeo** 19:56 
+> Okay, thank you. And I also want to ask about the different tasks that are generated from the intent. If the task, do you have any idea about the routine task? What is it about?
 
-That is it. Well, the like path agent I put it here like is an idea. This would be with would be replacing the execution process, the execution path, because this like path agent would be in charge of. 
+**Qiaolun Zhang** [27:34]:
+> Start.
 
-**Qiaolun Zhang** 20:02 Listen. 
+> H.
 
-**Felipe Abadia Bermeo** 20:14 
+**Zheng Zhang** [27:53]:
 
-Controlling, or yes, controlling the SDN to change the test bed. And that's it for the presentation. 
+> Establish, let pass, or doing some computing tasks.
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Because previously, when we talk about it, we also consider about the computing layer, the computing resources.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Do you have any idea about the task?
 
-**Qiaolun Zhang** 20:25 
+**Felipe Abadia Bermeo** [28:16]:
 
-****. 
+> I'm really sorry, Zheng. I don't know if... Can you repeat the question? I'm having troubles with the...
 
-**Felipe Abadia Bermeo** 20:28 So, thank you. Yeah. 
+**Qiaolun Zhang** [28:22]:
+> The.
 
-Hey, I don't know if we can discuss so discuss on this, so... 
+**Zheng Zhang** [28:25]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, okay, because previously, at the beginning, we talk about the objective. We also consider computing resources. Do you consider it in routing task?
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [28:47]:
+> Mm.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [28:47]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> SALA. Yeah.
 
-**Qiaolun Zhang** 20:33 
+**Felipe Abadia Bermeo** [28:49]:
+> And I don't know, no.
 
-Can you go back to? Shut up. 
+**Zheng Zhang** [28:54]:
+> So, what is the routine task now you are you considering?
 
-**Felipe Abadia Bermeo** 20:38 Yep. 
+**Qiaolun Zhang** [28:57]:
+> Have you? Just.
 
-**Qiaolun Zhang** 20:40 
+**Felipe Abadia Bermeo** [29:03]:
+> Sorry. **Qiaolun Zhang** 29:05 I think we are just considering our basic setup for now. We're just...
 
-Can I go back to the presentation? I just want to double-check. 
+**Felipe Abadia Bermeo** [29:05]:
+> Eh.
 
-**Felipe Abadia Bermeo** 20:42 Yes. 
+**Zheng Zhang** [29:09]:
+> Mm.
 
-The chart, the flow chart is not the same that I sent it yesterday because I today I did some changes, but I can send it, send the new document, update it. 
+**Felipe Abadia Bermeo** [29:10]:
+> Yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [29:11]:
+> So, considering, like, a light pass.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [29:15]:
+> Okay.
 
-**Qiaolun Zhang** 20:47 That said, the latest that are not fixed. Okay. So, your first SEO and test bed API, there might be an REST error. So. You have, you first have the... Wait a second, so in step 5. You wrote the task. 
+**Qiaolun Zhang** [29:16]:
 
-**Felipe Abadia Bermeo** 21:27 
+> I think that would be something we might consider after we finish your initial setup.
 
-Yoann. 
+**Zheng Zhang** [29:23]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Yeah. Okay.
 
-## **Qiaolun Zhang** 21:28 
+**Qiaolun Zhang** [29:30]:
+> Thank you.
 
-And then? 
+**Felipe Abadia Bermeo** [29:31]:
+> Yeah, because for now, for now, I think we need like a basic setup, yes.
 
-Um... 
+**Qiaolun Zhang** [29:33]:
+> We want to... I should get it.
 
-After the task, you also send final JSON payload to the test bed to see if it works or not. If it doesn't work, we return the rest error. Is it correct? 
+**Zheng Zhang** [29:37]:
+> Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [29:43]:
+> And...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> I don't know if you, well, I think I have to send to Chen the code base that Aryanaz sent me. I don't know if I can because of the paper I signed, but...
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [29:50]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> I.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> S.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [29:59]:
 
-## **Felipe Abadia Bermeo** 21:48 
+> No, no, you cannot do that.
 
-Yes, that's correct. Actually, this everything after the... 
+**Felipe Abadia Bermeo** [30:02]:
 
-## **Qiaolun Zhang** 21:49 
+> Okay, yes, because Chen wants to be sure if those functions that I said.
 
-Play. Are you? Chen. It was cheap. 
+**Qiaolun Zhang** [30:02]:
 
-## **Felipe Abadia Bermeo** 21:56 
+> Just kidding.
 
-The 5th step and everything related to the light path agent is speculative. It can be improved because till now, till now I have the routing agent idea and the topology agent idea. This is more like to act. 
+> I.
 
-**Qiaolun Zhang** 21:58 
+**Felipe Abadia Bermeo** [30:10]:
 
-See it when. Oops. Yeah. Hello! Open contest. 
+> Here, in this light, Di.
 
-## **Felipe Abadia Bermeo** 22:14 
+**Qiaolun Zhang** [30:10]:
 
-over the test bed, but we are not yet, I am not yet thinking or acting over the test bed, just retrieving information from it. 
+> Yeah, but what if like Zhang also signed this paper? Maybe you can share it with Zhang, is it correct?
 
-## **Qiaolun Zhang** 22:20 
+**Aryanaz Attarpour** [30:19]:
 
-Cesare. 
+> You need to talk about it with Prof that this NBA thing is under his supervision. So if when I return, I will talk with Prof to see if we can, if it is possible.
 
-Okay, okay, got it. Yeah, one suggestion is that if you have numbers in some lines, it's better to put numbers before the lines. 
+**Qiaolun Zhang** [30:19]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Schieppati.
 
-**Felipe Abadia Bermeo** 22:40 Okay. 
+> Hosts.
 
-Yes, yes, yes. 
+**Aryanaz Attarpour** [30:36]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> possible that Zheng also signs the NDA, but also I can help you if you need help, but of course I do check if Zheng needs help.
 
-**Qiaolun Zhang** 22:43 
+**Felipe Abadia Bermeo** [30:36]:
 
-Okay, yeah. 
+> Okay. Okay.
 
-And. 
+**Aryanaz Attarpour** [30:44]:
 
-And then I need to, I think I need to remind Mam to give you access to the test bed. I think. 
+> To sign an NDA, and I will let you know, Chen.
 
-Okay, I think she forgot to do it, but... Um... 
+**Qiaolun Zhang** [30:47]:
 
-No. 
+> telephone.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [30:48]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Okay, for now, for now, I think that these functions are the ones that I have to like translate into Python.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [30:53]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Stop.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> G.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [31:01]:
 
-**Aryanaz Attarpour** 23:09 
+> Because, well, I analyzing the the code base, I sir.
 
-Here, just a question, another question, so after that blue box. 
+**Qiaolun Zhang** [31:06]:
 
-**Qiaolun Zhang** 23:10 In Boutaba. 
+> Go.
 
-**Felipe Abadia Bermeo** 23:15 Yeah. 
+> Yeah, yeah, don't worry. There was just one student passing by, yeah.
 
-**Aryanaz Attarpour** 23:15 
+**Felipe Abadia Bermeo** [31:11]:
 
-So we wrote the task simultaneously to topology agent and routing agent. 
+> Yeah.
 
-**Qiaolun Zhang** 23:17 
+> Yeah, hey, analyzing the code base. Well, I see that the calculated Madison R is the one. Well, here, here are like...
 
-Next. Just. 
+**Qiaolun Zhang** [31:18]:
+> Six.
 
-**Felipe Abadia Bermeo** 23:24 
+**Felipe Abadia Bermeo** [31:25]:
 
-Not necessary. It may not be simultaneous. It depends on the intent. The orchestrator 
+> Also, these two functions, and it it calculates the SNR, it calculates the power, and it determines if it is feasible or not feasible, and well, I would have to analyze it deeper to understand very well how does how the function works and how can I translate it to Python.
 
-or the this node in Liangyu is like smart enough to determine if the root, if it routes the task, the task first to an agent and then to another agent. 
+**Qiaolun Zhang** [31:36]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Zhao.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Ch. Okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [31:54]:
 
-**Qiaolun Zhang** 23:30 The. 
+> And that's it.
 
-**Aryanaz Attarpour** 23:31 Okay. 
+**Qiaolun Zhang** [31:55]:
 
-**Felipe Abadia Bermeo** 23:43 Or... 
+> Do you have any questions here?
 
-can be simultaneously. And it depends because maybe in some cases, one agent would need the output of another agent. So it cannot perform any task in that moment. So it depends. It depends. It can be simultaneously, or it can be one and then another. 
+**Felipe Abadia Bermeo** [31:58]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yes, I have only one, well, two questions. We have there in the simulator, these
 
-**==> picture [23 x 22] intentionally omitted <==**
+> constants in the C code, these constants that Aryanaz told me that, well, we can change them in the simulator, but I don't know that.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [32:00]:
+> Di.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yes, you do.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [32:16]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Now that we are planning to extract the topology from the test bed, this should remain constants and we should map them into a schema, or if we are querying them dynamically as well. That would be the first question. And I also would like to...
 
-**Aryanaz Attarpour** 23:54 Mëmëdhe. 
+**Qiaolun Zhang** [32:27]:
+> Sun.
 
-**Qiaolun Zhang** 23:55 Chen. Six. **Aryanaz Attarpour** 23:58 Okay. **Qiaolun Zhang** 23:59 Yeah. 
+**Felipe Abadia Bermeo** [32:37]:
+> To have.
 
-**Aryanaz Attarpour** 24:00 Okay. Okay, thank you. 
+> Well, this like the measurement of of the SNR in the test bed of between between to between to node or in a path to.
 
-**Zheng Zhang** 24:13 
+> to see if my, well, no, not my, to see if the code, the quality of transmission.py works well. That would be in the future, not now, because I already have to start implementing it.
 
-Hi, Felipe. Maybe I lost. I want to ask you the... 
+**Qiaolun Zhang** [32:58]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Sister. This.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [33:07]:
+> Okay, so about the first question, you can consider it done fixed.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [33:13]:
+> OK.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [33:13]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So they are like static as they are. About the second question that you mentioned, to
 
-**==> picture [23 x 22] intentionally omitted <==**
+> be honest, there is a... implementation problem with that test bed.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Qiaolun Zhang** [33:26]:
+> Say it.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [33:30]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> because the test bed is connected with a very short fibers.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [33:33]:
+> Hosts.
 
-**Qiaolun Zhang** 24:14 Atazad. 
+**Felipe Abadia Bermeo** [33:36]:
+> Okay. Yeah.
 
-**Felipe Abadia Bermeo** 24:15 Hello. 
+**Aryanaz Attarpour** [33:38]:
 
-**Qiaolun Zhang** 24:18 Okay. 
+> And there is no inline amplifiers as well.
 
-**Zheng Zhang** 24:21 
+> along the fibers. So we have only preamp and booster in each radar. So one thing is that if the fiber is not long enough, and since we also have optical amplifiers inside the node, the SNR would be very high.
 
-Three, 4, 5, yeah, all routine tasks, right? 
+**Felipe Abadia Bermeo** [33:42]:
 
-**Qiaolun Zhang** 24:22 
+> Yeah.
 
-Bing. So. 
+**Aryanaz Attarpour** [34:03]:
 
-**Zheng Zhang** 24:30 
+> So we cannot see the degradation and very, how we say, the SNR, which is very low. The SNR would be definitely above the threshold.
 
-What is the difference between among them, and you can do the routing task by different ways? 
+**Felipe Abadia Bermeo** [34:04]:
+> Yeah, I understand that. Yeah, yeah.
 
-**Felipe Abadia Bermeo** 24:42 
+**Aryanaz Attarpour** [34:17]:
 
-Sorry, Chen, can you repeat the question? What is the difference between... 
+> So this is the first problem about the implementation that we have. We are trying to solve that issue by borrowing some file from other group.
 
-**Zheng Zhang** 24:46 
+**Felipe Abadia Bermeo** [34:31]:
+> Okay.
 
-Yeah, what I want to ask if the difference between the three, 4, 5. 
+**Aryanaz Attarpour** [34:33]:
 
-**Qiaolun Zhang** 24:52 
+> So yeah, I need to check when I came back. I will ask from Alberto that if they have a longer fiber and we can borrow it. So in that case, I think it would be okay.
 
-Fox. 
+**Felipe Abadia Bermeo** [34:48]:
 
-**Felipe Abadia Bermeo** 24:53 
+> Okay, I understand.
 
-Between this root task, this root task, and this root task, right? They are they are different tasks. They are not the same tasks, but the task depends on the intent of the user. It can be two tasks, it can be 10 tasks, and each agent is responsible of... 
+**Qiaolun Zhang** [34:49]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> S.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [34:49]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> But for now, consider question one as static and consider that the SNR would be super high.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> So you should not have a specific problem. So to be honest, all the roads that you are going to consider probably will be feasible.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Felipe Abadia Bermeo** [34:57]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Yes, okay.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [35:01]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Just.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yeah.
 
-**Zheng Zhang** 24:58 Uh, yes, yes, I... Oh. 
+**Felipe Abadia Bermeo** [35:08]:
 
-**Qiaolun Zhang** 25:09 So... 
+> Yes, I understand, I understand. But it will, the, okay, I understand, but I think here the important thing is to see if the orchestration, if the orchestrator, like the multiagent system, can interact with the test bed and they will do this reason, this cyclic reason.
 
-**Felipe Abadia Bermeo** 25:13 Doing a set of tasks depending on the profession of that agent. For example, the topology agent would be in charge would be in charge of the tasks related to extracting the topology from the test bed. Yeah. 
+**Aryanaz Attarpour** [35:09]:
 
-**Qiaolun Zhang** 25:19 
+> If you want to test it on the test, but...
 
-So. S. 
+**Qiaolun Zhang** [35:15]:
+> Bing.
 
-**Zheng Zhang** 25:22 Mm. 
+**Felipe Abadia Bermeo** [35:29]:
+> So, even if Di.
 
-**Felipe Abadia Bermeo** 25:33 
+> the path is not feasible, well, the agent should be able to understand that it's not feasible and to reply to the operator. It also works.
 
-And updating the knowledge graph, but the routing agent would be in charge of tasks related to the calculation of the of the SNR, or to see if a path is feasible or if not feasible, and all these routing tasks. 
+**Qiaolun Zhang** [35:33]:
+> It.
 
-**Zheng Zhang** 25:36 
+**Aryanaz Attarpour** [35:42]:
 
-Okay. 
+> Yeah.
 
-**Felipe Abadia Bermeo** 25:52 
+**Qiaolun Zhang** [35:43]:
+> Just.
 
-Are done by the by this language of node, like the orchestrator, that it is smart enough to know which agent is which agent does which thing. 
+**Felipe Abadia Bermeo** [35:46]:
+> So, it doesn't matter.
 
-**Qiaolun Zhang** 26:00 
+**Aryanaz Attarpour** [35:46]:
 
-The. 
+> Okay, yes, yes, this is the main goal. Exactly. So as I mentioned, so for now it is consider it as I mentioned. And then I will come back and try to find some fiber so we can put the longer fibers and see also that case. So you can also test it on the test.
 
-Chen. 
+**Felipe Abadia Bermeo** [36:04]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Tareef. There. Yeah. That would be it. And, well, for continuing.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Here with Di.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> report, the things I have planned for next week are, well, today the presentation and started the QOT, the QOT translation tool to Python.
 
-**==> picture [23 x 23] intentionally omitted <==**
+> The of the functions that I said, and then I can start the stage graph implementation also.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Qiaolun Zhang** [36:55]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> I have a question here. So do you think it's necessarily necessary to translate the QOT to Python? Maybe you can just use Python to call the C code and obtain the result.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [36:58]:
 
-**Felipe Abadia Bermeo** 26:05 
+> Yeah.
 
-Or which task? 
+> It.
 
-**Qiaolun Zhang** 26:06 
+> Yeah, I think it can be done like that, but I would prefer it to be a function like nothing for LandGraph, a Python for LandGraph because it is LandGraph uses well, this type of files, this.py files.
 
-No. 
+**Qiaolun Zhang** [37:21]:
+> The.
 
-**Zheng Zhang** 26:08 
+**Felipe Abadia Bermeo** [37:28]:
 
-Okay, thank you. Now I understand. And I think you can show some examples of different intent requests. 
+> And I don't know how it would work with.
 
-**Qiaolun Zhang** 26:08 
+> A different approach, but I can I can explore the explore the option.
 
-Okay. Yeah. Stop. In the da. She said if you. 
+**Qiaolun Zhang** [37:38]:
 
-**Felipe Abadia Bermeo** 26:19 
+> St.
 
-Oh, okay. 
+> Yeah, maybe like.
 
-**Zheng Zhang** 26:19 
+> You could have a Python function that calls the C code and read the results.
 
-And based on different intent promotes and requests, you can conduct different pipelines. 
+**Felipe Abadia Bermeo** [37:56]:
 
-**Qiaolun Zhang** 26:23 
+> I, I, I will say yes, it could, it can be done. I think it can be done, yes.
 
-Yeah. 
+**Qiaolun Zhang** [37:57]:
 
-Is upward. 
+> And...
 
-Chen. 
+> Yeah, maybe it is faster, yeah.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [38:03]:
 
-**Felipe Abadia Bermeo** 26:29 
+> I will consider the two options.
 
-A. 
+**Qiaolun Zhang** [38:06]:
+> Okay.
 
-Yes, I would have to to see. I also want to think on on intense. I I am not sure about. 
+**Felipe Abadia Bermeo** [38:06]:
+> If I will consider the two options.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [38:10]:
+> Now, I remember that Zheng might have the code, the C code. Zheng, do you remember that the multi-band code in C is QOT or not?
 
-**Qiaolun Zhang** 26:35 
+**Qiaolun Zhang** [38:20]:
 
-The. Lost in heaven. 
+> And. Yes.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [38:24]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Ohh, yes, I remember that are the are this codebase seen?
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [38:27]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yes. Yes.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [38:32]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Yeah, I think it's the same code Zheng.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [38:35]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Did it come to a test?
 
-**Zheng Zhang** 26:38 Yeah. 
+**Zheng Zhang** [38:35]:
+> Okay.
 
-**Qiaolun Zhang** 26:39 Yes. 
+**Aryanaz Attarpour** [38:37]:
 
-**Felipe Abadia Bermeo** 26:44 
+> You, if you check in that code, you should find that three functions that Felipe mentioned: calculate a span SNR, calculate the SNR, and calculate propagation. What was it, Felipe?
 
-exactly how an intent of a complete intent end to end would look like, but I imagine that an intent, a simple intent can be like the operator is the operator wants to know if establishing a light path between 2 nodes following a path is feasible or not feasible and asks the system. 
+**Qiaolun Zhang** [38:39]:
+> Sign that. Bing.
 
-**Qiaolun Zhang** 26:54 I. 
+**Zheng Zhang** [38:45]:
+> Okay.
 
-**Felipe Abadia Bermeo** 27:04 
+**Qiaolun Zhang** [38:47]:
+> Just, well. Stop.
 
-Can I establish a server, a service between these two nodes and the system calls the routing agent, uses the QoT tool, and then replies to the user responding, saying if it is not feasible or it is not feasible and... 
+**Zheng Zhang** [38:53]:
+> Okay, perfect. **Aryanaz Attarpour** 38:55
 
-**Qiaolun Zhang** 27:06 Sezin. You. Stop. It. Big. Yeah. 
+> Yeah, in that, I took it exactly from the same code. Then I will come and give you the code.
 
-**Felipe Abadia Bermeo** 27:27 What suggestions does it have? 
+**Qiaolun Zhang** [38:59]:
+> It.
 
-**Zheng Zhang** 27:30 
+**Zheng Zhang** [39:03]:
+> Oh, no worries. If we are seeing, I can use the previous one.
 
-Okay, thank you. And I also want to ask about the different tasks that are generated from the intent. If the task, do you have any idea about the routine task? What is it about? 
+**Aryanaz Attarpour** [39:04]:
+> Okay. Okay. **Zheng Zhang** 39:09 Okay, thank you.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Aryanaz Attarpour** [39:11]:
 
-**Qiaolun Zhang** 27:34 Start. 
+> Thank you.
 
-H. 
+**Qiaolun Zhang** [39:25]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Okay, yeah, I will send the API to you later. Do you have any other questions?
 
-**Zheng Zhang** 27:53 
+**Felipe Abadia Bermeo** [39:31]:
 
-Establish, let pass, or doing some computing tasks. 
+> For now, I don't. Thank you for the attention.
 
-Because previously, when we talk about it, we also consider about the computing layer, the computing resources. 
+**Zheng Zhang** [39:32]:
 
-Do you have any idea about the task? 
+> Di.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [39:33]:
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Yeah, I think for...
 
-**==> picture [23 x 22] intentionally omitted <==**
+> Yeah, I think for the next action points, um...
 
-**==> picture [23 x 23] intentionally omitted <==**
+> You can also list a table or make one, two slides to summarize the differences of the current setup compared to the literature.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [39:54]:
+> OK.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [39:55]:
 
-**Felipe Abadia Bermeo** 28:16 
+> Okay, yeah, I think that's all. If you don't have other questions, we can answer the meeting. I think the progress is nice, yeah.
 
-I'm really sorry, Zheng. I don't know if... Can you repeat the question? I'm having troubles with the... 
+**Felipe Abadia Bermeo** [39:58]:
 
-**Qiaolun Zhang** 28:22 The. 
+> Mm.
 
-**Zheng Zhang** 28:25 
+> Yes, sir.
 
-Okay, okay, because previously, at the beginning, we talk about the objective. We also consider computing resources. Do you consider it in routing task? 
+> Okay, thank you, Professor. Thank you, Chen. Thank you, Aryanaz, and thank you, Jiaheng.
 
-**Felipe Abadia Bermeo** 28:47 Mm. 
+**Qiaolun Zhang** [40:09]:
 
-**Qiaolun Zhang** 28:47 
+> You're welcome.
 
-SALA. Yeah. 
+> Station.
 
-**Felipe Abadia Bermeo** 28:49 And I don't know, no. 
+> Yes, thank you, too.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [40:16]:
+> You're welcome. Thank you.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [40:17]:
+> Thank you.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [40:17]:
+> Goodbye.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Qiaolun Zhang** [40:19]:
+> Bye.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Zheng Zhang** [40:19]:
+> Bye.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Aryanaz Attarpour** [40:19]:
+> Bye-bye.
 
-**==> picture [23 x 22] intentionally omitted <==**
+**Qiaolun Zhang** [40:21]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Bye, have a good day.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Felipe Abadia Bermeo** [40:21]:
 
-**==> picture [23 x 23] intentionally omitted <==**
+> Can you send the transcript of the record after the end of the meeting? Thank you, Professor.
 
-**==> picture [23 x 23] intentionally omitted <==**
+**Jiaheng Xiong** [40:22]:
+> Um...
 
-**Zheng Zhang** 28:54 So, what is the routine task now you are you considering? 
+**Qiaolun Zhang** [40:24]:
+> Yeah.
 
-**Qiaolun Zhang** 28:57 Have you? Just. 
+> Sure, sure. Okay, bye.
 
-**Felipe Abadia Bermeo** 29:03 Sorry. **Qiaolun Zhang** 29:05 I think we are just considering our basic setup for now. We're just... 
+**Felipe Abadia Bermeo** [40:30]:
+> Goodnight.
 
-**Felipe Abadia Bermeo** 29:05 Eh. 
+**Zheng Zhang** [40:31]:
+> Bye.
 
-**Zheng Zhang** 29:09 Mm. 
+> **Felipe Abadia Bermeo** stopped transcription
 
-**Felipe Abadia Bermeo** 29:10 Yeah. 
-
-**Qiaolun Zhang** 29:11 So, considering, like, a light pass. 
-
-**Zheng Zhang** 29:15 Okay. 
-
-**Qiaolun Zhang** 29:16 
-
-I think that would be something we might consider after we finish your initial setup. 
-
-**Zheng Zhang** 29:23 
-
-Yeah. Okay. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 29:30 Thank you. 
-
-**Felipe Abadia Bermeo** 29:31 Yeah, because for now, for now, I think we need like a basic setup, yes. 
-
-**Qiaolun Zhang** 29:33 We want to... I should get it. 
-
-**Zheng Zhang** 29:37 Okay. 
-
-**Felipe Abadia Bermeo** 29:43 And... 
-
-I don't know if you, well, I think I have to send to Chen the code base that Aryanaz sent me. I don't know if I can because of the paper I signed, but... 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**Qiaolun Zhang** 29:50 
-
-I. 
-
-S. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Aryanaz Attarpour** 29:59 
-
-No, no, you cannot do that. 
-
-**Felipe Abadia Bermeo** 30:02 
-
-Okay, yes, because Chen wants to be sure if those functions that I said. 
-
-**Qiaolun Zhang** 30:02 
-
-Just kidding. 
-
-I. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 30:10 
-
-Here, in this light, Di. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 30:10 
-
-Yeah, but what if like Zhang also signed this paper? Maybe you can share it with Zhang, is it correct? 
-
-**Aryanaz Attarpour** 30:19 
-
-You need to talk about it with Prof that this NBA thing is under his supervision. So if when I return, I will talk with Prof to see if we can, if it is possible. 
-
-**Qiaolun Zhang** 30:19 
-
-Schieppati. 
-
-Hosts. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Aryanaz Attarpour** 30:36 
-
-possible that Zheng also signs the NDA, but also I can help you if you need help, but of course I do check if Zheng needs help. 
-
-**Felipe Abadia Bermeo** 30:36 
-
-Okay. Okay. 
-
-**Aryanaz Attarpour** 30:44 
-
-To sign an NDA, and I will let you know, Chen. 
-
-**Qiaolun Zhang** 30:47 
-
-telephone. 
-
-**Felipe Abadia Bermeo** 30:48 
-
-Okay, for now, for now, I think that these functions are the ones that I have to like translate into Python. 
-
-**Qiaolun Zhang** 30:53 
-
-Stop. 
-
-G. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 31:01 
-
-Because, well, I analyzing the the code base, I sir. 
-
-**Qiaolun Zhang** 31:06 
-
-Go. 
-
-Yeah, yeah, don't worry. There was just one student passing by, yeah. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 31:11 
-
-Yeah. 
-
-Yeah, hey, analyzing the code base. Well, I see that the calculated Madison R is the one. Well, here, here are like... 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 31:18 Six. 
-
-**Felipe Abadia Bermeo** 31:25 
-
-Also, these two functions, and it it calculates the SNR, it calculates the power, and it determines if it is feasible or not feasible, and well, I would have to analyze it deeper to understand very well how does how the function works and how can I translate it to Python. 
-
-**Qiaolun Zhang** 31:36 
-
-Zhao. 
-
-Ch. Okay. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 31:54 
-
-And that's it. 
-
-**Qiaolun Zhang** 31:55 
-
-Do you have any questions here? 
-
-**Felipe Abadia Bermeo** 31:58 
-
-Yes, I have only one, well, two questions. We have there in the simulator, these 
-
-constants in the C code, these constants that Aryanaz told me that, well, we can change them in the simulator, but I don't know that. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 32:00 Di. 
-
-Yes, you do. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 32:16 
-
-Now that we are planning to extract the topology from the test bed, this should remain constants and we should map them into a schema, or if we are querying them dynamically as well. That would be the first question. And I also would like to... 
-
-**Qiaolun Zhang** 32:27 Sun. 
-
-**Felipe Abadia Bermeo** 32:37 To have. 
-
-Well, this like the measurement of of the SNR in the test bed of between between to between to node or in a path to. 
-
-to see if my, well, no, not my, to see if the code, the quality of transmission.py works well. That would be in the future, not now, because I already have to start implementing it. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 32:58 
-
-Sister. This. 
-
-**Aryanaz Attarpour** 33:07 Okay, so about the first question, you can consider it done fixed. 
-
-**Felipe Abadia Bermeo** 33:13 OK. 
-
-**Aryanaz Attarpour** 33:13 
-
-So they are like static as they are. About the second question that you mentioned, to 
-
-be honest, there is a... implementation problem with that test bed. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 33:26 Say it. 
-
-**Aryanaz Attarpour** 33:30 
-
-because the test bed is connected with a very short fibers. 
-
-**Qiaolun Zhang** 33:33 Hosts. 
-
-**Felipe Abadia Bermeo** 33:36 Okay. Yeah. 
-
-**Aryanaz Attarpour** 33:38 
-
-And there is no inline amplifiers as well. 
-
-along the fibers. So we have only preamp and booster in each radar. So one thing is that if the fiber is not long enough, and since we also have optical amplifiers inside the node, the SNR would be very high. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Felipe Abadia Bermeo** 33:42 
-
-Yeah. 
-
-## **Aryanaz Attarpour** 34:03 
-
-So we cannot see the degradation and very, how we say, the SNR, which is very low. The SNR would be definitely above the threshold. 
-
-**Felipe Abadia Bermeo** 34:04 Yeah, I understand that. Yeah, yeah. 
-
-**Aryanaz Attarpour** 34:17 
-
-So this is the first problem about the implementation that we have. We are trying to solve that issue by borrowing some file from other group. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 34:31 Okay. 
-
-## **Aryanaz Attarpour** 34:33 
-
-So yeah, I need to check when I came back. I will ask from Alberto that if they have a longer fiber and we can borrow it. So in that case, I think it would be okay. 
-
-**Felipe Abadia Bermeo** 34:48 
-
-Okay, I understand. 
-
-**Qiaolun Zhang** 34:49 
-
-S. 
-
-## **Aryanaz Attarpour** 34:49 
-
-But for now, consider question one as static and consider that the SNR would be super high. 
-
-So you should not have a specific problem. So to be honest, all the roads that you are going to consider probably will be feasible. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Felipe Abadia Bermeo** 34:57 
-
-Yes, okay. 
-
-**Qiaolun Zhang** 35:01 
-
-Just. 
-
-Yeah. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Felipe Abadia Bermeo** 35:08 
-
-Yes, I understand, I understand. But it will, the, okay, I understand, but I think here the important thing is to see if the orchestration, if the orchestrator, like the multiagent system, can interact with the test bed and they will do this reason, this cyclic reason. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Aryanaz Attarpour** 35:09 
-
-If you want to test it on the test, but... 
-
-**Qiaolun Zhang** 35:15 Bing. 
-
-**Felipe Abadia Bermeo** 35:29 So, even if Di. 
-
-the path is not feasible, well, the agent should be able to understand that it's not feasible and to reply to the operator. It also works. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 35:33 It. 
-
-**Aryanaz Attarpour** 35:42 
-
-Yeah. 
-
-**Qiaolun Zhang** 35:43 Just. 
-
-**Felipe Abadia Bermeo** 35:46 So, it doesn't matter. 
-
-**Aryanaz Attarpour** 35:46 
-
-Okay, yes, yes, this is the main goal. Exactly. So as I mentioned, so for now it is consider it as I mentioned. And then I will come back and try to find some fiber so we can put the longer fibers and see also that case. So you can also test it on the test. 
-
-**Felipe Abadia Bermeo** 36:04 
-
-Tareef. There. Yeah. That would be it. And, well, for continuing. 
-
-Here with Di. 
-
-report, the things I have planned for next week are, well, today the presentation and started the QOT, the QOT translation tool to Python. 
-
-The of the functions that I said, and then I can start the stage graph implementation also. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Qiaolun Zhang** 36:55 
-
-I have a question here. So do you think it's necessarily necessary to translate the QOT to Python? Maybe you can just use Python to call the C code and obtain the result. 
-
-## **Felipe Abadia Bermeo** 36:58 
-
-Yeah. 
-
-It. 
-
-Yeah, I think it can be done like that, but I would prefer it to be a function like nothing for LandGraph, a Python for LandGraph because it is LandGraph uses well, this type of files, this.py files. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**Qiaolun Zhang** 37:21 The. 
-
-## **Felipe Abadia Bermeo** 37:28 
-
-And I don't know how it would work with. 
-
-A different approach, but I can I can explore the explore the option. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Qiaolun Zhang** 37:38 
-
-St. 
-
-Yeah, maybe like. 
-
-You could have a Python function that calls the C code and read the results. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Felipe Abadia Bermeo** 37:56 
-
-I, I, I will say yes, it could, it can be done. I think it can be done, yes. 
-
-## **Qiaolun Zhang** 37:57 
-
-And... 
-
-Yeah, maybe it is faster, yeah. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 38:03 
-
-I will consider the two options. 
-
-**Qiaolun Zhang** 38:06 Okay. 
-
-**Felipe Abadia Bermeo** 38:06 If I will consider the two options. 
-
-**Aryanaz Attarpour** 38:10 Now, I remember that Zheng might have the code, the C code. Zheng, do you remember that the multi-band code in C is QOT or not? 
-
-**Qiaolun Zhang** 38:20 
-
-And. Yes. 
-
-**Zheng Zhang** 38:24 
-
-Ohh, yes, I remember that are the are this codebase seen? 
-
-**Qiaolun Zhang** 38:27 
-
-Yes. Yes. 
-
-**Aryanaz Attarpour** 38:32 
-
-Yeah, I think it's the same code Zheng. 
-
-**Qiaolun Zhang** 38:35 
-
-Did it come to a test? 
-
-**Zheng Zhang** 38:35 Okay. 
-
-**Aryanaz Attarpour** 38:37 
-
-You, if you check in that code, you should find that three functions that Felipe mentioned: calculate a span SNR, calculate the SNR, and calculate propagation. What was it, Felipe? 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 38:39 Sign that. Bing. 
-
-**Zheng Zhang** 38:45 Okay. 
-
-**Qiaolun Zhang** 38:47 Just, well. Stop. 
-
-**Zheng Zhang** 38:53 Okay, perfect. **Aryanaz Attarpour** 38:55 
-
-Yeah, in that, I took it exactly from the same code. Then I will come and give you the code. 
-
-**Qiaolun Zhang** 38:59 It. 
-
-**Zheng Zhang** 39:03 Oh, no worries. If we are seeing, I can use the previous one. 
-
-**Aryanaz Attarpour** 39:04 Okay. Okay. **Zheng Zhang** 39:09 Okay, thank you. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-## **Aryanaz Attarpour** 39:11 
-
-Thank you. 
-
-**Qiaolun Zhang** 39:25 
-
-Okay, yeah, I will send the API to you later. Do you have any other questions? 
-
-**Felipe Abadia Bermeo** 39:31 
-
-For now, I don't. Thank you for the attention. 
-
-**Zheng Zhang** 39:32 
-
-Di. 
-
-**Qiaolun Zhang** 39:33 
-
-Yeah, I think for... 
-
-Yeah, I think for the next action points, um... 
-
-You can also list a table or make one, two slides to summarize the differences of the current setup compared to the literature. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 39:54 OK. 
-
-**Qiaolun Zhang** 39:55 
-
-Okay, yeah, I think that's all. If you don't have other questions, we can answer the meeting. I think the progress is nice, yeah. 
-
-**Felipe Abadia Bermeo** 39:58 
-
-Mm. 
-
-Yes, sir. 
-
-Okay, thank you, Professor. Thank you, Chen. Thank you, Aryanaz, and thank you, Jiaheng. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Qiaolun Zhang** 40:09 
-
-You're welcome. 
-
-Station. 
-
-Yes, thank you, too. 
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**Aryanaz Attarpour** 40:16 You're welcome. Thank you. 
-
-**Zheng Zhang** 40:17 Thank you. 
-
-**Felipe Abadia Bermeo** 40:17 Goodbye. 
-
-**Qiaolun Zhang** 40:19 Bye. 
-
-**Zheng Zhang** 40:19 Bye. 
-
-**Aryanaz Attarpour** 40:19 Bye-bye. 
-
-**Qiaolun Zhang** 40:21 
-
-Bye, have a good day. 
-
-**Felipe Abadia Bermeo** 40:21 
-
-Can you send the transcript of the record after the end of the meeting? Thank you, Professor. 
-
-**Jiaheng Xiong** 40:22 Um... 
-
-**Qiaolun Zhang** 40:24 Yeah. 
-
-Sure, sure. Okay, bye. 
-
-**==> picture [23 x 22] intentionally omitted <==**
-
-**==> picture [23 x 23] intentionally omitted <==**
-
-**==> picture [18 x 17] intentionally omitted <==**
-
-**Felipe Abadia Bermeo** 40:30 Goodnight. 
-
-**Zheng Zhang** 40:31 Bye. 
-
-**Felipe Abadia Bermeo** stopped transcription 
 
