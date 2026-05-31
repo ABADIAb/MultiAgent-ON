@@ -1,0 +1,52 @@
+schema: spec-driven
+
+context: |
+  Project: MultiAgentON — Agentic AI for joint routing and compute scheduling in optical networks
+  Stack: Python 3.12, uv, LangGraph, LangSmith
+  Architecture: Screaming Architecture (src/agents, src/core, src/services, src/tools)
+  Testing: pytest (Strict TDD), pytest-mock, pytest-cov
+  Style: Modular, production-ready, Master's thesis level
+
+strict_tdd: true
+
+testing:
+  test_command: "uv run pytest"
+  framework: pytest
+  layers:
+    unit: true
+    integration: true
+    e2e: false
+  coverage:
+    available: true
+    command: "uv run pytest --cov=src --cov-report=term-missing"
+  quality:
+    linter: "uv run ruff check"
+    type_checker: "uv run mypy src/"
+    formatter: "uv run ruff format"
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Reference relevant wiki pages with [[wikilinks]]
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Physics equations must specify tolerances and known-good baselines
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+    - LLMs reason, deterministic tools calculate — no hallucinated math
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    tdd: true
+    test_command: "uv run pytest"
+    rules:
+      - Follow existing code patterns
+  verify:
+    test_command: "uv run pytest"
+    build_command: ""
+    coverage_threshold: 80
+  archive:
+    - Warn before merging destructive deltas
