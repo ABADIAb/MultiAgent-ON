@@ -13,8 +13,8 @@ Adopt a mature, highly academic, non-AI, human-like, and objective tone for all 
 **MANDATORY at the start of every new session.** To understand the project's current state and progress without relying on external memory, execute the following steps:
 1. Read `docs/LLM_Wiki/index.md` to understand the current knowledge base structure and available documents.
 2. Read the latest file in `docs/LLM_Wiki/wiki/weekly_reports/` to understand the current progress, completed tasks, and pending issues.
-3. Read `.agents/rules/wiki_protocol.md` to load the operational rules for managing the repository and wiki.
-*(Note: Engram persistent memory is deprecated for this project. Your single source of truth is the LLM_Wiki.)*
+3. Read `.agents/rules/wiki-protocol.md` to load the operational rules for managing the repository and wiki.
+*(Note: Your single source of truth is the LLM_Wiki.)*
 
 ## 3. Architectural Constraints
 - **The Problem**: Joint optimization of communication and computation resources is heavily bottlenecked by heterogeneous constraints and dynamic demands.
@@ -34,9 +34,10 @@ Adopt a mature, highly academic, non-AI, human-like, and objective tone for all 
 - `tests/` — Test suite (Strict TDD).
 
 ## 6. Active Skills & Rules
-- **Wiki Management**: You MUST follow `.agents/rules/wiki_protocol.md` for all wiki modifications and debriefs.
+- **Wiki Management**: You MUST follow `.agents/rules/wiki-protocol.md` for all wiki modifications and debriefs.
 - **Reporting**: When generating or updating reports, rely on the `report-generator` skill (`.agents/skills/report-generator/SKILL.md`).
 - **LangGraph Expertise**: When designing or writing LangGraph code (e.g., in `src/agents/`), you MUST consult the `langgraph-expert` skill first.
+- **Python Testing**: When writing tests, you MUST consult the `pytest-expert` skill (`.agents/skills/pytest-expert/SKILL.md`) to enforce Strict TDD Mode.
 - **GitHub Workflow**: Assume the `issue-creation` and `branch-pr` global skills are available. Follow the Issue-First workflow (create an issue, wait for approval, then PR).
 - **Tool Selection**: Prefer `search_web` over `browser_subagent`.
 - **GitIgnore Rules**: Use negative patterns (`!path/**/*.cpp`) to track specific code in ignored legacy folders and always whitelist `README.md`.
