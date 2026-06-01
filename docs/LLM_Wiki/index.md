@@ -9,12 +9,16 @@ Content-oriented catalog of everything in the wiki.
 - [[Research_Plan_MultiAgentON]]: Literature review plan for the thesis.
 
 ## Architecture
-- [[Architecture_Workflow_20260427_Felipe_Abadia]]: V2 LangGraph implementation workflow.
-- [[Hybrid_Memory_Architecture]]: Tri-partite memory architecture (Wiki + Graph + RAG).
+- [[Architecture_v2]]: **Unified V2 system design** — LangGraph multi-agent workflow, Hybrid Memory, QoT strategy, ECOC baseline bridge.
 - [[Tool_Registry]]: Registry of deterministic tools/skills for the optical network.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
+### Archived Architecture Documents
+- [[architecture/archive/Architecture_Workflow_20260427_Felipe_Abadia]]: (archived) V2 LangGraph implementation workflow. Superseded by Architecture_v2.
+- [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
+
 ## Weekly Reports
+- [[Weekly_Report_20260526_Felipe_Abadia]]: Weekly report May 19 – May 26, 2026.
 - [[Weekly_Report_20260519_Felipe_Abadia]]: Weekly report May 12 – May 19, 2026.
 - [[Weekly_Report_20260511_Felipe_Abadia]]: Weekly report May 5 – May 11, 2026.
 - [[Weekly_Report_20260504_Felipe_Abadia]]: Weekly report April 28 – May 4, 2026.
@@ -42,9 +46,12 @@ Content-oriented catalog of everything in the wiki.
 - [[Transcript_20260423_QoT-Meeting]]: Meeting with Aryanaz and Qiaolun about QoT feasibility tool and GN model.
 
 ## Experiments
-- [[experiments/Proposal_Orchestrator_Integration]]: Formal proposal for modernizing the ECOC 2024 orchestrator into a LangGraph Multi-Agent architecture.
-- [[experiments/Proposal_QoT_Integration]]: Formal proposal for the Python Physics Port integration.
-- [[QoT_Integration_Strategy]]: Comprehensive strategy for porting the C++ physics equations into a native Python tool.
+- [[experiments/Experiment_001_Topology_Query_MVP]]: Topology Query MVP — first end-to-end LangGraph pipeline (Supervisor + Topology Agent + mock testbed).
+
+### Archived Experiment Documents
+- [[experiments/archive/Proposal_Orchestrator_Integration]]: (archived) Formal proposal for modernizing the ECOC 2024 orchestrator. Superseded by Architecture_v2.
+- [[experiments/archive/Proposal_QoT_Integration]]: (archived) Formal proposal for the Python Physics Port integration. Superseded by Architecture_v2.
+- [[experiments/archive/QoT_Integration_Strategy]]: (archived) Comprehensive strategy for porting the C++ physics equations. Superseded by Architecture_v2.
 
 
 ## Thesis Drafts
