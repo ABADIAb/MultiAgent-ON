@@ -136,3 +136,19 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Engram session summary saved.
 
 ## [2026-05-28] debrief | Refactored Agent Context, Removed Engram, and Standardized Transcriptions
+
+## [2026-06-01] ingest | Wiki Consolidation & Architecture V2
+- Created `archive/` subdirectories in all wiki categories (except weekly_reports).
+- Archived 5 superseded documents: `Architecture_Workflow`, `Hybrid_Memory_Architecture`, `Proposal_Orchestrator_Integration`, `Proposal_QoT_Integration`, `QoT_Integration_Strategy`.
+- Created: `docs/LLM_Wiki/wiki/architecture/Architecture_v2.md` — unified system design fusing all architecture and proposal docs.
+- Created: `docs/LLM_Wiki/wiki/experiments/Experiment_001_Topology_Query_MVP.md` — formal experiment doc for the first LangGraph implementation.
+- Updated: `index.md` with new entries, archived entries, and May 26 weekly report.
+- LangGraph Validation: Identified 4 corrections via Context7 docs (HITL via `interrupt()`, supervisor pattern, TypedDict reducers, node vs subgraph).
+
+## [2026-06-01] debrief2 | Session Closure & MVP Implementation
+- Wiki Deep Lint: Verified that all modified and newly created files (`Architecture_v2.md`, `Experiment_001_Topology_Query_MVP.md`, `Weekly_Report_20260601_Felipe_Abadia.md`, `Issue_Report_20260601_Felipe_Abadia.md`) contain proper YAML frontmatter and `[[wikilinks]]`.
+- Section Accomplishments:
+  - Coded and tested the complete LangGraph MVP (Experiment 001) under strict TDD (62 tests passing, 76% coverage), integrating Kimi API.
+  - Consolidated the entire orchestrator architecture under Architecture V2.
+  - Performed comprehensive wiki cleanup.
+- Session closure: Created Weekly Report (June 1st) and Issue Report (June 1st), updated task lists, and pushed all session changes to a new remote branch via a linked GitHub issue and PR.
