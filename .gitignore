@@ -20,6 +20,8 @@ wheels/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 
 # IDE & OS
 .vscode/
