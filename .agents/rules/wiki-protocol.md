@@ -26,7 +26,8 @@ This document defines the rules for managing the `docs/LLM_Wiki/` knowledge base
   4. **Create Implementation Plan**: Generate an `implementation_plan.md` to edit or create these files. Await user feedback and iterate until approved.
 - **Debrief Phase 2 (`/debrief2`)**: Session closure routine. Execute **ONLY** after `/debrief1`'s plan is approved and executed:
   1. **Wiki Deep Lint**: Identify all files created or modified during the session. For each file, perform a rigorous deep lint to proactively identify and add `[[wikilinks]]` to any core concepts or existing wiki pages mentioned in the text. Ensure `index.md` and all relevant cross-references are updated to maintain total wiki interconnectedness and persistence.
-  2. **Log Entry**: Append `## [YYYY-MM-DD] debrief | Session Summary` to `log.md`.
+  2. **Consistency Audit**: Audit the contents of existing wiki pages (e.g., architecture, experiments, concepts) against the actual implementation decisions, code refactors, and test outcomes of the current session. Proactively update any outdated or conflicting statements in those files to ensure absolute document accuracy and prevent technical debt.
+  3. **Log Entry**: Append `## [YYYY-MM-DD] debrief | Session Summary` to `log.md`.
 
 ### 3. Strict Rules
 - **Strict Metadata Rule**: EVERY note you create or edit in `wiki/` MUST contain a YAML frontmatter block at the top with `title`, `date`, `tags`, and `status`.

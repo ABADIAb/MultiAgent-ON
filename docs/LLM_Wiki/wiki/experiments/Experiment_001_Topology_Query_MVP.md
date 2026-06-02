@@ -2,7 +2,7 @@
 title: "Experiment 001: Topology Query MVP"
 date: 2026-06-01
 tags: [experiment, topology, langgraph, mvp, supervisor]
-status: in-progress
+status: completed
 ---
 
 # Experiment 001: Topology Query MVP
@@ -22,7 +22,7 @@ A minimal LangGraph `StateGraph` with two agent nodes (Supervisor + Topology) an
 ## 3. Scope
 
 ### In Scope
-- Supervisor Node with LLM integration (Kimi API, Anthropic-compatible).
+- Supervisor Node with LLM integration (Kimi API, OpenAI-compatible via `langchain-openai`).
 - Topology Agent node with `fetch_topology` tool.
 - `MockTestbedClient` returning realistic topology data based on the ECOC 4-node testbed.
 - `AgentState` TypedDict with Pydantic schemas for type safety.
@@ -30,9 +30,9 @@ A minimal LangGraph `StateGraph` with two agent nodes (Supervisor + Topology) an
 
 ### Explicitly Out of Scope
 - ❌ HITL approval (not needed for read-only topology queries).
-- ❌ Routing Agent / QoT Tool (Experiment 002).
-- ❌ Lightpath provisioning (Experiment 003).
-- ❌ Real testbed connection (Experiment 004, requires SSH/VPN).
+- ❌ Routing Agent / QoT Tool.
+- ❌ Lightpath provisioning.
+- ❌ Real testbed connection (requires SSH/VPN).
 - ❌ Persistent memory / Knowledge Graph DB (in-memory Pydantic models).
 - ❌ RAG / Vector search.
 
@@ -123,7 +123,7 @@ tests/
 dependencies = [
     "langgraph>=0.4",
     "langchain-core>=0.3",
-    "langchain-anthropic>=0.3",
+    "langchain-openai>=0.3",
     "pydantic>=2.0",
     "httpx>=0.28",
     "python-dotenv>=1.1",

@@ -150,7 +150,9 @@ The **Supervisor Node** replaces the ECOC baseline's `planning.py` with an LLM-d
 3. **LLM Translation**: The LLM parses the intent, translating abstract concepts into numerical [[Concepts_and_Terminology|SLA]] constraints (e.g., `< 10ms` latency, `5 Gbps` bandwidth). It produces:
    - A structured **SLA matrix** (Pydantic model)
    - A **task list** (ordered sequence of delegations)
-4. **Structured Output**: Uses `model.with_structured_output(TaskPlan)` to guarantee the LLM produces valid Pydantic objects, not free-form text.
+4. **Structured Output**: Uses `json_mode` response format combined with manual `TaskPlan.model_validate_json()` parsing to guarantee valid Pydantic objects. Robust `AliasChoices` on schema fields handle LLM serialization variations (e.g., `"task_type"` vs. `"type"`).
+
+> **Implementation Note**: `model.with_structured_output(TaskPlan)` was initially planned but proved unreliable with the Kimi API. The two-stage approach (strict JSON extraction prompt + conversational synthesis prompt) yields more stable results.
 
 ### Phase 2: Human-in-the-Loop (HITL) Validation
 
@@ -345,7 +347,7 @@ The Supervisor acts as a **hub node** that all agents return to. After each agen
 |---|---|---|
 | Orchestration framework | LangGraph | `langgraph` |
 | LLM abstraction | LangChain Core | `langchain-core` |
-| LLM provider | Kimi (Anthropic-compatible) | `langchain-anthropic` |
+| LLM provider | Kimi (OpenAI-compatible) | `langchain-openai` |
 | Data validation | Pydantic v2 | `pydantic` |
 | Testbed communication | RESTConf / HTTP | `httpx` |
 | State persistence | LangGraph Checkpointer | `langgraph` (built-in) |
@@ -356,17 +358,14 @@ The Supervisor acts as a **hub node** that all agents return to. After each agen
 
 ## 9. Implementation Roadmap
 
-### Experiment 001: Topology Query MVP (Current Focus)
-Operator asks about topology → Supervisor parses → Topology Agent queries mock → State updated → Response returned. See [[experiments/Experiment_001_Topology_Query_MVP]].
+### Experiment 001: Topology Query MVP ✅
+Operator asks about topology → Supervisor parses → Topology Agent queries mock → State updated → Response returned. Successfully validated with live Kimi API. See [[experiments/Experiment_001_Topology_Query_MVP]].
 
-### Experiment 002: Routing + QoT Validation (Next)
-Operator requests a lightpath → Routing Agent proposes path → QoT tool validates feasibility → Self-correction loop if infeasible.
-
-### Experiment 003: Full Provisioning Loop (Future)
-End-to-end: intent → HITL approval → topology check → routing + QoT → lightpath provisioning → error handling → confirmation.
-
-### Experiment 004: Real Testbed Integration (Requires SSH/VPN)
-Replace `MockTestbedClient` with `RESTConfTestbedClient` connected to the actual SDON controller NBI.
+### Future Experiments (Not Yet Formally Ideated)
+The following capabilities are planned but not yet designed as formal experiments:
+- **Routing + QoT Validation**: Routing Agent proposes path → QoT tool validates feasibility → Self-correction loop if infeasible.
+- **Full Provisioning Loop**: End-to-end intent → HITL approval → topology check → routing + QoT → lightpath provisioning → error handling → confirmation.
+- **Real Testbed Integration**: Replace `MockTestbedClient` with `RESTConfTestbedClient` connected to the actual SDON controller NBI (requires SSH/VPN).
 
 ---
 

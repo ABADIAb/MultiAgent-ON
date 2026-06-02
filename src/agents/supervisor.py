@@ -6,8 +6,8 @@ and routes to the appropriate sub-agent based on the first pending task.
 
 from __future__ import annotations
 
-from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.language_models import BaseChatModel
 
 from src.core.state import AgentState, TaskPlan, TaskType
@@ -58,26 +58,27 @@ def create_default_llm(
     api_key: str,
     base_url: str | None = None,
     model: str = "kimi-k2-0711-preview",
-) -> ChatAnthropic:
-    """Create a ChatAnthropic instance configured for the Kimi API.
+) -> ChatOpenAI:
+    """Create a ChatOpenAI instance configured for the Kimi API.
 
     Args:
-        api_key: API key for the Kimi/Anthropic-compatible service.
+        api_key: API key for the Kimi service.
         base_url: Custom base URL (required for Kimi).
         model: Model identifier to use.
 
     Returns:
-        A configured ChatAnthropic instance.
+        A configured ChatOpenAI instance.
     """
     kwargs: dict = {
         "model": model,
         "api_key": api_key,
         "temperature": 0,
-        "max_tokens": 1024,
+        "max_tokens": 8192,
+        "default_headers": {"User-Agent": "claude-code/0.2.9"},
     }
     if base_url:
         kwargs["base_url"] = base_url
-    return ChatAnthropic(**kwargs)
+    return ChatOpenAI(**kwargs)
 
 
 def supervisor_node(state: AgentState) -> dict:
@@ -97,7 +98,7 @@ def supervisor_node(state: AgentState) -> dict:
         return _synthesize_response(state)
 
     # First pass: parse intent
-    structured_llm = llm.with_structured_output(TaskPlan)
+    structured_llm = llm.with_structured_output(TaskPlan, method="json_mode")
 
     user_messages = [
         msg
@@ -174,7 +175,12 @@ def _synthesize_response(state: AgentState) -> dict:
         f"and amplifier counts."
     )
 
-    response = llm.invoke([SystemMessage(content=SUPERVISOR_SYSTEM_PROMPT), {"role": "user", "content": prompt}])
+    response = llm.invoke([
+        SystemMessage(
+            content="You are the Supervisor of a Multi-Agent Orchestrator for a Software-Defined Optical Network (SDON) testbed. Summarize the topology data for the operator in a clear, friendly, and professional way."
+        ),
+        HumanMessage(content=prompt),
+    ])
 
     return {
         "messages": [AIMessage(content=response.content, name="supervisor")],

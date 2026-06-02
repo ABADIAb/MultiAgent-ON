@@ -10,7 +10,7 @@ import operator
 from enum import Enum
 from typing import Annotated, TypedDict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, AliasChoices
 
 
 # ---------------------------------------------------------------------------
@@ -31,10 +31,22 @@ class TaskType(str, Enum):
 class TaskItem(BaseModel):
     """A single task in the supervisor's delegation plan."""
 
-    task_type: TaskType
-    description: str = ""
-    source_node: str | None = None
-    sink_node: str | None = None
+    task_type: TaskType = Field(
+        description="The type of task to execute. Must be one of the TaskType enum values.",
+        validation_alias=AliasChoices("task_type", "type"),
+    )
+    description: str = Field(
+        default="",
+        description="Detailed description of what this task step involves.",
+    )
+    source_node: str | None = Field(
+        default=None,
+        description="Optional source node name if applicable.",
+    )
+    sink_node: str | None = Field(
+        default=None,
+        description="Optional sink/target node name if applicable.",
+    )
 
 
 class TaskPlan(BaseModel):
