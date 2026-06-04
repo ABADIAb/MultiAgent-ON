@@ -6,7 +6,6 @@ Content-oriented catalog of everything in the wiki.
 - [[ProblemStatement_20260427_Felipe_Abadia]]: Definition of the thesis problem and objectives.
 - [[Concepts_and_Terminology]]: Glossary of terms for Intent-Based Optical Networks.
 - [[QoT_Awareness]]: Concept of Quality of Transmission awareness and feasibility metrics.
-- [[Research_Plan_MultiAgentON]]: Literature review plan for the thesis.
 
 ## Architecture
 - [[Architecture_v2]]: **Unified V2 system design** — LangGraph multi-agent workflow, Hybrid Memory, QoT strategy, ECOC baseline bridge.
@@ -28,6 +27,8 @@ Content-oriented catalog of everything in the wiki.
 
 ## Literature
 - [[literature/OrchestratorScriptReport]]: Analysis of the ECOC 2024 orchestrator codebase, Claude RAG memory paper, and comparison with our Hybrid Memory Architecture.
+- [[literature/lit_comparison]]: Systematic SOTA comparison of Agentic AI approaches for IBON (2024–2026) — feature matrix, positioning, and key references.
+- [[literature/recommendations]]: Prioritized research directions and follow-up reading list based on the literature comparison.
 
 ## Issues
 - [[Issue_Report_20260511_Felipe_Abadia]]: Solved QoT code delivery; pending SSH access, Python wrapper implementation, and Orchestrator review.
@@ -35,6 +36,7 @@ Content-oriented catalog of everything in the wiki.
 - [[Issue_Report_20260430_Felipe_Abadia]]: Solved repo structure confusion; pending LangGraph prototyping and QoT tool.
 
 ## Presentations
+- [[Presentation_20260604_SOTA_Analysis]]: Slide deck for Prof. Zhang summarizing the Agentic AI for IBON SOTA comparison.
 - [[Presentation_20260519_QoT_&_Orchestrator_Integration]]: Unified slide deck combining Orchestrator V2 architecture and QoT physics port for professor review.
 - [[Presentation_20260519_Orchestrator_Architecture]]: V2 LangGraph Orchestrator architecture slide deck for professor review.
 - [[Presentation_20260511_QoT_Integration]]: Technical analysis of the C++ QoT simulator and the Pure Python Port integration proposal.

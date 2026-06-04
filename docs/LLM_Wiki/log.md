@@ -161,3 +161,14 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
   - `Weekly_Report_20260603_Felipe_Abadia.md`: Added `[[wikilinks]]` to `Architecture_v2` and `QoT_Tool`. Embedded Experiment 001 ideation as a distinct progress item.
 - Renamed weekly report from `20260601` to `20260603` to reflect rescheduled meeting date. Updated `index.md` accordingly.
 
+## [2026-06-04] ingest | SOTA Literature Comparison & Research Recommendations
+- Analyzed: `raw/researchLM.md` and `raw/researchGemini.md` (two SOTA surveys on Agentic AI for IBON).
+- Web Research: 12+ targeted searches covering Confucius (SIGCOMM 2025), AutoLight/SJTU (ECOC 2025), ECOC 2024 PoliMi pipeline, AutoONBench, EU MARE, IntentLLM/TeraFlowSDN, HearthNet, IETF IBN+GenAI draft, GNPy/DT evolution, GraphRAG for telecom.
+- Created: `docs/LLM_Wiki/wiki/literature/lit_comparison.md` — systematic SOTA comparison with feature matrix, 5 architectural families, positioning analysis, USPs, and 17 organized references.
+- Created: `docs/LLM_Wiki/wiki/literature/recommendations.md` — 4-tier prioritized research directions with 10 key papers to read.
+- Updated: `index.md` (2 new Literature entries).
+
+## [2026-06-04] debrief2 | SOTA Analysis Session Closure
+- Wiki Deep Lint: Imbedded cross-references to core concepts (`[[ProblemStatement_20260427_Felipe_Abadia]]`, `[[Concepts_and_Terminology|SLA]]`, etc.) in `lit_comparison.md`, `recommendations.md`, `Weekly_Report_20260603_Felipe_Abadia.md`, and `Issue_Report_20260601_Felipe_Abadia.md`. Added References slide to `Presentation_20260604_SOTA_Analysis.md`.
+- Consistency Audit: Verified no code changes required auditing. Removed deferred C++ QoT physics constants requirement from reports per user instruction to prioritize agentic architecture tasks.
+- Session focus: Completed comprehensive SOTA comparison against Confucius, AutoLight, and HearthNet. Documented prioritized research recommendations focusing on compute scheduling and designed SOTA presentation for Prof. Zhang.
