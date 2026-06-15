@@ -63,7 +63,7 @@ class MockTestbedClient(TestbedClient):
                 link_id="link_ab",
                 source_node="node_1",
                 target_node="node_2",
-                length_km=25.0,
+                length_km=20.0,
                 num_amplifiers=1,
                 active_channels=4,
             ),

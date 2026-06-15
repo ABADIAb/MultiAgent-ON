@@ -72,8 +72,8 @@ def create_default_llm(
     kwargs: dict = {
         "model": model,
         "api_key": api_key,
-        "temperature": 0,
-        "max_tokens": 8192,
+        "temperature": 1,
+        "max_tokens": 1500,
         "default_headers": {"User-Agent": "claude-code/0.2.9"},
     }
     if base_url:
