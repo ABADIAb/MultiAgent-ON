@@ -34,6 +34,10 @@ LangGraph MVP Implementation & Wiki Consolidation
 - **What was tried:** I read and analyzed the baseline ECOC 2024 JSON schemas in `docs/LLM_Wiki/raw/ecoc2024-llm-orchestrator/data/json_schemas/` to align our models with Prof. Zhang's previous system.
 - **Resolution / outcome:** The data structures for lightpaths, services, and measurements are now fully documented and integrated into the unified [[Architecture_v2]] design and the MVP state representation.
 
+#### Solved Issue 3 (Carry forward from May 11 Pending Issue 4)
+- **Original issue:** SOTA & Literature Comparison.
+- **What was tried:** Conducted a comprehensive web search (covering Confucius, AutoLight, HearthNet, IETF drafts) to analyze the current SOTA.
+- **Resolution / outcome:** Successfully created [[literature/lit_comparison|lit_comparison.md]] establishing the 5 architectural families and our unique positioning, and drafted [[literature/recommendations|recommendations.md]] for next steps. The issue is fully resolved.
 ---
 
 ### Pending Issues
@@ -43,18 +47,6 @@ LangGraph MVP Implementation & Wiki Consolidation
 - **What has already been tried:** I connected to the lab VPN and received SSH credentials, but connection attempts to the machine (`10.79.26.43`) fail or time out.
 - **Result:** I cannot establish a persistent, direct remote workspace connection in VS Code.
 - **Estimated possible solution:** Seek technical assistance from lab assistants to verify the specific jump-host configuration or jump-host IP required to reach the VM.
-
-#### Pending Issue 2 (Carry forward from May 11 Pending Issue 4)
-- **Issue:** SOTA & Literature Comparison.
-- **What has already been tried:** Began reading and indexing relevant optical network papers under the [[Research_Plan_MultiAgentON|Research Plan]].
-- **Result:** Delayed this week to focus on the coding and implementation of the LangGraph MVP.
-- **Estimated possible solution:** Dedicate early time next week to compile the SOTA comparison table and prepare the slides requested by Prof. Zhang.
-
-#### Pending Issue 3 (New Issue)
-- **Issue:** C++ QoT Physics Port Constants & Verification Data.
-- **What has already been tried:** Reviewed `Network.cpp` logic and the C++ equations for physical-layer constraints.
-- **Result:** I cannot verify if the translated Python physics equations are numerically correct without gold-standard test vectors and the specific hardware parameters.
-- **Estimated possible solution:** Consult with Aryanaz to get the exact physical link coefficients (attenuation, dispersion, noise figure) and sample inputs/outputs.
 
 ---
 

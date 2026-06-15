@@ -50,8 +50,12 @@ May 26, 2026 - June 03, 2026
      - Implemented `json_mode` and robust `AliasChoices` in `TaskItem` Pydantic schemas to handle Kimi's inconsistent field naming (e.g., `"task_type"` vs. `"type"`).
      - Separated the Supervisor's system prompt into two stages: a strict JSON extraction prompt for intent parsing and a conversational prompt for human-readable synthesis.
 
-4. **SOTA & Intent Examples (Goals 1 & 2 — Deferred):**
-   - I deferred these goals to next week to prioritize the concrete validation of the LangGraph MVP with real API calls.
+4. **SOTA & Literature Comparison (Goal 1 — Completed):**
+   - I conducted a deep web search and created a systematic SOTA comparison ([[literature/lit_comparison|lit_comparison.md]]) mapping 5 architectural families (Confucius, AutoLight, HearthNet, etc.).
+   - I developed [[literature/recommendations|recommendations.md]] with prioritized research directions based on the SOTA gap analysis.
+
+5. **Intent Examples (Goal 2 — Deferred):**
+   - I deferred this goal to next week to prioritize the concrete validation of the LangGraph MVP and the extensive SOTA analysis.
 
 ---
 
@@ -62,30 +66,26 @@ May 26, 2026 - June 03, 2026
 - **Status:** Still unable to connect directly via SSH.
 - **Next Step:** Seek guidance from lab assistants on the specific VPN/jump-host credentials.
 
-### Issue 2
-- **Issue:** QoT Physics Port Constants & Verification Data.
-- **Status:** I need the exact physical-layer constants and gold-standard verification data to translate the C++ GA solver equations in `Network.cpp` into Python. See [[tools_wiki/QoT_Tool]] for current parameter documentation.
-- **Next Step:** Consult with Aryanaz to acquire the parameters.
 
 ---
 
 ## 4. Plan for Next Week
 
-1. **SOTA & Literature Comparison:** Create the literature comparison table requested by Prof. Zhang.
-2. **Intent Examples:** Document 3-5 concrete user intent examples to fulfill Zheng's request.
-3. **Ideate Experiment 002 (Routing + QoT):** Begin the design and ideation of the next experiment, defining what to test and how to integrate the Routing Agent and QoT tool into the LangGraph pipeline.
+1. **Intent Examples:** Document 3-5 concrete user intent examples to fulfill Zheng's request.
+2. **Ideate Experiment 002 (Routing + QoT):** Begin the design and ideation of the next experiment, defining what to test and how to integrate the Routing Agent and QoT tool into the LangGraph pipeline.
+3. **Compute Scheduling Research:** Begin investigating the compute scheduling dimension of the thesis (as recommended in our new analysis).
 
 ---
 
 ## 5. Do You Need Support?
 
-Write here: I still need technical assistance to configure my SSH credentials for remote workspace connection. I also need to coordinate with Aryanaz to get the C++ parameters.
+Write here: I still need technical assistance to configure my SSH credentials for remote workspace connection.
 
 ---
 
 ## 6. One-Sentence Summary
 
-I designed and executed the Topology Query MVP (Experiment 001), integrated the Kimi API with robust JSON parsing and two-stage prompting, and successfully validated the full orchestrator pipeline via CLI with real API calls.
+I designed and executed the Topology Query MVP (Experiment 001), integrated the Kimi API, successfully validated the full orchestrator pipeline via CLI, and completed a deep SOTA literature comparison identifying our unique architectural positioning.
 
 ---
 
