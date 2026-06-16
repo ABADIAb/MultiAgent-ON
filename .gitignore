@@ -34,15 +34,7 @@ htmlcov/
 # LangSmith
 .langsmith/
 
-# QoT Simulator (Strictly ALLOW only source code, IGNORE everything else)
-docs/LLM_Wiki/raw/**
-!docs/LLM_Wiki/raw/**/
-!docs/LLM_Wiki/raw/**/*.cpp
-!docs/LLM_Wiki/raw/**/*.h
-!docs/LLM_Wiki/raw/**/*.hpp
-!docs/LLM_Wiki/raw/**/*.c
-!docs/LLM_Wiki/raw/**/Makefile
-!docs/LLM_Wiki/raw/**/*.sh
-!docs/LLM_Wiki/raw/**/README
-!docs/LLM_Wiki/raw/**/README.md
+# Agent and Documentation directories
+.agents/
 .atl/
+docs/
