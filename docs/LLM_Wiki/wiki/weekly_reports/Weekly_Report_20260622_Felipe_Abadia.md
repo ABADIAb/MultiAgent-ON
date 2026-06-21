@@ -41,6 +41,11 @@ I did not work on the previously planned goals because the SOTA presentation was
 3. **SOTA Presentation Completed:**
    - I finalized the [[Presentation_20260604_SOTA_Analysis|SOTA Comparison Presentation]] requested by the professor, heavily emphasizing our unique "Slow Loop" safety features (Neurosymbolic Separation and `interrupt()` HITL). It is now ready for review.
 
+4. **AutoLight Field Trial Ingestion & Framework Validation:**
+   - I ingested and analyzed the latest ECOC 2025 field-trial paper for AutoLight (SJTU). 
+   - I discovered that AutoLight is built entirely on LangGraph, independently validating our core architectural choice with the most advanced optical multi-agent framework to date.
+   - I refined our SOTA Gap Analysis to explicitly define our Unique Selling Proposition (USP): combining Natural Language Intent Parsing, QoT-aware routing, and formal `interrupt()` HITL protocols—a combination absent in the SJTU approach.
+
 ## 3. Issue List This Week
 
 ### Issue 1

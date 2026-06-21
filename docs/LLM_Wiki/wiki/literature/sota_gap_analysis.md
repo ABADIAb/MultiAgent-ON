@@ -17,7 +17,7 @@ This document synthesizes the conclusions from our literature comparison ([[lit_
 
 - **Confucius (Meta, SIGCOMM 2025):** Solves the orchestration of complex, long-horizon tasks at a hyperscale level for IP and datacenter networks. A production-grade system with 60+ applications, 4,160 users, and 31.62M messages. Decomposes tasks into DAG-based workflows, integrates with existing tools via three DSLs (TML, ODS, Robotron), and uses RAG for long-term memory. Key contribution: the **Collector primitive** for structured human disambiguation — a form of HITL refinement.
 - **PoliMi/EURECOM Pipeline:** Automates the full lifecycle (Day-0 to Day-N) of Software-Defined Optical Networks using LLMs to translate intent into configuration.
-- **AutoLight / SJTU (JOCN 2026):** The SJTU group provides a **comprehensive invited tutorial** (225+ references) covering the entire landscape of AI agents for Autonomous Optical Networks (AONs). They define the agent as LLM (brain) + Tools (sensors/actuators) and systematically cover: domain adaptation (fine-tuning vs. prompt engineering), advanced prompting (CoT, ToT, ReAct), RAG, hierarchical MAS, MCP integration, and a three-part toolset (monitoring, DT construction, management & control). Their field trials demonstrate **L4 autonomous optical networks** for distributed AI training. Key result: hierarchical MAS achieves **3.2× higher task completion** than a single agent.
+- **AutoLight / SJTU (ECOC 2025 + JOCN 2026):** The SJTU group has produced two complementary works. The **ECOC 2025 field trial** (see [[AutoLight_ECOC2025]]) demonstrates AutoLight — a hierarchical multi-agent system **built on LangGraph** that achieves ~98% task completion (3.2× single-agent) across cross-domain scenarios (440 km backbone + DCI + intra-DC). Key innovation: **Chain of Identity (CoI)** — a three-mechanism technique (formatted handoffs, pseudo-SystemMessage injection, pre-execution declaration) for maintaining identity coherence across agent interactions. The **JOCN 2026 invited tutorial** (see [[SJTU_Invited_Tutorial_JOCN2026]]) is a comprehensive 225+ reference survey covering the full agentic stack for AONs: domain adaptation, prompting, RAG, hierarchical MAS, MCP, and a three-part toolset (monitoring, DT, management & control).
 - **IntentLLM:** Focuses on user interaction, enabling a chatbot interface to create, find, and explain SDN slice intents.
 - **HearthNet:** Tackles conflict resolution and actuation auditing at the edge for smart home/IoT environments.
 
@@ -25,7 +25,7 @@ This document synthesizes the conclusions from our literature comparison ([[lit_
 
 - **Confucius:** DAG-based multi-agent workflow orchestration. Core abstraction is the Analect (typed function with tracing). Primitives: Translator, Selector, Collector, Ensemble (multi-model consensus), Orchestrator (autonomous step-by-step planning). Built on Pydantic + LangChain. **No fine-tuning required** — prompt engineering + RAG achieves up to 35% improvement over fine-tuned baselines.
 - **PoliMi Pipeline:** A single-agent, stateless pipeline using a locally fine-tuned LLM with grammar-constrained generation (GBNF).
-- **SJTU (AutoLight / Tutorial):** Hierarchical multi-AI-agent system. **Planner agents** orchestrate workflows; **task agents** handle specific functions (routing, failure management, RAG). Advocates for MCP as the interoperability standard. Supports three optimization workflow types: predefined, LLM-generated plans, and *LLM-native* (ReAct-style reasoning that matches BO performance).
+- **SJTU (AutoLight):** Hierarchical multi-AI-agent system **built on LangGraph**. **Planner agents** orchestrate workflows via plan tracking tables; **Task agents** handle specific functions (resource allocation, failure management, Knowledge Retriever with RAG). Uses **Chain of Identity (CoI)** for inter-agent coordination — identity injection via ToolMessages to maintain role coherence. All agents are ReAct agents powered by GPT-4o. Advocates for MCP as the interoperability standard.
 - **IntentLLM:** A single conversational chatbot agent integrated with a cloud-native SDN controller.
 - **HearthNet:** An edge multi-agent system utilizing Git-backed shared state and MQTT buses.
 
@@ -33,7 +33,7 @@ This document synthesizes the conclusions from our literature comparison ([[lit_
 
 - **Confucius:** General network applications and workflow automation (capacity planning, fault diagnosis, configuration, monitoring). Uses three DSLs for tool integration but has **no optical transport or physical-layer awareness**.
 - **PoliMi Pipeline:** Natural Language (NL) intent to RESTConf configuration parsing and optical lifecycle automation.
-- **SJTU (AutoLight / Tutorial):** Full optical lifecycle — service establishment/termination, failure management (prediction, detection, identification, localization), continuous optimization (power control, RWA). Emphasizes DT as indispensable (white/black/gray-box models, self-learning via IR).
+- **SJTU (AutoLight):** Cross-domain lifecycle management — real-time resource allocation during distributed training, backbone wavelength establishment, DCI failure management (detection + mitigation), backbone failure management across information-isolated domains. The tutorial additionally covers continuous optimization (power control, RWA) and emphasizes DT as indispensable.
 - **IntentLLM:** SDN slicing and intent explanation.
 - **HearthNet:** Conflict resolution via actuation leases in IoT.
 
@@ -43,11 +43,12 @@ Current approaches have the following gaps in the context of our thesis objectiv
 
 - **Confucius:** Production-proven multi-agent orchestration but **completely unaware of optical physical-layer constraints** (no SNR, no GN model, no QoT estimation). Their documented failure modes (context loss, hallucination, lack of early failure) directly motivate our [[Constraint_Isolation|neurosymbolic constraint isolation]].
 - **PoliMi Pipeline:** Lacks multi-agent coordination, long-term memory, and formal [[HITL_Refinement|Human-in-the-Loop]] safety validations. Stateless design limits complex multi-step reasoning.
-- **SJTU (AutoLight / Tutorial):** The most complete optical-domain work but:
-  - Relies on **structured inputs** rather than true natural language intent parsing.
+- **SJTU (AutoLight):** The most complete optical-domain work but:
+  - Relies on **structured task definitions** rather than true natural language intent parsing.
   - Does not implement NL → `sla_matrix` conversion with reverse prompting.
-  - Their HITL is described as an essential *transition mechanism* but lacks a formal specification (no `interrupt()` protocol).
-  - Focuses primarily on **operational tasks** (Day-1/Day-2 power optimization, failure management) rather than **intent-driven routing** from natural language.
+  - **No HITL mechanism** — the tutorial mentions HITL as an essential *transition mechanism* but AutoLight itself implements no formal operator validation.
+  - Uses **LangGraph** (same as us) but with a different coordination pattern: CoI (identity injection) vs. our hub-and-spoke Supervisor.
+  - Focuses primarily on **operational tasks** (resource allocation, failure management) rather than **intent-driven routing** from natural language.
 - **IntentLLM:** No multi-agent coordination or QoT validation.
 - **HearthNet:** IoT-focused, non-optical domain.
 
@@ -69,7 +70,7 @@ The **MultiAgentON** project targets **QoT-aware optical routing driven by natur
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Confucius (Meta)** | Hyperscale IP/DC | DAG orchestration, Ensemble, RAG | 60+ production apps | Collector (structured Q&A) | ❌ None | Collector (disambiguation) | No optical transport, no physics |
 | **PoliMi Pipeline** | Optical lifecycle | Single-agent, GBNF | NL → RESTConf config | ✅ Basic NL parsing | Partial (relies on controller) | ❌ None | Stateless, no multi-agent, no HITL |
-| **SJTU (Tutorial)** | Full AON lifecycle | Hierarchical MAS | Day-0 to Day-N operations | ❌ Structured inputs | ✅ Full DT toolset | Mentioned (no formal spec) | No NL parsing, no formal HITL |
+| **SJTU (AutoLight / Tutorial)** | Cross-domain optical lifecycle | LangGraph, Hierarchical MAS, CoI | Resource alloc, wavelength, failure | ❌ Structured tasks | ✅ Full DT toolset | ❌ None (Mentioned in tutorial) | No NL parsing, no formal HITL |
 | **IntentLLM** | SDN Slicing | Single chatbot | Create/Find/Explain | ✅ NL intent | ❌ None | ❌ None | No multi-agent, no QoT |
 | **HearthNet** | Edge IoT | Edge MAS (Git/MQTT) | Actuation leases | ❌ N/A | ❌ N/A | Audit leases | Non-optical domain |
 | **MultiAgentON (ours)** | Optical routing | [[Architecture_v2\|LangGraph Orchestrator]] | Intent → QoT-validated route | ✅ NL → `sla_matrix` + reverse prompting | ✅ [[QoT_Awareness\|Neurosymbolic GN model]] | ✅ Formal `interrupt()` | — |

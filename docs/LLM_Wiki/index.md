@@ -33,6 +33,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/sota_gap_analysis]]: Gap analysis positioning MultiAgentON against Confucius, SJTU, PoliMi, IntentLLM, and HearthNet. Updated for scope pivot (routing+QoT+HITL focus).
 - [[literature/Confucius_SIGCOMM2025]]: Detailed analysis of Meta's Confucius multi-agent LLM framework (SIGCOMM 2025). DAG workflows, Collector primitive, Ensemble, RAG.
 - [[literature/SJTU_Invited_Tutorial_JOCN2026]]: Comprehensive summary of the SJTU invited tutorial on AI agents for AONs (JOCN 2026). Hierarchical MAS, DT toolset, MCP, field trials.
+- [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
 - [[Issue_Report_20260622_Felipe_Abadia]]: SSH workspace access pending testing.

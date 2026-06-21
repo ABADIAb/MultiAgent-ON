@@ -196,3 +196,19 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited `Weekly_Report_20260622_Felipe_Abadia.md` and embedded missing `[[wikilinks]]` to `Architecture_v2` and `QoT_Tool`. Confirmed that the new presentation, recommendations, gap analysis, and issue report are cleanly linked in `index.md`.
 - Consistency Audit: Confirmed that `Architecture_v2.md` remains fully consistent with the new thesis pivot (as it already naturally isolated the optical Routing Agent from any rigid compute dependencies). Validated that the `ProblemStatement_20260427_Felipe_Abadia.md` output tuple $A^*$ strictly drops the $c^*$ compute parameter.
 - Session closure complete.
+
+## [2026-06-21] ingest | AutoLight Field Trial (ECOC 2025)
+- Ingested: `First_Field-Trial_Demonstration_of_L4_Autonomous_Optical_Network_for_Distributed_AI_Training_Communication_An_Llm-Powered_Multi-AI-Agent_Solution.pdf` (SJTU AutoLight, ECOC 2025).
+- Extracted: PDF → Markdown via `pymupdf4llm` into `docs/LLM_Wiki/raw/`.
+- Created: `docs/LLM_Wiki/wiki/literature/AutoLight_ECOC2025.md` — field trial analysis (hierarchical MAS, Chain of Identity technique, LangGraph, cross-domain testbed, ~98% task completion).
+- Updated: `docs/LLM_Wiki/wiki/literature/lit_comparison.md` — corrected AutoLight framework from "Custom" to "LangGraph", added CoI technique details, updated detailed analysis link.
+- Updated: `docs/LLM_Wiki/wiki/literature/sota_gap_analysis.md` — enriched all AutoLight/SJTU entries with LangGraph framework, CoI details, corrected scope description.
+- Updated: `docs/LLM_Wiki/wiki/literature/recommendations.md` — marked AutoLight (item #6) as ✅ Done with link.
+- Updated: `index.md` (new AutoLight_ECOC2025 entry in Literature section).
+- Key discovery: AutoLight is **built on LangGraph** — independently validates our framework choice.
+
+## [2026-06-21] debrief2 | AutoLight Ingestion Session Closure
+- Action: Executed `/debrief2` session closure routine.
+- Wiki Deep Lint: Audited `Weekly_Report_20260622_Felipe_Abadia.md` to ensure correct wikilinking. Confirmed `AutoLight_ECOC2025.md` contains proper internal links to `Architecture_v2` and `QoT_Awareness`.
+- Consistency Audit: Confirmed that our architecture (`Architecture_v2`) and gap analysis are perfectly consistent with the discovery that AutoLight also uses LangGraph. Our unique differentiator remains firmly in the intersection of NL Intent, QoT awareness, and formal HITL.
+- Session closure complete.

@@ -42,13 +42,13 @@ The current SOTA can be categorized into **five main architectural families**. E
 
 | Work | Key Innovation | Venue |
 |---|---|---|
-| **AutoLight** (SJTU, Zhang, Qiu, Zhuge et al.) | Multi-AI-agent for L4 autonomy targeting distributed AI training. ~98% task completion (3.2× single-agent). Cross-domain management. | ECOC 2025 |
+| **AutoLight** (SJTU, Zhang, Qiu, Zhuge et al.) | Multi-AI-agent for L4 autonomy targeting distributed AI training. ~98% task completion (3.2× single-agent). Novel **Chain of Identity (CoI)** for inter-agent coordination. Built on **LangGraph**. Cross-domain management (440 km field-deployed backbone + DCI + intra-DC). | ECOC 2025 |
 | **Expertise-Guided LLM Agent** (SJTU, Qiu, Zhuge et al.) | LLM agent with human expertise injection + Digital Twin for optical power optimization. 5.9 adjustments avg (5.8× fewer than Bayesian, 27.9× fewer than GA). | JOCN 2026 |
 | **SJTU Invited Tutorial** (Zhang, Qiu, Zhuge et al.) | Comprehensive 20-page survey (225+ refs) of AI agents for AONs. Covers full agentic stack: domain adaptation, advanced prompting, RAG, hierarchical MAS, MCP, monitoring/DT/control toolsets. | JOCN 2026 (Invited) |
 
-- **Detailed Analysis**: See [[SJTU_Invited_Tutorial_JOCN2026]] for the full tutorial summary.
-- **Relevance to MultiAgentON**: These works from the SJTU group represent the **closest competitors** in the optical domain. They validate multi-agent LLM systems for optical network operations. The tutorial is the most authoritative survey on the topic.
-- **Key Difference**: AutoLight focuses on **operational lifecycle management** (wavelength add/drop, failure management, power optimization). Our thesis targets **QoT-aware optical routing driven by natural language intent** with formal HITL validation. Their agents do not implement NL → `sla_matrix` conversion. Their HITL is described as an essential transition mechanism but lacks a formal specification.
+- **Detailed Analysis**: See [[AutoLight_ECOC2025]] for the field trial paper summary and [[SJTU_Invited_Tutorial_JOCN2026]] for the full tutorial summary.
+- **Relevance to MultiAgentON**: These works from the SJTU group represent the **closest competitors** in the optical domain. They validate multi-agent LLM systems for optical network operations. The tutorial is the most authoritative survey on the topic. Critically, AutoLight is **built on LangGraph** — the same framework we use — independently validating our technology choice.
+- **Key Difference**: AutoLight focuses on **operational lifecycle management** (resource allocation, wavelength establishment, failure management) across multiple domains. Our thesis targets **QoT-aware optical routing driven by natural language intent** with formal HITL validation. Their agents receive structured task definitions, not natural language intents. Their **Chain of Identity (CoI)** coordination technique (identity injection via ToolMessages) is novel but addresses a different problem than our hub-and-spoke Supervisor pattern — CoI handles identity coherence in semi-autonomous ReAct agents, while our Supervisor maintains full state centrally.
 - **Critical Gap We Fill**: No SJTU work explicitly addresses the **intent-to-configuration translation** problem with HITL validation. Their agents receive structured inputs, not natural language intents. Our formal `interrupt()` protocol and reverse prompting pattern are novel contributions.
 
 ### 1.4 Intent-Based Networking with Security / Multi-Domain Focus
@@ -93,7 +93,7 @@ This matrix maps key capabilities across the SOTA and our MultiAgentON architect
 | **Digital Twin / Simulator** | ✅ (DT + GN) | ❌ | ✅ (DT) | ❌ | ✅ (PASTE DT) | **✅ (pure Python GN port)** |
 | **Neurosymbolic Separation** | Partial (GBNF) | ❌ | Partial | ❌ | ❌ | **✅ (strict: LLMs reason, tools calculate)** |
 | **Error Recovery Loop** | ✅ (re-prompt) | ✅ | ✅ | ❌ | ❌ | **✅ (conditional edges + RAG fallback)** |
-| **Orchestration Framework** | None (raw scripts) | Custom DAG | Custom | TeraFlowSDN | Custom | **LangGraph** |
+| **Orchestration Framework** | None (raw scripts) | Custom DAG | **LangGraph** | TeraFlowSDN | Custom | **LangGraph** |
 | **Real Testbed Validation** | ✅ (field trial) | ✅ (production) | ✅ (field trial) | ✅ (TeraFlow) | PoC | **Planned (RESTConf NBI)** |
 | **Open Source / Reproducible** | Partial (schemas shared) | ❌ (proprietary) | ❌ | ✅ (TeraFlow) | ❌ | **✅ (full codebase)** |
 

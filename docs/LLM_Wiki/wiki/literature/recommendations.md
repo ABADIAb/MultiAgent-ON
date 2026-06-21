@@ -121,7 +121,7 @@ These are active research areas worth tracking but not worth deep investigation 
 | 3 | ECOC 2024 PDP (PoliMi) | ✅ Done | Already analyzed in [[OrchestratorScriptReport]] |
 | 4 | AutoONBench (JOCN 2026) | 🟡 Medium | Evaluation methodology |
 | 5 | IETF IBN+GenAI draft | 🟡 Medium | Standards positioning |
-| 6 | AutoLight (ECOC 2025) | 🟡 Medium | L4 autonomy comparison |
+| 6 | AutoLight (ECOC 2025) | ✅ Done | L4 autonomy field trial, LangGraph validation, CoI technique → [[AutoLight_ECOC2025]] |
 | 7 | Expertise-Guided Agent (JOCN 2026) | 🟡 Medium | DT+LLM pattern |
 | 8 | EU MARE (arXiv 2026) | 🟢 Low | Security context only |
 | 9 | HearthNet (arXiv 2026) | 🟢 Low | Conflict resolution patterns |
