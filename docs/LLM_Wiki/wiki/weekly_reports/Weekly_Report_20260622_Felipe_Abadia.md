@@ -12,7 +12,7 @@ status: active
 Felipe Abadia
 
 ## Project Title:
-Agentic AI for joint routing and compute scheduling in optical networks
+QoT-Informed Intent Planning for Optical Networks: A Neurosymbolic Human-in-the-Loop Approach
 
 ## Date: 
 2026-06-22
@@ -28,7 +28,7 @@ Agentic AI for joint routing and compute scheduling in optical networks
 
 ## 2. What did you actually accomplish?
 
-I did not work on the previously planned goals because the SOTA presentation was delayed at the professor's request to integrate new material. Instead, I focused heavily on refining the core [[Architecture_v2|architecture]] and completing the presentation for this week:
+I did not work on the previously planned goals because the SOTA presentation was delayed at the professor's request to integrate new material. Instead, I focused heavily on refining the core [[Architecture_v3|architecture]] and completing the presentation for this week:
 
 1. **Strategic Thesis Pivot:**
    - I formally excised "compute scheduling" from the immediate scope, deferring it to future work due to time constraints. 
@@ -46,6 +46,12 @@ I did not work on the previously planned goals because the SOTA presentation was
    - I discovered that AutoLight is built entirely on LangGraph, independently validating our core architectural choice with the most advanced optical multi-agent framework to date.
    - I refined our SOTA Gap Analysis to explicitly define our Unique Selling Proposition (USP): combining Natural Language Intent Parsing, QoT-aware routing, and formal `interrupt()` HITL protocols—a combination absent in the SJTU approach.
 
+5. **Formal Scope Pivot (Session June 22):**
+   - After analyzing the SOTA evidence, I formally pivoted the thesis scope from a full multi-agent lifecycle system to the **Intent Planning Loop** — the iterative phase where operator intent is parsed, validated against QoT constraints, and refined through multi-turn HITL.
+   - Created [[Architecture_v3]] (superseding V2), [[ProblemStatement_v3]] (superseding V1), and a formal [[Scope_Pivot_20260621|Scope Pivot]] rationale document.
+   - Rewrote the [[literature/sota_gap_analysis|SOTA Gap Analysis]], updated [[literature/lit_comparison|Literature Comparison]] and [[literature/recommendations|Research Recommendations]] to reflect the planning-loop focus.
+   - Prepared a [[Presentation_20260621_Scope_Pivot|9-slide presentation]] for the professor explaining the SOTA-driven pivot.
+
 ## 3. Issue List This Week
 
 ### Issue 1
@@ -57,12 +63,28 @@ I did not work on the previously planned goals because the SOTA presentation was
 
 ## 4. Plan for Next Week
 
-1. **Ideate Experiment 002:** Integrate the Routing Agent and the Python GN model [[tools_wiki/QoT_Tool|QoT tool]] into the LangGraph MVP.
-2. **Formal HITL Implementation:** Design and code the `interrupt()` mechanism to allow operator validation of parsed intent before execution.
-3. **Intent Examples:** Document 3-5 concrete user intent examples to fulfill the previous request.
+1. **Experiment 002**: Intent Parsing + HITL reverse prompting (NL → `sla_matrix` with multi-turn `interrupt()`).
+2. **Design PlanningReport Schema**: Define the Pydantic models (`PlanningReport`, `CandidatePath`, `SLAMatrix`).
+3. **Intent Examples**: Document 3-5 concrete operator intent examples to fulfill the previous request.
+4. **Present Scope Pivot**: Present the new scope to the professor using the prepared presentation.
 
 ---
 
 ## 5. Do You Need Support?
 
 Write here: I need to verify my SSH connection this week to see if the jump-host is properly configured.
+
+---
+
+## 6. One-Sentence Summary
+
+I formally pivoted the thesis scope to the "Intent Planning Loop" based on rigorous SOTA evidence, updated all core architecture and literature artifacts accordingly, and prepared the final scope presentation for the professor.
+
+---
+
+## 7. Self-Check Before Submission
+
+- [x] I have clearly written the planned goals and actual progress for this week
+- [x] I have listed all issues encountered this week
+- [x] I have clearly written my plan for next week
+- [x] I have indicated whether I need support

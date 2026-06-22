@@ -21,7 +21,6 @@ This document serves as the registry for the modular capabilities ("Skills") int
 ## 2. Pending Skills to Implement
 
 - [ ] `fetch_topology`: A skill to retrieve the current state of the optical network test-bed.
-- [ ] `schedule_compute`: A skill to interface with the compute nodes to allocate processing tasks.
 - [ ] `github_sync`: A skill to automatically push updates or read from the Git repository.
 
 ## 3. How to Add a New Skill

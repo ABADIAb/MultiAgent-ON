@@ -3,17 +3,22 @@
 Content-oriented catalog of everything in the wiki.
 
 ## Concepts
-- [[ProblemStatement_20260427_Felipe_Abadia]]: Definition of the thesis problem and objectives.
+- [[ProblemStatement_v3]]: **Active** — QoT-Informed Intent Planning problem definition, planning loop methodology, HITL convergence objective.
 - [[Concepts_and_Terminology]]: Glossary of terms for Intent-Based Optical Networks.
 - [[QoT_Awareness]]: Concept of Quality of Transmission awareness and feasibility metrics.
 
+### Archived Concept Documents
+- [[concepts/archive/ProblemStatement_20260427_Felipe_Abadia]]: (archived) Original problem statement. Superseded by ProblemStatement_v3.
+
 ## Architecture
-- [[Architecture_v2]]: **Unified V2 system design** — LangGraph multi-agent workflow, Hybrid Memory, QoT strategy, ECOC baseline bridge.
+- [[Architecture_v3]]: **Active unified V3 design** — Intent Planning Loop, simplified memory, PlanningReport output, multi-turn HITL, experiment roadmap.
+- [[Scope_Pivot_20260621]]: Formal scope pivot document — rationale for narrowing from full MAS to planning-loop focus, SOTA evidence.
 - [[Tool_Registry]]: Registry of deterministic tools/skills for the optical network.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
 ### Archived Architecture Documents
-- [[architecture/archive/Architecture_Workflow_20260427_Felipe_Abadia]]: (archived) V2 LangGraph implementation workflow. Superseded by Architecture_v2.
+- [[architecture/archive/Architecture_v2]]: (archived) V2 unified system design. Superseded by Architecture_v3.
+- [[architecture/archive/Architecture_Workflow_20260427_Felipe_Abadia]]: (archived) V1 LangGraph workflow. Superseded by Architecture_v2.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
@@ -27,10 +32,10 @@ Content-oriented catalog of everything in the wiki.
 - [[Weekly_Report_20260424_Felipe_Abadia]]: Weekly report April 18-24, 2026.
 
 ## Literature
-- [[literature/OrchestratorScriptReport]]: Analysis of the ECOC 2024 orchestrator codebase, Claude RAG memory paper, and comparison with our Hybrid Memory Architecture.
-- [[literature/lit_comparison]]: Systematic SOTA comparison of Agentic AI approaches for IBON (2024–2026) — feature matrix, positioning, and key references.
-- [[literature/recommendations]]: Prioritized research directions and follow-up reading list based on the literature comparison.
-- [[literature/sota_gap_analysis]]: Gap analysis positioning MultiAgentON against Confucius, SJTU, PoliMi, IntentLLM, and HearthNet. Updated for scope pivot (routing+QoT+HITL focus).
+- [[literature/OrchestratorScriptReport]]: Analysis of the ECOC 2024 orchestrator codebase, Claude RAG memory paper, and comparison with our architecture.
+- [[literature/lit_comparison]]: Systematic SOTA comparison of Agentic AI approaches for IBON (2024–2026) — feature matrix, planning-loop positioning, and key references.
+- [[literature/recommendations]]: Prioritized research directions focused on the Intent Planning Loop experiments.
+- [[literature/sota_gap_analysis]]: Gap analysis positioning MultiAgentON's Intent Planning Loop against Confucius, SJTU, PoliMi, IntentLLM, and HearthNet.
 - [[literature/Confucius_SIGCOMM2025]]: Detailed analysis of Meta's Confucius multi-agent LLM framework (SIGCOMM 2025). DAG workflows, Collector primitive, Ensemble, RAG.
 - [[literature/SJTU_Invited_Tutorial_JOCN2026]]: Comprehensive summary of the SJTU invited tutorial on AI agents for AONs (JOCN 2026). Hierarchical MAS, DT toolset, MCP, field trials.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
@@ -42,7 +47,8 @@ Content-oriented catalog of everything in the wiki.
 - [[Issue_Report_20260430_Felipe_Abadia]]: Solved repo structure confusion; pending LangGraph prototyping and QoT tool.
 
 ## Presentations
-- [[Presentation_20260604_SOTA_Analysis]]: Slide deck for Prof. Zhang summarizing the Agentic AI for IBON SOTA comparison.
+- [[Presentation_20260621_Scope_Pivot]]: Slide deck presenting the SOTA-driven scope pivot from full MAS to Intent Planning Loop for Prof. Zhang.
+- [[Presentation_20260604_SOTA_Analysis]]: Slide deck summarizing the Agentic AI for IBON SOTA comparison (pre-pivot).
 - [[Presentation_20260519_QoT_&_Orchestrator_Integration]]: Unified slide deck combining Orchestrator V2 architecture and QoT physics port for professor review.
 - [[Presentation_20260519_Orchestrator_Architecture]]: V2 LangGraph Orchestrator architecture slide deck for professor review.
 - [[Presentation_20260511_QoT_Integration]]: Technical analysis of the C++ QoT simulator and the Pure Python Port integration proposal.

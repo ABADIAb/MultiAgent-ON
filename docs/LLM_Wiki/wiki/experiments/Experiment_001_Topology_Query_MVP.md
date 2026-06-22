@@ -132,6 +132,8 @@ dependencies = [
 
 ## 10. Cross-References
 
-- [[Architecture_v2]] — Full system architecture
+- [[Architecture_v3]] — Intent Planning System architecture (active)
 - [[Tool_Registry]] — `fetch_topology` tool registration
 - [[Concepts_and_Terminology]] — SLA, QoT, SDON definitions
+
+> **Scope Pivot Note:** This experiment remains fully valid under the [[Scope_Pivot_20260621|scope pivot]] from full MAS to Intent Planning Loop. The Topology Agent is a core component of the planning loop — it provides the topology snapshot that the Routing Agent uses for QoT-informed path evaluation.

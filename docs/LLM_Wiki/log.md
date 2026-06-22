@@ -212,3 +212,23 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited `Weekly_Report_20260622_Felipe_Abadia.md` to ensure correct wikilinking. Confirmed `AutoLight_ECOC2025.md` contains proper internal links to `Architecture_v2` and `QoT_Awareness`.
 - Consistency Audit: Confirmed that our architecture (`Architecture_v2`) and gap analysis are perfectly consistent with the discovery that AutoLight also uses LangGraph. Our unique differentiator remains firmly in the intersection of NL Intent, QoT awareness, and formal HITL.
 - Session closure complete.
+
+## [2026-06-22] pivot | Scope Pivot: Full MAS → Intent Planning Loop
+- Decision: Narrowed thesis scope from full multi-agent lifecycle system to QoT-Informed Intent Planning Loop, driven by SOTA evidence (Confucius, AutoLight, SJTU Tutorial).
+- Created: `docs/LLM_Wiki/wiki/architecture/Scope_Pivot_20260621.md` — formal pivot rationale.
+- Created: `docs/LLM_Wiki/wiki/architecture/Architecture_v3.md` — new unified architecture focused on the planning loop.
+- Created: `docs/LLM_Wiki/wiki/concepts/ProblemStatement_v3.md` — updated problem definition with planning loop methodology.
+- Created: `docs/LLM_Wiki/wiki/presentations/Presentation_20260621_Scope_Pivot.md` — presentation for Prof. Zhang.
+- Archived: `Architecture_v2.md` → `architecture/archive/` (status: archived, superseded_by: Architecture_v3).
+- Archived: `ProblemStatement_20260427_Felipe_Abadia.md` → `concepts/archive/` (status: archived, superseded_by: ProblemStatement_v3).
+- Rewritten: `docs/LLM_Wiki/wiki/literature/sota_gap_analysis.md` — planning-loop positioning, "Why not full MAS?" section.
+- Updated: `docs/LLM_Wiki/wiki/literature/recommendations.md` — experiment roadmap recentered on planning loop (Exp 002–004).
+- Updated: `docs/LLM_Wiki/wiki/literature/lit_comparison.md` — §2 feature matrix, §3 positioning, §3.2 USPs, §6 strengths/weaknesses.
+- Updated: `index.md` — new entries, archive annotations, updated summaries.
+- Minor updates: `Experiment_001_Topology_Query_MVP.md` (pivot acknowledgment note), `Concepts_and_Terminology.md` (new term: Intent Planning Loop).
+
+## [2026-06-22] debrief2 | Wiki Consistency Audit & Deep Lint Session Closure
+- Action: Executed `/debrief2` session closure routine correctly.
+- Consistency Audit: Removed `schedule_compute` from `Tool_Registry.md` to align with the scope pivot. Updated `tools_wiki/QoT_Tool.md` to point to `Architecture_v3` instead of the archived V1 workflow.
+- Wiki Deep Lint: Re-verified `QoT_Awareness.md`, `Architecture_v3.md`, and existing docs to ensure no lingering references to archived concepts.
+- Session closure properly logged.

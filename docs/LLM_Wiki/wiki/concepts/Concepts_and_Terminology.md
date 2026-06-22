@@ -31,3 +31,6 @@ An HTTP-based network management protocol (defined in RFC 8040) designed to prov
 
 ### 8. Baseline Reference System
 The standard comparative reference architecture or preexisting software implementation against which a new system's performance, scalability, and capability are evaluated. In this work, the baseline refers to the ECOC 2024 procedural LLM-based orchestrator, which utilizes static, stateless scripts and constrained generation to execute network management tasks. The proposed Multi-Agent System (MAS) builds upon this baseline by introducing stateful graph structures, hybrid memory architectures, and cyclical reasoning loops.
+
+### 9. Intent Planning Loop
+The iterative, multi-agent workflow that translates unstructured operator intent into a validated optical routing plan. The loop consists of: (1) natural language parsing into an SLA constraint matrix, (2) topology acquisition from the network testbed, (3) QoT-informed candidate path evaluation via deterministic GN model tools, (4) synthesis of a structured Planning Report, and (5) multi-turn Human-in-the-Loop (HITL) refinement via `interrupt()` until the operator approves the plan. The Planning Report — containing candidate paths with QoT feasibility scores, SLA satisfaction, and trade-off analysis — is the primary output artifact. See [[Architecture_v3]] and [[Scope_Pivot_20260621]].

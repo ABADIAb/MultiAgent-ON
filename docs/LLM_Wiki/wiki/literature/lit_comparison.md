@@ -1,13 +1,13 @@
 ---
 title: "Literature Comparison: Agentic AI for Intent-Based Optical Networks"
-date: 2026-06-21
-tags: [literature, comparison, SOTA, agentic-ai, optical-networks, multi-agent, intent-based]
+date: 2026-06-22
+tags: [literature, comparison, SOTA, agentic-ai, optical-networks, multi-agent, intent-based, planning-loop]
 status: active
 ---
 
 # Literature Comparison: Agentic AI Approaches for Intent-Based Optical Networks (2024–2026)
 
-This document provides a systematic comparison of the state-of-the-art (SOTA) approaches in **Agentic AI for Intent-Based Optical Networks (IBON)** against the **MultiAgentON** architecture defined in [[Architecture_v2]]. The goal is to identify where our work fits within the research landscape, what differentiates it, and what strategic direction to take for the thesis.
+This document provides a systematic comparison of the state-of-the-art (SOTA) approaches in **Agentic AI for Intent-Based Optical Networks (IBON)** against the **MultiAgentON** architecture defined in [[Architecture_v3]]. The goal is to identify where our work fits within the research landscape, what differentiates it, and what strategic direction to take for the thesis. Updated after the [[Scope_Pivot_20260621|scope pivot]] to reflect the planning-loop focus.
 
 ---
 
@@ -83,18 +83,15 @@ This matrix maps key capabilities across the SOTA and our MultiAgentON architect
 | Feature | PoliMi ECOC'24 | Confucius (Meta) | AutoLight (SJTU) | IntentLLM (Chalmers) | MARE (EU) | **MultiAgentON (Ours)** |
 |---|---|---|---|---|---|---|
 | **Domain** | Optical (SDON) | IP/Datacenter | Optical | SDN Slicing | 6G Security | **Optical (SDON)** |
-| **NL Intent Parsing** | ✅ (single-pass) | ✅ (DAG decomposition) | ❌ (structured input) | ✅ (chatbot) | ✅ (security intents) | **✅ ([[Concepts_and_Terminology|SLA matrix]] + task list)** |
-| **Multi-Agent Architecture** | ❌ (single script) | ✅ (60+ apps) | ✅ (multi-agent) | ❌ (single chatbot) | ✅ (multi-domain) | **✅ (LangGraph hub-and-spoke)** |
-| **QoT-Aware Routing** | ❌ | ❌ | ✅ (power optim.) | ❌ | ❌ | **✅ (GN model tool)** |
-| **Compute Scheduling** | ❌ | ❌ | ❌ | ❌ | ❌ | **Future work** |
-| **Joint Routing + Compute** | ❌ | ❌ | ❌ | ❌ | ❌ | **Future work** |
-| **HITL Validation** | ❌ | ✅ (primitives) | ❌ | ❌ | ❌ | **✅ (interrupt() + GIGO prevention)** |
-| **Hybrid Memory** | ❌ | ✅ (RAG) | ❌ (unclear) | ❌ | ❌ | **✅ (tri-partite: Wiki+Graph+RAG)** |
-| **Digital Twin / Simulator** | ✅ (DT + GN) | ❌ | ✅ (DT) | ❌ | ✅ (PASTE DT) | **✅ (pure Python GN port)** |
+| **Scope** | Full lifecycle | General orchestration | Full lifecycle | Slice management | Security | **Planning phase** |
+| **NL Intent Parsing** | ✅ (single-pass) | ✅ (DAG decomposition) | ❌ (structured input) | ✅ (chatbot) | ✅ (security intents) | **✅ (NL → `sla_matrix` + reverse prompting)** |
+| **Multi-Agent Architecture** | ❌ (single script) | ✅ (60+ apps) | ✅ (multi-agent) | ❌ (single chatbot) | ✅ (multi-domain) | **✅ (LangGraph planning pipeline)** |
+| **QoT-Aware Planning** | ❌ | ❌ | ✅ (power optim.) | ❌ | ❌ | **✅ (GN model tool for path evaluation)** |
+| **Multi-Turn HITL** | ❌ | ✅ (Collector, single-turn) | ❌ | ❌ | ❌ | **✅ (iterative `interrupt()` refinement loop)** |
+| **Planning Report Output** | ❌ | ❌ | ❌ | ❌ | ❌ | **✅ (structured Pydantic artifact)** |
 | **Neurosymbolic Separation** | Partial (GBNF) | ❌ | Partial | ❌ | ❌ | **✅ (strict: LLMs reason, tools calculate)** |
-| **Error Recovery Loop** | ✅ (re-prompt) | ✅ | ✅ | ❌ | ❌ | **✅ (conditional edges + RAG fallback)** |
 | **Orchestration Framework** | None (raw scripts) | Custom DAG | **LangGraph** | TeraFlowSDN | Custom | **LangGraph** |
-| **Real Testbed Validation** | ✅ (field trial) | ✅ (production) | ✅ (field trial) | ✅ (TeraFlow) | PoC | **Planned (RESTConf NBI)** |
+| **Real Testbed Validation** | ✅ (field trial) | ✅ (production) | ✅ (field trial) | ✅ (TeraFlow) | PoC | **Planned (mock → RESTConf NBI)** |
 | **Open Source / Reproducible** | Partial (schemas shared) | ❌ (proprietary) | ❌ | ✅ (TeraFlow) | ❌ | **✅ (full codebase)** |
 
 ---
@@ -108,8 +105,9 @@ This matrix maps key capabilities across the SOTA and our MultiAgentON architect
                             ▲
                             │
                   SJTU ●    │    ● MultiAgentON (ours)
-                            │         ▲ + Formal HITL
+                            │         ▲ + Multi-turn HITL
                             │         │ + NL Intent Parsing
+                            │         │ + Planning Report
                             │
         ────────────────────┼────────────────────► NL Intent
                             │
@@ -120,14 +118,14 @@ This matrix maps key capabilities across the SOTA and our MultiAgentON architect
                      Not QoT-Aware
 ```
 
-**No existing work combines ALL THREE**: (1) Natural language intent parsing with formal HITL, (2) QoT-aware optical routing with neurosymbolic separation, AND (3) a multi-agent LLM framework covering Day-0 through Day-N. This is our thesis's unique contribution. Compute scheduling is documented as **future work** (scope refinement).
+**No existing work combines ALL THREE**: (1) Natural language intent parsing with multi-turn HITL refinement, (2) QoT-aware path evaluation with neurosymbolic separation, AND (3) a structured Planning Report artifact as the validated output. These three capabilities all converge in the **planning phase**, making it the optimal focus for a novel thesis contribution. See [[Scope_Pivot_20260621]] for the full rationale.
 
 ### 3.2 Our Unique Selling Points (USPs)
 
-1. **NL Intent Parsing with Formal HITL**: We are the first to implement NL → `sla_matrix` conversion with reverse prompting and a formal `interrupt()` protocol in the optical network domain. This addresses the "confidently wrong" problem (Confucius failure modes) and the HITL gap (SJTU acknowledges it as essential but lacks formal specification).
-2. **Neurosymbolic Design Discipline**: While others use LLMs end-to-end (risking hallucinated physics), we enforce a strict "LLMs reason, tools calculate" separation. The QoT tool is a pure Python GN model, not an LLM approximation. Aligned with SJTU's recommended gray-box paradigm.
-3. **Tri-Partite Hybrid Memory**: Our three-pillar memory (Wiki/Procedural + Graph/Semantic + RAG/Episodic) is architecturally more principled than the ad-hoc RAG used by Confucius or the memory-less PoliMi pipeline.
-4. **Day-0 to Day-N Coverage**: Our approach covers the full lifecycle — from initial service provisioning to continuous optimization and failure response — not limited to Day-0 configuration or Day-1 operations.
+1. **QoT-Informed Intent Planning Loop**: We are the first to implement an iterative planning loop where NL intent → `sla_matrix` → QoT path evaluation → HITL refinement cycles until the operator approves a validated plan. No existing work treats the planning phase as a first-class, iterative contribution.
+2. **Multi-Turn HITL Refinement**: Not a single approve/reject checkpoint (Confucius Collector) or a transitional mechanism (SJTU), but an architectural primitive (`interrupt()`) enabling conversational co-construction of the routing plan.
+3. **Neurosymbolic Design Discipline**: While others use LLMs end-to-end (risking hallucinated physics), we enforce a strict "LLMs reason, tools calculate" separation. The QoT tool is a pure Python GN model, not an LLM approximation.
+4. **Structured Planning Report**: The system produces a formal, auditable Pydantic artifact containing candidate paths, QoT scores, SLA satisfaction, and operator justification trace. No existing work produces a comparable structured planning output.
 5. **ECOC Baseline Bridge**: By building on top of the PoliMi pipeline's proven JSON schemas, we provide a clear lineage from validated industry work to our novel architecture.
 
 ---
@@ -166,21 +164,22 @@ Based on the SOTA analysis, the following areas are either well-covered or tange
 
 | Strength | Evidence |
 |---|---|
-| **Architecturally novel scope** | No prior work addresses joint routing + compute scheduling with agentic AI in optical networks. |
-| **Principled neurosymbolic design** | The "LLMs reason, tools calculate" separation is increasingly recognized as the correct approach (see SJTU expertise-guided agent, PoliMi GBNF). |
-| **Framework maturity** | LangGraph is the most widely adopted stateful agent framework (2024–2026). Our choice aligns with industry direction. |
+| **Focused, defensible scope** | The Intent Planning Loop addresses three verified research gaps that converge in one phase. SOTA-justified via [[Scope_Pivot_20260621]]. |
+| **Principled neurosymbolic design** | The "LLMs reason, tools calculate" separation is recognized as the correct approach (see SJTU expertise-guided agent, PoliMi GBNF). |
+| **Framework maturity** | LangGraph is the most widely adopted stateful agent framework (2024–2026). Our choice independently validated by AutoLight. |
 | **Reproducibility** | Full open-source codebase with Strict TDD. Most SOTA works are proprietary. |
-| **HITL formalization** | `interrupt()` + GIGO prevention is a concrete engineering contribution, not just a design principle. |
+| **Multi-turn HITL** | Iterative `interrupt()` refinement loop is a concrete engineering contribution, not just a design principle. |
+| **Evaluable without field trial** | Planning loop can be validated on mock testbed with quantitative metrics (intent fidelity, QoT accuracy, HITL convergence). |
 
 ### 6.2 Weaknesses to Address
 
 | Weakness | Mitigation Strategy |
 |---|---|
-| **No field-trial validation yet** | Priority: Experiment 002 (Routing + QoT) on mock testbed. Goal: establish quantitative baselines before real testbed access. |
-| **Compute scheduling deferred** | Documented as future work (scope refinement). Thesis focuses on routing + QoT + HITL. |
+| **No field-trial validation yet** | Planning loop can be validated on mock testbed. Real testbed is a bonus, not a requirement. |
+| **Provisioning deferred** | Documented as future work. The Planning Report is designed to be consumable by a downstream provisioning system. |
 | **Single LLM provider (Kimi)** | Provider-agnostic via LangChain. Run experiments with multiple backends to demonstrate portability. |
-| **No benchmark comparison** | Adopt AutoONBench's 5-category evaluation. Create comparable metrics. |
-| **Memory Pillar 2 (KG) is still Pydantic-only** | Acceptable for MVP. Document the graduation path to Neo4j/Memgraph. |
+| **No benchmark comparison** | Adopt AutoONBench's evaluation categories adapted to planning metrics. |
+| **Scope may appear narrow** | The planning intelligence is where the three research gaps converge — depth over breadth is the strategic choice. |
 
 ---
 
@@ -216,12 +215,14 @@ Based on the SOTA analysis, the following areas are either well-covered or tange
 
 ## 8. Cross-References
 
-- [[Architecture_v2]] — Our unified system design
-- [[ProblemStatement_20260427_Felipe_Abadia]] — Thesis problem definition
+- [[Architecture_v3]] — Our Intent Planning System architecture
+- [[ProblemStatement_v3]] — Thesis problem definition
+- [[Scope_Pivot_20260621]] — Rationale for scope change
 - [[OrchestratorScriptReport]] — Analysis of the ECOC 2024 baseline codebase
 - [[QoT_Awareness]] — QoT concept documentation
 - [[Concepts_and_Terminology]] — Glossary of terms
 - [[literature/recommendations]] — Follow-up research recommendations
 - [[Confucius_SIGCOMM2025]] — Detailed Confucius paper analysis
 - [[SJTU_Invited_Tutorial_JOCN2026]] — Detailed SJTU tutorial analysis
+- [[AutoLight_ECOC2025]] — Detailed AutoLight field trial analysis
 - [[sota_gap_analysis]] — Gap analysis with updated positioning
