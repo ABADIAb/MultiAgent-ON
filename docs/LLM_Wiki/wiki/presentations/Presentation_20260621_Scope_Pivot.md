@@ -94,6 +94,8 @@ status: active
 **New Thesis Framing:**
 > *"QoT-Informed Intent Planning for Optical Networks: A Neurosymbolic Human-in-the-Loop Approach"*
 
+**Neurosymbolic approach**: LLM for reasoning (neural) + GN model for deterministic physics (symbolic) = Zero physics hallucination.
+
 ```
 Operator Intent (Natural Language)
     → Orchestrator parses → sla_matrix
@@ -114,7 +116,40 @@ Operator Intent (Natural Language)
 
 ---
 
-## Slide 5: What Changes
+## Slide 5: The Novelty & The Gap
+
+> [!LAYOUT]
+> Two columns: Left (What they do) vs Right (What we do). Emphasize the specific combination as the novelty.
+
+### Why This Is Novel
+- **Confucius** uses single-turn Q&A without physics.
+- **AutoLight** executes structured tasks without natural language or formal HITL.
+- **Novelty:** The *combination*. Bridging ambiguous natural language intent to deterministic optical physics via an iterative HITL refinement loop.
+
+<!-- Speaker Notes: To directly answer the question of novelty: it's not just intent parsing, and it's not just QoT. The specific research gap is the absence of a hallucination-free, iterative methodology that bridges high-level human ambiguity to strict physical-layer optical constraints. Confucius has no physics, AutoLight has no natural language or multi-turn HITL. We combine them into one safe "Slow Loop". -->
+
+---
+
+## Slide 6: Evaluation Methodology
+
+> [!LAYOUT]
+> Three columns: Metrics, Baselines, and Report Quality.
+
+### How We Will Evaluate This
+- **Metrics:**
+  - *Intent Fidelity:* % of SLA constraints correctly extracted.
+  - *HITL Convergence Rate:* Average iterations to an approved plan.
+  - *QoT Validation Accuracy:* 100% adherence to physical limits.
+  - *Benchmark:* AutoONBench categories adapted to planning.
+- **Baselines for Comparison:**
+  - *Zero-Shot LLM Planner* (proves necessity of QoT tool).
+  - *Single-Turn Planner* (proves necessity of multi-turn HITL).
+
+<!-- Speaker Notes: We can evaluate this rigorously without a physical testbed. We will measure intent fidelity, HITL convergence rate, and QoT validation accuracy against AutoONBench. We'll compare our loop against a Zero-Shot LLM (to show why the GN model tool is needed) and against a Single-Turn Planner (to show why the iterative interrupt loop is necessary). -->
+
+---
+
+## Slide 7: What Changes
 
 > [!LAYOUT]
 > Two-column layout. Left: "Stays In Scope" (green checkmarks). Right: "Future Work" (gray with arrows).
@@ -141,7 +176,7 @@ Operator Intent (Natural Language)
 
 ---
 
-## Slide 6: Why This Is Stronger
+## Slide 8: Why This Is Stronger
 
 > [!LAYOUT]
 > Three key arguments, each with a bold statement and supporting evidence. Use visual hierarchy (large text for the statement, smaller for evidence).
@@ -164,7 +199,7 @@ Operator Intent (Natural Language)
 
 ---
 
-## Slide 7: New Experiment Roadmap
+## Slide 9: New Experiment Roadmap
 
 > [!LAYOUT]
 > A horizontal timeline or roadmap with 4 experiments. Experiment 001 has a green checkmark. Experiments 002-004 are sequential milestones.
@@ -188,7 +223,7 @@ Operator Intent (Natural Language)
 
 ---
 
-## Slide 8: Summary & Next Steps
+## Slide 10: Summary & Next Steps
 
 > [!LAYOUT]
 > Clean summary slide with three key takeaways and immediate action items.
@@ -207,7 +242,7 @@ Operator Intent (Natural Language)
 
 ---
 
-## Slide 9: References
+## Slide 11: References
 
 > [!LAYOUT]
 > Simple reference list with links to wiki documents.

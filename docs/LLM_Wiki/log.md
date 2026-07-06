@@ -232,3 +232,9 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Consistency Audit: Removed `schedule_compute` from `Tool_Registry.md` to align with the scope pivot. Updated `tools_wiki/QoT_Tool.md` to point to `Architecture_v3` instead of the archived V1 workflow.
 - Wiki Deep Lint: Re-verified `QoT_Awareness.md`, `Architecture_v3.md`, and existing docs to ensure no lingering references to archived concepts.
 - Session closure properly logged.
+
+## [2026-07-06] debrief2 | Neurosymbolic Architecture Pivot & Handover
+- Action: Executed `/debrief2` session closure routine.
+- Wiki Deep Lint: Audited and updated `index.md` to include new Weekly Report and MVP Presentation. Ensured all V4 documentation correctly supersedes V3 documentation and links to core concepts.
+- Consistency Audit: Analyzed `src/` experiment_001 baseline and documented precise handover context in `raw/Context_For_Next_Chat.md` to maintain consistency for the next agent session.
+- Session closure properly logged.

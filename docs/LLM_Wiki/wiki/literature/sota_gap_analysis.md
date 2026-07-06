@@ -7,7 +7,7 @@ status: active
 
 # SOTA Gap Analysis: Agentic AI in Optical Networks
 
-This document synthesizes the conclusions from our literature comparison ([[lit_comparison]]), the detailed paper analyses ([[Confucius_SIGCOMM2025]], [[SJTU_Invited_Tutorial_JOCN2026]], [[AutoLight_ECOC2025]]), and the [[Scope_Pivot_20260621|scope pivot decision]] to position our [[Architecture_v3|Intent Planning System]].
+This document synthesizes the conclusions from our literature comparison ([[lit_comparison]]), the detailed paper analyses ([[Confucius_SIGCOMM2025]], [[SJTU_Invited_Tutorial_JOCN2026]], [[AutoLight_ECOC2025]]), and the [[Scope_Pivot_20260706|scope pivot decision]] to position our [[Architecture_v4|Neurosymbolic Intent Orchestration System]].
 
 ---
 
@@ -40,13 +40,13 @@ The **MultiAgentON** project targets the **Intent Planning Loop** — the iterat
 
 The gap is defined by combining three capabilities absent in current literature:
 
-1. **Natural language intent parsing** with formal reverse prompting — converting unstructured operator intent into a validated `sla_matrix` via [[HITL_Refinement|Reverse Prompting]] and `interrupt()`. No existing work implements this as a first-class capability in the optical domain.
+1. **PDDL Intent Parsing with Optical GraphRAG** — converting unstructured operator intent into deterministic constraints instead of a naive Pydantic SLA matrix, while preventing token saturation via localized sub-graph extraction.
 
-2. **[[QoT_Awareness|QoT-aware]] path evaluation** with strict [[Constraint_Isolation|neurosymbolic separation]] — LLMs reason over topology and intent; deterministic Python GN model tools calculate physical-layer constraints (SNR, OSNR). This avoids the hallucination risks documented by Confucius and the reasoning limitations acknowledged by SJTU.
+2. **Neurosymbolic Path Filtration** — LLMs translate intent to logic, but a symbolic solver extracts paths before any physics simulation. This prevents the "hallucinated physics" risks of generative models.
 
-3. **Multi-turn HITL planning refinement** — not a single approve/reject checkpoint (Confucius Collector), not a transitional mechanism (SJTU), but an **iterative conversational loop** where the operator and the system co-construct the routing plan through successive refinements. Each iteration produces a structured [[Architecture_v3|Planning Report]] with QoT feasibility data.
+3. **Multi-turn HITL planning refinement via Reverse Prompting** — mathematically guaranteeing that the intent parsed by the system converges with the operator's request by having an inverse model translate the PDDL state back into plain English for approval. Each iteration produces a structured [[Architecture_v4|Planning Report]] with QoT feasibility data.
 
-> **Scope note:** The thesis focuses exclusively on the planning phase. Lightpath provisioning, compute scheduling, and operational lifecycle management are documented as future work. See [[Scope_Pivot_20260621]].
+> **Scope note:** The thesis focuses exclusively on the planning phase. Lightpath provisioning, compute scheduling, and operational lifecycle management are documented as future work. See [[Scope_Pivot_20260706]].
 
 ### 4. Why not a full MAS?
 
@@ -71,7 +71,7 @@ What IS novel is the **planning intelligence**: how a system reasons from natura
 | **PoliMi Pipeline** | Optical lifecycle | ✅ Basic NL parsing | Partial (controller) | ❌ None | ❌ |
 | **SJTU (AutoLight)** | Cross-domain optical | ❌ Structured tasks | ✅ DT toolset | ❌ None | ❌ |
 | **IntentLLM** | SDN Slicing | ✅ NL intent | ❌ None | ❌ None | ❌ |
-| **MultiAgentON (ours)** | Optical planning | ✅ NL → `sla_matrix` + reverse prompting | ✅ [[QoT_Awareness\|Neurosymbolic GN model]] | ✅ `interrupt()` loop | ✅ Structured artifact |
+| **MultiAgentON (ours)** | Optical planning | ✅ NL → PDDL + Reverse Prompting | ✅ Neurosymbolic Solver + GN model | ✅ Mathematical `interrupt()` loop | ✅ Structured artifact |
 
 ---
 
@@ -101,9 +101,9 @@ Our work occupies the **upper-right quadrant**: combining NL intent parsing with
 
 ## Cross-References
 
-- [[Architecture_v3]] — Intent Planning System architecture
-- [[ProblemStatement_v3]] — Thesis problem definition
-- [[Scope_Pivot_20260621]] — Rationale for the planning-focused scope
+- [[Architecture_v4]] — Neurosymbolic Intent Orchestration architecture
+- [[ProblemStatement_v4]] — Thesis problem definition
+- [[Scope_Pivot_20260706]] — Rationale for the neurosymbolic scope
 - [[lit_comparison]] — Detailed SOTA comparison
 - [[Confucius_SIGCOMM2025]] — Meta's multi-agent framework
 - [[AutoLight_ECOC2025]] — SJTU's L4 autonomous optical network
