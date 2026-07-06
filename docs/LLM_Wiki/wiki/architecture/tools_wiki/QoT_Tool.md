@@ -31,7 +31,7 @@ The LangGraph orchestrator only needs the "Physics Engine," not the global optim
 - **`calculatePropagatedSNR`**: Handles noise leakage in filterless network scenarios.
 - **`spanSNR`**: The function computing noise for individual segments of fiber.
 
-### [[Architecture_Workflow_20260427_Felipe_Abadia|LangGraph Orchestration Context]]
+### [[Architecture_v3|LangGraph Orchestration Context]]
 The interaction flow will be:
 1. Agent proposes a route.
 2. The orchestrator fetches the current network topology (fiber lengths, optical amplifiers).

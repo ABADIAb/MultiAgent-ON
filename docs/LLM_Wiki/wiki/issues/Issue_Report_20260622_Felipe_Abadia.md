@@ -12,10 +12,10 @@ status: active
 Felipe Abadia
 
 ## Project Title:
-Agentic AI for joint routing and compute scheduling in optical networks
+QoT-Informed Intent Planning for Optical Networks: A Neurosymbolic Human-in-the-Loop Approach
 
 ## Current Stage:
-Architecture Refinement & Experiment 002 Ideation
+Scope Pivot Complete — Planning Loop Implementation Phase
 
 ## Date:
 2026-06-22

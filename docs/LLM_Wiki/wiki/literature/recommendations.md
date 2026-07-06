@@ -1,137 +1,123 @@
 ---
-title: "Research Recommendations: Next Steps for MultiAgentON SOTA Analysis"
-date: 2026-06-21
-tags: [literature, recommendations, research, next-steps, thesis]
+title: "Research Recommendations: Next Steps for MultiAgentON"
+date: 2026-06-22
+tags: [literature, recommendations, research, next-steps, thesis, planning-loop]
 status: active
 ---
 
 # Research Recommendations for MultiAgentON Thesis
 
-This document lists actionable research directions, follow-up investigations, and strategic recommendations based on the findings from [[literature/lit_comparison|lit_comparison.md]]. These are ordered by priority for the thesis.
+This document lists actionable research directions based on the findings from [[lit_comparison]] and the [[Scope_Pivot_20260621|scope pivot]] to the Intent Planning Loop. Ordered by priority.
 
 ---
 
-## Priority 1: Immediate Actions (This Week)
+## Priority 1: Immediate Actions (Next 1–2 Weeks)
 
-### 1.1 ~~Read the Full Confucius Paper (SIGCOMM 2025)~~ ✅ DONE
+### 1.1 ~~Read Confucius (SIGCOMM 2025)~~ ✅ DONE
+See [[Confucius_SIGCOMM2025]].
 
-- **Status**: Ingested and analyzed. See [[Confucius_SIGCOMM2025]] for the full wiki note.
-- **Key findings**: Collector primitive validates our HITL design; Ensemble primitive for multi-model consensus; documented failure modes (context loss, hallucination) motivate our neurosymbolic separation.
+### 1.2 ~~Read SJTU Invited Tutorial (JOCN 2026)~~ ✅ DONE
+See [[SJTU_Invited_Tutorial_JOCN2026]].
 
-### 1.2 ~~Read the SJTU Invited Tutorial (JOCN 2026)~~ ✅ DONE
+### 1.3 ~~Read AutoLight (ECOC 2025)~~ ✅ DONE
+See [[AutoLight_ECOC2025]].
 
-- **Status**: Ingested and analyzed. See [[SJTU_Invited_Tutorial_JOCN2026]] for the full wiki note.
-- **Key findings**: 3.2× improvement from hierarchical MAS; gray-box DT modeling aligns with our approach; HITL acknowledged as essential but not formally specified; MCP as future interoperability layer.
+### 1.4 ~~SOTA Comparison Presentation~~ ✅ DONE
+See [[Presentation_20260604_SOTA_Analysis]].
 
-### 1.3 ~~Prepare the SOTA Comparison Slides for Prof. Zhang~~ ✅ DONE
+### 1.5 Experiment 002: Intent Parsing + HITL Reverse Prompting
 
-- **Status**: Created as [[Presentation_20260604_SOTA_Analysis]]. Updated with scope refinement slides.
+- **Why**: The NL intent parsing with multi-turn HITL is the **first core differentiator**. Must be validated in isolation before integration.
+- **Action**: Implement the Orchestrator's intent parser (NL → `sla_matrix`) and the `interrupt()` HITL mechanism. Test with 3–5 concrete operator intent examples. Validate that reverse prompting catches ambiguous or incomplete intents.
+- **Deliverable**: Working HITL loop that iterates until the operator approves a validated `sla_matrix`.
 
-### 1.4 Implement Routing Agent + QoT Tool Experiment (NEW)
+### 1.6 Experiment 003: QoT-Informed Path Selection
 
-- **Why**: This is now the **primary thesis deliverable**. The Routing Agent with QoT-aware path selection is the core contribution.
-- **Action**: Design and implement the routing agent that uses the GN model tool for QoT validation. Create a mock testbed experiment (Experiment 002) to establish quantitative baselines.
-- **Deliverable**: Working prototype of NL intent → validated optical route with QoT check.
+- **Why**: The QoT-aware path evaluation is the **second core differentiator**. The Routing Agent + GN model tool must produce deterministic, verifiable results.
+- **Action**: Implement the Routing Agent with `qot_check` tool. Given a topology snapshot and SLA constraints, identify candidate paths and evaluate QoT feasibility. Generate a structured Planning Report.
+- **Deliverable**: Working prototype of topology → candidate paths → QoT evaluation → Planning Report.
+- **Dependencies**: Experiment 001 (topology data).
 
-### 1.5 Implement HITL Reverse Prompting with `interrupt()` (NEW)
+### 1.7 Design the Planning Report Artifact
 
-- **Why**: The formal HITL protocol is our **second key differentiator**. Both Confucius (Collector) and SJTU (transitional HITL) validate the need but neither provides a formal specification.
-- **Action**: Implement the `interrupt()` mechanism in the LangGraph workflow for operator validation of the `sla_matrix` before routing.
-- **Deliverable**: Working HITL loop with reverse prompting that prevents GIGO.
+- **Why**: The Planning Report is the **primary output** of the system. Its Pydantic schema must be designed before Experiments 002–004.
+- **Action**: Define `PlanningReport`, `CandidatePath`, and `SLAMatrix` Pydantic models. Include fields for QoT scores, SLA satisfaction, trade-off analysis, and HITL conversation trace.
+- **Deliverable**: Pydantic schema definitions in `src/core/models.py`.
 
 ---
 
 ## Priority 2: Medium-Term Research (Next 2–4 Weeks)
 
-### 2.1 Study the AutoONBench Evaluation Methodology
+### 2.1 Experiment 004: Full Intent Planning Loop
 
-- **Paper**: Wu et al., "AutoONBench: a benchmark for large language model agents in autonomous optical networks." JOCN, Vol. 18(9), 2026.
-- **Access**: https://opg.optica.org/jocn/abstract.cfm?uri=jocn-18-9-D1
-- **Why**: We need a rigorous evaluation framework. AutoONBench provides the first standardized benchmark for LLM agents in optical networks. Even if we can't run their exact benchmark, adopting their evaluation categories (service mgmt, maintenance, failure handling, physical-layer, optimization) gives our results academic credibility.
-- **Action**: Read the paper, extract evaluation metrics, map them to our experiment design.
+- **Why**: The end-to-end integration validates the complete thesis contribution.
+- **Action**: Integrate Experiments 002 + 003 into a single planning loop: NL intent → parse → topology → QoT path evaluation → Planning Report → HITL refinement → approved plan.
+- **Deliverable**: End-to-end planning loop with quantitative metrics (iterations to convergence, QoT accuracy).
 
-### 2.2 Explore the IETF IBN+GenAI Framework in Depth
+### 2.2 Study AutoONBench Evaluation Methodology
+
+- **Paper**: Wu et al., "AutoONBench: a benchmark for LLM agents in autonomous optical networks." JOCN, Vol. 18(9), 2026.
+- **Why**: We need evaluation metrics. Even if our scope is planning-only, adopting recognized evaluation categories gives academic credibility.
+- **Action**: Read the paper, extract metrics applicable to planning (task completion rate, iterations, QoT validation accuracy).
+
+### 2.3 Explore IETF IBN+GenAI Framework
 
 - **Document**: `draft-cgfabk-nmrg-ibn-generative-ai-02`
-- **Access**: https://datatracker.ietf.org/doc/draft-cgfabk-nmrg-ibn-generative-ai/
-- **Why**: Positioning our work within an IETF standardization effort dramatically increases its relevance. The MTSF/MRF/MFCF concepts can frame our Supervisor as an "Intent Transformer" and our agents as domain-specific "LoRA adapters" (conceptually, even if we don't fine-tune).
-- **Action**: Read the draft, create a wiki note mapping our components to their logical architecture.
+- **Why**: Positioning within an IETF standardization effort increases relevance. Our Intent Planning Loop maps naturally to their "Intent Transformer" concept.
 
 ---
 
 ## Priority 3: Strategic Research Directions (Thesis Lifetime)
 
-### 3.1 Investigate the Compute Scheduling Dimension (Deferred — Future Work)
+### 3.1 Compute Scheduling (Deferred — Future Work)
 
-- **Status**: Deferred from Priority 1 due to thesis scope refinement. Compute scheduling is documented as **future work** that may be continued by another student.
-- **Problem**: Joint routing + compute scheduling remains an open research gap. When resources allow, investigate:
-  1. What does "compute scheduling" mean concretely in the optical network context? Edge compute node selection? GPU/VRAM allocation? Service function chain placement?
-  2. How to model the compute node as a vertex with capacity constraints in $G(V,E)$?
-  3. How to resolve conflicts between compute-optimal and route-optimal allocations?
+Already deferred from previous pivot. Not part of the planning loop scope.
 
 ### 3.2 Formalize the Neurosymbolic Separation
 
-- **Opportunity**: The "LLMs reason, tools calculate" principle is mentioned across the SOTA but never formally defined with rigor. We can contribute a **formal framework** for neurosymbolic task decomposition in optical networks.
-- **Concrete Contribution**: Define a taxonomy of decision points: which decisions are "symbolic" (deterministic, tool-delegated: SNR calculation, spectrum assignment, graph pathfinding) vs. "neural" (stochastic, LLM-delegated: intent parsing, anomaly interpretation, workflow planning).
-- **Academic Value**: This directly addresses the "confidently wrong" research gap flagged by multiple SOTA works.
+- **Opportunity**: Define a formal taxonomy of decision points — which are "symbolic" (tool-delegated: SNR calculation, pathfinding) vs. "neural" (LLM-delegated: intent parsing, trade-off reasoning). This directly addresses the "confidently wrong" research gap.
+- **Academic Value**: A reusable framework, not just an implementation detail.
 
-### 3.3 Design the Compute Agent Architecture (Deferred — Future Work)
+### 3.3 Provisioning Agent (Deferred — Future Work)
 
-- **Status**: Deferred. Documented as future work for a potential follow-up thesis.
-- **Suggested Architecture** (for future reference):
-  1. **Compute Agent** as a new LangGraph node, peers with Routing Agent.
-  2. Receives the parsed [[Concepts_and_Terminology|SLA]] constraints (compute requirements: FLOPs, VRAM, latency).
-  3. Queries a compute resource inventory (edge servers, their locations in the topology, available GPU capacity).
-  4. Proposes compute node $c^*$, which is then fed to the Routing Agent as a destination constraint.
-  5. **Conflict Resolution**: If the QoT-optimal route doesn't reach the compute-optimal server, the Supervisor mediates a negotiation loop.
-- **Related Work to Read**: "Computing-Communication Integrated Networks" literature, SFC placement in optical networks.
-
-### 3.3 Topology-Aware Memory (GraphRAG for Optical)
-
-- **Opportunity**: The transition from Pydantic-based state (current MVP) to a proper Knowledge Graph is architecturally planned but not designed.
-- **Research Direction**: Apply the "Topology Chunking" technique from the TD Commons paper to our SDON testbed topology. This would allow the Routing Agent to perform multi-hop reasoning over the physical network graph.
-- **Technical Path**: Neo4j or Memgraph with Cypher queries, exposed as a LangGraph tool. The topology chunks would be embedded for semantic search (Pillar 3 integration).
+Would consume the `approved_plan` output and generate RESTConf API calls. Documented in [[Architecture_v3]] Phase 3 as future work.
 
 ### 3.4 Benchmark Against AutoONBench Categories
 
-- **Action**: Once Experiment 002 (Routing + QoT) is complete, map results to AutoONBench's 5 evaluation categories.
-- **Metrics to Report**: Task completion rate, number of LLM calls per task, total tokens consumed, end-to-end latency, QoT validation accuracy.
+Once Experiment 004 is complete, map results to AutoONBench's evaluation categories. Planning-specific metrics: intent fidelity, QoT prediction accuracy, HITL convergence speed.
 
 ---
 
 ## Priority 4: Things to Monitor (Not Investigate Deeply)
 
-These are active research areas worth tracking but not worth deep investigation for the thesis:
-
 | Topic | Why Monitor | Where to Track |
 |---|---|---|
-| **MCP (Model Context Protocol) Evolution** | May become the standard agent-to-tool interface. Could replace our custom tool binding. | IETF / Anthropic specs |
-| **A2A (Agent-to-Agent) Protocol** | If standardized, could define how our agents communicate. Currently too nascent. | Google DeepMind / IETF |
-| **GNPy Multiband Extensions** | Only relevant if our testbed supports C+L+S. Currently C-band only. | TIP / GNPy GitHub |
-| **Optical Computing / Photonic AI** | Fascinating long-term direction but 5+ years out. Not thesis-relevant. | Nature Photonics |
+| **MCP (Model Context Protocol)** | May standardize agent-to-tool interface | IETF / Anthropic |
+| **A2A Protocol** | Could define inter-agent communication standards | Google / IETF |
+| **GNPy Multiband Extensions** | Only relevant if testbed supports C+L+S | TIP / GNPy GitHub |
 
 ---
 
 ## Summary of Recommended Reading List
 
-| # | Paper / Document | Priority | Purpose |
+| # | Paper / Document | Priority | Status |
 |---|---|---|---|
-| 1 | Confucius (SIGCOMM 2025) | ✅ Done | Primary competitor, architectural reference → [[Confucius_SIGCOMM2025]] |
-| 2 | SJTU Invited Tutorial (JOCN 2026) | ✅ Done | Optical SOTA survey from key competitor → [[SJTU_Invited_Tutorial_JOCN2026]] |
-| 3 | ECOC 2024 PDP (PoliMi) | ✅ Done | Already analyzed in [[OrchestratorScriptReport]] |
-| 4 | AutoONBench (JOCN 2026) | 🟡 Medium | Evaluation methodology |
-| 5 | IETF IBN+GenAI draft | 🟡 Medium | Standards positioning |
-| 6 | AutoLight (ECOC 2025) | ✅ Done | L4 autonomy field trial, LangGraph validation, CoI technique → [[AutoLight_ECOC2025]] |
+| 1 | Confucius (SIGCOMM 2025) | ✅ Done | [[Confucius_SIGCOMM2025]] |
+| 2 | SJTU Invited Tutorial (JOCN 2026) | ✅ Done | [[SJTU_Invited_Tutorial_JOCN2026]] |
+| 3 | ECOC 2024 PDP (PoliMi) | ✅ Done | [[OrchestratorScriptReport]] |
+| 4 | AutoLight (ECOC 2025) | ✅ Done | [[AutoLight_ECOC2025]] |
+| 5 | AutoONBench (JOCN 2026) | 🟡 Medium | Evaluation methodology |
+| 6 | IETF IBN+GenAI draft | 🟡 Medium | Standards positioning |
 | 7 | Expertise-Guided Agent (JOCN 2026) | 🟡 Medium | DT+LLM pattern |
 | 8 | EU MARE (arXiv 2026) | 🟢 Low | Security context only |
-| 9 | HearthNet (arXiv 2026) | 🟢 Low | Conflict resolution patterns |
-| 10 | STEP Framework (IEEE 2025) | 🟢 Low | RL-based alternative |
 
 ---
 
 ## Cross-References
 
-- [[literature/lit_comparison]] — Detailed SOTA comparison
-- [[Architecture_v2]] — Our unified system design
-- [[ProblemStatement_20260427_Felipe_Abadia]] — Thesis problem definition
+- [[lit_comparison]] — Detailed SOTA comparison
+- [[sota_gap_analysis]] — Gap analysis with planning-loop positioning
+- [[Architecture_v3]] — Intent Planning System architecture
+- [[ProblemStatement_v3]] — Thesis problem definition
+- [[Scope_Pivot_20260621]] — Rationale for scope change
 - [[experiments/Experiment_001_Topology_Query_MVP]] — Completed experiment
