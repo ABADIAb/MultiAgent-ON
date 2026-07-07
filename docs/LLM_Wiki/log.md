@@ -238,3 +238,13 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited and updated `index.md` to include new Weekly Report and MVP Presentation. Ensured all V4 documentation correctly supersedes V3 documentation and links to core concepts.
 - Consistency Audit: Analyzed `src/` experiment_001 baseline and documented precise handover context in `raw/Context_For_Next_Chat.md` to maintain consistency for the next agent session.
 - Session closure properly logged.
+
+## [2026-07-06] ingest | QoT Tool Alignment & Exp 1.1 Spec
+- Updated: `QoT_Tool.md` to align with the V4 Neurosymbolic Orchestration Context.
+- Created: `Experiment_1_1_QoT_Port.md` to formally specify Sprint 1 execution for the Python Physics Port.
+- Updated: `index.md` to register the new experiment.
+
+## [2026-07-06] debrief2 | QoT Python Port & LangGraph Tool Validation
+- Wiki Deep Lint: Audited and updated `index.md` to include new Issue Report. Ensured all new documentation correctly cross-references core concepts (`Architecture_v4`, `QoT_Tool`).
+- Consistency Audit: Confirmed `QoT_Tool.md` and `Experiment_1_1_QoT_Port.md` accurately reflect the implementation decisions made in `src/core/qot_calculator.py` (e.g., zero equalization loss, deferment of filterless ASE propagation).
+- Session closure properly logged.

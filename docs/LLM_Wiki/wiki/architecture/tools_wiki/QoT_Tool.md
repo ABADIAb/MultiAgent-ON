@@ -31,13 +31,14 @@ The LangGraph orchestrator only needs the "Physics Engine," not the global optim
 - **`calculatePropagatedSNR`**: Handles noise leakage in filterless network scenarios.
 - **`spanSNR`**: The function computing noise for individual segments of fiber.
 
-### [[Architecture_v3|LangGraph Orchestration Context]]
+### [[Architecture_v4|Neurosymbolic Orchestration Context]]
 The interaction flow will be:
-1. Agent proposes a route.
-2. The orchestrator fetches the current network topology (fiber lengths, optical amplifiers).
-3. The proposed route and topology data are fed into the pure Python `qot_tool.py`.
-4. The Python tool returns a dictionary with exact values: `{"feasible": bool, "snr": float, "power": float, "cost": float}`.
-5. The Agent uses this numeric feedback to proceed or to reason about a better route.
+1. The deterministic Symbolic Solver and Mock GraphRAG generate 3 to 5 structurally valid candidate paths from the operator's intent.
+2. These structurally valid paths are sent directly to the pure Python `qot_tool.py`.
+3. The Python tool returns a dictionary with exact physical values: `{"feasible": bool, "snr": float, "power": float}`.
+4. The Orchestrator summarizes these feasible paths into a Planning Report, without requiring the LLM to recursively reason over numeric constraints.
+
+This work aligns directly with **Exp 1.1: QoT C++ to Python Port** and **Exp 1.2: QoT Tool Wrapping** from the [[MVP_Roadmap|Sprint 1 MVP Roadmap]].
 
 ---
 

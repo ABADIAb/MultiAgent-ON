@@ -47,7 +47,16 @@ Date: 2026-07-06
 
 ---
 
-## Slide 5: The MVP Roadmap (Aug 25 Deadline)
+## Slide 5: Proof of Concept — Deterministic Tooling
+**Python QoT Calculator (GN-model)**
+- **Achievement:** Successfully ported the core C++ physics engine to pure Python.
+- **Strict TDD:** Validated with 95% test coverage against hand-computed C++ baselines.
+- **LangChain Integration:** Wrapped as a deterministic `@tool` (`qot_check`) ready for the LangGraph orchestrator.
+- **Impact:** Proves we can fully isolate complex physical-layer calculations from the LLM, eliminating hallucinated SNR errors.
+
+---
+
+## Slide 6: The MVP Roadmap (Aug 25 Deadline)
 **Focus: Functional Integration over Optimization**
 - **Sprint 1 (Tooling):** Translate C++ QoT to Python; establish SSH testbed hook.
 - **Sprint 2 (Logic):** PDDL parser prompt engineering; Reverse Prompting (`interrupt()`) implementation.

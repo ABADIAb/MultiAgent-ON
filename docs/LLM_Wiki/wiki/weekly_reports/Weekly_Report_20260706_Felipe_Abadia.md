@@ -49,13 +49,17 @@ I deferred Experiment 002 as originally designed because new research into IBON 
    - Analyzed the existing `experiment_001` baseline in `src/`.
    - Generated a formal handover document (`Context_For_Next_Chat.md`) to ensure seamless continuation of the LangGraph development without context loss in future sessions.
 
+5. **Exp 1.1 & 1.2 Completed (QoT Tooling):**
+   - Successfully ported the core GN model physics from C++ (`Network.cpp`) into a pure Python module (`qot_calculator.py`) using Strict TDD (95% coverage, 30 passing tests).
+   - Created the `@tool` wrapper (`qot_tool.py`) for LangGraph, finalizing the deterministic physics component of the Neurosymbolic architecture.
+
 ## 3. Issue List This Week
 
 ### Issue 1
 - **Issue:** C++ to Python QoT translation is pending.
 - **What has already been tried:** The C++ simulator is documented, but we need a pure Python equivalent to run smoothly as a LangChain tool.
-- **Result:** Blocking Experiment 1.1 and 1.2.
-- **Estimated possible solution:** Translate the core GN-model calculations to Python and wrap them in a `@tool` decorator in the upcoming sprint.
+- **Result:** **SOLVED**. The translation was successfully achieved using a rigorous Strict TDD process.
+- **Estimated possible solution:** (Solved) The GN-model calculations were translated to Python and wrapped in a `@tool` decorator (`qot_tool.py`), successfully closing Exp 1.1 and 1.2.
 
 ### Issue 2
 - **Issue:** Need to verify the SSH hook to the physical testbed.
@@ -84,7 +88,9 @@ Write here: I need the professor to review the new [[Presentation_20260706_Neuro
 
 ## 6. One-Sentence Summary
 
-I successfully analyzed the flaws of the generative loop, pivoted the thesis architecture to a Neurosymbolic pipeline with a firm August 25 MVP roadmap, and fully restructured the Wiki to reflect this new direction.
+## 6. One-Sentence Summary
+
+I successfully analyzed the flaws of the generative loop, pivoted the thesis architecture to a Neurosymbolic pipeline with a firm August 25 MVP roadmap, and fully implemented the QoT physics tool in Python as the first operational component of the MVP.
 
 ---
 
