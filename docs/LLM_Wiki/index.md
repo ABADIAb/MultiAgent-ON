@@ -25,6 +25,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
+- [[weekly_reports/Weekly_Report_20260710_Felipe_Abadia]]: Weekly report July 10, 2026. Architecture V4 refactor, Exp 1.0, and HITL.
 - [[weekly_reports/Weekly_Report_20260706_Felipe_Abadia]]: Weekly report July 06, 2026. Neurosymbolic MVP pivot.
 - [[Weekly_Report_20260622_Felipe_Abadia]]: Weekly report June 08 – June 22, 2026.
 - [[Weekly_Report_20260608_Felipe_Abadia]]: Weekly report May 26 – June 08, 2026.
@@ -45,6 +46,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
+- [[issues/Issue_Report_20260710_Felipe_Abadia]]: Solved C++ QoT translation; pending virtual testbed RESTConf API.
 - [[issues/Issue_Report_20260706_Felipe_Abadia]]: Solved QoT Python port; pending SSH testbed connection.
 - [[Issue_Report_20260622_Felipe_Abadia]]: SSH workspace access pending testing.
 - [[Issue_Report_20260511_Felipe_Abadia]]: Solved QoT code delivery; pending SSH access, Python wrapper implementation, and Orchestrator review.
@@ -79,3 +81,6 @@ Content-oriented catalog of everything in the wiki.
 
 ## Thesis Drafts
 *(Empty)*
+
+## Session Summaries
+- [[session_summary/session_20260710_Architecture_V4_Refactor]]: Architecture V4 Refactor & HITL Integration.

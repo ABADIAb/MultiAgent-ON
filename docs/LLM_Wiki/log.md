@@ -248,3 +248,8 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited and updated `index.md` to include new Issue Report. Ensured all new documentation correctly cross-references core concepts (`Architecture_v4`, `QoT_Tool`).
 - Consistency Audit: Confirmed `QoT_Tool.md` and `Experiment_1_1_QoT_Port.md` accurately reflect the implementation decisions made in `src/core/qot_calculator.py` (e.g., zero equalization loss, deferment of filterless ASE propagation).
 - Session closure properly logged.
+
+## [2026-07-10] debrief2 | Architecture V4 Refactor & Session Closure
+- Wiki Deep Lint: Audited and updated `index.md` to include new Weekly Report and Issue Report. Verified YAML frontmatter and `[[wikilinks]]`.
+- Consistency Audit: Confirmed that the recent `src/` refactor aligns with `Architecture_v4.md` (linear pipeline, HITL interrupt, RESTConf testbed).
+- Session closure properly logged.
