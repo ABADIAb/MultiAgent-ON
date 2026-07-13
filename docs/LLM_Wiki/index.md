@@ -25,7 +25,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
-- [[weekly_reports/Weekly_Report_20260710_Felipe_Abadia]]: Weekly report July 10, 2026. Architecture V4 refactor, Exp 1.0, and HITL.
+- [[weekly_reports/Weekly_Report_20260713_Felipe_Abadia]]: Weekly report July 13, 2026. Architecture V4 refactor, Exp 1.0, and HITL.
 - [[weekly_reports/Weekly_Report_20260706_Felipe_Abadia]]: Weekly report July 06, 2026. Neurosymbolic MVP pivot.
 - [[Weekly_Report_20260622_Felipe_Abadia]]: Weekly report June 08 – June 22, 2026.
 - [[Weekly_Report_20260608_Felipe_Abadia]]: Weekly report May 26 – June 08, 2026.

@@ -1,6 +1,6 @@
 ---
-title: "Weekly Report 2026-07-10"
-date: 2026-07-10
+title: "Weekly Report 2026-07-13"
+date: 2026-07-13
 tags: [weekly, report, architecture-v4, langgraph, hitl]
 status: active
 ---
@@ -16,7 +16,7 @@ Felipe Abadia
 Neurosymbolic Orchestration of Intents for Optical Networks: A Graph-Aware Human-in-the-Loop Approach
 
 ## Date: 
-2026-07-10
+2026-07-13
 
 ---
 

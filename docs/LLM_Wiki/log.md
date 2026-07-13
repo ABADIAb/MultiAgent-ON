@@ -253,3 +253,9 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited and updated `index.md` to include new Weekly Report and Issue Report. Verified YAML frontmatter and `[[wikilinks]]`.
 - Consistency Audit: Confirmed that the recent `src/` refactor aligns with `Architecture_v4.md` (linear pipeline, HITL interrupt, RESTConf testbed).
 - Session closure properly logged.
+
+## [2026-07-13] lint | Renamed weekly report
+- Renamed `Weekly_Report_20260710_Felipe_Abadia.md` to `Weekly_Report_20260713_Felipe_Abadia.md` to match today's date.
+- Updated dates inside the weekly report file (frontmatter and body).
+- Updated reference link in `index.md`.
+
