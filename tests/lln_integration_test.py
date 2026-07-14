@@ -2,9 +2,6 @@ import os
 from src.core.llm import create_kimi_llm
 from dotenv import load_dotenv
 
-#API_KEY="sk-kimi-kTpMqscas4wHPO5CRFEhW6cRs2VT3up3Cqb9XHfK2clcLZcUoFwUdQRNeACoeMje"
-#BASE_URL="https://api.kimi.com/coding/v1"
-
 # --- Configure LLM ---
 load_dotenv()
 api_key = os.getenv("KIMI_API_KEY", "")

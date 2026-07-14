@@ -32,7 +32,7 @@ status: active
 * **Permisos/Seguridad:** Se respetaron los comandos en entorno sandbox.
 
 ## 📋 4. Siguientes Pasos (Handover para la próxima sesión)
-- [ ] Ejecutar `main.py` de forma manual con la clave `KIMI_API_KEY` real para cerrar formalmente el Exp 1.0.
+- [x] ~~Ejecutar `main.py` de forma manual con la clave `KIMI_API_KEY` real para cerrar formalmente el Exp 1.0.~~
 - [ ] Iniciar el Sprint 2: Implementar la lógica del `pddl_parser.py` con validador de Context-Free Grammar.
 - [ ] Iniciar el Sprint 2: Implementar la reconstrucción del LLM en `reverse_prompt.py`.
 - [ ] Obtener la API del testbed virtual del profesor e implementar el código real en `RESTConfTestbedClient`.

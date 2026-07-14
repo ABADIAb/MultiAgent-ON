@@ -26,10 +26,10 @@ This document outlines the detailed execution plan, timeline, and structured exp
 
 ## Sprint 1: Foundation & Tooling (July 06 - July 18)
 
-### Exp 1.0: LLM Connection Verification
-- **Objective:** Verify robust connection with the Kimi LLM endpoint provided by the professor.
-- **Action:** Implement a small validation script using `langchain_openai.ChatOpenAI` configured with `KIMI_API_KEY` and `KIMI_BASE_URL` from the local `.env`. Ensure structured output parsing works.
-- **Deliverable:** Verified connection and structured output test script.
+### ~~Exp 1.0: LLM Connection Verification~~ ✅ (Completado)
+- **Objective:** ~~Verify robust connection with the Kimi LLM endpoint provided by the professor.~~
+- **Action:** ~~Implement a small validation script using `langchain_openai.ChatOpenAI` configured with `KIMI_API_KEY` and `KIMI_BASE_URL` from the local `.env`. Ensure structured output parsing works.~~
+- **Deliverable:** ~~Verified connection and structured output test script.~~
 
 ### Exp 1.1: QoT C++ to Python Port
 - **Objective:** Translate the core physics equations from the C++ simulator into pure Python.
