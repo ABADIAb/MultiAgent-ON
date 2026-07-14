@@ -73,7 +73,7 @@ class TestCreateKimiLLM:
         from src.core.llm import create_kimi_llm
 
         llm = create_kimi_llm(api_key="test-key", base_url="https://test.example.com")
-        assert llm.model_name == "kimi-k2-0711-preview"
+        assert llm.model_name == "moonshot-v1-8k"
 
     def test_create_kimi_llm_custom_model(self):
         """Custom model name is respected."""

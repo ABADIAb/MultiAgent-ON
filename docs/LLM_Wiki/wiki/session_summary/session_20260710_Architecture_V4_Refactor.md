@@ -27,12 +27,12 @@ status: active
 * **Bloqueos actuales:** Ninguno técnico en el código. Bloqueo logístico: Faltan los detalles de la API de RESTConf del entorno virtual para completar el Experiment 1.3, según se describe en [[Issue_Report_20260710_Felipe_Abadia]].
 
 ## 🤖 3. Actividad de Antigravity (Herramientas y Artefactos)
-* **Artefactos actualizados:** Se generó `Weekly_Report_20260710_Felipe_Abadia`, `Issue_Report_20260710_Felipe_Abadia` y la entrada de log de la sesión.
+* **Artefactos actualizados:** Se generó `Weekly_Report_20260713_Felipe_Abadia`, `Issue_Report_20260710_Felipe_Abadia` y la entrada de log de la sesión.
 * **Herramientas / MCP Usados:** Múltiples herramientas locales (leer archivos, reemplazar contenido, comandos de shell `pytest`).
 * **Permisos/Seguridad:** Se respetaron los comandos en entorno sandbox.
 
 ## 📋 4. Siguientes Pasos (Handover para la próxima sesión)
 - [x] ~~Ejecutar `main.py` de forma manual con la clave `KIMI_API_KEY` real para cerrar formalmente el Exp 1.0.~~
-- [ ] Iniciar el Sprint 2: Implementar la lógica del `pddl_parser.py` con validador de Context-Free Grammar.
-- [ ] Iniciar el Sprint 2: Implementar la reconstrucción del LLM en `reverse_prompt.py`.
+- [x] ~~Iniciar el Sprint 2: Implementar la lógica del `pddl_parser.py` con validador de Context-Free Grammar.~~
+- [x] ~~Iniciar el Sprint 2: Implementar la reconstrucción del LLM en `reverse_prompt.py`.~~
 - [ ] Obtener la API del testbed virtual del profesor e implementar el código real en `RESTConfTestbedClient`.
