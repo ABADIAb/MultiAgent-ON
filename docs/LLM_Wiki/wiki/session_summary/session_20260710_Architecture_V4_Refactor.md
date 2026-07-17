@@ -9,7 +9,7 @@ status: active
 **Fecha:** 2026-07-10 | **Agente Principal:** Gemini 3.1 Pro
 
 ## 🎯 1. Objetivo de la Sesión
-* Refactorizar el código fuente base (`src/`) desde la arquitectura heredada V3 hacia el nuevo pipeline lineal descrito en [[Architecture_v4]].
+* Refactorizar el código fuente base (`src/`) desde la arquitectura heredada V3 hacia el nuevo pipeline lineal descrito en [[archive/Architecture_v4]].
 * Implementar el nodo de validación de lenguaje natural con Kimi LLM (Exp 1.0) y agregar la persistencia de estado para el mecanismo Human-in-the-Loop (HITL).
 
 ## 💻 2. Estado del Código (Python)

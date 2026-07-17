@@ -268,3 +268,8 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Added wikilinks to `Weekly_Report_20260720_Felipe_Abadia.md`, `Issue_Report_20260714_Felipe_Abadia.md`, and `session_20260714_Sprint2_PDDL_HITL.md`. Updated `index.md` with new entries.
 - Consistency Audit: Verified that `pddl_parser.py` effectively uses the refined feedback prompt pattern to prevent ignoring user feedback.
 - Session closure properly logged.
+
+## [2026-07-17] debrief2 | V5 Pivot & Risk-Adaptive Decision Gate
+- Wiki Deep Lint: Audited and updated `index.md` to reference V5 documents, archived V4 documents, and corrected historic wikilinks. Checked YAML of `Weekly_Report_20260720_Felipe_Abadia.md`.
+- Consistency Audit: Confirmed the pivot from "Reverse Prompting convergence" (V4) to "Risk-Adaptive Decision Gate" (V5) is consistently reflected across the architecture, roadmap, and SOTA gap analysis.
+- Session closure properly logged.

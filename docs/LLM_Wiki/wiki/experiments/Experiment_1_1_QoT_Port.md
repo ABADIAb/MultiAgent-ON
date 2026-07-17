@@ -8,7 +8,7 @@ status: active
 # Experiment 1.1: QoT C++ to Python Port
 
 ## 1. Objective
-Translate the core physics equations from the C++ simulator (`Code_for_Felipe/Network.cpp`) into pure Python. This port provides a deterministic, latency-optimized "Physics Engine" for the [[Architecture_v4|Neurosymbolic Pipeline]] without relying on heavy third-party graph databases or external C++ processes.
+Translate the core physics equations from the C++ simulator (`Code_for_Felipe/Network.cpp`) into pure Python. This port provides a deterministic, latency-optimized "Physics Engine" for the [[archive/Architecture_v4|Neurosymbolic Pipeline]] without relying on heavy third-party graph databases or external C++ processes.
 
 ## 2. Context
 - **Roadmap Mapping**: [[MVP_Roadmap|Sprint 1, Exp 1.1 and 1.2]]

@@ -1,21 +1,22 @@
 ---
-title: "Scope Pivot: The Journey to Neurosymbolic Intent Orchestration (V2 → V4)"
-date: 2026-07-06
-tags: [architecture, scope, pivot, planning-loop, neurosymbolic, thesis]
+title: "Scope Pivot: The Journey to Risk-Adaptive Neurosymbolic Intent Planning (V2 → V5)"
+date: 2026-07-17
+tags: [architecture, scope, pivot, planning-loop, neurosymbolic, risk-adaptive, radg, thesis]
 status: active
 supersedes: "[[archive/Scope_Pivot_20260621]]"
 ---
 
-# Scope Pivot: The Journey to Neurosymbolic Intent Orchestration (V2 → V4)
+# Scope Pivot: The Journey to Risk-Adaptive Neurosymbolic Intent Planning (V2 → V5)
 
 ## 1. Executive Summary
 
-This document consolidates the complete architectural evolution of the thesis from its initial V2 conception to the final V4 design. It details the two major scope pivots driven by State of the Art (SOTA) research and technical limitations discovered during development.
+This document consolidates the complete architectural evolution of the thesis from its initial V2 conception to the current V5 design. It details the three major scope pivots driven by State of the Art (SOTA) research, technical limitations discovered during development, and advisor feedback.
 
 The progression follows:
 - **V2 (Full MAS)**: End-to-end multi-agent orchestration for Day-0 to Day-N.
 - **V3 (Planning Loop Focus)**: Narrowed scope to the Intent Planning phase due to SOTA saturation.
 - **V4 (Neurosymbolic Pipeline)**: Introduction of deterministic PDDL, GraphRAG, and formal Reverse Prompting to solve physical hallucinations and token saturation.
+- **V5 (Risk-Adaptive Decision Gate)**: Introduction of a pre-deployment joint semantic + QoT risk assessment mechanism that adaptively determines HITL engagement, replanning, or rejection.
 
 ## 2. First Pivot: V2 to V3 (SOTA-Driven Scope Reduction)
 
@@ -51,26 +52,60 @@ The planning intelligence was restructured into a rigid "Sistema 1 (Generative) 
 1. **Intent Ingestion + Optical RAG:** The NL request is semantically enriched with specific constraints (e.g., ITU-T standards) before LLM processing.
 2. **PDDL Intent Parsing (CFG Validated):** The LLM acts purely as a translator, outputting formal Planning Domain Definition Language (PDDL) states instead of a naive Pydantic SLA matrix.
 3. **Formal HITL (Reverse Prompting):** The PDDL state is translated back into natural language by an inverse model, forcing the operator to explicitly approve the exact logical constraints the system understood, thereby mathematically bounding convergence.
-4. **Symbolic Solver + GraphRAG:** A deterministic symbolic solver extracts 3-5 valid path candidates from a locally compressed GraphRAG topology based on the PDDL constraints.
+4. **Symbolic Solver + GraphRAG:** A deterministic symbolic solver extracts 3–5 valid path candidates from a locally compressed GraphRAG topology based on the PDDL constraints.
 5. **QoT Validation:** Only these mathematically bounded candidates are sent to the Python GNPy port for precise physical-layer QoT viability checks.
 
-## 4. Novelty and Added Value (Unique Selling Points)
+## 4. Third Pivot: V4 to V5 (Risk-Adaptive Pre-Deployment Decision)
 
-The pivot to V4 establishes a highly focused, academically novel contribution that avoids competing with hyperscale MAS frameworks (like Meta's Confucius) while addressing critical gaps in current optical AI research (like SJTU's AutoLight and PoliMi's LoRA models):
+**Date:** 2026-07-17
+**Transition:** From a "Neurosymbolic Intent Orchestration Pipeline" (V4) to "Risk-Adaptive Neurosymbolic Intent Planning" (V5).
 
-1. **Formal HITL Convergence via Reverse Prompting:** While other systems use basic chatbot loops that suffer from "semantic drift" (dropping constraints across turns), V4 uses model inversion to translate the generated PDDL back to natural language. This mathematically bounds the operator's approval to the exact logical constraints the system will execute.
-2. **Eradication of "Hallucinated Physics":** By enforcing a strict Neurosymbolic (NeSy) separation, the LLM is restricted to linguistics (Intent → PDDL). It is completely blocked from guessing physical parameters. A deterministic Symbolic Solver and GNPy handle the physics, guaranteeing 100% physically viable route proposals.
-3. **Optical GraphRAG for Token Efficiency:** Serializing RESTConf topology JSONs causes massive LLM attention degradation (the "lost-in-the-middle" problem). V4's use of a k-hop compressed topological GraphRAG provides highly efficient, localized network context, solving the context window bottleneck for optical networks.
-4. **Computational Pre-Filtering:** Directly querying GNPy via LLM heuristics is computationally unscalable. V4 introduces a symbolic constraint solver that whitelists only structurally valid paths *before* heavy physical simulation, drastically reducing the computational cost of the planning loop.
+### 4.1 The Problem
+While V4 successfully introduced the neurosymbolic separation and Reverse Prompting convergence, advisor feedback and further literature analysis revealed a critical framing issue:
 
-## 5. MVP Roadmap Constraint
+- **Multi-turn clarification is not novel.** The PoliMi/CNSM 2025 paper (*"Flow-Rule Generation for SDN Using LLMs with Retry-Based Deployment Validation"*, El Hachimi et al.) already implements iterative clarification and retry-based correction, achieving 96.7% deployment accuracy. Framing multi-turn HITL or Reverse Prompting convergence as the primary contribution would overlap with established prior art.
+- **V4's HITL was always-on.** Every intent triggered a Reverse Prompting HITL interrupt, regardless of the system's confidence in its own interpretation. This is operationally expensive and unnecessary for unambiguous, physically feasible intents.
+- **No risk differentiation.** V4 treated all intents equally — a trivially simple routing request received the same level of human scrutiny as a physically marginal or semantically ambiguous one.
 
-Given the August 25 deadline, the V4 MVP will utilize a **simplified Python symbolic solver** and a **mock GraphRAG** structure (e.g., Python dictionary traversals) rather than requiring heavy third-party installations like Neo4j or complex PDDL engines. This ensures a functional, verifiable prototype that modifies the simple lab testbed correctly.
+### 4.2 The V5 Solution (Risk-Adaptive Decision Gate)
+The novelty was reframed from "how the system clarifies" to "how the system decides WHETHER and HOW to act." V5 introduces a **Risk-Adaptive Decision Gate (RADG)** that jointly evaluates two orthogonal signals:
 
-## 6. Cross-References
+1. **Semantic Uncertainty ($U_{sem}$)**: A two-layer assessment combining CFG structural validation (Layer 1) and embedding-based disagreement between the original intent and the Reverse Prompting reconstruction (Layer 2).
+2. **QoT Risk Margin ($R_{qot}$)**: The distance between the computed GSNR and the required threshold, in dB.
 
-- [[Architecture_v4]] — The final active architecture document.
-- [[ProblemStatement_v4]] — The refined thesis problem definition.
+The RADG maps these signals to four possible outcomes: **auto-approve**, **clarify** (trigger HITL), **suggest replan** (propose alternatives to operator), or **reject + request reformulation** (block deployment and notify operator).
+
+### 4.3 Key Distinction from Prior Art
+| Aspect | PoliMi/CNSM 2025 (El Hachimi et al.) | MultiAgentON V5 (Ours) |
+|--------|---------------------------------------|------------------------|
+| **When** | Post-deployment (after controller failure) | Pre-deployment (before any configuration reaches the network) |
+| **Mechanism** | Fixed N retries | Risk-proportional decision ($D(U_{sem}, R_{qot})$) |
+| **Risk Assessment** | None — retries blindly | Joint semantic + QoT risk evaluation |
+| **HITL** | Always-on intent clarification | Conditional — only when $U_{sem}$ is high |
+| **Physics Awareness** | Controller error codes | Deterministic GSNR margin computation |
+| **Domain** | SDN (IP flow rules) | Optical networks (GSNR, GN model) |
+
+## 5. Novelty and Added Value (Unique Selling Points)
+
+The evolution through V4 to V5 establishes a highly focused, academically novel contribution:
+
+1. **Risk-Adaptive Pre-Deployment Decision Gate (RADG).** Unlike post-deployment retry systems (PoliMi/CNSM 2025) or always-on HITL approaches, V5 jointly evaluates semantic uncertainty and QoT risk margin BEFORE deployment to determine the minimally invasive corrective action. This is the core novelty.
+2. **Neurosymbolic Constraint Isolation.** The LLM is restricted to linguistics (Intent → PDDL). A deterministic Symbolic Solver and GN-model tool handle the physics, guaranteeing 100% physically viable route proposals in the approved set.
+3. **Optical GraphRAG for Token Efficiency.** A $k$-hop compressed topological GraphRAG provides localized network context, solving the context window bottleneck.
+4. **Formal HITL via Reverse Prompting.** When the RADG determines clarification is needed, the Reverse Prompting mechanism mathematically bounds the operator's approval to the exact logical constraints the system will execute.
+5. **Formal Evaluation Framework.** V5 includes a structured comparison against No-HITL, Always-HITL, and Fixed-Retry baselines using five metrics (UAR, HIC, QFR, E2EL, TC) — ensuring the contribution is measurably validated.
+
+## 6. MVP Roadmap Constraint
+
+Given the August 25 deadline, the V5 MVP will utilize a **simplified Python symbolic solver**, a **mock GraphRAG** structure (Python dictionary traversals), and a **lightweight RADG** (threshold-based decision function with embedding similarity for $U_{sem}$). This ensures a functional, verifiable prototype with formal baseline evaluation.
+
+## 7. Cross-References
+
+- [[Architecture_v5]] — The active V5 architecture document.
+- [[ProblemStatement_v5]] — The thesis problem definition with evaluation framework.
+- [[experiments/MVP_Roadmap]] — Sprint plan including RADG and baseline evaluation experiments.
+- [[literature/sota_gap_analysis]] — Gap analysis including PoliMi/CNSM 2025.
 - [[archive/Scope_Pivot_20260621]] — Original V2 to V3 pivot document.
+- [[archive/Architecture_v4]] — Archived V4 architecture.
 - [[archive/Architecture_v3]] — Archived V3 architecture.
 - [[archive/Architecture_v2]] — Archived V2 architecture.

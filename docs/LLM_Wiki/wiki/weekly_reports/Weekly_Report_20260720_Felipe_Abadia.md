@@ -1,7 +1,7 @@
 ---
 title: "Weekly Report 2026-07-20"
 date: 2026-07-14
-tags: [weekly, report, architecture-v4, pddl, hitl]
+tags: [weekly, report, architecture-v5, radg, pddl, hitl]
 status: active
 ---
 
@@ -13,7 +13,7 @@ status: active
 Felipe Abadia
 
 ## Project Title:
-Neurosymbolic Orchestration of Intents for Optical Networks: A Graph-Aware Human-in-the-Loop Approach
+Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
 
 ## Date: 
 2026-07-20 (Ongoing)
@@ -32,10 +32,16 @@ Neurosymbolic Orchestration of Intents for Optical Networks: A Graph-Aware Human
 
 1. **Exp 2.1 & 2.2 Completed (PDDL & HITL):** 
    - Implemented the deterministic CFG Regex validator to catch PDDL structural hallucinations.
-   - Prompt-engineered Kimi to generate a simplified optical network PDDL subset (aligned with [[Architecture_v4]]).
-   - Built the Reverse Prompting mechanism (`interrupt()`), translating PDDL to natural language to guarantee operator intent convergence and avoid semantic drift (see [[ProblemStatement_v4]]).
+   - Prompt-engineered Kimi to generate a simplified optical network PDDL subset (aligned with [[Architecture_v5]]).
+   - Built the Reverse Prompting mechanism (`interrupt()`), translating PDDL to natural language to guarantee operator intent convergence and avoid semantic drift (see [[ProblemStatement_v5]]).
    - Resolved a feedback-loop bug where the LLM was ignoring operator refinement inputs.
    - Maintained Strict TDD compliance (126 passing tests).
+
+2. **Architecture V4 → V5 Pivot (Risk-Adaptive Decision Gate):**
+   - Based on advisor feedback, reframed the thesis contribution from multi-turn clarification (already covered by PoliMi/CNSM 2025) to a **Risk-Adaptive Decision Gate (RADG)** that jointly assesses semantic uncertainty ($U_{sem}$) and QoT risk margin ($R_{qot}$) before deployment.
+   - Created [[ProblemStatement_v5]], [[Architecture_v5]], updated [[Scope_Pivot_20260706]], [[experiments/MVP_Roadmap|MVP_Roadmap]], and [[literature/sota_gap_analysis|SOTA Gap Analysis]].
+   - Defined formal baselines (No-HITL, Always-HITL, Fixed-Retry) and evaluation metrics (UAR, HIC, QFR, E2EL, TC).
+   - Added PoliMi/CNSM 2025 to the SOTA comparison.
 
 ## 3. Issue List This Week
 
@@ -47,21 +53,29 @@ Neurosymbolic Orchestration of Intents for Optical Networks: A Graph-Aware Human
 
 ## 4. Plan for Next Week
 
-*(To be updated as the week progresses)*
 1. Finalize Exp 1.3 as soon as the RESTConf API is provided.
 2. Execute Exp 2.3: Symbolic Solver and Mock GraphRAG.
+3. Begin Exp 3.1: Risk-Adaptive Decision Gate (RADG) implementation.
 
 ---
 
 ## 5. Do I Need Support?
 
-Write here: Yes, I am still waiting for the professor to provide the API documentation (Base URL, Authentication, and Topology Endpoints) for the virtual RESTConf testbed to complete Exp 1.3.
+Yes, I need support on two items:
+
+1. **RESTConf API** (ongoing): I am still waiting for the API documentation (Base URL, Authentication, and Topology Endpoints) for the virtual RESTConf testbed to complete Exp 1.3.
+
+2. **Semantic Uncertainty Proxy for RADG** (new): For the Risk-Adaptive Decision Gate, I plan to quantify semantic uncertainty ($U_{sem}$) using a two-layer approach:
+   - *Layer 1*: Binary pass/fail from the CFG PDDL structural validator (already implemented).
+   - *Layer 2*: Embedding-based similarity score between the original operator intent and the Reverse Prompting NL reconstruction — measuring how much the system's interpretation diverges from the operator's original request.
+
+   **Question for the professor:** Is this two-layer approach (structural + semantic embedding similarity) a reasonable proxy for semantic uncertainty in the MVP? Would the professor recommend an alternative metric, such as LLM token-level log-probabilities or a different semantic similarity method? Any guidance on calibrating the threshold $\tau_{sem}$ for the Layer 2 disagreement score would also be valuable.
 
 ---
 
 ## 6. One-Sentence Summary
 
-This week, we successfully implemented the Neurosymbolic Intent parsing and interactive HITL reverse-prompting loop, maintaining a 100% passing test suite while continuing to await testbed API details to finalize Sprint 1.
+This week, we completed the PDDL parser and Reverse Prompting HITL, then evolved the architecture from V4 to V5 by incorporating advisor feedback to reframe the thesis contribution around a Risk-Adaptive Decision Gate (RADG) with joint semantic and QoT risk assessment, formal baselines, and evaluation metrics.
 
 ---
 
@@ -71,3 +85,4 @@ This week, we successfully implemented the Neurosymbolic Intent parsing and inte
 - [x] I have listed all issues encountered this week
 - [x] I have clearly written my plan for next week
 - [x] I have indicated whether I need support
+
