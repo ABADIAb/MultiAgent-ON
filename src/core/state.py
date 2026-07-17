@@ -1,64 +1,27 @@
-"""Core state schema for the MultiAgentON LangGraph pipeline.
+"""Core state schema for the Neurosymbolic Intent Pipeline.
 
 Defines the AgentState TypedDict used as the shared state across all nodes
-in the StateGraph, plus Pydantic models for structured domain data.
+in the V4 StateGraph, plus Pydantic models for structured domain data.
+
+V4 changes from V3:
+  - Removed TaskType, TaskItem, TaskPlan (hub-and-spoke routing)
+  - Removed current_agent field
+  - Added neurosymbolic pipeline fields: enriched_intent, pddl_constraints,
+    pddl_valid, hitl_reconstruction, hitl_approved, candidate_paths,
+    qot_results, planning_report
 """
 
 from __future__ import annotations
 
 import operator
-from enum import Enum
 from typing import Annotated, TypedDict
 
-from pydantic import BaseModel, Field, AliasChoices
+from pydantic import BaseModel, Field
 
 
 # ---------------------------------------------------------------------------
-# Domain Models (Pydantic)
+# Domain Models (Pydantic) — Topology layer, preserved from V3
 # ---------------------------------------------------------------------------
-
-
-class TaskType(str, Enum):
-    """Types of tasks the supervisor can delegate."""
-
-    TOPOLOGY_QUERY = "topology_query"
-    ROUTE_REQUEST = "route_request"
-    LIGHTPATH_PROVISION = "lightpath_provision"
-    MEASUREMENT = "measurement"
-    UNKNOWN = "unknown"
-
-
-class TaskItem(BaseModel):
-    """A single task in the supervisor's delegation plan."""
-
-    task_type: TaskType = Field(
-        description="The type of task to execute. Must be one of the TaskType enum values.",
-        validation_alias=AliasChoices("task_type", "type"),
-    )
-    description: str = Field(
-        default="",
-        description="Detailed description of what this task step involves.",
-    )
-    source_node: str | None = Field(
-        default=None,
-        description="Optional source node name if applicable.",
-    )
-    sink_node: str | None = Field(
-        default=None,
-        description="Optional sink/target node name if applicable.",
-    )
-
-
-class TaskPlan(BaseModel):
-    """Structured output from the Supervisor's intent parsing."""
-
-    intent_summary: str = Field(
-        description="One-sentence summary of what the operator wants."
-    )
-    tasks: list[TaskItem] = Field(
-        default_factory=list,
-        description="Ordered list of tasks to execute.",
-    )
 
 
 class NetworkNode(BaseModel):
@@ -92,23 +55,35 @@ class TopologySnapshot(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# LangGraph State
+# LangGraph State — V4 Neurosymbolic Intent Pipeline
 # ---------------------------------------------------------------------------
 
 
 class AgentState(TypedDict):
-    """Shared state for the MultiAgentON LangGraph pipeline.
+    """Shared state for the V4 Neurosymbolic Intent Pipeline.
 
     Fields:
         messages: Append-only message list (uses add reducer).
-        task_plan: Parsed intent from the Supervisor.
-        topology_snapshot: Current testbed topology from the Topology Agent.
-        current_agent: Name of the currently active agent.
-        error_context: Error details for retry loops.
+        enriched_intent: Operator intent after Optical RAG enrichment.
+        pddl_constraints: PDDL constraint string from the parser.
+        pddl_valid: Whether the PDDL passed CFG validation.
+        hitl_reconstruction: Natural language reconstruction of PDDL.
+        hitl_approved: Whether the operator approved via Reverse Prompting.
+        topology_snapshot: Current testbed topology.
+        candidate_paths: 3-5 paths from the Symbolic Solver.
+        qot_results: QoT assessment results per candidate path.
+        planning_report: Final synthesized planning report.
+        error_context: Error details for debugging.
     """
 
     messages: Annotated[list, operator.add]
-    task_plan: TaskPlan | None
+    enriched_intent: str | None
+    pddl_constraints: str | None
+    pddl_valid: bool | None
+    hitl_reconstruction: str | None
+    hitl_approved: bool | None
     topology_snapshot: TopologySnapshot | None
-    current_agent: str | None
+    candidate_paths: list | None
+    qot_results: list | None
+    planning_report: str | None
     error_context: str | None

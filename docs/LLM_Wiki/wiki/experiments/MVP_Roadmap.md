@@ -26,20 +26,20 @@ This document outlines the detailed execution plan, timeline, and structured exp
 
 ## Sprint 1: Foundation & Tooling (July 06 - July 18)
 
-### Exp 1.0: LLM Connection Verification
-- **Objective:** Verify robust connection with the Kimi LLM endpoint provided by the professor.
-- **Action:** Implement a small validation script using `langchain_openai.ChatOpenAI` configured with `KIMI_API_KEY` and `KIMI_BASE_URL` from the local `.env`. Ensure structured output parsing works.
-- **Deliverable:** Verified connection and structured output test script.
+### ~~Exp 1.0: LLM Connection Verification~~ ✅ (Completado)
+- **Objective:** ~~Verify robust connection with the Kimi LLM endpoint provided by the professor.~~
+- **Action:** ~~Implement a small validation script using `langchain_openai.ChatOpenAI` configured with `KIMI_API_KEY` and `KIMI_BASE_URL` from the local `.env`. Ensure structured output parsing works.~~
+- **Deliverable:** ~~Verified connection and structured output test script.~~
 
-### Exp 1.1: QoT C++ to Python Port
-- **Objective:** Translate the core physics equations from the C++ simulator into pure Python.
-- **Action:** Convert functions calculating Signal-to-Noise Ratio (SNR) and receiver power constraints (e.g., the -18 dBm threshold) into a modular Python module. Ensure exact numerical parity with C++ outputs.
-- **Deliverable:** `src/core/qot_calculator.py` with passing unit tests.
+### ~~Exp 1.1: QoT C++ to Python Port~~ ✅ (Completado)
+- **Objective:** ~~Translate the core physics equations from the C++ simulator into pure Python.~~
+- **Action:** ~~Convert functions calculating Signal-to-Noise Ratio (SNR) and receiver power constraints (e.g., the -18 dBm threshold) into a modular Python module. Ensure exact numerical parity with C++ outputs.~~
+- **Deliverable:** ~~`src/core/qot_calculator.py` with passing unit tests.~~
 
-### Exp 1.2: QoT Tool Wrapping
-- **Objective:** Expose the Python QoT calculator as a LangChain `@tool` compatible with the agent framework.
-- **Action:** Wrap the calculator in `src/tools/qot_tool.py`. It should take path coordinates and return GSNR and receiver power feasibility status.
-- **Deliverable:** Exposable `qot_check` tool in the MultiAgentON tool registry.
+### ~~Exp 1.2: QoT Tool Wrapping~~ ✅ (Completado)
+- **Objective:** ~~Expose the Python QoT calculator as a LangChain `@tool` compatible with the agent framework.~~
+- **Action:** ~~Wrap the calculator in `src/tools/qot_tool.py`. It should take path coordinates and return GSNR and receiver power feasibility status.~~
+- **Deliverable:** ~~Exposable `qot_check` tool in the MultiAgentON tool registry.~~
 
 ### Exp 1.3: SSH Testbed Connectivity Hook
 - **Objective:** Establish the integration channel with the physical laboratory testbed.
@@ -50,15 +50,15 @@ This document outlines the detailed execution plan, timeline, and structured exp
 
 ## Sprint 2: Neurosymbolic Node Development (July 19 - August 01)
 
-### Exp 2.1: PDDL Intent Parser
-- **Objective:** Translate natural language operator intents into formal PDDL (Planning Domain Definition Language) constraint strings.
-- **Action:** Prompt engineer the Kimi LLM to output a clean PDDL domain/problem representation from natural language intents. Implement a Context-Free Grammar (CFG) regex validator in Python to ensure structural syntax correctness.
-- **Deliverable:** `src/agents/pddl_parser.py` and grammar validator.
+### ~~Exp 2.1: PDDL Intent Parser~~ ✅ (Completado)
+- **Objective:** ~~Translate natural language operator intents into formal PDDL (Planning Domain Definition Language) constraint strings.~~
+- **Action:** ~~Prompt engineer the Kimi LLM to output a clean PDDL domain/problem representation from natural language intents. Implement a Context-Free Grammar (CFG) regex validator in Python to ensure structural syntax correctness.~~
+- **Deliverable:** ~~`src/agents/pddl_parser.py` and grammar validator.~~
 
-### Exp 2.2: Reverse Prompting HITL Node
-- **Objective:** Enforce intent convergence and prevent semantic drift using Reverse Prompting.
-- **Action:** Create a LangGraph node that reads the PDDL state, uses an inverse LLM prompt to reconstruct it back into plain English (e.g., *"I understand you want to route from Milan to Rome avoiding links with active aging..."*), and uses LangGraph's `interrupt()` to await human approval.
-- **Deliverable:** Interactive HITL node in `src/agents/reverse_prompt.py`.
+### ~~Exp 2.2: Reverse Prompting HITL Node~~ ✅ (Completado)
+- **Objective:** ~~Enforce intent convergence and prevent semantic drift using Reverse Prompting.~~
+- **Action:** ~~Create a LangGraph node that reads the PDDL state, uses an inverse LLM prompt to reconstruct it back into plain English (e.g., *"I understand you want to route from Milan to Rome avoiding links with active aging..."*), and uses LangGraph's `interrupt()` to await human approval.~~
+- **Deliverable:** ~~Interactive HITL node in `src/agents/reverse_prompt.py`.~~
 
 ### Exp 2.3: Symbolic Solver & Mock GraphRAG
 - **Objective:** Filter topological paths deterministically before executing physical simulations, preventing token saturation.

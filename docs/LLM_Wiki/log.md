@@ -248,3 +248,23 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited and updated `index.md` to include new Issue Report. Ensured all new documentation correctly cross-references core concepts (`Architecture_v4`, `QoT_Tool`).
 - Consistency Audit: Confirmed `QoT_Tool.md` and `Experiment_1_1_QoT_Port.md` accurately reflect the implementation decisions made in `src/core/qot_calculator.py` (e.g., zero equalization loss, deferment of filterless ASE propagation).
 - Session closure properly logged.
+
+## [2026-07-10] debrief2 | Architecture V4 Refactor & Session Closure
+- Wiki Deep Lint: Audited and updated `index.md` to include new Weekly Report and Issue Report. Verified YAML frontmatter and `[[wikilinks]]`.
+- Consistency Audit: Confirmed that the recent `src/` refactor aligns with `Architecture_v4.md` (linear pipeline, HITL interrupt, RESTConf testbed).
+- Session closure properly logged.
+
+## [2026-07-13] lint | Renamed weekly report
+- Renamed `Weekly_Report_20260710_Felipe_Abadia.md` to `Weekly_Report_20260713_Felipe_Abadia.md` to match today's date.
+- Updated dates inside the weekly report file (frontmatter and body).
+- Updated reference link in `index.md`.
+
+## [2026-07-14] debrief2 | Exp 1.0 Closure & Handover Prep
+- Wiki Deep Lint: Audited `MVP_Roadmap.md` and `session_20260710_Architecture_V4_Refactor.md` for proper formatting.
+- Consistency Audit: Confirmed LLM integration correctly interfaces with the HITL logic inside `main.py`.
+- Session closure properly logged.
+
+## [2026-07-14] debrief2 | Sprint 2 PDDL & HITL Implementations
+- Wiki Deep Lint: Added wikilinks to `Weekly_Report_20260720_Felipe_Abadia.md`, `Issue_Report_20260714_Felipe_Abadia.md`, and `session_20260714_Sprint2_PDDL_HITL.md`. Updated `index.md` with new entries.
+- Consistency Audit: Verified that `pddl_parser.py` effectively uses the refined feedback prompt pattern to prevent ignoring user feedback.
+- Session closure properly logged.

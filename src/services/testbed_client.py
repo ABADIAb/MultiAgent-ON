@@ -94,3 +94,53 @@ class MockTestbedClient(TestbedClient):
     def health_check(self) -> bool:
         """Mock always returns True."""
         return True
+
+
+class RESTConfTestbedClient(TestbedClient):
+    """RESTConf client for the virtual SDON testbed environment.
+
+    Exp 1.3 structural prep: Defines the interface for communicating
+    with the testbed's RESTConf NBI. Implementation pending professor's
+    confirmation of API endpoints, authentication, and topology format.
+
+    Known:
+        - Protocol: RESTConf (HTTP/JSON)
+        - Environment: Virtual testbed (not physical lab)
+
+    Pending (questions for professor):
+        - Base URL and endpoint discovery
+        - Authentication method
+        - Topology retrieval endpoint format
+        - Provisioning CRUD endpoints
+    """
+
+    def __init__(self, base_url: str, auth: dict | None = None) -> None:
+        self._base_url = base_url.rstrip("/")
+        self._auth = auth or {}
+
+    @property
+    def base_url(self) -> str:
+        """The RESTConf NBI base URL."""
+        return self._base_url
+
+    def get_topology(self) -> TopologySnapshot:
+        """Fetch the current network topology via RESTConf.
+
+        Raises:
+            NotImplementedError: Awaiting professor's testbed API details.
+        """
+        raise NotImplementedError(
+            "RESTConf topology fetch not implemented. "
+            "Awaiting professor's virtual testbed API details."
+        )
+
+    def health_check(self) -> bool:
+        """Check if the virtual testbed is reachable via RESTConf.
+
+        Raises:
+            NotImplementedError: Awaiting professor's testbed API details.
+        """
+        raise NotImplementedError(
+            "RESTConf health check not implemented. "
+            "Awaiting professor's virtual testbed API details."
+        )

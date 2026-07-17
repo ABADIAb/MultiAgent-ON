@@ -1,44 +1,70 @@
-"""LangGraph StateGraph definition for the MultiAgentON pipeline.
+"""LangGraph StateGraph definition for the V4 Neurosymbolic Intent Pipeline.
 
-Wires together the Supervisor and Topology Agent nodes with
-conditional edges for task-based routing.
+Wires the linear neurosymbolic pipeline:
+  Intent Ingest → PDDL Parser → Reverse Prompt (HITL) → Symbolic Solver
+  → QoT Validation → Plan Synthesizer
+
+The Reverse Prompt node uses interrupt() for HITL approval, with
+conditional routing for approve/refine/reject.
 """
 
 from __future__ import annotations
 
 from langgraph.graph import END, START, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
-from src.agents.supervisor import route_by_task, supervisor_node
-from src.agents.topology import topology_node
+from src.agents.intent_ingest import intent_ingest_node
+from src.agents.pddl_parser import pddl_parser_node
+from src.agents.plan_synthesizer import plan_synthesizer_node
+from src.agents.qot_validation import qot_validation_node
+from src.agents.reverse_prompt import hitl_route, reverse_prompt_node
+from src.agents.symbolic_solver import symbolic_solver_node
 from src.core.state import AgentState
 
 
 def build_graph() -> StateGraph:
-    """Construct the MultiAgentON StateGraph.
+    """Construct the V4 Neurosymbolic Intent Pipeline.
 
     Returns:
-        A compiled StateGraph ready for invocation.
+        A StateGraph builder (not yet compiled).
 
     Graph topology:
-        START → supervisor → (conditional) → topology_agent → supervisor → END
-                                           → END (if no actionable task)
+        START → intent_ingest → pddl_parser → reverse_prompt
+          → (approved) → symbolic_solver → qot_validation → plan_synthesizer → END
+          → (refine)   → pddl_parser (loop)
+          → (reject)   → END
     """
-    builder = StateGraph(AgentState)
+    builder = StateGraph(AgentState)  # type: ignore
 
-    # Add nodes
-    builder.add_node("supervisor", supervisor_node)
-    builder.add_node("topology_agent", topology_node)
+    # Add pipeline nodes
+    builder.add_node("intent_ingest", intent_ingest_node)
+    builder.add_node("pddl_parser", pddl_parser_node)
+    builder.add_node("reverse_prompt", reverse_prompt_node)
+    builder.add_node("symbolic_solver", symbolic_solver_node)
+    builder.add_node("qot_validation", qot_validation_node)
+    builder.add_node("plan_synthesizer", plan_synthesizer_node)
 
-    # Edges
-    builder.add_edge(START, "supervisor")
-    builder.add_conditional_edges("supervisor", route_by_task)
-    builder.add_edge("topology_agent", "supervisor")
+    # Linear pipeline edges
+    builder.add_edge(START, "intent_ingest")
+    builder.add_edge("intent_ingest", "pddl_parser")
+    builder.add_edge("pddl_parser", "reverse_prompt")
+
+    # HITL conditional routing
+    builder.add_conditional_edges("reverse_prompt", hitl_route)
+
+    # Post-HITL linear pipeline
+    builder.add_edge("symbolic_solver", "qot_validation")
+    builder.add_edge("qot_validation", "plan_synthesizer")
+    builder.add_edge("plan_synthesizer", END)
 
     return builder
 
 
-def compile_graph(*, checkpointer=None) -> object:
-    """Build and compile the graph with an optional checkpointer.
+def compile_graph(*, checkpointer=None) -> CompiledStateGraph:
+    """Build and compile the V4 graph with an optional checkpointer.
+
+    Note: A checkpointer is REQUIRED for interrupt() to work.
+    Use InMemorySaver for development, SqliteSaver for persistence.
 
     Args:
         checkpointer: LangGraph checkpointer for state persistence.
