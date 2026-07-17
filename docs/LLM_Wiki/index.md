@@ -3,23 +3,23 @@
 Content-oriented catalog of everything in the wiki.
 
 ## Concepts
-- [[ProblemStatement_v4]]: **Active** — Neurosymbolic Intent Orchestration problem definition, token saturation boundaries, mathematically convergent HITL.
 - [[Concepts_and_Terminology]]: Glossary of terms for Intent-Based Optical Networks.
 - [[QoT_Awareness]]: Concept of Quality of Transmission awareness and feasibility metrics.
 
 ### Archived Concept Documents
-- [[concepts/archive/ProblemStatement_v3]]: (archived) V3 Intent Planning loop. Superseded by ProblemStatement_v4.
-- [[concepts/archive/ProblemStatement_20260427_Felipe_Abadia]]: (archived) Original problem statement. Superseded by ProblemStatement_v3.
+
 
 ## Architecture
 - [[Architecture_v4]]: **Active unified V4 design** — Neurosymbolic Intent Pipeline, PDDL constraint parser, Reverse Prompting, Symbolic Solver, GraphRAG.
+- [[ProblemStatement_v4]]: **Active** — Neurosymbolic Intent Orchestration problem definition, token saturation boundaries, mathematically convergent HITL.
 - [[Scope_Pivot_20260706]]: Formal scope pivot document — rationale for shifting from generative loop to neurosymbolic pipeline.
-- [[Tool_Registry]]: Registry of deterministic tools/skills for the optical network.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
 ### Archived Architecture Documents
 - [[architecture/archive/Scope_Pivot_20260621]]: (archived) V3 scope pivot. Superseded by Scope_Pivot_20260706.
 - [[architecture/archive/Architecture_v3]]: (archived) V3 Intent Planning Loop design. Superseded by Architecture_v4.
+- [[architecture/archive/ProblemStatement_v3]]: (archived) V3 Intent Planning loop. Superseded by ProblemStatement_v4.
+- [[architecture/archive/ProblemStatement_20260427_Felipe_Abadia]]: (archived) Original problem statement. Superseded by ProblemStatement_v3.
 - [[architecture/archive/Architecture_v2]]: (archived) V2 unified system design. Superseded by Architecture_v3.
 - [[architecture/archive/Architecture_Workflow_20260427_Felipe_Abadia]]: (archived) V1 LangGraph workflow. Superseded by Architecture_v2.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
