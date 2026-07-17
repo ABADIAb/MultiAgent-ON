@@ -27,3 +27,6 @@ pythonpath = ["."]
 testpaths = ["tests"]
 norecursedirs = ["archive"]
 
+[tool.pyright]
+extraPaths = ["."]
+

@@ -11,6 +11,7 @@ conditional routing for approve/refine/reject.
 from __future__ import annotations
 
 from langgraph.graph import END, START, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from src.agents.intent_ingest import intent_ingest_node
 from src.agents.pddl_parser import pddl_parser_node
@@ -33,7 +34,7 @@ def build_graph() -> StateGraph:
           → (refine)   → pddl_parser (loop)
           → (reject)   → END
     """
-    builder = StateGraph(AgentState)
+    builder = StateGraph(AgentState)  # type: ignore
 
     # Add pipeline nodes
     builder.add_node("intent_ingest", intent_ingest_node)
@@ -59,7 +60,7 @@ def build_graph() -> StateGraph:
     return builder
 
 
-def compile_graph(*, checkpointer=None) -> object:
+def compile_graph(*, checkpointer=None) -> CompiledStateGraph:
     """Build and compile the V4 graph with an optional checkpointer.
 
     Note: A checkpointer is REQUIRED for interrupt() to work.

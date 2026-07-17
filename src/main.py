@@ -12,6 +12,10 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
+
+# Add project root to sys.path to allow running main.py directly
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
