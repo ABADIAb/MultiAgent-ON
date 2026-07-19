@@ -31,7 +31,7 @@ The LangGraph orchestrator only needs the "Physics Engine," not the global optim
 - **`calculatePropagatedSNR`**: Handles noise leakage in filterless network scenarios.
 - **`spanSNR`**: The function computing noise for individual segments of fiber.
 
-### [[Architecture_v4|Neurosymbolic Orchestration Context]]
+### [[Architecture_v5|Neurosymbolic Orchestration Context]]
 The interaction flow will be:
 1. The deterministic Symbolic Solver and Mock GraphRAG generate 3 to 5 structurally valid candidate paths from the operator's intent.
 2. These structurally valid paths are sent directly to the pure Python `qot_tool.py`.

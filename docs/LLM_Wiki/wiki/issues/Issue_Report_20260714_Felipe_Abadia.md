@@ -25,7 +25,7 @@ Neurosymbolic Orchestration of Intents for Optical Networks: A Graph-Aware Human
 ### Issue 1: PDDL Feedback Loop Ignoring Refinement
 - **Issue:** During the HITL interruption in `src/main.py`, if the user chose `refine` and provided feedback (e.g., "I made a mistake, route from B to D"), the system looped back to `pddl_parser` but ignored the feedback, generating the exact same PDDL again based on the original intent.
 - **What has already been tried:** We traced the state keys during the LangGraph loop and noticed that `error_context` correctly stored the operator's feedback, but `pddl_parser_node` was only reading `enriched_intent` and ignoring both the previous constraints and the feedback.
-- **Result:** **SOLVED**. We updated `src/agents/pddl_parser.py` (part of [[Architecture_v4]]) to check for `previous_pddl` and `error_context`. If present, the LLM is prompted with the original intent, the rejected PDDL, and the specific operator feedback to generate the corrected output. Added a unit test to guarantee this behavior.
+- **Result:** **SOLVED**. We updated `src/agents/pddl_parser.py` (part of [[archive/Architecture_v4]]) to check for `previous_pddl` and `error_context`. If present, the LLM is prompted with the original intent, the rejected PDDL, and the specific operator feedback to generate the corrected output. Added a unit test to guarantee this behavior.
 
 ---
 

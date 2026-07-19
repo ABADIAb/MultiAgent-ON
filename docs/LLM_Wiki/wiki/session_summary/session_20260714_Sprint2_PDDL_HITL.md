@@ -10,7 +10,7 @@ status: active
 ## 1. Datos de la Sesión
 * **Fecha:** 2026-07-14
 * **Objetivo:** Ejecutar Exp 2.1 (PDDL Intent Parser) y Exp 2.2 (Reverse Prompting HITL Node) según el [[MVP_Roadmap]].
-* **Resultado:** ÉXITO. La pipeline neurosimbólica (según [[Architecture_v4]]) ahora traduce intents en PDDL con validación CFG (Regex) e incorpora convergencia HITL interactiva, manejando iterativamente el feedback del operador mediante el uso de LangGraph `interrupt()`.
+* **Resultado:** ÉXITO. La pipeline neurosimbólica (según [[archive/Architecture_v4]]) ahora traduce intents en PDDL con validación CFG (Regex) e incorpora convergencia HITL interactiva, manejando iterativamente el feedback del operador mediante el uso de LangGraph `interrupt()`.
 
 ## 2. Decisiones Arquitectónicas y de Código
 
@@ -18,7 +18,7 @@ Se reemplazaron los stubs de la sesión anterior por implementaciones robustas e
 
 * **PDDL Simplificado:** Decidimos utilizar un subconjunto minimalista de PDDL adaptado a la red óptica (`define`, `problem`, `:domain`, `:objects`, `:init`, `:goal`). 
 * **Validador CFG Determinístico (`src/core/pddl_validator.py`):** Antes de continuar el pipeline, se verifica la estructura del PDDL usando un script Regex. Si hay alucinación estructural (faltan secciones o paréntesis desbalanceados), se rechaza.
-* **Mecanismo Anti-Drift Semántico (Reverse Prompting):** En lugar de mostrar el PDDL crudo al operador (que es difícil de leer y aprobar), el sistema realiza un call inverso al LLM para traducir el PDDL generado a lenguaje natural ("Reconstrucción"). El usuario aprueba la reconstrucción, forzando la convergencia semántica de su intent inicial y el constraint code final (ver [[ProblemStatement_v4]]).
+* **Mecanismo Anti-Drift Semántico (Reverse Prompting):** En lugar de mostrar el PDDL crudo al operador (que es difícil de leer y aprobar), el sistema realiza un call inverso al LLM para traducir el PDDL generado a lenguaje natural ("Reconstrucción"). El usuario aprueba la reconstrucción, forzando la convergencia semántica de su intent inicial y el constraint code final (ver [[archive/ProblemStatement_v4]]).
 * **Feedback Loop del Operador:** Se identificó y resolvió un bug donde el `pddl_parser` original ignoraba el feedback de la iteración HITL. Se modificó el parser para que detecte la presencia de `pddl_constraints` y `error_context` previos en el `AgentState` y lo envíe al LLM para refinamiento.
 
 ## 3. Estado del Código (`src/`)

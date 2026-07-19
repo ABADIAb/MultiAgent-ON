@@ -10,15 +10,17 @@ Content-oriented catalog of everything in the wiki.
 
 
 ## Architecture
-- [[Architecture_v4]]: **Active unified V4 design** — Neurosymbolic Intent Pipeline, PDDL constraint parser, Reverse Prompting, Symbolic Solver, GraphRAG.
-- [[ProblemStatement_v4]]: **Active** — Neurosymbolic Intent Orchestration problem definition, token saturation boundaries, mathematically convergent HITL.
-- [[Scope_Pivot_20260706]]: Formal scope pivot document — rationale for shifting from generative loop to neurosymbolic pipeline.
+- [[Architecture_v5]]: **Active V5 design** — Risk-Adaptive Neurosymbolic Intent Planning, RADG (joint semantic + QoT risk gate), conditional HITL, 4-outcome decision function.
+- [[ProblemStatement_v5]]: **Active** — Risk-Adaptive Neurosymbolic problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
+- [[Scope_Pivot_20260706]]: Formal scope pivot document — complete evolution from V2 through V5, including PoliMi/CNSM 2025 positioning.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
 ### Archived Architecture Documents
+- [[architecture/archive/Architecture_v4]]: (archived) V4 Neurosymbolic Intent Orchestration. Superseded by Architecture_v5.
+- [[architecture/archive/ProblemStatement_v4]]: (archived) V4 problem statement. Superseded by ProblemStatement_v5.
 - [[architecture/archive/Scope_Pivot_20260621]]: (archived) V3 scope pivot. Superseded by Scope_Pivot_20260706.
-- [[architecture/archive/Architecture_v3]]: (archived) V3 Intent Planning Loop design. Superseded by Architecture_v4.
-- [[architecture/archive/ProblemStatement_v3]]: (archived) V3 Intent Planning loop. Superseded by ProblemStatement_v4.
+- [[architecture/archive/Architecture_v3]]: (archived) V3 Intent Planning Loop design. Superseded by Architecture_v5.
+- [[architecture/archive/ProblemStatement_v3]]: (archived) V3 Intent Planning loop. Superseded by ProblemStatement_v5.
 - [[architecture/archive/ProblemStatement_20260427_Felipe_Abadia]]: (archived) Original problem statement. Superseded by ProblemStatement_v3.
 - [[architecture/archive/Architecture_v2]]: (archived) V2 unified system design. Superseded by Architecture_v3.
 - [[architecture/archive/Architecture_Workflow_20260427_Felipe_Abadia]]: (archived) V1 LangGraph workflow. Superseded by Architecture_v2.
@@ -41,12 +43,13 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/OrchestratorScriptReport]]: Analysis of the ECOC 2024 orchestrator codebase, Claude RAG memory paper, and comparison with our architecture.
 - [[literature/lit_comparison]]: Systematic SOTA comparison of Agentic AI approaches for IBON (2024–2026) — feature matrix, planning-loop positioning, and key references.
 - [[literature/recommendations]]: Prioritized research directions focused on the Intent Planning Loop experiments.
-- [[literature/sota_gap_analysis]]: Gap analysis positioning MultiAgentON's Intent Planning Loop against Confucius, SJTU, PoliMi, IntentLLM, and HearthNet.
+- [[literature/sota_gap_analysis]]: Gap analysis positioning MultiAgentON's Risk-Adaptive RADG against Confucius, SJTU, PoliMi, PoliMi/CNSM 2025, IntentLLM, and HearthNet.
 - [[literature/Confucius_SIGCOMM2025]]: Detailed analysis of Meta's Confucius multi-agent LLM framework (SIGCOMM 2025). DAG workflows, Collector primitive, Ensemble, RAG.
 - [[literature/SJTU_Invited_Tutorial_JOCN2026]]: Comprehensive summary of the SJTU invited tutorial on AI agents for AONs (JOCN 2026). Hierarchical MAS, DT toolset, MCP, field trials.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
+- [[issues/Issue_Report_20260720_Felipe_Abadia]]: Pending virtual testbed RESTConf API; Pending LangGraph refactor for Fail-Fast Architecture V5.
 - [[issues/Issue_Report_20260714_Felipe_Abadia]]: Solved PDDL feedback bug; pending virtual testbed RESTConf API.
 - [[issues/Issue_Report_20260710_Felipe_Abadia]]: Solved C++ QoT translation; pending virtual testbed RESTConf API.
 - [[issues/Issue_Report_20260706_Felipe_Abadia]]: Solved QoT Python port; pending SSH testbed connection.
@@ -85,5 +88,6 @@ Content-oriented catalog of everything in the wiki.
 *(Empty)*
 
 ## Session Summaries
+- [[session_summary/session_20260719_Architecture_V5_Fail_Fast]]: Architecture V5 Simplification, Fail-Fast Semantic Gate, and Binary QoT.
 - [[session_summary/session_20260714_Sprint2_PDDL_HITL]]: Sprint 2, PDDL Parser and Reverse Prompting HITL.
 - [[session_summary/session_20260710_Architecture_V4_Refactor]]: Architecture V4 Refactor & HITL Integration.
