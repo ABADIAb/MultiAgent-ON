@@ -69,38 +69,30 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 ## Sprint 3: RADG & Orchestrator Integration (August 02 – August 15)
 
 ### Exp 3.0: LangGraph State Pipeline Assembly
-- **Objective:** Connect all generative and symbolic modules into a cohesive StateGraph.
+- **Objective:** Connect all generative and symbolic modules into a cohesive, fail-fast StateGraph.
 - **Action:** Wire all components together in `src/core/graph.py`:
-  `Ingest (Intent) → RAG → LLM (PDDL) → Symbolic Solver → Python QoT Tool → RADG → {Approve | Clarify | Replan | Reject} → Synthesizer → Testbed Push`.
+  `Ingest → RAG → PDDL → Semantic Gate (U_sem) → [HITL if needed] → Symbolic Solver → QoT Tool → Physical Gate (R_qot) → Synthesizer → Testbed Push`.
 - Configure the LangGraph Memory Checkpointer to ensure state persistence across human interruptions.
 - **Deliverable:** Fully compiled `StateGraph` in `src/core/graph.py`.
 
-### Exp 3.1: Risk-Adaptive Decision Gate (RADG)
-- **Objective:** Implement the pre-deployment decision mechanism that jointly evaluates semantic uncertainty and QoT risk margin.
+### Exp 3.1: Two-Stage Risk-Adaptive Gates
+- **Objective:** Implement the pre-deployment decision mechanism that sequentially evaluates semantic uncertainty and QoT risk margin.
 - **Action:**
-  1. **Semantic Uncertainty ($U_{sem}$) — Two Layers:**
-     - *Layer 1 (Structural)*: Leverage the existing CFG PDDL validator result as a binary pass/fail gate. If the PDDL fails structural validation, $U_{sem}$ is immediately high — no further assessment needed.
-     - *Layer 2 (Semantic)*: If CFG passes, compute the disagreement between the original operator intent string and the Reverse Prompting NL reconstruction using embedding similarity (e.g., `sentence-transformers` cosine similarity). A disagreement above a threshold $\tau_{sem}$ flags high $U_{sem}$.
-  2. **QoT Risk Margin ($R_{qot}$):**
-     - Computed as $R_{qot} = \text{GSNR}_{computed} - \text{GSNR}_{threshold}$ [dB] using the existing QoT tool output.
-     - Paths with $R_{qot} > \epsilon$ are safe. Paths with $0 < R_{qot} \le \epsilon$ are marginal. Paths with $R_{qot} \le 0$ are infeasible.
-  3. **Decision Function $D(U_{sem}, R_{qot})$:**
-     - `Auto-Approve`: $U_{sem}$ low AND $R_{qot} > \epsilon$.
-     - `Clarify`: $U_{sem}$ high AND any $R_{qot}$ → trigger Reverse Prompting HITL.
-     - `Suggest Replan`: $U_{sem}$ low AND $0 < R_{qot} \le \epsilon$ → suggest alternative paths to operator.
-     - `Reject + Request Replan`: Any $U_{sem}$ AND $R_{qot} \le 0$ → block, notify operator, request reformulated intent.
-  4. **Integration:** The RADG is a LangGraph node that reads `pddl_constraints`, `original_intent`, `reverse_prompt_reconstruction`, and `qot_results` from the `AgentState` and writes a `radg_decision` with the routing outcome.
-- **Deliverable:** `src/core/radg.py` with unit tests covering all four decision branches.
+  1. **Semantic Gate ($U_{sem}$):**
+     - Evaluates Layer 1 (Structural CFG) and Layer 2 (Semantic Embedding).
+     - If $U_{sem}$ is high, triggers "Clarify" to prompt the operator for missing data.
+  2. **Physical Risk Gate:**
+     - Binary evaluation: $\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$.
+     - Routes to `Auto-Approve` (Valid) or `Suggest Replan` via HITL (Invalid).
+  3. **Integration:** Implemented as two separate LangGraph conditional routing nodes in `src/core/radg.py`.
+- **Deliverable:** `src/core/radg.py` containing both decision gate logics.
 
-### Exp 3.2: Conditional HITL Routing
-- **Objective:** Modify the LangGraph graph to make Reverse Prompting conditional — invoked only when RADG routes to "Clarify".
+### Exp 3.2: Early Conditional HITL Routing
+- **Objective:** Modify the LangGraph to make Reverse Prompting an early conditional branch — invoked only when the Semantic Gate detects ambiguity.
 - **Action:**
-  1. The Reverse Prompting node (`src/agents/reverse_prompt.py`) remains unchanged in its logic.
-  2. The graph routing in `src/core/graph.py` is updated: after the RADG node, a conditional edge routes to `reverse_prompt_node` only when `radg_decision == "clarify"`.
-  3. For `auto-approve`, the flow proceeds directly to Synthesis.
-  4. For `suggest-replan`, the flow presents alternative paths to the operator with a recommendation.
-  5. For `reject`, the flow notifies the operator and loops back to intent ingestion.
-- **Deliverable:** Updated `src/core/graph.py` with conditional RADG routing.
+  1. The Reverse Prompting node (`src/agents/reverse_prompt.py`) identifies missing PDDL constraints to suggest to the user.
+  2. The graph routing loops back to PDDL parsing upon refinement.
+- **Deliverable:** Updated `src/core/graph.py` with early HITL routing.
 
 ---
 
@@ -112,10 +104,9 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 
 | Category | Example Intent | Expected RADG Decision |
 |----------|---------------|----------------------|
-| **Safe + Clear** | "Route from Milan to Rome, min 25 dB GSNR" (comfortable margin) | Auto-Approve |
-| **Ambiguous** | "Set up a fast connection somewhere in the north" (missing constraints) | Clarify |
-| **Clear + Marginal QoT** | "Route from Milan to Rome, min 18 dB GSNR" (near threshold) | Suggest Replan |
-| **Infeasible** | "Route from Milan to Rome, min 40 dB GSNR, single span" (impossible physics) | Reject + Request Replan |
+| **Safe + Clear** | "Route from Milan to Rome, min 25 dB GSNR" (physically feasible) | Auto-Approve |
+| **Ambiguous** | "Set up a fast connection somewhere in the north" (missing constraints) | Clarify (Early HITL) |
+| **Infeasible** | "Route from Milan to Rome, min 40 dB GSNR, single span" (impossible physics) | Suggest Replan (Late HITL) |
 
 - **Deliverable:** `tests/evaluation/test_corpus.json` — structured intent corpus with expected outcomes.
 

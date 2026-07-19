@@ -37,50 +37,48 @@ The translation of high-level operator intent into physical optical network conf
 | **AutoLight** (SJTU, ECOC 2025) | None — pre-defined task sequences | Pre-execution | No operator validation; no risk assessment |
 | **IntentLLM** | None — single-pass chatbot | N/A | No multi-agent coordination; no QoT |
 
-**The fundamental gap:** No existing system combines **semantic uncertainty assessment** (did the LLM correctly understand the intent?) with **physical-layer QoT risk evaluation** (is the proposed lightpath physically feasible?) into a **joint pre-deployment decision** that adaptively determines the appropriate corrective action.
+**The fundamental gap:** No existing system combines **semantic uncertainty assessment** (did the LLM correctly understand the intent?) with **physical-layer QoT risk evaluation** (is the proposed lightpath physically feasible?) into a **fail-fast, sequential pre-deployment decision** that adaptively determines the appropriate corrective action without wasting computation.
 
 ## 4. The Proposed Solution
 
-A **Neurosymbolic Intent Planning Pipeline** with a **Risk-Adaptive Decision Gate (RADG)** that evaluates two orthogonal risk signals **before deployment** to determine the appropriate action for each intent.
+A **Neurosymbolic Intent Planning Pipeline** with a **Risk-Adaptive Decision Pipeline** that sequentially evaluates two orthogonal risk signals **before deployment** to determine the appropriate action for each intent.
 
 ### 4.1 Neurosymbolic Pipeline
 
 The pipeline enforces a strict "LLMs reason, tools calculate" separation:
 
 1. **Intent Ingestion + Optical RAG.** The natural language request is semantically enriched with domain standards (e.g., ITU-T specifications, transponder data) before LLM processing.
-2. **PDDL Intent Parsing (CFG Validated).** The LLM translates the enriched intent into formal PDDL constraints. A deterministic CFG (Context-Free Grammar) validator blocks structural hallucinations.
-3. **Symbolic Solver + GraphRAG.** A Python-based symbolic solver fetches only the necessary $k$-hop sub-graph from the topology (Mock GraphRAG) and extracts 3–5 structurally valid candidate paths.
-4. **QoT Validation.** Candidate paths are evaluated by a deterministic Python QoT Tool (GN-model port) to compute precise GSNR and receiver power feasibility.
+2. **PDDL Intent Parsing.** The LLM translates the enriched intent into formal PDDL constraints.
+3. **Semantic Uncertainty Gate ($U_{sem}$).** Before complex computation, the system checks structural (CFG) and semantic (Reverse Prompting) validity. If uncertainty is high, it immediately requests the operator to clarify missing data.
+4. **Symbolic Solver + GraphRAG.** A Python-based symbolic solver fetches only the necessary $k$-hop sub-graph from the topology (Mock GraphRAG) and extracts 3–5 structurally valid candidate paths.
+5. **QoT Validation.** Candidate paths are evaluated by a deterministic Python QoT Tool (GN-model port) to compute precise GSNR and receiver power feasibility.
+6. **Physical Risk Gate.** Evaluates the binary QoT feasibility to decide if the plan should be auto-approved or if the operator must be engaged to relax constraints via HITL.
 
-### 4.2 Risk-Adaptive Decision Gate (RADG)
+### 4.2 Risk-Adaptive Decision Pipeline
 
-After the neurosymbolic pipeline produces its results, the RADG computes two risk signals:
+The system acts upon two orthogonal risk signals in a sequential, fail-fast manner:
 
-- **$U_{sem}$: Semantic Uncertainty.** A two-layer assessment:
+- **$U_{sem}$: Semantic Uncertainty (Evaluated Early).**
   - *Layer 1 (Structural)*: Binary pass/fail from the CFG PDDL validator — catches gross hallucinations.
-  - *Layer 2 (Semantic)*: Disagreement score between the original operator intent and the Reverse Prompting natural language reconstruction, measured via embedding similarity.
+  - *Layer 2 (Semantic)*: Disagreement score between the original operator intent and the Reverse Prompting natural language reconstruction. High $U_{sem}$ triggers early **Clarify** (HITL).
 
-- **$R_{qot}$: QoT Risk Margin.** The distance between the computed GSNR and the required threshold:
-$$R_{qot} = \text{GSNR}_{computed} - \text{GSNR}_{threshold} \quad [\text{dB}]$$
+- **QoT Feasibility (Evaluated Later).** 
+Binary check: $\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$
 
-The RADG maps these signals to one of four outcomes:
+Assuming $U_{sem}$ is low (resolved in the earlier gate), the physical gate maps to two outcomes:
 
 | Decision | Condition | Action |
 |----------|-----------|--------|
-| **Auto-Approve** | $U_{sem}$ low, $R_{qot} > \epsilon$ | Deploy without human review |
-| **Clarify** | $U_{sem}$ high, any $R_{qot}$ | Trigger Reverse Prompting HITL — ask operator to refine intent |
-| **Suggest Replan** | $U_{sem}$ low, $0 < R_{qot} \le \epsilon$ | Intent is clear but physics are marginal — suggest alternative paths to operator |
-| **Reject + Request Replan** | $U_{sem}$ any, $R_{qot} \le 0$ | Block deployment — notify operator that the intent violates physical constraints and request a reformulated intent |
-
-Where $\epsilon$ is a configurable safety margin (e.g., 1–2 dB).
+| **Auto-Approve** | Valid (Feasible) | Deploy without human review |
+| **Suggest Replan** | Invalid (Unfeasible) | Physics failed. Notify operator and suggest relaxing constraints via HITL (loops back to Phase 2) |
 
 ### 4.3 Decision Function
 
-The RADG implements a decision function:
+The risk-adaptive pipeline acts as a composed decision function:
 
-$$D(U_{sem}, R_{qot}) \to \{\text{approve}, \text{clarify}, \text{replan}, \text{reject}\}$$
+$$D(U_{sem}, \text{QoT}_{valid}) \to \{\text{approve}, \text{clarify}, \text{replan}\}$$
 
-This function is the **core novelty**: it is **pre-deployment** (no unsafe configuration reaches the network), **risk-proportional** (the human is engaged only when needed), and **jointly informed** by both semantic and physical-layer signals.
+This sequential approach is the **core novelty**: it is **pre-deployment** (no unsafe configuration reaches the network), **fail-fast** (avoids expensive compute on ambiguous intents), and **risk-proportional** (the human is engaged only when needed to resolve missing data or unfeasible physics).
 
 ## 5. Given
 
@@ -137,11 +135,10 @@ Where:
 
 ### 8.3 Test Corpus
 
-A structured set of 20–30 synthetic operator intents spanning four risk categories:
-- **Safe + Clear**: Unambiguous intents with comfortable QoT margins → expected: auto-approve.
-- **Ambiguous + Any QoT**: Intents with missing or contradictory constraints → expected: clarify.
-- **Clear + Marginal QoT**: Well-specified intents near QoT threshold → expected: suggest replan.
-- **Any + Infeasible QoT**: Intents that violate physical constraints → expected: reject + request operator replan.
+A structured set of 20–30 synthetic operator intents spanning three risk categories:
+- **Safe + Clear**: Unambiguous intents with valid QoT → expected: auto-approve.
+- **Ambiguous**: Intents with missing or contradictory constraints → expected: clarify early.
+- **Infeasible QoT**: Well-specified intents that violate physical constraints → expected: suggest replan (relax constraints).
 
 ## 9. Cross-References
 

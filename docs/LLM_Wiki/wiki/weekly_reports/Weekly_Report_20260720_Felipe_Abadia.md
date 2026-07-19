@@ -38,10 +38,14 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - Maintained Strict TDD compliance (126 passing tests).
 
 2. **Architecture V4 → V5 Pivot (Risk-Adaptive Decision Gate):**
-   - Based on advisor feedback, reframed the thesis contribution from multi-turn clarification (already covered by PoliMi/CNSM 2025) to a **Risk-Adaptive Decision Gate (RADG)** that jointly assesses semantic uncertainty ($U_{sem}$) and QoT risk margin ($R_{qot}$) before deployment.
+   - Based on advisor feedback, reframed the thesis contribution from multi-turn clarification (already covered by PoliMi/CNSM 2025) to a **Risk-Adaptive Decision Gate (RADG)** that jointly assesses semantic uncertainty ($U_{sem}$) and QoT feasibility before deployment.
    - Created [[ProblemStatement_v5]], [[Architecture_v5]], updated [[Scope_Pivot_20260706]], [[experiments/MVP_Roadmap|MVP_Roadmap]], and [[literature/sota_gap_analysis|SOTA Gap Analysis]].
    - Defined formal baselines (No-HITL, Always-HITL, Fixed-Retry) and evaluation metrics (UAR, HIC, QFR, E2EL, TC).
    - Added PoliMi/CNSM 2025 to the SOTA comparison.
+
+3. **Architecture V5 Optimization (Fail-Fast & Binary QoT):**
+   - Re-positioned the Semantic Uncertainty assessment to trigger *before* the Symbolic Solver (between Phases 2 and 3). This creates a **Fail-Fast Semantic Gate** that prevents expensive physical routing when the initial intent is ambiguous.
+   - Simplified the Physical Risk Gate from a complex mathematical margin ($R_{qot}$) to a **Binary Feasibility Gate** (Valid/Invalid). Replaced the rigid "Reject" state with a "Suggest Replan" HITL loop that directly feeds back into Phase 2, vastly improving operator UX and system simplicity.
 
 ## 3. Issue List This Week
 
@@ -55,7 +59,7 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 1. Finalize Exp 1.3 as soon as the RESTConf API is provided.
 2. Execute Exp 2.3: Symbolic Solver and Mock GraphRAG.
-3. Begin Exp 3.1: Risk-Adaptive Decision Gate (RADG) implementation.
+3. Begin Exp 3.1: Risk-Adaptive Decision Gate (RADG) implementation (Refactoring `src/core/graph.py` and `src/core/radg.py` to wire the Fail-Fast Semantic Gate and Binary Physical Gate).
 
 ---
 
@@ -75,7 +79,7 @@ Yes, I need support on two items:
 
 ## 6. One-Sentence Summary
 
-This week, we completed the PDDL parser and Reverse Prompting HITL, then evolved the architecture from V4 to V5 by incorporating advisor feedback to reframe the thesis contribution around a Risk-Adaptive Decision Gate (RADG) with joint semantic and QoT risk assessment, formal baselines, and evaluation metrics.
+This week, we completed the PDDL parser and Reverse Prompting HITL, evolved the architecture from V4 to V5 around a Risk-Adaptive Decision Gate, and further optimized the pipeline with a Fail-Fast Semantic Gate and Binary Physical Gate to maximize UX and compute efficiency.
 
 ---
 

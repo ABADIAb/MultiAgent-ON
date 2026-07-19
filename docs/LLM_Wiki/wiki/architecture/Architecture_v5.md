@@ -11,11 +11,11 @@ supersedes:
 
 ## 1. Executive Summary
 
-This document defines the V5 system architecture for the **Risk-Adaptive Neurosymbolic Intent Planning** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces a **Risk-Adaptive Decision Gate (RADG)** — a pre-deployment mechanism that jointly evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent.
+This document defines the V5 system architecture for the **Risk-Adaptive Neurosymbolic Intent Planning** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces a **Risk-Adaptive Decision Pipeline** — a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent.
 
-The system translates natural language intent into deterministic PDDL constraints, filters valid topologies using a Symbolic Solver, validates physical feasibility using a deterministic QoT tool, and — critically — uses the RADG to decide whether the plan should be **auto-approved**, whether the operator should be asked to **clarify** their intent, whether the system should **suggest replanning** with alternative paths, or whether the intent should be **rejected** with a request for the operator to reformulate.
+The system translates natural language intent into PDDL. Before executing expensive symbolic solvers and physical simulations, a **Semantic Uncertainty Gate** evaluates if the intent is clear, triggering a targeted HITL request for missing data if it is not. Once semantically clear, the system filters valid topologies, validates physical feasibility, and applies a **Physical Risk Gate** to decide whether the plan should be **auto-approved**, **suggest replanning** with alternative paths, or **rejected** to prevent unfeasible deployments.
 
-**Key distinction from prior work:** Existing systems (e.g., El Hachimi et al., CNSM 2025) use fixed retry loops *after* deployment failure. This architecture evaluates risk *before* deployment to prevent unsafe or physically infeasible lightpaths from ever reaching the network controller.
+**Key distinction from prior work:** Existing systems (e.g., El Hachimi et al., CNSM 2025) use fixed retry loops *after* deployment failure. This architecture applies a fail-fast risk evaluation *before* deployment, saving compute by catching semantic ambiguity early and preventing physically infeasible lightpaths from reaching the network controller.
 
 **Evolution rationale:** See [[Scope_Pivot_20260706]] for the complete architectural journey from V2 through V5.
 
@@ -41,41 +41,33 @@ flowchart TD
 
     UserIntent[/"Operator Intent (NL)"/] --> Phase1
      
-    %% Columna Principal (Secuencial)
     Phase1["Phase 1: Optical RAG<br/>(Enrich Intent)"]:::phase
-    Phase2["Phase 2: PDDL Parsing<br/>(NL → PDDL + U_sem Layer 1)"]:::phase
-    Phase3["Phase 3: Symbolic Solver<br/>(Extract valid paths via Mock GraphRAG)"]:::phase
-    Phase4["Phase 4: QoT Validation<br/>(Compute exact GSNR & R_qot)"]:::phase
-    Phase5{"Phase 5: Risk-Adaptive Decision Gate<br/>D(U_sem, R_qot)"}:::decision
-    Phase7["Phase 7: Synthesis & Provisioning<br/>(Generate Report & Configure)"]:::phase
+    Phase2["Phase 2: PDDL Parsing<br/>(NL → PDDL)"]:::phase
+    Phase3{"Phase 3: Semantic Gate<br/>(Evaluate U_sem)"}:::decision
+    Phase3b["Phase 3b: HITL<br/>(Reverse Prompting & Missing Data)"]:::hitl
+    Phase4["Phase 4: Symbolic Solver<br/>(Extract valid paths)"]:::phase
+    Phase5["Phase 5: QoT Validation<br/>(Binary Feasibility)"]:::phase
+    Phase6{"Phase 6: Physical Risk Gate<br/>(Valid/Invalid)"}:::decision
+    Phase7["Phase 7: Synthesis & Provisioning<br/>(Configure)"]:::phase
     
-    %% Conexiones principales
+    Replan["Suggest Replan to Operator<br/>(Physics Failed)"]:::hitl
+    
     Phase1 --> Phase2
     Phase2 --> Phase3
-    Phase3 --> Phase4
+    Phase3 -->|"U_sem High<br/>(Clarify)"| Phase3b
+    Phase3b -.->|"Refined Intent"| Phase2
+    Phase3 -->|"U_sem Low<br/>(Pass)"| Phase4
     Phase4 --> Phase5
-    Phase5 -->|"Auto-Approve<br/>(Low U_sem, Safe R_qot)"| Phase7
+    Phase5 --> Phase6
     
-    %% Desvíos Laterales (Izquierda: Rechazos | Derecha: HITL/Replanning)
-    Reject["Reject & Request Reformulation"]:::reject
-    Phase6["Phase 6: Conditional HITL<br/>(Reverse Prompting)"]:::hitl
-    Replan["Suggest Replan to Operator"]:::hitl
-    
-    %% Salidas desde Phase 5
-    Phase5 -->|"Reject"| Reject
-    Phase5 -->|"Clarify"| Phase6
-    Phase5 -->|"Suggest Replan"| Replan
+    Phase6 -->|"Valid<br/>(Auto-Approve)"| Phase7
+    Phase6 -->|"Invalid<br/>(Suggest Replan)"| Replan
 
-    %% Retornos externos (Fuera del flujo lineal para no entrecruzarse)
-    Reject -.->|"New Intent"| UserIntent
-    Replan -.->|"New Constraints"| Phase3
-    Phase6 -.->|"Refined Intent"| Phase2
-    Phase6 -->|"Approved"| Phase7
+    Replan -.->|"Refined Constraints"| Phase2
 
-    %% Testbed
     Testbed[("SDON Testbed<br/>RESTConf NBI")]:::testbed
     Phase7 -.->|"Provisioning"| Testbed
-    Testbed -.->|"Topology"| Phase3
+    Testbed -.->|"Topology"| Phase4
 ```
 
 ## 4. Phase-by-Phase Workflow
@@ -86,39 +78,28 @@ The operator submits a natural language request. The system may query local docu
 ### Phase 2: PDDL Parsing (CFG Validated)
 The LLM reads the enriched intent and generates a simplified PDDL string. A deterministic CFG (Context-Free Grammar) regex validator checks the string for syntactical correctness, blocking structural hallucinations. The CFG validation result feeds the first layer of $U_{sem}$.
 
-### Phase 3: Symbolic Solver & Mock GraphRAG
-The PDDL constraints are sent to a Python-based symbolic solver. The solver requests a compressed local neighborhood from the testbed topology (Mock GraphRAG) and calculates 3–5 candidate paths that satisfy the topological rules.
+### Phase 3: Semantic Uncertainty Gate & HITL ($U_{sem}$)
+Implementing a **fail-fast** principle, the system assesses Semantic Uncertainty ($U_{sem}$) *before* any complex routing or physics calculations:
+- *Layer 1 (Structural)*: Did the PDDL pass CFG validation?
+- *Layer 2 (Semantic)*: Does the Reverse Prompting reconstruction match the original operator intent?
+**Action**: If $U_{sem}$ is high, the system immediately halts and triggers the HITL interface, proactively asking the operator to provide specific missing constraints or clarify the intent. Once low (cleared), it proceeds to Phase 4.
 
-### Phase 4: QoT Validation
-The structurally valid paths are sent to the Python QoT Tool (GN-model port). The tool computes the exact GSNR and receiver power for each candidate, producing both a feasibility verdict and a **QoT risk margin** ($R_{qot}$).
+### Phase 4: Symbolic Solver & Mock GraphRAG
+The validated PDDL constraints are sent to a Python-based symbolic solver. The solver requests a compressed local neighborhood from the testbed topology (Mock GraphRAG) and calculates 3–5 candidate paths that satisfy the topological rules.
 
-### Phase 5: Risk-Adaptive Decision Gate (RADG)
+### Phase 5: QoT Validation
+The structurally valid paths are sent to the Python QoT Tool (GN-model port). The tool computes the exact GSNR for each candidate and produces a binary feasibility verdict ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$).
 
-This is the **core contribution**. The RADG receives two orthogonal risk signals:
-
-**Semantic Uncertainty ($U_{sem}$)** — Two-layer assessment:
-- *Layer 1 (Structural)*: Did the PDDL pass CFG validation? If not, $U_{sem}$ is immediately high.
-- *Layer 2 (Semantic)*: If CFG passed, compute the disagreement between the original operator intent and the Reverse Prompting natural language reconstruction using embedding similarity. High disagreement → high $U_{sem}$.
-
-**QoT Risk Margin ($R_{qot}$)** — Physical-layer safety signal:
-$$R_{qot} = \text{GSNR}_{computed} - \text{GSNR}_{threshold} \quad [\text{dB}]$$
-
-The RADG applies the decision function $D(U_{sem}, R_{qot})$:
+### Phase 6: Physical Risk Decision Gate
+This gate evaluates the binary physical safety of the proposed paths:
 
 | Decision | Condition | Action |
 |----------|-----------|--------|
-| **Auto-Approve** | $U_{sem}$ low, $R_{qot} > \epsilon$ | Proceed directly to Synthesis — no human review needed |
-| **Clarify** | $U_{sem}$ high, any $R_{qot}$ | Invoke Reverse Prompting HITL — present NL reconstruction to operator for approval/refinement |
-| **Suggest Replan** | $U_{sem}$ low, $0 < R_{qot} \le \epsilon$ | Intent is clear but physics are marginal — suggest alternative paths or relaxed constraints to operator |
-| **Reject + Request Replan** | Any $U_{sem}$, $R_{qot} \le 0$ | Block deployment — notify operator that the intent violates physical constraints and request a new, reformulated intent |
-
-Where $\epsilon$ is a configurable safety margin (e.g., 1–2 dB).
-
-### Phase 6: Conditional HITL (Reverse Prompting)
-**Triggered only when RADG routes to "Clarify."** An inverse LLM call reads the PDDL constraints and rewrites them in plain natural language. The operator approves, refines, or rejects this reconstruction via LangGraph `interrupt()`. If refined, the pipeline loops back to Phase 2.
+| **Auto-Approve** | Valid (Feasible) | Proceed directly to Synthesis — no human review needed |
+| **Suggest Replan** | Invalid (Unfeasible) | Physics failed. Notify operator and suggest relaxing constraints (e.g. lower GSNR or protection) via HITL $\to$ Loop back to Phase 2. |
 
 ### Phase 7: Synthesis & Provisioning
-The Orchestrator summarizes the feasible, RADG-approved paths into a Planning Report including the full decision trace ($U_{sem}$, $R_{qot}$, RADG outcome). Upon final approval, the configuration is pushed to the testbed via SSH/RESTConf.
+The Orchestrator summarizes the feasible, approved paths into a Planning Report including the full decision trace. Upon final approval, the configuration is pushed to the testbed via SSH/RESTConf.
 
 ## 5. Technology Stack (MVP Focused)
 
@@ -139,10 +120,10 @@ The Orchestrator summarizes the feasible, RADG-approved paths into a Planning Re
 
 | Aspect | V4 | V5 |
 |--------|----|----|
-| **Core Novelty** | Reverse Prompting convergence | Joint semantic + QoT risk assessment (RADG) |
-| **HITL Strategy** | Always-on (every intent) | Risk-adaptive (only when RADG detects risk) |
-| **Pre-deployment Safety** | Implicit via pipeline stages | Explicit via RADG decision function |
-| **Decision Outcomes** | Approve / Refine / Reject (binary) | Auto-Approve / Clarify / Suggest Replan / Reject + Request Replan (4 outcomes) |
+| **Core Novelty** | Reverse Prompting convergence | Fail-fast, sequential Semantic ($U_{sem}$) and Physical ($R_{qot}$) risk assessment |
+| **HITL Strategy** | Always-on (every intent) | Risk-adaptive (early trigger only when semantic uncertainty is high) |
+| **Pre-deployment Safety** | Implicit via pipeline stages | Explicit via two-stage Decision Gates |
+| **Decision Outcomes** | Approve / Refine / Reject (binary) | Auto-Approve / Clarify / Suggest Replan (3 outcomes, looping to Phase 2) |
 | **Evaluation** | Ad-hoc demo | Formal baselines + metrics (UAR, HIC, QFR, E2EL, TC) |
 | **Prior Art Positioning** | Against Confucius, AutoLight | + PoliMi/CNSM 2025 (retry-based) |
 

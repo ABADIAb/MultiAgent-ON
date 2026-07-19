@@ -273,3 +273,13 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited and updated `index.md` to reference V5 documents, archived V4 documents, and corrected historic wikilinks. Checked YAML of `Weekly_Report_20260720_Felipe_Abadia.md`.
 - Consistency Audit: Confirmed the pivot from "Reverse Prompting convergence" (V4) to "Risk-Adaptive Decision Gate" (V5) is consistently reflected across the architecture, roadmap, and SOTA gap analysis.
 - Session closure properly logged.
+## [2026-07-19] edit | Architecture V5 Updated: Fail-Fast Semantic Gate
+- Updated `Architecture_v5.md`, `ProblemStatement_v5.md`, and `MVP_Roadmap.md` to reflect the move of the Semantic Uncertainty assessment ($U_{sem}$) and Reverse Prompting to before the Symbolic Solver (between Phases 2 and 3). This introduces a sequential fail-fast risk pipeline that saves compute by preventing expensive routing and physical validation on ambiguous intents.
+
+## [2026-07-19] edit | Architecture V5 Updated: Binary Physical Risk Gate
+- Updated `Architecture_v5.md`, `ProblemStatement_v5.md`, and `MVP_Roadmap.md` to simplify the Physical Risk Gate. Removed the $R_{qot}$ calculation and $\epsilon$ margins in favor of a binary QoT Feasibility check (Valid/Invalid). Replaced hard "Reject" with a "Suggest Replan" HITL flow that loops back to Phase 2, vastly improving UX and reducing MVP complexity.
+
+## [2026-07-19] debrief2 | Fail-Fast Architecture & Binary QoT Pivot
+- Wiki Deep Lint: Audited and updated `index.md` to include new Issue Report and Session Summary. Ensured all new documentation correctly cross-references core concepts (`Architecture_v5`, `ProblemStatement_v5`, `MVP_Roadmap`).
+- Consistency Audit: Confirmed that the recent documentation pivot logically aligns with the MVP execution scope, properly separating Semantic and Physical Risk Gates to optimize LangGraph routing.
+- Session closure properly logged.
