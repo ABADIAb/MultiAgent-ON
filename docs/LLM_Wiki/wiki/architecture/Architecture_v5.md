@@ -43,8 +43,8 @@ flowchart TD
      
     Phase1["Phase 1: Optical RAG<br/>(Enrich Intent)"]:::phase
     Phase2["Phase 2: PDDL Parsing<br/>(NL → PDDL)"]:::phase
-    Phase3{"Phase 3: Semantic Gate<br/>(Evaluate U_sem)"}:::decision
-    Phase3b["Phase 3b: HITL<br/>(Reverse Prompting & Missing Data)"]:::hitl
+    Phase3{"Phase 3: Semantic Gate<br/>(Evaluate U_sem via Reverse Prompting)"}:::decision
+    Phase3b["Phase 3b: HITL<br/>(Clarify Missing Data)"]:::hitl
     Phase4["Phase 4: Symbolic Solver<br/>(Extract valid paths)"]:::phase
     Phase5["Phase 5: QoT Validation<br/>(Binary Feasibility)"]:::phase
     Phase6{"Phase 6: Physical Risk Gate<br/>(Valid/Invalid)"}:::decision

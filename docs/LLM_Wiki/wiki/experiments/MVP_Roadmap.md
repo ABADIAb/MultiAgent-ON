@@ -6,9 +6,9 @@ status: active
 supersedes: "[[literature/recommendations]]"
 ---
 
-# MVP Roadmap: Sprints and Experiments (Target: August 25)
+# MVP Roadmap: Sprints and Experiments (Target: August 20)
 
-This document outlines the execution plan, timeline, and structured experiments to build the **Risk-Adaptive Neurosymbolic Intent Planning MVP** (Architecture V5). The roadmap targets a minimal, fully functional system that connects to the laboratory testbed by **August 25, 2026**, followed by a code freeze and thesis writing until **September 20, 2026**.
+This document outlines the execution plan, timeline, and structured experiments to build the **Risk-Adaptive Neurosymbolic Intent Planning MVP** (Architecture V5). The roadmap targets a minimal, fully functional system that connects to the laboratory testbed by **August 20, 2026**, followed by a code freeze and thesis writing until **September 1, 2026**.
 
 The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables beyond V4: the **Risk-Adaptive Decision Gate (RADG)** and a **formal baseline evaluation** with defined metrics.
 
@@ -19,10 +19,10 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 | Phase | Timeline | Primary Objective |
 |---|---|---|
 | **Sprint 1: Foundation & Tooling** | July 06 – July 18 | Infrastructure verification, Python QoT port, and SSH testbed hook. |
-| **Sprint 2: Neurosymbolic Logic** | July 19 – August 01 | PDDL parser, Reverse Prompting HITL logic, Symbolic Solver, and Mock GraphRAG. |
-| **Sprint 3: RADG & Orchestrator Integration** | August 02 – August 15 | Risk-Adaptive Decision Gate, full LangGraph pipeline assembly, state persistence. |
-| **Sprint 4: Evaluation & Polish** | August 16 – August 25 | Baseline comparison, test corpus execution, live testbed validation, metrics collection. |
-| **Post-MVP: Writing Phase** | August 26 – September 20 | 100% Code Freeze. Thesis writing. |
+| **Sprint 2: Neurosymbolic Logic** | July 19 – July 26 | PDDL parser, Reverse Prompting HITL logic, Symbolic Solver, and Mock GraphRAG. |
+| **Sprint 3: RADG & Orchestrator Integration** | July 27 – August 09 | Risk-Adaptive Decision Gate, full LangGraph pipeline assembly, state persistence. |
+| **Sprint 4: Evaluation & Polish** | August 10 – August 20 | Baseline comparison, test corpus execution, live testbed validation, metrics collection. |
+| **Post-MVP: Writing Phase** | August 21 – September 01 | 100% Code Freeze. Thesis writing. |
 
 ---
 
@@ -47,7 +47,7 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 
 ---
 
-## Sprint 2: Neurosymbolic Node Development (July 19 – August 01)
+## Sprint 2: Neurosymbolic Node Development (July 19 – July 26)
 
 ### ~~Exp 2.1: PDDL Intent Parser~~ ✅ (Completed)
 - **Objective:** ~~Translate natural language operator intents into formal PDDL constraint strings.~~
@@ -66,7 +66,7 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 
 ---
 
-## Sprint 3: RADG & Orchestrator Integration (August 02 – August 15)
+## Sprint 3: RADG & Orchestrator Integration (July 27 – August 09)
 
 ### Exp 3.0: LangGraph State Pipeline Assembly
 - **Objective:** Connect all generative and symbolic modules into a cohesive, fail-fast StateGraph.
@@ -96,7 +96,7 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 
 ---
 
-## Sprint 4: Evaluation & Polish (August 16 – August 25)
+## Sprint 4: Evaluation & Polish (August 10 – August 20)
 
 ### Exp 4.0: Test Corpus Design
 - **Objective:** Create a structured set of synthetic operator intents for baseline evaluation.
@@ -144,7 +144,7 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 
 ---
 
-## Post-MVP: Thesis Writing (August 26 – September 20)
+## Post-MVP: Thesis Writing (August 21 – September 01)
 
 - **Code Freeze:** Zero code changes to protect system stability.
 - **Thesis Authoring:** Dedicate 100% of effort to writing the thesis document, focusing on:

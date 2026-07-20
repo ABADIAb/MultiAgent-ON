@@ -92,7 +92,7 @@ The planning system receives:
 The output of the pipeline is a validated **Planning Report** containing:
 - **Structurally Valid Paths** with verified QoT feasibility scores ($\text{GSNR}_{dB}$, $P_{rx,dBm}$, $R_{qot}$).
 - **PDDL Constraint Map** guaranteeing the logic applied to the path search.
-- **RADG Decision Trace** — the risk assessment that led to the final decision (approve/clarify/replan/reject), including $U_{sem}$ and $R_{qot}$ values.
+- **RADG Decision Trace** — the risk assessment that led to the final decision (approve/clarify/replan), including $U_{sem}$ and $R_{qot}$ values.
 - **Reverse Prompting Trace** (when applicable) — the formal conversation history documenting the operator's agreement to the plan.
 - **Approved Routing Decision** — ready to be pushed to the SDON testbed.
 
