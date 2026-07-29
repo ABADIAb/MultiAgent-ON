@@ -343,28 +343,31 @@ class TestReversePromptNode:
 
 
 # ---------------------------------------------------------------------------
-# Symbolic Solver (placeholder — unchanged)
+# Symbolic Solver (real implementation — Exp 2.3)
 # ---------------------------------------------------------------------------
 
 
 class TestSymbolicSolverNode:
-    """Test the Symbolic Solver placeholder."""
+    """Test the Symbolic Solver node (real implementation).
 
-    def test_returns_candidate_paths(self):
+    With no topology_snapshot in state, the solver returns empty paths.
+    Full path-finding behavior is tested in test_symbolic_solver.py.
+    """
+
+    def test_returns_candidate_paths_key(self):
         from src.agents.symbolic_solver import symbolic_solver_node
 
         state = _make_state()
         result = symbolic_solver_node(state)
-        assert result["candidate_paths"] is not None
-        assert len(result["candidate_paths"]) >= 1
+        assert "candidate_paths" in result
 
-    def test_candidate_has_path_field(self):
+    def test_returns_empty_without_topology(self):
+        """No topology in state → no paths (correct behavior for real solver)."""
         from src.agents.symbolic_solver import symbolic_solver_node
 
-        state = _make_state()
+        state = _make_state()  # topology_snapshot=None
         result = symbolic_solver_node(state)
-        candidate = result["candidate_paths"][0]
-        assert "path" in candidate
+        assert result["candidate_paths"] == []
 
     def test_returns_ai_message(self):
         from src.agents.symbolic_solver import symbolic_solver_node

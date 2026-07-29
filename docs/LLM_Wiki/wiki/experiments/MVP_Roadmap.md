@@ -40,10 +40,10 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 - **Objective:** ~~Expose the Python QoT calculator as a LangChain `@tool` compatible with the agent framework.~~
 - **Deliverable:** ~~Exposable `qot_check` tool in the MultiAgentON tool registry.~~
 
-### Exp 1.3: SSH Testbed Connectivity Hook
-- **Objective:** Establish the integration channel with the physical laboratory testbed.
-- **Action:** Write a secure Python adapter (using `paramiko` or `httpx` depending on the testbed's API/NBI) to fetch the physical topology and push configuration changes.
-- **Deliverable:** `src/services/testbed_ssh_client.py` capable of sending mock path allocations.
+### ~~Exp 1.3: SSH Testbed Connectivity Hook~~ ✅ (Completed)
+- **Objective:** ~~Establish the integration channel with the physical laboratory testbed.~~
+- **Action:** ~~Write a secure Python adapter (using `paramiko` or `httpx` depending on the testbed's API/NBI) to fetch the physical topology and push configuration changes.~~
+- **Deliverable:** ~~`src/services/testbed_ssh_client.py` capable of sending mock path allocations.~~
 
 ---
 
@@ -57,12 +57,12 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 - **Objective:** ~~Enforce intent convergence and prevent semantic drift using Reverse Prompting.~~
 - **Deliverable:** ~~Interactive HITL node in `src/agents/reverse_prompt.py`.~~
 
-### Exp 2.3: Symbolic Solver & Mock GraphRAG
-- **Objective:** Filter topological paths deterministically before executing physical simulations, preventing token saturation.
+### ~~Exp 2.3: Symbolic Solver & Mock GraphRAG~~ ✅ (Completed)
+- **Objective:** ~~Filter topological paths deterministically before executing physical simulations, preventing token saturation.~~
 - **Action:**
-  1. Build a local Python dictionary representing the network topology (Mock GraphRAG) to dynamically extract only the $k$-hop neighborhood.
-  2. Write a lightweight symbolic routing function (e.g., Dijkstra or Yen's K-Shortest Paths with custom PDDL constraint validation) to extract 3 to 5 candidate paths.
-- **Deliverable:** `src/core/symbolic_solver.py` and `src/core/mock_graphrag.py`.
+  ~~1. Build a local Python dictionary representing the network topology (Mock GraphRAG) to dynamically extract only the $k$-hop neighborhood.~~
+  ~~2. Write a lightweight symbolic routing function (e.g., Dijkstra or Yen's K-Shortest Paths with custom PDDL constraint validation) to extract 3 to 5 candidate paths.~~
+- **Deliverable:** ~~`src/core/symbolic_solver.py` and `src/core/mock_graphrag.py`.~~
 
 ---
 

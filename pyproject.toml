@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "httpx>=0.28.1",
+    "networkx>=3.4",
     "langchain-anthropic>=1.4.4",
     "langchain-core>=1.4.0",
     "langchain-openai>=1.2.2",
@@ -26,6 +27,10 @@ dev = [
 pythonpath = ["."]
 testpaths = ["tests"]
 norecursedirs = ["archive"]
+markers = [
+    "integration: marks tests that require real infrastructure (VPN, API keys)",
+]
+addopts = "-m 'not integration'"
 
 [tool.pyright]
 extraPaths = ["."]
