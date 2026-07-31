@@ -7,10 +7,7 @@ Content-oriented catalog of everything in the wiki.
 - [[QoT_Awareness]]: Concept of Quality of Transmission awareness and feasibility metrics.
 
 ## Features
-- [[features/testbed_client]]: Documentation for the RESTConf Testbed Client (CAS SSO, NE discovery).
-
-
-### Archived Concept Documents
+*(Moved to Architecture section — see below)*
 
 
 ## Architecture
@@ -18,6 +15,15 @@ Content-oriented catalog of everything in the wiki.
 - [[ProblemStatement_v5]]: **Active** — Risk-Adaptive Neurosymbolic problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
 - [[Scope_Pivot_20260706]]: Formal scope pivot document — complete evolution from V2 through V5, including PoliMi/CNSM 2025 positioning.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
+
+### Feature Docs (`docs/LLM_Wiki/wiki/architecture/features/`)
+- [[architecture/features/intent_ingest]]: Phase 1 — NL intent parsing node, IntentSummary schema, LLM structured output.
+- [[architecture/features/pddl_parser]]: Phase 2 — PDDL Parser node + CFG Validator. LLM as translator, refinement loop.
+- [[architecture/features/reverse_prompt]]: Phase 3 — Reverse Prompting HITL node, interrupt() pattern, hitl_route.
+- [[architecture/features/symbolic_solver]]: Phase 4 — Symbolic Solver (Yen's K-SP) + Mock GraphRAG (k-hop neighborhood extraction).
+- [[architecture/features/qot_tool]]: Phase 5 — QoT Physics Engine (GN model), @tool wrapper, placeholder node status.
+- [[architecture/features/testbed_client]]: Testbed NBI — RESTConf client with CAS SSO, MockTestbedClient, topology assembly.
+- [[architecture/features/pipeline_graph]]: Pipeline wiring — LangGraph StateGraph, AgentState schema, V4/V5 topology comparison.
 
 ### Archived Architecture Documents
 - [[architecture/archive/Architecture_v4]]: (archived) V4 Neurosymbolic Intent Orchestration. Superseded by Architecture_v5.
@@ -31,7 +37,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
-- [[weekly_reports/Weekly_Report_20260727_Felipe_Abadia]]: Weekly report July 27, 2026. Exp 1.3 (RESTConf Testbed) and Exp 2.3 (Symbolic Solver) integration success.
+- [[weekly_reports/Weekly_Report_20260803_Felipe_Abadia]]: Weekly report August 03, 2026. RESTConf Testbed integration, Symbolic Solver, Codebase Reorganization, and Feature Documentation Hub.
 
 - [[weekly_reports/Weekly_Report_20260720_Felipe_Abadia]]: Weekly report July 20, 2026. Sprint 2 progress, PDDL Parser and HITL implementation.
 - [[weekly_reports/Weekly_Report_20260713_Felipe_Abadia]]: Weekly report July 13, 2026. Architecture V4 refactor, Exp 1.0, and HITL.
@@ -48,14 +54,13 @@ Content-oriented catalog of everything in the wiki.
 ## Literature
 - [[literature/OrchestratorScriptReport]]: Analysis of the ECOC 2024 orchestrator codebase, Claude RAG memory paper, and comparison with our architecture.
 - [[literature/lit_comparison]]: Systematic SOTA comparison of Agentic AI approaches for IBON (2024–2026) — feature matrix, planning-loop positioning, and key references.
-- [[literature/recommendations]]: Prioritized research directions focused on the Intent Planning Loop experiments.
 - [[literature/sota_gap_analysis]]: Gap analysis positioning MultiAgentON's Risk-Adaptive RADG against Confucius, SJTU, PoliMi, PoliMi/CNSM 2025, IntentLLM, and HearthNet.
 - [[literature/Confucius_SIGCOMM2025]]: Detailed analysis of Meta's Confucius multi-agent LLM framework (SIGCOMM 2025). DAG workflows, Collector primitive, Ensemble, RAG.
 - [[literature/SJTU_Invited_Tutorial_JOCN2026]]: Comprehensive summary of the SJTU invited tutorial on AI agents for AONs (JOCN 2026). Hierarchical MAS, DT toolset, MCP, field trials.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
-- [[issues/Issue_Report_20260727_Felipe_Abadia]]: Solved RESTConf hook; pending physical link provisioning and LangGraph V5 Refactor.
+- [[issues/Issue_Report_20260803_Felipe_Abadia]]: Solved RESTConf hook & codebase reorganization; pending physical link provisioning and LangGraph V5 RADG wiring.
 
 - [[issues/Issue_Report_20260720_Felipe_Abadia]]: Pending virtual testbed RESTConf API; Pending LangGraph refactor for Fail-Fast Architecture V5.
 - [[issues/Issue_Report_20260714_Felipe_Abadia]]: Solved PDDL feedback bug; pending virtual testbed RESTConf API.
@@ -98,6 +103,7 @@ Content-oriented catalog of everything in the wiki.
 *(Empty)*
 
 ## Session Summaries
+- [[session_summary/session_20260731_Code_Reorganization]]: Codebase Reorganization, src/ Methodology Enactment, Feature Documentation Hub, and Architecture V5 Alignment.
 - [[session_summary/session_20260729_RESTConf_Integration]]: RESTConf Testbed Integration, CAS SSO auth flow on port 8443, and empty connections handling.
 
 - [[session_summary/session_20260719_Architecture_V5_Fail_Fast]]: Architecture V5 Simplification, Fail-Fast Semantic Gate, and Binary QoT.

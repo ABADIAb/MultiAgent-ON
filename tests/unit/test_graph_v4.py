@@ -65,25 +65,25 @@ class TestHitlRoute:
     """Test the HITL conditional routing function."""
 
     def test_approved_routes_to_symbolic_solver(self):
-        from src.agents.reverse_prompt import hitl_route
+        from src.nodes.reverse_prompt import hitl_route
 
         state = {"hitl_approved": True, "error_context": None}
         assert hitl_route(state) == "symbolic_solver"
 
     def test_refine_routes_to_pddl_parser(self):
-        from src.agents.reverse_prompt import hitl_route
+        from src.nodes.reverse_prompt import hitl_route
 
         state = {"hitl_approved": False, "error_context": "Please add latency constraint"}
         assert hitl_route(state) == "pddl_parser"
 
     def test_reject_routes_to_end(self):
-        from src.agents.reverse_prompt import hitl_route
+        from src.nodes.reverse_prompt import hitl_route
 
         state = {"hitl_approved": False, "error_context": None}
         assert hitl_route(state) == "__end__"
 
     def test_none_approved_routes_to_end(self):
-        from src.agents.reverse_prompt import hitl_route
+        from src.nodes.reverse_prompt import hitl_route
 
         state = {"hitl_approved": None, "error_context": None}
         assert hitl_route(state) == "__end__"

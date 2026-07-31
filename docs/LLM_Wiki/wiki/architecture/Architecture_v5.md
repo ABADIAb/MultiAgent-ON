@@ -104,22 +104,22 @@ The Orchestrator summarizes the feasible, approved paths into a Planning Report 
 ## 5. Technology Stack (MVP Focused)
 
 | Component | Technology | Package/Location |
-|-----------|-----------|-----------------|
+|-----------|-----------|--------------------|
 | Orchestration framework | LangGraph | `langgraph` |
-| LLM provider | Kimi (via Professor) | `langchain-openai` or specific SDK |
+| LLM provider | Kimi (via Professor) | `langchain-openai` |
 | State persistence | LangGraph Checkpointer | `langgraph` |
 | PDDL Validator | Python CFG Regex | `src/core/pddl_validator.py` |
-| Symbolic Solver | Python Custom MVP | `src/core/symbolic_solver.py` |
-| GraphRAG | Mock Python Dictionary | `src/core/mock_graphrag.py` |
+| Symbolic Solver | Python / networkx | `src/core/symbolic_solver.py` |
+| GraphRAG | Mock Python / networkx | `src/core/mock_graphrag.py` |
 | QoT Validation | Python GN-Model Port | `src/tools/qot_tool.py` |
-| **RADG** | **Python Decision Module** | **`src/core/radg.py`** |
-| Semantic Similarity | Sentence Embeddings | `sentence-transformers` or LLM-based |
-| Testbed NBI | SSH / RESTConf | `paramiko` / `httpx` |
+| **RADG** | **Python Decision Module** | **`src/core/radg.py`** *(Sprint 3)* |
+| Semantic Similarity | Sentence Embeddings | `sentence-transformers` *(Sprint 3)* |
+| Testbed NBI | SSH / RESTConf | `src/services/testbed_client.py` |
 
 ## 6. What Changed from V4 to V5
 
 | Aspect | V4 | V5 |
-|--------|----|----|
+|--------|----|-----|
 | **Core Novelty** | Reverse Prompting convergence | Fail-fast, sequential Semantic ($U_{sem}$) and Physical ($R_{qot}$) risk assessment |
 | **HITL Strategy** | Always-on (every intent) | Risk-adaptive (early trigger only when semantic uncertainty is high) |
 | **Pre-deployment Safety** | Implicit via pipeline stages | Explicit via two-stage Decision Gates |
@@ -127,7 +127,34 @@ The Orchestrator summarizes the feasible, approved paths into a Planning Report 
 | **Evaluation** | Ad-hoc demo | Formal baselines + metrics (UAR, HIC, QFR, E2EL, TC) |
 | **Prior Art Positioning** | Against Confucius, AutoLight | + PoliMi/CNSM 2025 (retry-based) |
 
-## 7. Cross-References
+## 7. `src/` Folder Convention
+
+All source code follows the placement methodology defined in `.agents/rules/src-methodology.md`:
+
+| Folder | Contents | LLM Calls |
+|--------|----------|-----------|
+| `src/core/` | Domain logic, physics engines, state, constants, algorithms | ❌ Never |
+| `src/nodes/` | LangGraph node functions (one per pipeline phase) | ✅ May |
+| `src/tools/` | LangChain `@tool` wrappers | ❌ Never |
+| `src/services/` | External I/O adapters (testbed, SSH) | ❌ Never |
+
+## 8. Feature Documentation Map
+
+Each pipeline phase has a dedicated feature doc in `docs/LLM_Wiki/wiki/architecture/features/`:
+
+| Phase | File(s) | Feature Doc |
+|-------|---------|-------------|
+| **Phase 1**: Intent Ingestion | `src/nodes/intent_ingest.py` | [[features/intent_ingest]] |
+| **Phase 2**: PDDL Parsing | `src/nodes/pddl_parser.py` + `src/core/pddl_validator.py` | [[features/pddl_parser]] |
+| **Phase 3**: Semantic Gate & HITL | `src/nodes/reverse_prompt.py` | [[features/reverse_prompt]] |
+| **Phase 4**: Symbolic Solver | `src/core/symbolic_solver.py` + `src/core/mock_graphrag.py` | [[features/symbolic_solver]] |
+| **Phase 5**: QoT Validation | `src/core/qot_calculator.py` + `src/tools/qot_tool.py` | [[features/qot_tool]] |
+| **Phase 6**: RADG (Physical Gate) | `src/core/radg.py` *(Sprint 3)* | *(planned)* |
+| **Phase 7**: Synthesis | `src/nodes/plan_synthesizer.py` | *(planned Sprint 3)* |
+| **Testbed NBI** | `src/services/testbed_client.py` | [[features/testbed_client]] |
+| **Pipeline Wiring** | `src/core/graph.py` + `src/core/state.py` | [[features/pipeline_graph]] |
+
+## 9. Cross-References
 
 - [[Scope_Pivot_20260706]] — Complete architectural evolution from V2 through V5.
 - [[ProblemStatement_v5]] — Thesis problem definition with evaluation framework.

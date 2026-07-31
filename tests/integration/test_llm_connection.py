@@ -9,7 +9,7 @@ Requires:
     - Network connectivity to the Kimi API endpoint.
 
 Run with:
-    uv run pytest tests/integration/test_llm_connection.py -v -m integration
+    uv run pytest tests/integration/test_llm_connection.py -v -s -m integration
 """
 
 import os
@@ -36,7 +36,11 @@ class TestLLMConnection:
         base_url = os.getenv("KIMI_BASE_URL", "")
 
         llm = create_kimi_llm(api_key=api_key, base_url=base_url, model="moonshot-v1-8k")
-        response = llm.invoke("Say 'hello' in English and Spanish.")
+        prompt = "What is the capital of France? Reply in one word."
+        response = llm.invoke(prompt)
+        
+        print(f"\n--- Prompt (Test 1) ---\n{prompt}")
+        print(f"--- Model Response (Test 1) ---\n{response.content}\n-------------------------------")
 
         assert response is not None
         assert hasattr(response, "content")
@@ -50,6 +54,10 @@ class TestLLMConnection:
         base_url = os.getenv("KIMI_BASE_URL", "")
 
         llm = create_kimi_llm(api_key=api_key, base_url=base_url, model="moonshot-v1-8k")
-        response = llm.invoke("Say 'hello' in English and Spanish.")
-
+        prompt = "What are the primary colors? Keep it brief."
+        response = llm.invoke(prompt)
+        
+        print(f"\n--- Prompt (Test 2) ---\n{prompt}")
+        print(f"--- Model Response (Test 2) ---\n{response.content}\n-------------------------------")
+        
         assert str(response.content).strip() != ""

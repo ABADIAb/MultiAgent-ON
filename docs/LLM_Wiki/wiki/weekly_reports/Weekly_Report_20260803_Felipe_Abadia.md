@@ -1,7 +1,7 @@
 ---
-title: "Weekly Report 2026-07-27"
-date: 2026-07-29
-tags: [weekly, report, restconf, testbed, architecture-v5, radg, pddl, hitl]
+title: "Weekly Report 2026-08-03"
+date: 2026-08-03
+tags: [weekly, report, restconf, testbed, architecture-v5, radg, refactor, nodes, documentation]
 status: active
 ---
 
@@ -16,16 +16,17 @@ Felipe Abadia
 Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
 
 ## Date: 
-2026-07-29
+2026-08-03
 
 ---
 
 ## 1. What did I plan to accomplish this week?
 
-*(Carried forward from the July 20 report)*
+*(Carried forward from the July 20 report & Sprint 2/3 transition)*
 1. **Finalize Exp 1.3:** RESTConf API integration.
 2. **Execute Exp 2.3:** Symbolic Solver and Mock GraphRAG.
-3. **Begin Exp 3.1:** Risk-Adaptive Decision Gate (RADG) integration.
+3. **Codebase Reorganization:** Align `src/` folder structure and methodology with [[Architecture_v5]].
+4. **Begin Exp 3.1:** Risk-Adaptive Decision Gate (RADG) integration.
 
 ## 2. What did I actually accomplish?
 
@@ -34,11 +35,25 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - Reverse-engineered and resolved the complex CAS SSO authentication flow across multiple ports (443 for frontend, 8443 for REST NBI, 8843 for CAS server redirect).
    - Implemented dynamic NE filtering to successfully isolate the "Qiaolun" topology from co-existing lab data (Team E).
    - Accommodated vendor-specific REST API quirks in the `RESTConfTestbedClient` (e.g., mapping HTTP 400 Bad Request to empty lists when `infrastructure-eth` connections are absent instead of crashing).
-   - All 7 integration tests are now passing against the live testbed.
+   - All 7 integration tests are passing against the live testbed.
 
 2. **Exp 2.3 (Symbolic Solver & Mock GraphRAG):** 
    - Implemented a deterministic Symbolic Solver using Yen's K-Shortest Paths algorithm via `networkx`. 
    - Successfully connected the solver to the `TopologySnapshot` data structure populated by the testbed client, replacing LLM hallucinations with deterministic pathfinding based on real (or mocked) physical parameters.
+
+3. **Source Code Placement Methodology & Codebase Reorganization:**
+   - Formalized `.agents/rules/src-methodology.md` defining strict placement criteria for `core/` (pure Python domain logic), `nodes/` (LangGraph pipeline stages), `tools/` (LangChain adapters), and `services/` (external I/O).
+   - Renamed `src/agents/` to `src/nodes/` to accurately reflect LangGraph node function semantics.
+   - Relocated `symbolic_solver.py` to `src/core/` because it is a deterministic algorithm with zero LLM calls.
+   - Updated all import references across `src/` and `tests/`. All 172 unit tests are passing cleanly.
+
+4. **Feature Documentation Hub:**
+   - Consolidated feature documentation under `docs/LLM_Wiki/wiki/architecture/features/`.
+   - Written 7 comprehensive feature docs mapping code to [[Architecture_v5]]: [[features/intent_ingest]], [[features/pddl_parser]], [[features/reverse_prompt]], [[features/symbolic_solver]], [[features/qot_tool]], [[features/testbed_client]], [[features/pipeline_graph]].
+   - Updated [[Architecture_v5]] and `index.md` with the new Feature Documentation Map.
+
+5. **Wiki Maintenance:**
+   - Deleted legacy literature document `recommendations.md` to prevent ambiguity.
 
 ## 3. Issue List This Week
 
@@ -49,16 +64,16 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 - **Estimated possible solution:** Await the professor's intervention to provision the optical links on the ONC, or use a mocked topology payload in the meantime to unblock routing algorithm tests.
 
 ### Issue 2
-- **Issue:** LangGraph Implementation Refactor ([[Architecture_v5]]).
-- **What has already been tried:** The components (client, solver, validators) are ready, but the orchestrator pipeline needs to be re-wired to align with the Fail-Fast Semantic Gate and Binary Physical Gate logic.
-- **Result:** PENDING execution.
-- **Estimated possible solution:** Refactor `src/core/radg.py` and `src/core/graph.py` during Sprint 3.
+- **Issue:** LangGraph V5 Implementation Wiring ([[Architecture_v5]]).
+- **What has already been tried:** Codebase reorganization completed. Component nodes are clean, but the conditional edges for RADG ($U_{sem}$ and QoT Feasibility) in `src/core/graph.py` remain to be wired.
+- **Result:** IN PROGRESS.
+- **Estimated possible solution:** Implement `src/core/semantic_gate.py` and `src/core/radg.py` during Sprint 3.
 
 ## 4. Plan for Next Week
 
-1. **Execute Exp 3.1:** Implement the Risk-Adaptive Decision Gate (RADG) wiring the Fail-Fast Semantic Gate and Binary Physical Gate in LangGraph.
-2. **Finalize Sprint 3:** Run end-to-end pipeline tests connecting natural language intent all the way to testbed physical paths.
-3. **Draft Thesis Chapters:** Begin structuring the methodology chapter based on the finalized [[Architecture_v5]].
+1. **Implement Semantic Gate ($U_{sem}$):** Create `src/core/semantic_gate.py` and `src/nodes/semantic_gate_node.py` to evaluate intent clarity before solver execution.
+2. **Implement RADG Gate:** Create `src/core/radg.py` and `src/nodes/radg_node.py` for physical risk decision-making.
+3. **Wire V5 StateGraph:** Update `src/core/graph.py` with conditional routing (`hitl_route`, `radg_route`) for early clarification and replanning loopbacks.
 
 ---
 
@@ -73,7 +88,7 @@ Yes, I need support on the following testbed/domain items:
 
 ## 6. One-Sentence Summary
 
-I successfully integrated the RESTConf API with the live SM Optics virtual testbed, handling complex CAS auth and API quirks, and finalized the deterministic Symbolic Solver for intent routing.
+I successfully integrated the RESTConf API with the live SM Optics virtual testbed, completed the deterministic Symbolic Solver, and fully reorganized the codebase and feature documentation to align with Architecture V5.
 
 ---
 

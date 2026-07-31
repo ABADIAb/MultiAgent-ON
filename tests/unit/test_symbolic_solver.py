@@ -120,7 +120,7 @@ class TestSymbolicSolverNode:
     """Validate the symbolic solver LangGraph node."""
 
     def test_solver_returns_dict_with_candidate_paths(self, linear_topology: TopologySnapshot) -> None:
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
         result = state | symbolic_solver_node(state)
@@ -128,14 +128,14 @@ class TestSymbolicSolverNode:
         assert result["candidate_paths"] is not None
 
     def test_solver_returns_at_least_one_path(self, linear_topology: TopologySnapshot) -> None:
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
         result = state | symbolic_solver_node(state)
         assert len(result["candidate_paths"]) >= 1
 
     def test_solver_returns_messages(self, linear_topology: TopologySnapshot) -> None:
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
         result = symbolic_solver_node(state)
@@ -145,7 +145,7 @@ class TestSymbolicSolverNode:
 
     def test_path_format_has_required_fields(self, linear_topology: TopologySnapshot) -> None:
         """Each path dict must contain: nodes, links, total_length_km, hops."""
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
         result = state | symbolic_solver_node(state)
@@ -156,7 +156,7 @@ class TestSymbolicSolverNode:
             assert "hops" in path
 
     def test_path_nodes_are_list(self, linear_topology: TopologySnapshot) -> None:
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
         result = state | symbolic_solver_node(state)
@@ -165,7 +165,7 @@ class TestSymbolicSolverNode:
             assert len(path["nodes"]) >= 2
 
     def test_path_total_length_is_positive(self, linear_topology: TopologySnapshot) -> None:
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
         result = state | symbolic_solver_node(state)
@@ -174,7 +174,7 @@ class TestSymbolicSolverNode:
 
     def test_mesh_solver_finds_multiple_paths(self, mesh_topology: TopologySnapshot) -> None:
         """In a mesh topology A-B-C + A-C direct, solver should find 2 paths."""
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         pddl = SIMPLE_PDDL.replace("Node-D", "Node-C").replace("node_dst - node", "")
         state = _make_state(mesh_topology, pddl)
@@ -184,7 +184,7 @@ class TestSymbolicSolverNode:
 
     def test_solver_returns_empty_for_disconnected_topology(self) -> None:
         """Topology with no links should yield no paths."""
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         topology = TopologySnapshot(
             nodes=[
@@ -200,7 +200,7 @@ class TestSymbolicSolverNode:
 
     def test_solver_uses_topology_from_state(self, mesh_topology: TopologySnapshot, linear_topology: TopologySnapshot) -> None:
         """Solver must use the topology provided in state, not a hardcoded one."""
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         # Mesh topology: 3 nodes only
         state_mesh = _make_state(mesh_topology, SIMPLE_PDDL.replace("Node-D", "Node-C"))
@@ -222,7 +222,7 @@ class TestSymbolicSolverConstraints:
 
     def test_avoid_link_removes_path_using_that_link(self, mesh_topology: TopologySnapshot) -> None:
         """With avoid-link l2 (B-C), solver should not return path A-B-C."""
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(mesh_topology, PDDL_WITH_AVOID)
         result = state | symbolic_solver_node(state)
@@ -233,7 +233,7 @@ class TestSymbolicSolverConstraints:
 
     def test_max_hops_constraint_respected(self, linear_topology: TopologySnapshot) -> None:
         """With max-hops 2, no path from A to D (3 hops) should be returned."""
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, PDDL_MAX_HOPS)
         result = state | symbolic_solver_node(state)

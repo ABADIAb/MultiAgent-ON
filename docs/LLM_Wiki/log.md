@@ -297,3 +297,11 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited and injected `[[wikilinks]]` into the Weekly Report to guarantee interconnectedness with `Architecture_v5`.
 - Consistency Audit: Confirmed that the recent `src/` integration perfectly aligns with the required read-only testbed constraints defined during the session.
 - Session closure properly logged.
+
+## [2026-07-31] debrief2 | Codebase Reorganization & Architecture V5 Alignment
+- Action: Executed `/debrief2` session closure routine.
+- Codebase Reorganization: Formulated `.agents/rules/src-methodology.md`, renamed `src/agents/` to `src/nodes/`, moved `symbolic_solver.py` to `src/core/`, updated all imports, and verified all 172 unit tests pass.
+- Feature Documentation Hub: Created 7 comprehensive feature docs in `docs/LLM_Wiki/wiki/architecture/features/` linking pipeline code to [[Architecture_v5]].
+- Wiki Deep Lint & Audit: Verified frontmatter, `[[wikilinks]]`, and index entries across all new docs. Created `Weekly_Report_20260803_Felipe_Abadia.md`, `Issue_Report_20260803_Felipe_Abadia.md`, and `session_20260731_Code_Reorganization.md`. Removed obsolete `literature/recommendations.md`.
+- Session closure properly logged.
+

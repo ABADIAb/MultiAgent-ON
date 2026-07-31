@@ -34,7 +34,7 @@ class TestIntentIngestNode:
 
     def test_returns_enriched_intent(self):
         """Node must return a dict with enriched_intent populated."""
-        from src.agents.intent_ingest import IntentSummary, intent_ingest_node
+        from src.nodes.intent_ingest import IntentSummary, intent_ingest_node
         from src.core import llm as llm_module
 
         mock_structured = MagicMock()
@@ -58,7 +58,7 @@ class TestIntentIngestNode:
 
     def test_returns_messages_with_ai_response(self):
         """Node must append an AIMessage summarizing the parsed intent."""
-        from src.agents.intent_ingest import IntentSummary, intent_ingest_node
+        from src.nodes.intent_ingest import IntentSummary, intent_ingest_node
         from src.core import llm as llm_module
 
         mock_structured = MagicMock()
@@ -82,7 +82,7 @@ class TestIntentIngestNode:
 
     def test_handles_no_user_messages(self):
         """Node must handle state with no human messages gracefully."""
-        from src.agents.intent_ingest import intent_ingest_node
+        from src.nodes.intent_ingest import intent_ingest_node
         from src.core import llm as llm_module
 
         mock_llm = MagicMock()
@@ -98,7 +98,7 @@ class TestIntentIngestNode:
 
     def test_llm_called_with_structured_output(self):
         """Node must use with_structured_output for structured parsing."""
-        from src.agents.intent_ingest import IntentSummary, intent_ingest_node
+        from src.nodes.intent_ingest import IntentSummary, intent_ingest_node
         from src.core import llm as llm_module
 
         mock_structured = MagicMock()
@@ -123,7 +123,7 @@ class TestIntentSummaryModel:
     """Test the IntentSummary Pydantic model."""
 
     def test_minimal_creation(self):
-        from src.agents.intent_ingest import IntentSummary
+        from src.nodes.intent_ingest import IntentSummary
 
         summary = IntentSummary(summary="Route from A to B")
         assert summary.summary == "Route from A to B"
@@ -131,7 +131,7 @@ class TestIntentSummaryModel:
         assert summary.target_node is None
 
     def test_full_creation(self):
-        from src.agents.intent_ingest import IntentSummary
+        from src.nodes.intent_ingest import IntentSummary
 
         summary = IntentSummary(
             summary="Route from Milano-A to Milano-D with 100G",
@@ -142,7 +142,7 @@ class TestIntentSummaryModel:
         assert summary.target_node == "Milano-D"
 
     def test_serialization_roundtrip(self):
-        from src.agents.intent_ingest import IntentSummary
+        from src.nodes.intent_ingest import IntentSummary
 
         original = IntentSummary(
             summary="Test intent",

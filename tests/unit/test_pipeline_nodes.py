@@ -74,9 +74,9 @@ REVERSE_PROMPT_RECONSTRUCTION = (
 class TestPddlParserNode:
     """Test the PDDL parser with mocked LLM."""
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_valid_llm_response_sets_pddl_valid_true(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=VALID_PDDL_RESPONSE)
@@ -88,9 +88,9 @@ class TestPddlParserNode:
         assert result["pddl_valid"] is True
         assert result["pddl_constraints"] is not None
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_valid_response_contains_pddl_structure(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=VALID_PDDL_RESPONSE)
@@ -103,9 +103,9 @@ class TestPddlParserNode:
         assert "(problem" in result["pddl_constraints"]
         assert ":goal" in result["pddl_constraints"]
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_invalid_llm_response_sets_pddl_valid_false(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=INVALID_PDDL_RESPONSE)
@@ -118,9 +118,9 @@ class TestPddlParserNode:
         assert result["error_context"] is not None
         assert len(result["error_context"]) > 0
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_enriched_intent_included_in_prompt(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=VALID_PDDL_RESPONSE)
@@ -135,9 +135,9 @@ class TestPddlParserNode:
         message_contents = " ".join(msg.content for msg in call_args)
         assert intent in message_contents
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_handles_none_enriched_intent(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=VALID_PDDL_RESPONSE)
@@ -149,9 +149,9 @@ class TestPddlParserNode:
         # Should still produce a result (LLM gets "No intent provided")
         assert result["pddl_constraints"] is not None
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_strips_markdown_code_fences(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         fenced = f"```pddl\n{VALID_PDDL_RESPONSE}\n```"
         mock_llm = MagicMock()
@@ -164,9 +164,9 @@ class TestPddlParserNode:
         assert "```" not in result["pddl_constraints"]
         assert result["pddl_valid"] is True
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_returns_ai_message(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=VALID_PDDL_RESPONSE)
@@ -179,9 +179,9 @@ class TestPddlParserNode:
         assert isinstance(result["messages"][0], AIMessage)
         assert result["messages"][0].name == "pddl_parser"
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_error_context_contains_validation_errors(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=INVALID_PDDL_RESPONSE)
@@ -195,9 +195,9 @@ class TestPddlParserNode:
         assert isinstance(result["error_context"], str)
 
 
-    @patch("src.agents.pddl_parser.get_llm")
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_refinement_incorporates_error_context_and_previous_pddl(self, mock_get_llm):
-        from src.agents.pddl_parser import pddl_parser_node
+        from src.nodes.pddl_parser import pddl_parser_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=VALID_PDDL_RESPONSE)
@@ -227,10 +227,10 @@ class TestPddlParserNode:
 class TestReversePromptNode:
     """Test the Reverse Prompting node with mocked LLM and interrupt."""
 
-    @patch("src.agents.reverse_prompt.interrupt")
-    @patch("src.agents.reverse_prompt.get_llm")
+    @patch("src.nodes.reverse_prompt.interrupt")
+    @patch("src.nodes.reverse_prompt.get_llm")
     def test_reconstruction_uses_llm_output(self, mock_get_llm, mock_interrupt):
-        from src.agents.reverse_prompt import reverse_prompt_node
+        from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
@@ -242,10 +242,10 @@ class TestReversePromptNode:
 
         assert result["hitl_reconstruction"] == REVERSE_PROMPT_RECONSTRUCTION
 
-    @patch("src.agents.reverse_prompt.interrupt")
-    @patch("src.agents.reverse_prompt.get_llm")
+    @patch("src.nodes.reverse_prompt.interrupt")
+    @patch("src.nodes.reverse_prompt.get_llm")
     def test_interrupt_called_with_reconstruction(self, mock_get_llm, mock_interrupt):
-        from src.agents.reverse_prompt import reverse_prompt_node
+        from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
@@ -260,10 +260,10 @@ class TestReversePromptNode:
         payload = mock_interrupt.call_args[0][0]
         assert REVERSE_PROMPT_RECONSTRUCTION in payload["reconstruction"]
 
-    @patch("src.agents.reverse_prompt.interrupt")
-    @patch("src.agents.reverse_prompt.get_llm")
+    @patch("src.nodes.reverse_prompt.interrupt")
+    @patch("src.nodes.reverse_prompt.get_llm")
     def test_approve_sets_hitl_approved_true(self, mock_get_llm, mock_interrupt):
-        from src.agents.reverse_prompt import reverse_prompt_node
+        from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
@@ -275,10 +275,10 @@ class TestReversePromptNode:
 
         assert result["hitl_approved"] is True
 
-    @patch("src.agents.reverse_prompt.interrupt")
-    @patch("src.agents.reverse_prompt.get_llm")
+    @patch("src.nodes.reverse_prompt.interrupt")
+    @patch("src.nodes.reverse_prompt.get_llm")
     def test_reject_sets_hitl_approved_false(self, mock_get_llm, mock_interrupt):
-        from src.agents.reverse_prompt import reverse_prompt_node
+        from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
@@ -290,10 +290,10 @@ class TestReversePromptNode:
 
         assert result["hitl_approved"] is False
 
-    @patch("src.agents.reverse_prompt.interrupt")
-    @patch("src.agents.reverse_prompt.get_llm")
+    @patch("src.nodes.reverse_prompt.interrupt")
+    @patch("src.nodes.reverse_prompt.get_llm")
     def test_refine_sets_feedback_in_error_context(self, mock_get_llm, mock_interrupt):
-        from src.agents.reverse_prompt import reverse_prompt_node
+        from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
@@ -306,10 +306,10 @@ class TestReversePromptNode:
         assert result["hitl_approved"] is False
         assert "latency" in result["error_context"].lower()
 
-    @patch("src.agents.reverse_prompt.interrupt")
-    @patch("src.agents.reverse_prompt.get_llm")
+    @patch("src.nodes.reverse_prompt.interrupt")
+    @patch("src.nodes.reverse_prompt.get_llm")
     def test_pddl_constraints_included_in_prompt(self, mock_get_llm, mock_interrupt):
-        from src.agents.reverse_prompt import reverse_prompt_node
+        from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
@@ -324,10 +324,10 @@ class TestReversePromptNode:
         message_contents = " ".join(msg.content for msg in call_args)
         assert "define" in message_contents
 
-    @patch("src.agents.reverse_prompt.interrupt")
-    @patch("src.agents.reverse_prompt.get_llm")
+    @patch("src.nodes.reverse_prompt.interrupt")
+    @patch("src.nodes.reverse_prompt.get_llm")
     def test_returns_ai_message(self, mock_get_llm, mock_interrupt):
-        from src.agents.reverse_prompt import reverse_prompt_node
+        from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
@@ -355,7 +355,7 @@ class TestSymbolicSolverNode:
     """
 
     def test_returns_candidate_paths_key(self):
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state()
         result = symbolic_solver_node(state)
@@ -363,14 +363,14 @@ class TestSymbolicSolverNode:
 
     def test_returns_empty_without_topology(self):
         """No topology in state → no paths (correct behavior for real solver)."""
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state()  # topology_snapshot=None
         result = symbolic_solver_node(state)
         assert result["candidate_paths"] == []
 
     def test_returns_ai_message(self):
-        from src.agents.symbolic_solver import symbolic_solver_node
+        from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state()
         result = symbolic_solver_node(state)
@@ -386,7 +386,7 @@ class TestQotValidationNode:
     """Test the QoT Validation placeholder."""
 
     def test_returns_qot_results(self):
-        from src.agents.qot_validation import qot_validation_node
+        from src.nodes.qot_validation import qot_validation_node
 
         state = _make_state(
             candidate_paths=[{"path": ["A", "B"], "hops": 1}]
@@ -396,7 +396,7 @@ class TestQotValidationNode:
         assert len(result["qot_results"]) == 1
 
     def test_placeholder_marks_all_feasible(self):
-        from src.agents.qot_validation import qot_validation_node
+        from src.nodes.qot_validation import qot_validation_node
 
         state = _make_state(
             candidate_paths=[
@@ -408,14 +408,14 @@ class TestQotValidationNode:
         assert all(r["feasible"] for r in result["qot_results"])
 
     def test_handles_empty_candidates(self):
-        from src.agents.qot_validation import qot_validation_node
+        from src.nodes.qot_validation import qot_validation_node
 
         state = _make_state(candidate_paths=[])
         result = qot_validation_node(state)
         assert result["qot_results"] == []
 
     def test_handles_none_candidates(self):
-        from src.agents.qot_validation import qot_validation_node
+        from src.nodes.qot_validation import qot_validation_node
 
         state = _make_state(candidate_paths=None)
         result = qot_validation_node(state)
@@ -431,7 +431,7 @@ class TestPlanSynthesizerNode:
     """Test the Plan Synthesizer placeholder."""
 
     def test_returns_planning_report(self):
-        from src.agents.plan_synthesizer import plan_synthesizer_node
+        from src.nodes.plan_synthesizer import plan_synthesizer_node
 
         state = _make_state(
             enriched_intent="Route from A to B",
@@ -442,7 +442,7 @@ class TestPlanSynthesizerNode:
         assert "Planning Report" in result["planning_report"]
 
     def test_report_includes_feasible_paths(self):
-        from src.agents.plan_synthesizer import plan_synthesizer_node
+        from src.nodes.plan_synthesizer import plan_synthesizer_node
 
         state = _make_state(
             qot_results=[{"path": ["A", "B"], "feasible": True, "snr_dB": 12.0, "power_dBm": -8.0}],
@@ -451,14 +451,14 @@ class TestPlanSynthesizerNode:
         assert "A → B" in result["planning_report"]
 
     def test_report_handles_no_feasible_paths(self):
-        from src.agents.plan_synthesizer import plan_synthesizer_node
+        from src.nodes.plan_synthesizer import plan_synthesizer_node
 
         state = _make_state(qot_results=[])
         result = plan_synthesizer_node(state)
         assert "No feasible paths" in result["planning_report"]
 
     def test_returns_ai_message(self):
-        from src.agents.plan_synthesizer import plan_synthesizer_node
+        from src.nodes.plan_synthesizer import plan_synthesizer_node
 
         state = _make_state(qot_results=[])
         result = plan_synthesizer_node(state)
