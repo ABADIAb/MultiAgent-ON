@@ -31,3 +31,9 @@ status: active
   1. Create `src/core/semantic_gate.py` for $U_{sem}$ calculation.
   2. Create `src/core/radg.py` for the binary QoT decision function.
   3. Wire the conditional edges in `src/core/graph.py` so both "Clarify" and "Suggest Replan" trigger HITL and loop back safely.
+
+## 5. Missing Physical Parameter Exposure in NBI (BLOCKER)
+- **Issue:** The ONC RESTConf NBI API (`onc-nbi.yaml`) only exposes service-layer entities (L2, EVPL, PM counters, Alarms) and lacks GET endpoints for L0 physical topology parameters (e.g., fiber span lengths, attenuation, EDFA noise figures). 
+- **What has already been tried:** Exhaustive regex search on the OpenAPI specification.
+- **Result:** PENDING physical data strategy.
+- **Estimated possible solution:** The professor must provide a static configuration file (e.g., JSON/YAML) detailing the physical testbed parameters to inject into the `qot_calculator.py`. Otherwise, we will be forced to mock standard telecommunications values (e.g., SMF-28, standard EDFAs) to run the QoT Validation phase.

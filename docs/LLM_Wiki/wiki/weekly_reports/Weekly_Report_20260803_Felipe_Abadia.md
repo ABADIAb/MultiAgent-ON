@@ -74,6 +74,12 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 - **Result:** IN PROGRESS.
 - **Estimated possible solution:** Implement `src/core/semantic_gate.py` and `src/core/radg.py` during Sprint 3.
 
+### Issue 3
+- **Issue:** Missing Physical Parameter Exposure in NBI. The ONC RESTConf NBI API (`onc-nbi.yaml`) only exposes service-layer entities and lacks GET endpoints for L0 physical topology parameters (e.g., fiber span lengths, attenuation, EDFA noise figures) required for QoT calculation.
+- **What has already been tried:** Exhaustive regex search on the OpenAPI specification to confirm the absence of these endpoints.
+- **Result:** BLOCKER / PENDING physical data strategy.
+- **Estimated possible solution:** Await the professor's provision of a static configuration file containing the physical testbed parameters, or fallback to mocking standard telecommunications values (e.g., SMF-28, standard EDFAs) to unblock the QoT Validation phase.
+
 ## 4. Plan for Next Week
 
 1. **Implement Semantic Gate ($U_{sem}$):** Create `src/core/semantic_gate.py` and `src/nodes/semantic_gate_node.py` to evaluate intent clarity before solver execution.
