@@ -55,6 +55,11 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 5. **Wiki Maintenance:**
    - Deleted legacy literature document `recommendations.md` to prevent ambiguity.
 
+6. **Thesis Outline Refinement:**
+   - Ingested the original PDF outline and produced V3 of the thesis outline (`Thesis_Outline_v3.md`).
+   - Formally integrated the V5 Problem Statement (Given, Decide, Objective) into the Architecture section.
+   - Mapped SOTA citations to specific chapters, and merged the Evaluation chapters for better narrative flow.
+
 ## 3. Issue List This Week
 
 ### Issue 1
