@@ -71,7 +71,7 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 ### Exp 3.0: LangGraph State Pipeline Assembly
 - **Objective:** Connect all generative and symbolic modules into a cohesive, fail-fast StateGraph.
 - **Action:** Wire all components together in `src/core/graph.py`:
-  `Ingest → RAG → PDDL → Semantic Gate (U_sem) → [HITL if needed] → Symbolic Solver → QoT Tool → Physical Gate (R_qot) → Synthesizer → Testbed Push`.
+  `Ingest → RAG → PDDL → Semantic Gate (U_sem) → [HITL if needed] → Symbolic Solver → QoT Tool → Physical Gate (QoT_valid) → Synthesizer → Testbed Push`.
 - Configure the LangGraph Memory Checkpointer to ensure state persistence across human interruptions.
 - **Deliverable:** Fully compiled `StateGraph` in `src/core/graph.py`.
 
@@ -119,7 +119,7 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 | **No-HITL** | Disable all HITL checks — system auto-approves everything. |
 | **Always-HITL** | Every intent triggers mandatory Reverse Prompting `interrupt()`. |
 | **Fixed-Retry (N=3)** | System generates plan, simulates deployment check, retries up to 3 times on failure. |
-| **Risk-Adaptive HITL (Ours)** | RADG decides per-intent based on $U_{sem}$ and $R_{qot}$. |
+| **Risk-Adaptive HITL (Ours)** | RADG decides per-intent based on $U_{sem}$ and $\text{QoT}_{valid}$. |
 
 - **Metrics Collected Per Run:**
 

@@ -82,7 +82,7 @@ What IS novel is the **pre-deployment risk-adaptive decision intelligence**: how
 | **PoliMi/CNSM 2025** | SDN flow rules | ✅ NL + clarification | ❌ None (IP domain) | ❌ Fixed retry (post-deploy) | ❌ Post-deployment | ❌ |
 | **SJTU (AutoLight)** | Cross-domain optical | ❌ Structured tasks | ✅ DT toolset | ❌ None | ❌ | ❌ |
 | **IntentLLM** | SDN Slicing | ✅ NL intent | ❌ None | ❌ None | ❌ | ❌ |
-| **MultiAgentON (ours)** | Optical planning | ✅ NL → PDDL + Reverse Prompting | ✅ Neurosymbolic Solver + GN model | ✅ RADG ($U_{sem}$ + $R_{qot}$) | ✅ Joint pre-deployment gate | ✅ Structured artifact |
+| **MultiAgentON (ours)** | Optical planning | ✅ NL → PDDL + Reverse Prompting | ✅ Neurosymbolic Solver + GN model | ✅ RADG ($U_{sem}$ + $\text{QoT}_{valid}$) | ✅ Joint pre-deployment gate | ✅ Structured artifact |
 
 ---
 
@@ -95,7 +95,7 @@ What IS novel is the **pre-deployment risk-adaptive decision intelligence**: how
                         ▲
                         │
                         │              ● MultiAgentON V5 (ours)
-                        │                ▲ + Joint U_sem + R_qot
+                        │                ▲ + Joint U_sem + QoT_valid
                         │                │ + 4-outcome decision gate
                         │                │ + Formal evaluation
                         │

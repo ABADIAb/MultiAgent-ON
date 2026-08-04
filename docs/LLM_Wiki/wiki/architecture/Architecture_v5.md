@@ -120,7 +120,7 @@ The Orchestrator summarizes the feasible, approved paths into a Planning Report 
 
 | Aspect | V4 | V5 |
 |--------|----|-----|
-| **Core Novelty** | Reverse Prompting convergence | Fail-fast, sequential Semantic ($U_{sem}$) and Physical ($R_{qot}$) risk assessment |
+| **Core Novelty** | Reverse Prompting convergence | Fail-fast, sequential Semantic ($U_{sem}$) and Physical ($\text{QoT}_{valid}$) risk assessment |
 | **HITL Strategy** | Always-on (every intent) | Risk-adaptive (early trigger only when semantic uncertainty is high) |
 | **Pre-deployment Safety** | Implicit via pipeline stages | Explicit via two-stage Decision Gates |
 | **Decision Outcomes** | Approve / Refine / Reject (binary) | Auto-Approve / Clarify / Suggest Replan (3 outcomes, looping to Phase 2) |

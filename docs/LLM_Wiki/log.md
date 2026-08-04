@@ -312,3 +312,12 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited all wiki pages and resolved 52 relative wikilinks to ensure full resolution to feature docs, archived architectures, and literature notes.
 - Index Maintenance: Registered `session_20260717_Pivot_V5` in `docs/LLM_Wiki/index.md`.
 - Session closure properly logged.
+
+## [2026-08-04] ingest | Writing Roadmap Creation
+- Created: `docs/LLM_Wiki/wiki/thesis_drafts/Writing_Roadmap_v1.md`
+- Action: Documented the step-by-step writing roadmap based on Thesis Outline V3, and added guidelines for using NotebookLM and Antigravity.
+- Updated: `index.md`
+
+## [2026-08-04] lint | Purge R_qot (QoT Risk Margin)
+- Action: Executed a deep lint across the Wiki to replace all legacy references of the continuous margin `$R_{qot}$` with the correct binary feasibility variable `$\text{QoT}_{valid}$`.
+- Updated: `ProblemStatement_v5.md`, `Architecture_v5.md`, `MVP_Roadmap.md`, `sota_gap_analysis.md`, `Thesis_Outline_v3.md`, `Writing_Roadmap_v1.md`, and `Scope_Pivot_20260706.md`.

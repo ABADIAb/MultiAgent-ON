@@ -5,22 +5,12 @@ tags: [thesis, outline, draft, citations]
 status: active
 ---
 
-Dear Professor,
-
-Attached is the third iteration of the thesis outline. The primary enhancement in this version is the mapping of our cited literature directly to the specific sections where they will be discussed. This should give you a clear map of how the state-of-the-art supports our narrative.
-
-Additionally, I've formalized the Problem Statement in Section 3.1 to rigorously define the system's inputs, constraints, and optimization objectives, reflecting the exact nature of our V5 architecture.
-
-**Key Updates and Rationale:**
-1. **Citation Mapping:** Every major subsection now explicitly lists the literature that grounds it. This guarantees we aren't just summarizing papers in Chapter 2, but actively utilizing them to justify our implementation in Chapter 4 and our baselines in Chapter 5.
-2. **Section 1.3 Renaming:** I reverted the title of 1.3 to "Motivation" to keep the introduction focused on the "Why", reserving the formal "Problem Statement" strictly for Chapter 3 where we introduce the mathematical framework.
-3. **Formalized Problem Definition (3.1):** I structured the problem into a strict *Given / Decide / Objective* format. This mathematically sets the stage for the Neurosymbolic separation, showing that we treat intent translation not as a chatbot prompt, but as a constrained optimization problem.
-
-Here is the revised structure:
+# Summary
+This document provides the third iteration of the thesis outline, mapping cited literature directly to the specific sections where they will be discussed. It also formalizes the Problem Statement (Section 3.1) to rigorously define the system's inputs, constraints, and optimization objectives, reflecting the V5 architecture.
 
 # **Abstract** 
 
-# **Abstract in lingua italiana** (If required by the institution) 
+# **Abstract in lingua italiana** 
 
 # **Contents** 
 # **List of Figures** 
@@ -62,7 +52,7 @@ Here is the revised structure:
   - *Citations:* `[[Architecture_v5]]`.
 - **3.3 Strict Neurosymbolic Separation:** Constraining the LLM to linguistic parsing (Intent $\to$ PDDL) and isolating the physics computations to deterministic symbolic solvers.
   - *Citations:* `[[Scope_Pivot_20260706]]`.
-- **3.4 The Risk-Adaptive Decision Gate (RADG):** The core mathematical/logical pipeline evaluating semantic uncertainty ($U_{sem}$) and physical-layer QoT risk ($R_{qot}$) before deployment.
+- **3.4 The Risk-Adaptive Decision Gate (RADG):** The core mathematical/logical pipeline evaluating semantic uncertainty ($U_{sem}$) and physical-layer QoT feasibility ($\text{QoT}_{valid}$) before deployment.
   - *Citations:* `[[Architecture_v5]]`.
 - **3.5 Formal Human-In-The-Loop (HITL) via Reverse Prompting:** Bounding operator approvals to exact logical constraints to eliminate semantic drift during clarification.
   - *Citations:* `[[Architecture_v5]]`.

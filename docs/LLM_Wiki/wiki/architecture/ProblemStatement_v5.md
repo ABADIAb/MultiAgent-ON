@@ -90,9 +90,9 @@ The planning system receives:
 ## 6. Output
 
 The output of the pipeline is a validated **Planning Report** containing:
-- **Structurally Valid Paths** with verified QoT feasibility scores ($\text{GSNR}_{dB}$, $P_{rx,dBm}$, $R_{qot}$).
+- **Structurally Valid Paths** with verified QoT feasibility scores ($\text{GSNR}_{dB}$, $P_{rx,dBm}$, $\text{QoT}_{valid}$).
 - **PDDL Constraint Map** guaranteeing the logic applied to the path search.
-- **RADG Decision Trace** — the risk assessment that led to the final decision (approve/clarify/replan), including $U_{sem}$ and $R_{qot}$ values.
+- **RADG Decision Trace** — the risk assessment that led to the final decision (approve/clarify/replan), including $U_{sem}$ and $\text{QoT}_{valid}$ values.
 - **Reverse Prompting Trace** (when applicable) — the formal conversation history documenting the operator's agreement to the plan.
 - **Approved Routing Decision** — ready to be pushed to the SDON testbed.
 
@@ -121,7 +121,7 @@ Where:
 | **No-HITL** | System runs end-to-end without any human check. Measures the risk of fully autonomous operation. |
 | **Always-HITL** | Every intent triggers mandatory human review via Reverse Prompting. Measures the cost of maximum safety. |
 | **Fixed-Retry** (à la PoliMi/CNSM 2025) | System generates config, deploys, observes failure, retries up to N times. Measures post-deployment correction. |
-| **Risk-Adaptive HITL (Ours)** | RADG decides when and how to involve the human based on joint $U_{sem}$ and $R_{qot}$. |
+| **Risk-Adaptive HITL (Ours)** | RADG decides when and how to involve the human based on joint $U_{sem}$ and $\text{QoT}_{valid}$. |
 
 ### 8.2 Evaluation Metrics
 

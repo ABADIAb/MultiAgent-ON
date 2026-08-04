@@ -71,7 +71,7 @@ While V4 successfully introduced the neurosymbolic separation and Reverse Prompt
 The novelty was reframed from "how the system clarifies" to "how the system decides WHETHER and HOW to act." V5 introduces a **Risk-Adaptive Decision Gate (RADG)** that jointly evaluates two orthogonal signals:
 
 1. **Semantic Uncertainty ($U_{sem}$)**: A two-layer assessment combining CFG structural validation (Layer 1) and embedding-based disagreement between the original intent and the Reverse Prompting reconstruction (Layer 2).
-2. **QoT Risk Margin ($R_{qot}$)**: The distance between the computed GSNR and the required threshold, in dB.
+2. **QoT Feasibility ($\text{QoT}_{valid}$)**: Binary evaluation of physical-layer feasibility ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$).
 
 The RADG maps these signals to four possible outcomes: **auto-approve**, **clarify** (trigger HITL), **suggest replan** (propose alternatives to operator), or **reject + request reformulation** (block deployment and notify operator).
 
@@ -79,7 +79,7 @@ The RADG maps these signals to four possible outcomes: **auto-approve**, **clari
 | Aspect | PoliMi/CNSM 2025 (El Hachimi et al.) | MultiAgentON V5 (Ours) |
 |--------|---------------------------------------|------------------------|
 | **When** | Post-deployment (after controller failure) | Pre-deployment (before any configuration reaches the network) |
-| **Mechanism** | Fixed N retries | Risk-proportional decision ($D(U_{sem}, R_{qot})$) |
+| **Mechanism** | Fixed N retries | Risk-proportional decision ($D(U_{sem}, \text{QoT}_{valid})$) |
 | **Risk Assessment** | None — retries blindly | Joint semantic + QoT risk evaluation |
 | **HITL** | Always-on intent clarification | Conditional — only when $U_{sem}$ is high |
 | **Physics Awareness** | Controller error codes | Deterministic GSNR margin computation |
