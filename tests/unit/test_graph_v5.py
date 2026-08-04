@@ -1,4 +1,4 @@
-"""Tests for the V4 Neurosymbolic Intent Pipeline graph.
+"""Tests for the V5 Risk-Adaptive Neurosymbolic Intent Pipeline graph.
 
 Validates graph structure, node registration, edge wiring,
 and compilation with checkpointer.
@@ -10,7 +10,7 @@ import pytest
 
 
 class TestBuildGraph:
-    """Test the V4 graph builder."""
+    """Test the V5 graph builder."""
 
     def test_build_graph_returns_state_graph(self):
         from src.core.graph import build_graph
@@ -19,7 +19,7 @@ class TestBuildGraph:
         builder = build_graph()
         assert isinstance(builder, StateGraph)
 
-    def test_graph_has_all_v4_nodes(self):
+    def test_graph_has_all_v5_nodes(self):
         from src.core.graph import build_graph
 
         builder = build_graph()
@@ -65,25 +65,33 @@ class TestHitlRoute:
     """Test the HITL conditional routing function."""
 
     def test_approved_routes_to_symbolic_solver(self):
-        from src.agents.reverse_prompt import hitl_route
+        from typing import cast
+        from src.core.state import AgentState
+        from src.nodes.reverse_prompt import hitl_route
 
-        state = {"hitl_approved": True, "error_context": None}
+        state = cast(AgentState, {"hitl_approved": True, "error_context": None})
         assert hitl_route(state) == "symbolic_solver"
 
     def test_refine_routes_to_pddl_parser(self):
-        from src.agents.reverse_prompt import hitl_route
+        from typing import cast
+        from src.core.state import AgentState
+        from src.nodes.reverse_prompt import hitl_route
 
-        state = {"hitl_approved": False, "error_context": "Please add latency constraint"}
+        state = cast(AgentState, {"hitl_approved": False, "error_context": "Please add latency constraint"})
         assert hitl_route(state) == "pddl_parser"
 
     def test_reject_routes_to_end(self):
-        from src.agents.reverse_prompt import hitl_route
+        from typing import cast
+        from src.core.state import AgentState
+        from src.nodes.reverse_prompt import hitl_route
 
-        state = {"hitl_approved": False, "error_context": None}
+        state = cast(AgentState, {"hitl_approved": False, "error_context": None})
         assert hitl_route(state) == "__end__"
 
     def test_none_approved_routes_to_end(self):
-        from src.agents.reverse_prompt import hitl_route
+        from typing import cast
+        from src.core.state import AgentState
+        from src.nodes.reverse_prompt import hitl_route
 
-        state = {"hitl_approved": None, "error_context": None}
+        state = cast(AgentState, {"hitl_approved": None, "error_context": None})
         assert hitl_route(state) == "__end__"

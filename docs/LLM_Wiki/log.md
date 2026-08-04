@@ -283,3 +283,27 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited and updated `index.md` to include new Issue Report and Session Summary. Ensured all new documentation correctly cross-references core concepts (`Architecture_v5`, `ProblemStatement_v5`, `MVP_Roadmap`).
 - Consistency Audit: Confirmed that the recent documentation pivot logically aligns with the MVP execution scope, properly separating Semantic and Physical Risk Gates to optimize LangGraph routing.
 - Session closure properly logged.
+
+## [2026-07-29] debrief1 | RESTConf Integration & Reporting Session
+- Action: Executed `/debrief1` planning routine.
+- Wiki Maintenance: Updated `index.md` cross-references and generated `task.md`.
+- Report Generation: Created `Weekly_Report_20260727_Felipe_Abadia.md` and `Issue_Report_20260727_Felipe_Abadia.md`.
+- Feature Documentation: Created `docs/LLM_Wiki/wiki/features/testbed_client.md` documenting the CAS SSO flow.
+- Session focus: Solved testbed authentication, established live connection with the SM Optics ONC, identified missing physical links issue, and drafted Presentation Proposal for Prof. Zhang regarding physical metrics (SNR/QoT parameters).
+
+## [2026-07-29] debrief2 | Wiki Consistency & Deep Lint
+- Action: Executed `/debrief2` session closure routine.
+- Codebase Documentation: Added a diagrammatic schematic representing the `RESTConfTestbedClient` integration with the CAS Server, NBI, and Symbolic Solver directly into the Session Summary.
+- Wiki Deep Lint: Audited and injected `[[wikilinks]]` into the Weekly Report to guarantee interconnectedness with `Architecture_v5`.
+- Consistency Audit: Confirmed that the recent `src/` integration perfectly aligns with the required read-only testbed constraints defined during the session.
+- Session closure properly logged.
+
+## [2026-07-31] debrief2 | Codebase Reorganization & Architecture V5 Alignment
+- Action: Executed `/debrief2` session closure routine.
+- Codebase Reorganization: Formulated `.agents/rules/src-methodology.md`, renamed `src/agents/` to `src/nodes/`, moved `symbolic_solver.py` to `src/core/`, updated all imports, and verified all 172 unit tests pass.
+- Feature Documentation Hub: Created 7 comprehensive feature docs in `docs/LLM_Wiki/wiki/architecture/features/` linking pipeline code to [[Architecture_v5]].
+- Wiki Deep Lint & Audit: Verified frontmatter, `[[wikilinks]]`, and index entries across all new docs. Created `Weekly_Report_20260803_Felipe_Abadia.md`, `Issue_Report_20260803_Felipe_Abadia.md`, and `session_20260731_Code_Reorganization.md`. Removed obsolete `literature/recommendations.md`.
+- Session closure properly logged.
+
+## [2026-08-02] ingest | Thesis Outline Update (v2)
+## [2026-08-03] debrief | Session Summary

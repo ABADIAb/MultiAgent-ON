@@ -212,6 +212,7 @@ def calculate_demand_snr(path: list[FiberLink]) -> tuple[float, float]:
             )
 
             # Compute span SNR
+            assert edfa.nf_dB is not None
             nsr, _ = span_snr(
                 fiber_length_km=effective_fiber_km,
                 gain_dB=edfa.gain_dB,

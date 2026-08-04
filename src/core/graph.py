@@ -13,13 +13,13 @@ from __future__ import annotations
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
-from src.agents.intent_ingest import intent_ingest_node
-from src.agents.pddl_parser import pddl_parser_node
-from src.agents.plan_synthesizer import plan_synthesizer_node
-from src.agents.qot_validation import qot_validation_node
-from src.agents.reverse_prompt import hitl_route, reverse_prompt_node
-from src.agents.symbolic_solver import symbolic_solver_node
 from src.core.state import AgentState
+from src.core.symbolic_solver import symbolic_solver_node
+from src.nodes.intent_ingest import intent_ingest_node
+from src.nodes.pddl_parser import pddl_parser_node
+from src.nodes.plan_synthesizer import plan_synthesizer_node
+from src.nodes.qot_validation import qot_validation_node
+from src.nodes.reverse_prompt import hitl_route, reverse_prompt_node
 
 
 def build_graph() -> StateGraph:

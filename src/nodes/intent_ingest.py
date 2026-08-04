@@ -87,6 +87,7 @@ def intent_ingest_node(state: AgentState) -> dict:
     ]
 
     intent = structured_llm.invoke(messages)
+    assert isinstance(intent, IntentSummary)
 
     # Build enriched intent string (future: add RAG context here)
     parts = [f"Intent: {intent.summary}"]

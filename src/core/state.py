@@ -60,13 +60,15 @@ class TopologySnapshot(BaseModel):
 
 
 class AgentState(TypedDict):
-    """Shared state for the V4 Neurosymbolic Intent Pipeline.
+    """Shared state for the V5 Risk-Adaptive Neurosymbolic Intent Pipeline.
 
     Fields:
         messages: Append-only message list (uses add reducer).
         enriched_intent: Operator intent after Optical RAG enrichment.
         pddl_constraints: PDDL constraint string from the parser.
         pddl_valid: Whether the PDDL passed CFG validation.
+        pddl_parsed_constraints: Structured dict extracted from PDDL for downstream nodes.
+            Keys: source (str), destination (str), avoid_links (list[str]), max_hops (int | None).
         hitl_reconstruction: Natural language reconstruction of PDDL.
         hitl_approved: Whether the operator approved via Reverse Prompting.
         topology_snapshot: Current testbed topology.
@@ -80,6 +82,7 @@ class AgentState(TypedDict):
     enriched_intent: str | None
     pddl_constraints: str | None
     pddl_valid: bool | None
+    pddl_parsed_constraints: dict | None
     hitl_reconstruction: str | None
     hitl_approved: bool | None
     topology_snapshot: TopologySnapshot | None
@@ -87,3 +90,4 @@ class AgentState(TypedDict):
     qot_results: list | None
     planning_report: str | None
     error_context: str | None
+

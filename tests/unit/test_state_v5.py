@@ -1,6 +1,6 @@
-"""Tests for the V4 Neurosymbolic AgentState schema.
+"""Tests for the V5 Risk-Adaptive Neurosymbolic AgentState schema.
 
-Validates the V4 state fields (PDDL constraints, HITL approval,
+Validates the V5 state fields (PDDL constraints, PDDL parsed constraints, HITL approval,
 candidate paths, QoT results, planning report) alongside the
 topology models that survive from V3.
 """
@@ -20,8 +20,8 @@ from src.core.state import (
 )
 
 
-class TestAgentStateV4Fields:
-    """Verify V4 neurosymbolic state fields exist and have correct types."""
+class TestAgentStateV5Fields:
+    """Verify V5 neurosymbolic state fields exist and have correct types."""
 
     def test_state_has_enriched_intent(self):
         """State must have enriched_intent field."""
@@ -30,6 +30,7 @@ class TestAgentStateV4Fields:
             "enriched_intent": "Route from A to B with min 10 dB SNR",
             "pddl_constraints": None,
             "pddl_valid": None,
+            "pddl_parsed_constraints": None,
             "hitl_reconstruction": None,
             "hitl_approved": None,
             "topology_snapshot": None,
@@ -47,6 +48,7 @@ class TestAgentStateV4Fields:
             "enriched_intent": None,
             "pddl_constraints": "(define (problem optical-route) ...)",
             "pddl_valid": True,
+            "pddl_parsed_constraints": {"source": "Milano-A", "destination": "Milano-D"},
             "hitl_reconstruction": None,
             "hitl_approved": None,
             "topology_snapshot": None,
@@ -57,6 +59,7 @@ class TestAgentStateV4Fields:
         }
         assert state["pddl_constraints"] is not None
         assert state["pddl_valid"] is True
+        assert state["pddl_parsed_constraints"] == {"source": "Milano-A", "destination": "Milano-D"}
 
     def test_state_has_hitl_fields(self):
         """State must have HITL reconstruction and approval fields."""
@@ -65,6 +68,7 @@ class TestAgentStateV4Fields:
             "enriched_intent": None,
             "pddl_constraints": None,
             "pddl_valid": None,
+            "pddl_parsed_constraints": None,
             "hitl_reconstruction": "I understand you want to route from Milano-A to Milano-D",
             "hitl_approved": True,
             "topology_snapshot": None,
@@ -83,6 +87,7 @@ class TestAgentStateV4Fields:
             "enriched_intent": None,
             "pddl_constraints": None,
             "pddl_valid": None,
+            "pddl_parsed_constraints": None,
             "hitl_reconstruction": None,
             "hitl_approved": None,
             "topology_snapshot": None,
@@ -91,6 +96,7 @@ class TestAgentStateV4Fields:
             "planning_report": None,
             "error_context": None,
         }
+        assert state["candidate_paths"] is not None
         assert len(state["candidate_paths"]) == 1
 
     def test_state_has_qot_results(self):
@@ -100,6 +106,7 @@ class TestAgentStateV4Fields:
             "enriched_intent": None,
             "pddl_constraints": None,
             "pddl_valid": None,
+            "pddl_parsed_constraints": None,
             "hitl_reconstruction": None,
             "hitl_approved": None,
             "topology_snapshot": None,
@@ -108,6 +115,7 @@ class TestAgentStateV4Fields:
             "planning_report": None,
             "error_context": None,
         }
+        assert state["qot_results"] is not None
         assert state["qot_results"][0]["feasible"] is True
 
     def test_state_has_planning_report(self):
@@ -117,6 +125,7 @@ class TestAgentStateV4Fields:
             "enriched_intent": None,
             "pddl_constraints": None,
             "pddl_valid": None,
+            "pddl_parsed_constraints": None,
             "hitl_reconstruction": None,
             "hitl_approved": None,
             "topology_snapshot": None,
@@ -125,15 +134,16 @@ class TestAgentStateV4Fields:
             "planning_report": "Route Milano-A → Milano-D is feasible.",
             "error_context": None,
         }
+        assert state["planning_report"] is not None
         assert "feasible" in state["planning_report"]
 
     def test_state_no_task_plan_field(self):
-        """V4 state must NOT have the V3 task_plan field."""
+        """V5 state must NOT have the V3 task_plan field."""
         hints = get_type_hints(AgentState)
         assert "task_plan" not in hints
 
     def test_state_no_current_agent_field(self):
-        """V4 state must NOT have the V3 current_agent field."""
+        """V5 state must NOT have the V3 current_agent field."""
         hints = get_type_hints(AgentState)
         assert "current_agent" not in hints
 
