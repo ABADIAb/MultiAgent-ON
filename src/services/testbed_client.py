@@ -49,7 +49,7 @@ class MockTestbedClient(TestbedClient):
     """Mock testbed client returning realistic ECOC 4-node topology.
 
     Based on the ECOC 2024 paper's testbed at Politecnico di Milano:
-    4 nodes in a linear topology with fiber spans and OAs.
+    3 nodes in a linear topology with fiber spans and OAs.
     """
 
     def get_topology(self) -> TopologySnapshot:
@@ -70,11 +70,6 @@ class MockTestbedClient(TestbedClient):
                 name="Milano-C",
                 interfaces=[301, 302, 303, 304],
             ),
-            NetworkNode(
-                node_id="node_4",
-                name="Milano-D",
-                interfaces=[401, 402],
-            ),
         ]
 
         links = [
@@ -93,14 +88,6 @@ class MockTestbedClient(TestbedClient):
                 length_km=40.0,
                 num_amplifiers=2,
                 active_channels=6,
-            ),
-            FiberLink(
-                link_id="link_cd",
-                source_node="node_3",
-                target_node="node_4",
-                length_km=30.0,
-                num_amplifiers=1,
-                active_channels=2,
             ),
         ]
 

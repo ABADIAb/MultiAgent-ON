@@ -72,18 +72,27 @@ Assuming $U_{sem}$ is low (resolved in the earlier gate), the physical gate maps
 | **Auto-Approve** | Valid (Feasible) | Deploy without human review |
 | **Suggest Replan** | Invalid (Unfeasible) | Physics failed. Notify operator and suggest relaxing constraints via HITL (loops back to Phase 2) |
 
-### 4.3 Decision Function
+### 4.3 Formalizing the Risk-Adaptive Decision Gate (RADG)
 
-The risk-adaptive pipeline acts as a composed decision function:
+The RADG is formulated as a piecewise decision function $D$ that evaluates two constraints sequentially:
 
-$$D(U_{sem}, \text{QoT}_{valid}) \to \{\text{approve}, \text{clarify}, \text{replan}\}$$
+1. **Semantic Uncertainty ($U_{sem}$):** A function of structural validity ($v_{struct} \in \{0, 1\}$) and semantic divergence ($d_{sem} \in [0, 1]$).
+   $$U_{sem} = \begin{cases} 1 & \text{if } v_{struct} = 0 \text{ (Structural Failure)} \\ d_{sem} & \text{if } v_{struct} = 1 \text{ (Semantic Divergence)} \end{cases}$$
+   Given a tolerance threshold $\tau_{sem}$, if $U_{sem} > \tau_{sem}$, the intent is considered ambiguous.
 
-This sequential approach is the **core novelty**: it is **pre-deployment** (no unsafe configuration reaches the network), **fail-fast** (avoids expensive compute on ambiguous intents), and **risk-proportional** (the human is engaged only when needed to resolve missing data or unfeasible physics).
+2. **Physical Viability ($QoT_{valid}$):** A binary indicator based on deterministic physics:
+   $$QoT_{valid} = \mathbb{I}(\text{GSNR}_{computed} \ge \text{GSNR}_{threshold})$$
+
+The decision function maps the state to an action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$:
+
+$$D(U_{sem}, \text{QoT}_{valid}) = \begin{cases} \text{clarify} & \text{if } U_{sem} > \tau_{sem} \\ \text{replan} & \text{if } U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 0 \\ \text{approve} & \text{if } U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 1 \end{cases}$$
+
+This formalization enforces the **pre-deployment fail-fast** mechanism.
 
 ## 5. Given
 
 The planning system receives:
-1. **The Natural Language Intent.** A high-level, unstructured semantic request from a human operator (e.g., "Route traffic from Milan to Rome with at least 20 dB GSNR, avoiding link L3").
+1. **The Natural Language Intent.** A high-level, unstructured semantic request from a human operator (e.g., "Route traffic from Milano-A to Milano-C with at least 20 dB GSNR, avoiding link L2").
 2. **The Physical Network Graph $G(V,E)$.** Extracted from the SDON testbed via RESTConf/SSH.
 3. **QoT Physical Parameters.** Fiber attenuation coefficients, optical amplifier gains, and channel configurations for deterministic GN-model computation.
 
@@ -96,21 +105,19 @@ The output of the pipeline is a validated **Planning Report** containing:
 - **Reverse Prompting Trace** (when applicable) — the formal conversation history documenting the operator's agreement to the plan.
 - **Approved Routing Decision** — ready to be pushed to the SDON testbed.
 
-## 7. Objective
+## 7. The Optimization Objective
 
-The objective of the Risk-Adaptive Neurosymbolic Intent Planning system is to maximize planning safety and efficiency while minimizing unnecessary human intervention:
+The objective of the Risk-Adaptive Neurosymbolic Intent Planning system is **not** to "maximize safety" (as physical safety is non-negotiable in optical networks), but rather to **minimize operational and computational friction** subject to strict safety constraints.
 
-$$\max_{\text{plan}} \Big( F_{intent}(\text{plan}) \cdot Q_{qot}(\text{plan}) \cdot S_{risk}(\text{plan}) \Big)$$
+$$\min_{\text{plan}} \Big( \alpha \cdot N_{hitl}(\text{plan}) + \beta \cdot T_{tokens}(\text{plan}) \Big)$$
 
-$$\text{subject to} \quad \text{UAR} = 0, \quad N_{hitl} \le N_{adaptive}, \quad T_{tokens} \le T_{max}$$
+$$\text{subject to:} \quad D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$$
 
 Where:
-- $F_{intent}(\text{plan})$ is the intent fidelity, bounded by Reverse Prompting and semantic similarity.
-- $Q_{qot}(\text{plan})$ is the QoT physical quality verified by the GN-model tool.
-- $S_{risk}(\text{plan})$ is the safety score from the RADG — penalizing plans that bypass risk assessment.
-- $\text{UAR}$ is the Unsafe Approval Rate (target: 0%).
-- $N_{adaptive}$ is the risk-proportional HITL interaction count (strictly less than always-on HITL).
-- $T_{max}$ is the bounded context window protected by Optical GraphRAG.
+- $N_{hitl}(\text{plan})$ is the number of human-in-the-loop interruptions (operational friction).
+- $T_{tokens}(\text{plan})$ is the LLM token consumption (computational friction).
+- $\alpha, \beta$ are weighting coefficients for human time vs. API cost.
+- $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ is the strict hard constraint guaranteeing that the plan satisfies both the semantic threshold ($\tau_{sem}$) and the physical physics threshold ($\text{GSNR}_{threshold}$) before deployment.
 
 ## 8. Evaluation Framework
 

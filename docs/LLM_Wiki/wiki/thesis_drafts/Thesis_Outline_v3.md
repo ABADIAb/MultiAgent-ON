@@ -46,7 +46,7 @@ This document provides the third iteration of the thesis outline, mapping cited 
   - **Resource Constraints:** LLM context window limits $T_{max}$ (protecting against Token Budget Saturation), API latency limits, and symbolic solver computation time bounds.
   - **Decide:** The optimal translation of linguistic intent into an executable, structurally valid sequence of physical configurations, OR the decision to fall back and engage the operator for clarification.
   - **Constrained by:** Deterministic physical QoT requirements ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$, receiver power thresholds) and strict semantic ambiguity thresholds ($U_{sem}$).
-  - **Objective:** Maximize intent fidelity and physical safety while enforcing an Unsafe Approval Rate (UAR) of $0$. Minimize post-deployment failures and operational overhead (optimizing Human Interaction Counts, $HIC$).
+  - **Objective:** Minimize operational friction ($N_{hitl}$) and computational cost ($T_{tokens}$) subject to strict physical and semantic safety constraints. Physical safety is treated as a hard constraint (UAR = $0$) rather than a maximizable variable.
   - *Citations:* `[[ProblemStatement_v5]]`.
 - **3.2 Conceptual Framework:** High-level introduction of the Risk-Adaptive Neurosymbolic Intent Planning system.
   - *Citations:* `[[Architecture_v5]]`.

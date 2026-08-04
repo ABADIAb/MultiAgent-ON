@@ -28,13 +28,13 @@ Entry point of the neurosymbolic pipeline. The operator submits a natural langua
 class IntentSummary(BaseModel):
     summary: str          # One-sentence intent description
     source_node: str | None  # e.g., "Milano-A"
-    target_node: str | None  # e.g., "Milano-D"
+    target_node: str | None  # e.g., "Milano-C"
 ```
 
 ## 4. LLM Usage
 - **Model**: Kimi (`moonshot-v1-8k`) via `langchain_openai.ChatOpenAI`
 - **Pattern**: `structured_output` — no free-form parsing required
-- **System prompt**: Hardcoded in `INTENT_SYSTEM_PROMPT` — includes testbed topology description (4-node linear: Milano-A ↔ B ↔ C ↔ D)
+- **System prompt**: Hardcoded in `INTENT_SYSTEM_PROMPT` — includes testbed topology description (3-node linear: Milano-A ↔ B ↔ C)
 
 ## 5. Known Limitations / Sprint 3 TODOs
 - **No Optical RAG enrichment yet.** The architecture specifies that ITU-T standards and transponder specs should be injected into the prompt before LLM processing. Currently, only the raw intent is sent.
