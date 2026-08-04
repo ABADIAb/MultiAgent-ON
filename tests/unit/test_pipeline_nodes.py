@@ -13,19 +13,22 @@ from unittest.mock import MagicMock, patch
 import pytest
 from langchain_core.messages import AIMessage, HumanMessage
 
+from src.core.state import AgentState
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 
-def _make_state(**overrides) -> dict:
-    """Create a minimal V4 AgentState dict with optional overrides."""
-    base = {
+def _make_state(**overrides) -> AgentState:
+    """Create a minimal V5 AgentState dict with optional overrides."""
+    base: AgentState = {
         "messages": [HumanMessage(content="Test intent")],
         "enriched_intent": None,
         "pddl_constraints": None,
         "pddl_valid": None,
+        "pddl_parsed_constraints": None,
         "hitl_reconstruction": None,
         "hitl_approved": None,
         "topology_snapshot": None,
@@ -34,7 +37,7 @@ def _make_state(**overrides) -> dict:
         "planning_report": None,
         "error_context": None,
     }
-    base.update(overrides)
+    base.update(overrides)  # type: ignore[typeddict-item]
     return base
 
 

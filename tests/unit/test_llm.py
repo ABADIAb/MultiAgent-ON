@@ -62,10 +62,12 @@ class TestCreateKimiLLM:
 
     def test_create_kimi_llm_uses_provided_api_key(self):
         """The API key is correctly passed to the ChatOpenAI instance."""
+        from pydantic import SecretStr
         from src.core.llm import create_kimi_llm
 
         llm = create_kimi_llm(api_key="my-secret-key", base_url="https://test.example.com")
         # langchain_openai stores the key as a SecretStr
+        assert isinstance(llm.openai_api_key, SecretStr)
         assert llm.openai_api_key.get_secret_value() == "my-secret-key"
 
     def test_create_kimi_llm_default_model(self):

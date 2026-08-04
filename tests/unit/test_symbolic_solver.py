@@ -123,7 +123,7 @@ class TestSymbolicSolverNode:
         from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
         assert "candidate_paths" in result
         assert result["candidate_paths"] is not None
 
@@ -131,7 +131,8 @@ class TestSymbolicSolverNode:
         from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
+        assert result["candidate_paths"] is not None
         assert len(result["candidate_paths"]) >= 1
 
     def test_solver_returns_messages(self, linear_topology: TopologySnapshot) -> None:
@@ -148,7 +149,8 @@ class TestSymbolicSolverNode:
         from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
+        assert result["candidate_paths"] is not None
         for path in result["candidate_paths"]:
             assert "nodes" in path
             assert "links" in path
@@ -159,7 +161,8 @@ class TestSymbolicSolverNode:
         from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
+        assert result["candidate_paths"] is not None
         for path in result["candidate_paths"]:
             assert isinstance(path["nodes"], list)
             assert len(path["nodes"]) >= 2
@@ -168,7 +171,8 @@ class TestSymbolicSolverNode:
         from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, SIMPLE_PDDL)
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
+        assert result["candidate_paths"] is not None
         for path in result["candidate_paths"]:
             assert path["total_length_km"] > 0
 
@@ -178,8 +182,9 @@ class TestSymbolicSolverNode:
 
         pddl = SIMPLE_PDDL.replace("Node-D", "Node-C").replace("node_dst - node", "")
         state = _make_state(mesh_topology, pddl)
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
         # Should find at least 2 paths: A-C direct and A-B-C
+        assert result["candidate_paths"] is not None
         assert len(result["candidate_paths"]) >= 2
 
     def test_solver_returns_empty_for_disconnected_topology(self) -> None:
@@ -195,7 +200,7 @@ class TestSymbolicSolverNode:
             timestamp="2026-07-29T00:00:00Z",
         )
         state = _make_state(topology, SIMPLE_PDDL.replace("Node-D", "Node-B"))
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
         assert result["candidate_paths"] == []
 
     def test_solver_uses_topology_from_state(self, mesh_topology: TopologySnapshot, linear_topology: TopologySnapshot) -> None:
@@ -204,13 +209,15 @@ class TestSymbolicSolverNode:
 
         # Mesh topology: 3 nodes only
         state_mesh = _make_state(mesh_topology, SIMPLE_PDDL.replace("Node-D", "Node-C"))
-        result_mesh = state_mesh | symbolic_solver_node(state_mesh)
+        result_mesh = symbolic_solver_node(state_mesh)
 
         # Linear topology: 4 nodes
         state_linear = _make_state(linear_topology, SIMPLE_PDDL)
-        result_linear = state_linear | symbolic_solver_node(state_linear)
+        result_linear = symbolic_solver_node(state_linear)
 
         # Results should differ (different topologies)
+        assert result_mesh["candidate_paths"] is not None
+        assert result_linear["candidate_paths"] is not None
         mesh_node_counts = [len(p["nodes"]) for p in result_mesh["candidate_paths"]]
         linear_node_counts = [len(p["nodes"]) for p in result_linear["candidate_paths"]]
         # In linear 4-node, paths must have >2 nodes; in direct mesh path, 2 nodes
@@ -225,9 +232,10 @@ class TestSymbolicSolverConstraints:
         from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(mesh_topology, PDDL_WITH_AVOID)
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
 
         # All returned paths must not use link l2
+        assert result["candidate_paths"] is not None
         for path in result["candidate_paths"]:
             assert "l2" not in path["links"]
 
@@ -236,7 +244,8 @@ class TestSymbolicSolverConstraints:
         from src.core.symbolic_solver import symbolic_solver_node
 
         state = _make_state(linear_topology, PDDL_MAX_HOPS)
-        result = state | symbolic_solver_node(state)
+        result = symbolic_solver_node(state)
 
+        assert result["candidate_paths"] is not None
         for path in result["candidate_paths"]:
             assert path["hops"] <= 2

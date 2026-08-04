@@ -101,7 +101,7 @@ def pddl_parser_node(state: AgentState) -> dict:
     ]
 
     response = llm.invoke(messages)
-    raw_pddl = response.content
+    raw_pddl = response.content if isinstance(response.content, str) else str(response.content)
 
     # Strip markdown code fences if present
     pddl = _strip_code_fences(raw_pddl)

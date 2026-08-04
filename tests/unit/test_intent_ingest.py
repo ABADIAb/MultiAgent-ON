@@ -12,17 +12,20 @@ from unittest.mock import MagicMock, patch
 from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel
 
+from src.core.state import AgentState
+
 
 class TestIntentIngestNode:
     """Test the intent_ingest_node function."""
 
-    def _make_state(self, user_msg: str = "Route from Milano-A to Milano-D") -> dict:
-        """Create a minimal V4 AgentState dict."""
+    def _make_state(self, user_msg: str = "Route from Milano-A to Milano-D") -> AgentState:
+        """Create a minimal V5 AgentState dict."""
         return {
             "messages": [HumanMessage(content=user_msg)],
             "enriched_intent": None,
             "pddl_constraints": None,
             "pddl_valid": None,
+            "pddl_parsed_constraints": None,
             "hitl_reconstruction": None,
             "hitl_approved": None,
             "topology_snapshot": None,
