@@ -197,7 +197,7 @@ The Supervisor delegates tasks to specialized agent nodes. Each agent is impleme
 #### 3.2 Routing Agent
 
 - **Purpose**: Selects optimal paths through the network, validated by the QoT Physics Tool.
-- **Tool**: `qot_tool` — pure Python port of the GN model from `Network.cpp` (see [[tools_wiki/QoT_Tool]]).
+- **Tool**: `qot_tool` — pure Python port of the GN model from `Network.cpp` (see [[architecture/tools_wiki/QoT_Tool]]).
 - **Input**: Candidate path (list of node names), channel ID.
 - **Output**: `{snr_db: float, receiver_power_dbm: float, feasible: bool}`.
 - **Key Design**: The Routing Agent does NOT call the C++ simulator. It calls a pure Python function that executes the GN model math in-memory, reading physical parameters from the topology snapshot in the state.
@@ -372,6 +372,6 @@ The following capabilities are planned but not yet designed as formal experiment
 ## 10. Cross-References
 
 - [[Tool_Registry]] — Registry of deterministic tools
-- [[tools_wiki/QoT_Tool]] — QoT C++ simulator documentation
+- [[architecture/tools_wiki/QoT_Tool]] — QoT C++ simulator documentation
 - [[Concepts_and_Terminology]] — Glossary of terms
 - [[ProblemStatement_20260427_Felipe_Abadia]] — Thesis problem definition

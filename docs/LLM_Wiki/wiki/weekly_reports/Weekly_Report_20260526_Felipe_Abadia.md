@@ -19,7 +19,7 @@ May 19, 2026 - May 26, 2026
 ## 1. Planned Goals for This Week
 
 *Carried forward from [[Weekly_Report_20260519_Felipe_Abadia|previous report]]:*
-1. **Professor Consultation:** Present both proposals ([[experiments/Proposal_QoT_Integration]] and [[experiments/Proposal_Orchestrator_Integration]]) to the professor.
+1. **Professor Consultation:** Present both proposals ([[experiments/archive/Proposal_QoT_Integration]] and [[experiments/archive/Proposal_Orchestrator_Integration]]) to the professor.
 2. **QoT Implementation Execution:** Begin the translation of the GN model math from `Network.cpp` into `qot_tool.py`.
 3. **StateGraph Implementation:** Begin coding the LangGraph `StateGraph` based on the V2 architecture.
 

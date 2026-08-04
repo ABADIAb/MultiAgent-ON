@@ -47,5 +47,5 @@ uv run pytest tests/unit/test_intent_ingest.py -v
 
 ## 7. Cross-References
 - [[Architecture_v5]] — Phase 1 description
-- [[features/pddl_parser]] — Phase 2 consumes `enriched_intent`
-- [[features/pipeline_graph]] — Graph wiring
+- [[architecture/features/pddl_parser]] — Phase 2 consumes `enriched_intent`
+- [[architecture/features/pipeline_graph]] — Graph wiring

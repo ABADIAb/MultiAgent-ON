@@ -106,6 +106,6 @@ Given the August 25 deadline, the V5 MVP will utilize a **simplified Python symb
 - [[experiments/MVP_Roadmap]] — Sprint plan including RADG and baseline evaluation experiments.
 - [[literature/sota_gap_analysis]] — Gap analysis including PoliMi/CNSM 2025.
 - [[archive/Scope_Pivot_20260621]] — Original V2 to V3 pivot document.
-- [[archive/Architecture_v4]] — Archived V4 architecture.
+- [[architecture/archive/Architecture_v4]] — Archived V4 architecture.
 - [[archive/Architecture_v3]] — Archived V3 architecture.
 - [[archive/Architecture_v2]] — Archived V2 architecture.

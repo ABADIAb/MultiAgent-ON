@@ -55,7 +55,7 @@ The Orchestrator relies on a tri-partite memory system (Wiki, Graph, RAG) that p
 ### 5.3 Phase 2: Sub-Agent Delegation (Replaces `execution.py`)
 The Supervisor delegates tasks to ephemeral, specialized sub-agents. Alongside the initial schemas they receive, agents maintain dynamic access to the memory:
 - **Topology & Measurement Agent**: Queries the RESTConf NBI to extract physical testbed data (fiber lengths, OAs) and actively **updates the Knowledge Graph state**.
-- **Routing Agent**: Responsible for path selection. It directly wraps the newly ported Python Physics model (`qot_tool.py`, see [[experiments/Proposal_QoT_Integration]]) as a deterministic tool. This ensures mathematical [[QoT_Awareness|SNR]] validation in milliseconds *before* any payload is generated, minimizing Goal-Oriented Task (GoT) cost and latency by bypassing LLM semantic processing for physical calculations.
+- **Routing Agent**: Responsible for path selection. It directly wraps the newly ported Python Physics model (`qot_tool.py`, see [[experiments/archive/Proposal_QoT_Integration]]) as a deterministic tool. This ensures mathematical [[QoT_Awareness|SNR]] validation in milliseconds *before* any payload is generated, minimizing Goal-Oriented Task (GoT) cost and latency by bypassing LLM semantic processing for physical calculations.
 - **Lightpath & Provisioning Agent**: Generates the exact RESTConf JSON payloads using the imported baseline schemas to establish valid connections.
 
 ### 5.4 Phase 3: Conflict Resolution & The "Fast Loop" Handoff

@@ -16,7 +16,7 @@ During this session, we executed a comprehensive gap analysis between the theore
    - Updated all imports and fixed test files (172/172 tests passing).
 3. **Feature Documentation Hub**: 
    - Created a central `docs/LLM_Wiki/wiki/architecture/features/` directory.
-   - Wrote 7 comprehensive feature docs linking the pipeline components to Architecture V5: [[features/intent_ingest]], [[features/pddl_parser]], [[features/reverse_prompt]], [[features/symbolic_solver]], [[features/qot_tool]], [[features/testbed_client]], [[features/pipeline_graph]].
+   - Wrote 7 comprehensive feature docs linking the pipeline components to Architecture V5: [[architecture/features/intent_ingest]], [[architecture/features/pddl_parser]], [[architecture/features/reverse_prompt]], [[architecture/features/symbolic_solver]], [[architecture/features/qot_tool]], [[architecture/features/testbed_client]], [[architecture/features/pipeline_graph]].
 4. **Wiki Updates**: Updated [[Architecture_v5]] and `index.md` to map the new paths and centralize the feature documentation map.
 5. **Cleaned up old files**: Deleted `recommendations.md` from literature to avoid confusion.
 

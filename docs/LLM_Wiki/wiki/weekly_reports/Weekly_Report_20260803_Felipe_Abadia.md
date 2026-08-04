@@ -49,7 +49,7 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 4. **Feature Documentation Hub:**
    - Consolidated feature documentation under `docs/LLM_Wiki/wiki/architecture/features/`.
-   - Written 7 comprehensive feature docs mapping code to [[Architecture_v5]]: [[features/intent_ingest]], [[features/pddl_parser]], [[features/reverse_prompt]], [[features/symbolic_solver]], [[features/qot_tool]], [[features/testbed_client]], [[features/pipeline_graph]].
+   - Written 7 comprehensive feature docs mapping code to [[Architecture_v5]]: [[architecture/features/intent_ingest]], [[architecture/features/pddl_parser]], [[architecture/features/reverse_prompt]], [[architecture/features/symbolic_solver]], [[architecture/features/qot_tool]], [[architecture/features/testbed_client]], [[architecture/features/pipeline_graph]].
    - Updated [[Architecture_v5]] and `index.md` with the new Feature Documentation Map.
 
 5. **Wiki Maintenance:**

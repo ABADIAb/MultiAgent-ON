@@ -87,6 +87,6 @@ uv run pytest tests/unit/test_graph_v4.py tests/unit/test_state_v4.py -v
 
 ## 8. Cross-References
 - [[Architecture_v5]] — Full pipeline diagram and phase descriptions
-- [[features/reverse_prompt]] — Uses `interrupt()` which requires checkpointer
-- [[features/symbolic_solver]] — Wired directly into StateGraph from `src/core/`
+- [[architecture/features/reverse_prompt]] — Uses `interrupt()` which requires checkpointer
+- [[architecture/features/symbolic_solver]] — Wired directly into StateGraph from `src/core/`
 - [[experiments/MVP_Roadmap]] — Sprint 3 Exp 3.0: LangGraph assembly

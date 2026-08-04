@@ -63,5 +63,5 @@ uv run pytest tests/unit/test_qot_calculator.py tests/unit/test_qot_tool.py -v
 
 ## 8. Cross-References
 - [[Architecture_v5]] — Phase 5 description
-- [[features/symbolic_solver]] — Phase 4 that feeds candidate paths into this engine
-- [[features/pipeline_graph]] — LangGraph wiring context
+- [[architecture/features/symbolic_solver]] — Phase 4 that feeds candidate paths into this engine
+- [[architecture/features/pipeline_graph]] — LangGraph wiring context

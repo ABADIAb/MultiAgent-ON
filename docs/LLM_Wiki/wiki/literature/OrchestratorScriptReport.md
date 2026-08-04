@@ -48,7 +48,7 @@ The professor's codebase cannot be used as the *foundation* for our project beca
 2. **Local Inference**: It is hardcoded to use local GGUF models, whereas our architecture implies flexible LLM endpoints.
 
 ### How we WILL use it (The Pivot):
-While we won't use the Python scripts directly, **we must adopt their Pipeline Architecture and JSON Schemas into our LangGraph Nodes** (see [[experiments/Proposal_Orchestrator_Integration]] for the formal proposal).
+While we won't use the Python scripts directly, **we must adopt their Pipeline Architecture and JSON Schemas into our LangGraph Nodes** (see [[experiments/archive/Proposal_Orchestrator_Integration]] for the formal proposal).
 
 **Proposed LangGraph Mapping**:
 1. **Planning Node**: Replicates `planning.py`. A LangGraph node that takes the user intent and uses LangChain's `with_structured_output` to generate the task list.

@@ -63,6 +63,6 @@ uv run pytest tests/unit/test_pipeline_nodes.py -k "reverse_prompt" -v
 
 ## 7. Cross-References
 - [[Architecture_v5]] — Phase 3 description and V5 conditional HITL goal
-- [[features/pddl_parser]] — Produces PDDL consumed here; receives operator feedback on refine
-- [[features/symbolic_solver]] — Phase 4 executed on `approve`
-- [[features/pipeline_graph]] — `hitl_route` is registered as a conditional edge
+- [[architecture/features/pddl_parser]] — Produces PDDL consumed here; receives operator feedback on refine
+- [[architecture/features/symbolic_solver]] — Phase 4 executed on `approve`
+- [[architecture/features/pipeline_graph]] — `hitl_route` is registered as a conditional edge

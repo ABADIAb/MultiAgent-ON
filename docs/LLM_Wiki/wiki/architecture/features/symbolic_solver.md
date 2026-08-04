@@ -65,6 +65,6 @@ uv run pytest tests/unit/test_symbolic_solver.py tests/unit/test_mock_graphrag.p
 
 ## 6. Cross-References
 - [[Architecture_v5]] — Phase 4 description
-- [[features/pddl_parser]] — Produces `pddl_constraints` consumed here
-- [[features/qot_tool]] — Phase 5 will validate the `candidate_paths` produced here
-- [[features/testbed_client]] — Produces `topology_snapshot` consumed here
+- [[architecture/features/pddl_parser]] — Produces `pddl_constraints` consumed here
+- [[architecture/features/qot_tool]] — Phase 5 will validate the `candidate_paths` produced here
+- [[architecture/features/testbed_client]] — Produces `topology_snapshot` consumed here

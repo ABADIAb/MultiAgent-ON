@@ -4,7 +4,7 @@ date: 2026-07-17
 tags: [architecture, langgraph, neurosymbolic, pddl, reverse-prompting, qot, risk-adaptive, radg]
 status: active
 supersedes:
-  - "[[archive/Architecture_v4]]"
+  - "[[architecture/archive/Architecture_v4]]"
 ---
 
 # Architecture V5: Risk-Adaptive Neurosymbolic Intent Planning
@@ -144,15 +144,15 @@ Each pipeline phase has a dedicated feature doc in `docs/LLM_Wiki/wiki/architect
 
 | Phase | File(s) | Feature Doc |
 |-------|---------|-------------|
-| **Phase 1**: Intent Ingestion | `src/nodes/intent_ingest.py` | [[features/intent_ingest]] |
-| **Phase 2**: PDDL Parsing | `src/nodes/pddl_parser.py` + `src/core/pddl_validator.py` | [[features/pddl_parser]] |
-| **Phase 3**: Semantic Gate & HITL | `src/nodes/reverse_prompt.py` | [[features/reverse_prompt]] |
-| **Phase 4**: Symbolic Solver | `src/core/symbolic_solver.py` + `src/core/mock_graphrag.py` | [[features/symbolic_solver]] |
-| **Phase 5**: QoT Validation | `src/core/qot_calculator.py` + `src/tools/qot_tool.py` | [[features/qot_tool]] |
+| **Phase 1**: Intent Ingestion | `src/nodes/intent_ingest.py` | [[architecture/features/intent_ingest]] |
+| **Phase 2**: PDDL Parsing | `src/nodes/pddl_parser.py` + `src/core/pddl_validator.py` | [[architecture/features/pddl_parser]] |
+| **Phase 3**: Semantic Gate & HITL | `src/nodes/reverse_prompt.py` | [[architecture/features/reverse_prompt]] |
+| **Phase 4**: Symbolic Solver | `src/core/symbolic_solver.py` + `src/core/mock_graphrag.py` | [[architecture/features/symbolic_solver]] |
+| **Phase 5**: QoT Validation | `src/core/qot_calculator.py` + `src/tools/qot_tool.py` | [[architecture/features/qot_tool]] |
 | **Phase 6**: RADG (Physical Gate) | `src/core/radg.py` *(Sprint 3)* | *(planned)* |
 | **Phase 7**: Synthesis | `src/nodes/plan_synthesizer.py` | *(planned Sprint 3)* |
-| **Testbed NBI** | `src/services/testbed_client.py` | [[features/testbed_client]] |
-| **Pipeline Wiring** | `src/core/graph.py` + `src/core/state.py` | [[features/pipeline_graph]] |
+| **Testbed NBI** | `src/services/testbed_client.py` | [[architecture/features/testbed_client]] |
+| **Pipeline Wiring** | `src/core/graph.py` + `src/core/state.py` | [[architecture/features/pipeline_graph]] |
 
 ## 9. Cross-References
 

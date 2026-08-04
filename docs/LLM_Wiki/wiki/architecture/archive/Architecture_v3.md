@@ -373,7 +373,7 @@ End-to-end integration: NL intent → parse → topology fetch → QoT path eval
 - [[Scope_Pivot_20260621]] — Rationale for the planning-focused scope
 - [[ProblemStatement_v3]] — Thesis problem definition
 - [[Tool_Registry]] — Registry of deterministic tools
-- [[tools_wiki/QoT_Tool]] — QoT C++ simulator documentation
+- [[architecture/tools_wiki/QoT_Tool]] — QoT C++ simulator documentation
 - [[Concepts_and_Terminology]] — Glossary of terms
 - [[lit_comparison]] — SOTA comparison
 - [[sota_gap_analysis]] — Research gap positioning

@@ -63,6 +63,6 @@ uv run pytest tests/unit/test_pddl_validator.py tests/unit/test_pipeline_nodes.p
 
 ## 7. Cross-References
 - [[Architecture_v5]] — Phase 2 description
-- [[features/intent_ingest]] — Produces `enriched_intent` consumed here
-- [[features/reverse_prompt]] — Phase 3: validates semantic correctness after CFG validation
-- [[features/symbolic_solver]] — Consumes `pddl_constraints` for path search
+- [[architecture/features/intent_ingest]] — Produces `enriched_intent` consumed here
+- [[architecture/features/reverse_prompt]] — Phase 3: validates semantic correctness after CFG validation
+- [[architecture/features/symbolic_solver]] — Consumes `pddl_constraints` for path search

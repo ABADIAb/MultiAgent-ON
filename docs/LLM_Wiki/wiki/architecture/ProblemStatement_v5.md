@@ -3,7 +3,7 @@ title: "Problem Statement V5: Risk-Adaptive Neurosymbolic Intent Planning for Op
 date: 2026-07-17
 tags: [thesis, definition, objective, planning-loop, hitl, neurosymbolic, pddl, risk-adaptive, qot, evaluation]
 status: active
-supersedes: "[[archive/ProblemStatement_v4]]"
+supersedes: "[[architecture/archive/ProblemStatement_v4]]"
 ---
 
 # Problem Statement V5: Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
