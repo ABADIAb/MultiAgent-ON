@@ -104,9 +104,9 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 
 | Category | Example Intent | Expected RADG Decision |
 |----------|---------------|----------------------|
-| **Safe + Clear** | "Route from Milan to Rome, min 25 dB GSNR" (physically feasible) | Auto-Approve |
+| **Safe + Clear** | "Route from Milano-A to Milano-C, min 25 dB GSNR" (physically feasible) | Auto-Approve |
 | **Ambiguous** | "Set up a fast connection somewhere in the north" (missing constraints) | Clarify (Early HITL) |
-| **Infeasible** | "Route from Milan to Rome, min 40 dB GSNR, single span" (impossible physics) | Suggest Replan (Late HITL) |
+| **Infeasible** | "Route from Milano-A to Milano-C, min 40 dB GSNR, single span" (impossible physics) | Suggest Replan (Late HITL) |
 
 - **Deliverable:** `tests/evaluation/test_corpus.json` — structured intent corpus with expected outcomes.
 

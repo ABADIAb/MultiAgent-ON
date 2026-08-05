@@ -20,24 +20,24 @@ class TestMockTestbedClient:
         result = client.get_topology()
         assert isinstance(result, TopologySnapshot)
 
-    def test_topology_has_four_nodes(self) -> None:
+    def test_topology_has_three_nodes(self) -> None:
         client = MockTestbedClient()
         topology = client.get_topology()
-        assert len(topology.nodes) == 4
+        assert len(topology.nodes) == 3
 
-    def test_topology_has_three_links(self) -> None:
+    def test_topology_has_two_links(self) -> None:
         client = MockTestbedClient()
         topology = client.get_topology()
-        assert len(topology.links) == 3
+        assert len(topology.links) == 2
 
     def test_node_names_match_ecoc_testbed(self) -> None:
         client = MockTestbedClient()
         topology = client.get_topology()
         names = [n.name for n in topology.nodes]
-        assert names == ["Milano-A", "Milano-B", "Milano-C", "Milano-D"]
+        assert names == ["Milano-A", "Milano-B", "Milano-C"]
 
     def test_links_form_linear_chain(self) -> None:
-        """Verify links connect nodes sequentially: A-B, B-C, C-D."""
+        """Verify links connect nodes sequentially: A-B, B-C."""
         client = MockTestbedClient()
         topology = client.get_topology()
         connections = [
@@ -45,7 +45,6 @@ class TestMockTestbedClient:
         ]
         assert ("node_1", "node_2") in connections
         assert ("node_2", "node_3") in connections
-        assert ("node_3", "node_4") in connections
 
     def test_fiber_lengths_are_positive(self) -> None:
         client = MockTestbedClient()

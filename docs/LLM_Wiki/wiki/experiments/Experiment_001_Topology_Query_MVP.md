@@ -64,10 +64,10 @@ graph LR
 
 ## 6. Mock Topology Data
 
-Based on the ECOC 2024 paper's testbed, the mock returns a 4-node linear network:
+Based on the ECOC 2024 paper's testbed, the mock returns a 3-node linear network:
 
 ```
-Node1 (Milano-A) ←→ Node2 (Milano-B) ←→ Node3 (Milano-C) ←→ Node4 (Milano-D)
+Node1 (Milano-A) ←→ Node2 (Milano-B) ←→ Node3 (Milano-C)
 ```
 
 Each link includes:

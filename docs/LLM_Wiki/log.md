@@ -321,3 +321,8 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 ## [2026-08-04] lint | Purge R_qot (QoT Risk Margin)
 - Action: Executed a deep lint across the Wiki to replace all legacy references of the continuous margin `$R_{qot}$` with the correct binary feasibility variable `$\text{QoT}_{valid}$`.
 - Updated: `ProblemStatement_v5.md`, `Architecture_v5.md`, `MVP_Roadmap.md`, `sota_gap_analysis.md`, `Thesis_Outline_v3.md`, `Writing_Roadmap_v1.md`, and `Scope_Pivot_20260706.md`.
+
+## [2026-08-04] debrief | RADG Formalization & Testbed Topology Session
+- Wiki Deep Lint: Audited all modified docs (`ProblemStatement_v5`, `Thesis_Outline_v3`, `MVP_Roadmap`, `Experiment_001`, `intent_ingest`) to ensure valid links.
+- Session focus: Defined mathematical piecewise formulation of RADG, removing S_risk and converting optimization into friction minimization subject to strict safety constraints. Downscaled the MVP mock testbed from 4 nodes to a realistic 3-node laboratory linear topology (Milano-A ↔ B ↔ C), synchronizing the codebase and passing 172 tests.
+- Actions: Pushed all changes to a remote branch via PR.

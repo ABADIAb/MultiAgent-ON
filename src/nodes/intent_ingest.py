@@ -26,7 +26,7 @@ Your job is to parse the operator's natural language request and extract:
 3. The target/sink node (if mentioned).
 
 The testbed has 4 nodes in a linear topology:
-Milano-A ↔ Milano-B ↔ Milano-C ↔ Milano-D
+Milano-A ↔ Milano-B ↔ Milano-C
 
 Be precise. If the operator mentions specific nodes, extract them exactly.
 If no specific nodes are mentioned, leave source_node and target_node as null.\
@@ -45,7 +45,7 @@ class IntentSummary(BaseModel):
     )
     target_node: str | None = Field(
         default=None,
-        description="Target/sink node name if mentioned (e.g., 'Milano-D').",
+        description="Target/sink node name if mentioned (e.g., 'Milano-C').",
     )
 
 
