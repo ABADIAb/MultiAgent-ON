@@ -1,9 +1,9 @@
 schema: spec-driven
 
 context: |
-  Project: MultiAgentON — Agentic AI for joint routing and compute scheduling in optical networks
+  Project: MultiAgentON — Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
   Stack: Python 3.12, uv, LangGraph, LangSmith
-  Architecture: Screaming Architecture (src/agents, src/core, src/services, src/tools)
+  Architecture: Screaming Architecture (src/nodes, src/core, src/services, src/tools)
   Testing: pytest (Strict TDD), pytest-mock, pytest-cov
   Style: Modular, production-ready, Master's thesis level
 
