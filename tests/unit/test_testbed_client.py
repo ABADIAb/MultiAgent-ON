@@ -82,3 +82,53 @@ class TestMockTestbedClient:
         restored = TopologySnapshot.model_validate(data)
         assert restored.nodes == topology.nodes
         assert restored.links == topology.links
+
+
+class TestMockTopologyAmplifierPhysics:
+    """Verify that MockTestbedClient supplies realistic EDFA physics on each link."""
+
+    def test_link_ab_has_two_amplifiers(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        link_ab = next(lk for lk in topology.links if lk.link_id == "link_ab")
+        assert len(link_ab.amplifiers) == 2
+
+    def test_link_bc_has_three_amplifiers(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        link_bc = next(lk for lk in topology.links if lk.link_id == "link_bc")
+        assert len(link_bc.amplifiers) == 3
+
+    def test_link_ab_first_amp_is_booster(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        link_ab = next(lk for lk in topology.links if lk.link_id == "link_ab")
+        assert link_ab.amplifiers[0]["amp_type"] == "booster"
+
+    def test_link_ab_last_amp_is_preamp(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        link_ab = next(lk for lk in topology.links if lk.link_id == "link_ab")
+        assert link_ab.amplifiers[-1]["amp_type"] == "preamp"
+
+    def test_link_bc_has_ila_at_midspan(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        link_bc = next(lk for lk in topology.links if lk.link_id == "link_bc")
+        amp_types = [a["amp_type"] for a in link_bc.amplifiers]
+        assert "ila" in amp_types
+
+    def test_all_links_have_positive_port_loss(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        for link in topology.links:
+            assert link.port_loss_dB >= 0.0
+
+    def test_amplifier_gains_are_positive(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        for link in topology.links:
+            for amp in link.amplifiers:
+                assert amp["gain_dB"] > 0
+
+    def test_preamp_position_equals_link_length(self) -> None:
+        """Preamp should sit at the end of the span (at link length km)."""
+        topology = MockTestbedClient().get_topology()
+        for link in topology.links:
+            preamps = [a for a in link.amplifiers if a["amp_type"] == "preamp"]
+            for preamp in preamps:
+                assert preamp["position_km"] == link.length_km
+

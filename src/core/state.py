@@ -1,14 +1,13 @@
-"""Core state schema for the Neurosymbolic Intent Pipeline.
+"""Core state schema for the V5 Risk-Adaptive Neurosymbolic Intent Pipeline.
 
 Defines the AgentState TypedDict used as the shared state across all nodes
-in the V4 StateGraph, plus Pydantic models for structured domain data.
+in the V5 StateGraph, plus Pydantic models for structured domain data.
 
-V4 changes from V3:
-  - Removed TaskType, TaskItem, TaskPlan (hub-and-spoke routing)
-  - Removed current_agent field
-  - Added neurosymbolic pipeline fields: enriched_intent, pddl_constraints,
-    pddl_valid, hitl_reconstruction, hitl_approved, candidate_paths,
-    qot_results, planning_report
+V5 changes from V4:
+  - state.FiberLink enriched with amplifiers (list[dict]) and port_loss_dB
+    so physics data flows from MockTestbedClient through to the QoT calculator.
+  - Added V5 Semantic Gate fields: usem_score, usem_passed.
+  - Added V5 RADG field: radg_decision.
 """
 
 from __future__ import annotations
@@ -36,7 +35,13 @@ class NetworkNode(BaseModel):
 
 
 class FiberLink(BaseModel):
-    """A fiber link connecting two nodes."""
+    """A fiber link connecting two nodes in the topology.
+
+    The ``amplifiers`` field carries the full EDFA configuration for each
+    span so the QoT calculator can run without a separate bridge lookup.
+    Each amplifier dict matches the ``models.Amplifier`` schema:
+      {position_km, gain_dB, amp_type, nf_dB (optional), att_dB (optional)}.
+    """
 
     link_id: str
     source_node: str
@@ -44,6 +49,8 @@ class FiberLink(BaseModel):
     length_km: float
     num_amplifiers: int = 0
     active_channels: int = 0
+    port_loss_dB: float = 0.0
+    amplifiers: list[dict] = Field(default_factory=list)
 
 
 class TopologySnapshot(BaseModel):
@@ -76,6 +83,9 @@ class AgentState(TypedDict):
         qot_results: QoT assessment results per candidate path.
         planning_report: Final synthesized planning report.
         error_context: Error details for debugging.
+        usem_score: Semantic Uncertainty score U_sem ∈ [0, 1] from the Semantic Gate.
+        usem_passed: Whether U_sem ≤ τ_sem (gate passed → proceed to solver).
+        radg_decision: RADG physical gate outcome — "approve" | "replan".
     """
 
     messages: Annotated[list, operator.add]
@@ -90,4 +100,7 @@ class AgentState(TypedDict):
     qot_results: list | None
     planning_report: str | None
     error_context: str | None
+    usem_score: float | None
+    usem_passed: bool | None
+    radg_decision: str | None
 

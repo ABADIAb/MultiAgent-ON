@@ -126,28 +126,43 @@ def _path_uses_avoided_links(
 def _build_path_dict(graph: nx.Graph, path_nodes: list[str]) -> dict:
     """Construct a structured path dict from an ordered list of node IDs.
 
+    Includes all physics data needed for QoT validation: link identifiers,
+    fiber geometry, and EDFA amplifier configurations.
+
     Args:
         graph: The adjacency graph.
         path_nodes: Ordered list of node IDs.
 
     Returns:
         Dict with: nodes (list of names), links (list of link_ids),
-        total_length_km (float), hops (int).
+        total_length_km (float), hops (int), link_physics (list of dicts).
+        Each entry in link_physics has: link_id, length_km, port_loss_dB,
+        amplifiers (list of dicts matching models.Amplifier schema).
     """
     node_names = [graph.nodes[n].get("name", n) for n in path_nodes]
     link_ids = []
     total_length = 0.0
+    link_physics: list[dict] = []
 
     for u, v in zip(path_nodes[:-1], path_nodes[1:]):
         edge_data = graph.get_edge_data(u, v) or {}
-        link_ids.append(edge_data.get("link_id", f"{u}-{v}"))
-        total_length += edge_data.get("length_km", 0.0)
+        link_id = edge_data.get("link_id", f"{u}-{v}")
+        length = edge_data.get("length_km", 0.0)
+        link_ids.append(link_id)
+        total_length += length
+        link_physics.append({
+            "link_id": link_id,
+            "length_km": length,
+            "port_loss_dB": edge_data.get("port_loss_dB", 0.0),
+            "amplifiers": edge_data.get("amplifiers", []),
+        })
 
     return {
         "nodes": node_names,
         "links": link_ids,
         "total_length_km": total_length,
         "hops": len(path_nodes) - 1,
+        "link_physics": link_physics,
     }
 
 

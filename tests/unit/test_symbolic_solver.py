@@ -36,6 +36,9 @@ def _make_state(
         planning_report=None,
         error_context=None,
         pddl_parsed_constraints=None,
+        usem_score=None,
+        usem_passed=None,
+        radg_decision=None,
     )
 
 

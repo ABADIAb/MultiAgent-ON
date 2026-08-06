@@ -38,6 +38,9 @@ class TestAgentStateV5Fields:
             "qot_results": None,
             "planning_report": None,
             "error_context": None,
+            "usem_score": None,
+            "usem_passed": None,
+            "radg_decision": None,
         }
         assert state["enriched_intent"] == "Route from A to B with min 10 dB SNR"
 
@@ -56,6 +59,9 @@ class TestAgentStateV5Fields:
             "qot_results": None,
             "planning_report": None,
             "error_context": None,
+            "usem_score": None,
+            "usem_passed": None,
+            "radg_decision": None,
         }
         assert state["pddl_constraints"] is not None
         assert state["pddl_valid"] is True
@@ -76,6 +82,9 @@ class TestAgentStateV5Fields:
             "qot_results": None,
             "planning_report": None,
             "error_context": None,
+            "usem_score": None,
+            "usem_passed": None,
+            "radg_decision": None,
         }
         assert state["hitl_reconstruction"] is not None
         assert state["hitl_approved"] is True
@@ -95,6 +104,9 @@ class TestAgentStateV5Fields:
             "qot_results": None,
             "planning_report": None,
             "error_context": None,
+            "usem_score": None,
+            "usem_passed": None,
+            "radg_decision": None,
         }
         assert state["candidate_paths"] is not None
         assert len(state["candidate_paths"]) == 1
@@ -114,6 +126,9 @@ class TestAgentStateV5Fields:
             "qot_results": [{"feasible": True, "snr_dB": 15.2}],
             "planning_report": None,
             "error_context": None,
+            "usem_score": None,
+            "usem_passed": None,
+            "radg_decision": None,
         }
         assert state["qot_results"] is not None
         assert state["qot_results"][0]["feasible"] is True
@@ -133,9 +148,44 @@ class TestAgentStateV5Fields:
             "qot_results": None,
             "planning_report": "Route Milano-A → Milano-D is feasible.",
             "error_context": None,
+            "usem_score": None,
+            "usem_passed": None,
+            "radg_decision": None,
         }
         assert state["planning_report"] is not None
         assert "feasible" in state["planning_report"]
+
+    def test_state_has_v5_semantic_gate_fields(self):
+        """State must have usem_score and usem_passed for V5 Semantic Gate."""
+        hints = get_type_hints(AgentState)
+        assert "usem_score" in hints
+        assert "usem_passed" in hints
+
+    def test_state_has_v5_radg_field(self):
+        """State must have radg_decision for V5 RADG gate."""
+        hints = get_type_hints(AgentState)
+        assert "radg_decision" in hints
+
+    def test_fiber_link_has_amplifiers_field(self):
+        """FiberLink must carry amplifiers list for QoT physics propagation."""
+        link = FiberLink(
+            link_id="l1",
+            source_node="n1",
+            target_node="n2",
+            length_km=20.0,
+        )
+        assert hasattr(link, "amplifiers")
+        assert isinstance(link.amplifiers, list)
+
+    def test_fiber_link_has_port_loss_field(self):
+        """FiberLink must carry port_loss_dB for QoT physics propagation."""
+        link = FiberLink(
+            link_id="l1",
+            source_node="n1",
+            target_node="n2",
+            length_km=20.0,
+        )
+        assert link.port_loss_dB == 0.0
 
     def test_state_no_task_plan_field(self):
         """V5 state must NOT have the V3 task_plan field."""
@@ -151,7 +201,6 @@ class TestAgentStateV5Fields:
         """messages field must still use operator.add reducer."""
         hints = get_type_hints(AgentState, include_extras=True)
         msg_hint = hints["messages"]
-        # Check it's Annotated with operator.add
         assert hasattr(msg_hint, "__metadata__")
         assert operator.add in msg_hint.__metadata__
 
@@ -162,23 +211,41 @@ class TestAgentStateV5Fields:
 
 
 class TestTopologyModelsUnchanged:
-    """Verify V3 topology models are preserved."""
+    """Verify V3 topology models are preserved and enriched for V5."""
 
     def test_network_node_creation(self):
         node = NetworkNode(node_id="n1", name="Milano-A", interfaces=[101, 102])
         assert node.name == "Milano-A"
         assert len(node.interfaces) == 2
 
-    def test_fiber_link_creation(self):
+    def test_fiber_link_creation_minimal(self):
+        """FiberLink can be created with minimal required fields."""
         link = FiberLink(
             link_id="l1",
             source_node="n1",
             target_node="n2",
             length_km=20.0,
-            num_amplifiers=1,
-            active_channels=4,
         )
         assert link.length_km == 20.0
+        assert link.port_loss_dB == 0.0
+        assert link.amplifiers == []
+
+    def test_fiber_link_creation_full(self):
+        """FiberLink accepts full V5 physics data."""
+        link = FiberLink(
+            link_id="l1",
+            source_node="n1",
+            target_node="n2",
+            length_km=20.0,
+            num_amplifiers=2,
+            active_channels=4,
+            port_loss_dB=0.5,
+            amplifiers=[
+                {"position_km": 0.0, "gain_dB": 13.0, "amp_type": "booster", "att_dB": 0.0}
+            ],
+        )
+        assert link.port_loss_dB == 0.5
+        assert len(link.amplifiers) == 1
 
     def test_topology_snapshot_creation(self):
         snap = TopologySnapshot(

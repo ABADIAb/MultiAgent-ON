@@ -1,20 +1,25 @@
 """Tests for the V5 Risk-Adaptive Neurosymbolic Intent Pipeline graph.
 
 Validates graph structure, node registration, edge wiring,
-and compilation with checkpointer.
+and V5 conditional routing functions (semantic_gate_route, radg_route).
 """
 
 from __future__ import annotations
 
+from typing import cast
+
 import pytest
+
+from src.core.state import AgentState
 
 
 class TestBuildGraph:
     """Test the V5 graph builder."""
 
     def test_build_graph_returns_state_graph(self):
-        from src.core.graph import build_graph
         from langgraph.graph import StateGraph
+
+        from src.core.graph import build_graph
 
         builder = build_graph()
         assert isinstance(builder, StateGraph)
@@ -28,11 +33,27 @@ class TestBuildGraph:
             "intent_ingest",
             "pddl_parser",
             "reverse_prompt",
+            "semantic_gate",
             "symbolic_solver",
             "qot_validation",
+            "radg",
             "plan_synthesizer",
         }
         assert expected.issubset(node_names), f"Missing nodes: {expected - node_names}"
+
+    def test_graph_has_semantic_gate_node(self):
+        """semantic_gate must be in the V5 graph."""
+        from src.core.graph import build_graph
+
+        builder = build_graph()
+        assert "semantic_gate" in builder.nodes
+
+    def test_graph_has_radg_node(self):
+        """radg must be in the V5 graph."""
+        from src.core.graph import build_graph
+
+        builder = build_graph()
+        assert "radg" in builder.nodes
 
     def test_graph_does_not_have_v3_nodes(self):
         from src.core.graph import build_graph
@@ -54,6 +75,7 @@ class TestCompileGraph:
 
     def test_compile_graph_with_checkpointer(self):
         from langgraph.checkpoint.memory import InMemorySaver
+
         from src.core.graph import compile_graph
 
         checkpointer = InMemorySaver()
@@ -61,37 +83,47 @@ class TestCompileGraph:
         assert graph is not None
 
 
-class TestHitlRoute:
-    """Test the HITL conditional routing function."""
+class TestSemanticGateRoute:
+    """Test the V5 Semantic Gate conditional routing function."""
 
-    def test_approved_routes_to_symbolic_solver(self):
-        from typing import cast
-        from src.core.state import AgentState
-        from src.nodes.reverse_prompt import hitl_route
+    def test_usem_passed_routes_to_symbolic_solver(self):
+        from src.nodes.semantic_gate_node import semantic_gate_route
 
-        state = cast(AgentState, {"hitl_approved": True, "error_context": None})
-        assert hitl_route(state) == "symbolic_solver"
+        state = cast(AgentState, {"usem_passed": True, "usem_score": 0.1})
+        assert semantic_gate_route(state) == "symbolic_solver"
 
-    def test_refine_routes_to_pddl_parser(self):
-        from typing import cast
-        from src.core.state import AgentState
-        from src.nodes.reverse_prompt import hitl_route
+    def test_usem_failed_routes_to_reverse_prompt(self):
+        from src.nodes.semantic_gate_node import semantic_gate_route
 
-        state = cast(AgentState, {"hitl_approved": False, "error_context": "Please add latency constraint"})
-        assert hitl_route(state) == "pddl_parser"
+        state = cast(AgentState, {"usem_passed": False, "usem_score": 0.8})
+        assert semantic_gate_route(state) == "reverse_prompt"
 
-    def test_reject_routes_to_end(self):
-        from typing import cast
-        from src.core.state import AgentState
-        from src.nodes.reverse_prompt import hitl_route
+    def test_usem_none_routes_to_reverse_prompt(self):
+        """None (not yet evaluated) → clarify loop."""
+        from src.nodes.semantic_gate_node import semantic_gate_route
 
-        state = cast(AgentState, {"hitl_approved": False, "error_context": None})
-        assert hitl_route(state) == "__end__"
+        state = cast(AgentState, {"usem_passed": None, "usem_score": None})
+        assert semantic_gate_route(state) == "reverse_prompt"
 
-    def test_none_approved_routes_to_end(self):
-        from typing import cast
-        from src.core.state import AgentState
-        from src.nodes.reverse_prompt import hitl_route
 
-        state = cast(AgentState, {"hitl_approved": None, "error_context": None})
-        assert hitl_route(state) == "__end__"
+class TestRadgRoute:
+    """Test the V5 RADG conditional routing function."""
+
+    def test_approve_routes_to_plan_synthesizer(self):
+        from src.nodes.radg_node import radg_route
+
+        state = cast(AgentState, {"radg_decision": "approve"})
+        assert radg_route(state) == "plan_synthesizer"
+
+    def test_replan_routes_to_pddl_parser(self):
+        from src.nodes.radg_node import radg_route
+
+        state = cast(AgentState, {"radg_decision": "replan"})
+        assert radg_route(state) == "pddl_parser"
+
+    def test_none_decision_routes_to_pddl_parser(self):
+        """None decision (edge case) defaults to replan."""
+        from src.nodes.radg_node import radg_route
+
+        state = cast(AgentState, {"radg_decision": None})
+        assert radg_route(state) == "pddl_parser"

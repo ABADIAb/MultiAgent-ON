@@ -53,8 +53,8 @@ On error:
 { "error": "Unsupported bitrate: 400G..." }
 ```
 
-## 6. Pipeline Node Status (Sprint Status)
-`src/nodes/qot_validation.py` is currently a **placeholder** that marks all paths as feasible with dummy SNR=15.0 dB. Sprint 3 (Exp 3.0) will wire it to call `assess_qot()` directly with real path data from the `candidate_paths` state field.
+## 6. Pipeline Node Status
+`src/nodes/qot_validation.py` calls `assess_qot()` directly with real path data from the `candidate_paths` state field. It converts the output of the symbolic solver into `models.FiberLink` objects using `src/core/qot_bridge.py`. Paths without physical configuration are evaluated as infeasible.
 
 ## 7. How to Test
 ```bash

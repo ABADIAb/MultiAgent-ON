@@ -1,15 +1,20 @@
-"""Reverse Prompting HITL node for the Neurosymbolic Intent Pipeline.
+"""Reverse Prompting HITL node for the V5 Neurosymbolic Intent Pipeline.
 
-Exp 2.2: Implements the formal Human-in-the-Loop convergence mechanism.
+Exp 2.2 / 3.2: Implements the formal Human-in-the-Loop convergence mechanism
+for PDDL validation via natural language reconstruction.
 
-1. Takes the PDDL constraints from the parser.
-2. Uses an inverse LLM call to reconstruct them as plain English.
-3. Presents the reconstruction to the operator via interrupt().
-4. The operator can approve, refine (with feedback), or reject.
+V5 Changes from V4:
+  - The node no longer owns the approve/refine/reject routing decision.
+  - The Semantic Gate (semantic_gate_node) now evaluates U_sem and decides
+    whether to loop back for clarification or proceed to the Symbolic Solver.
+  - This node still performs the LLM reconstruction and the interrupt(), but
+    the routing decision belongs to the Semantic Gate conditional edge.
+  - A simplified response schema: approve (continue) or refine (provide feedback).
 
-This prevents semantic drift by forcing the operator to approve
-a precise natural language reconstruction of what the system parsed,
-not the raw PDDL.
+Architecture V5 flow:
+  pddl_parser → reverse_prompt → semantic_gate
+    → (U_sem <= tau) → symbolic_solver
+    → (U_sem >  tau) → reverse_prompt  (clarification loop)
 """
 
 from __future__ import annotations
@@ -41,9 +46,16 @@ Rules:
 def reverse_prompt_node(state: AgentState) -> dict:
     """HITL Reverse Prompting node with LLM reconstruction.
 
+    Performs two actions:
     1. Calls the LLM to reconstruct PDDL → natural language.
     2. Presents the reconstruction to the operator via interrupt().
-    3. Processes approve/refine/reject response.
+
+    After the interrupt, control returns to the graph. The Semantic Gate
+    (next node) evaluates U_sem and decides whether to loop back here
+    for further clarification or proceed to the Symbolic Solver.
+
+    Args:
+        state: AgentState with pddl_constraints.
 
     Returns:
         Partial state update with hitl_approved, hitl_reconstruction,
@@ -60,14 +72,19 @@ def reverse_prompt_node(state: AgentState) -> dict:
     reconstruction_response = llm.invoke(messages)
     reconstruction = reconstruction_response.content
 
-    # Present reconstruction to operator and pause
+    # Present reconstruction to operator and pause for review
+    # V5: simplified schema — the gate decides the routing, not this node
     response = interrupt({
         "reconstruction": reconstruction,
-        "options": ["approve", "refine", "reject"],
-        "message": "Please review the parsed constraints and choose an action.",
+        "options": ["approve", "refine"],
+        "message": (
+            "Please review my understanding of your request. "
+            "If accurate, approve to proceed. "
+            "If not, choose 'refine' and provide feedback."
+        ),
     })
 
-    action = response.get("action", "reject") if isinstance(response, dict) else "reject"
+    action = response.get("action", "approve") if isinstance(response, dict) else "approve"
     approved = action == "approve"
     feedback = response.get("feedback", "") if isinstance(response, dict) else ""
 
@@ -76,29 +93,9 @@ def reverse_prompt_node(state: AgentState) -> dict:
         "hitl_reconstruction": reconstruction,
         "messages": [
             AIMessage(
-                content=f"HITL decision: {action}" + (f" — {feedback}" if feedback else ""),
+                content=f"HITL: {action}" + (f" — {feedback}" if feedback else ""),
                 name="reverse_prompt",
             )
         ],
         "error_context": feedback if action == "refine" else None,
     }
-
-
-def hitl_route(state: AgentState) -> str:
-    """Conditional edge: route based on HITL approval status.
-
-    Returns:
-        - "symbolic_solver" if approved
-        - "pddl_parser" if refinement requested
-        - "__end__" if rejected or no decision
-    """
-    approved = state.get("hitl_approved")
-
-    if approved is True:
-        return "symbolic_solver"
-
-    # Check if refinement was requested (error_context has feedback)
-    if approved is False and state.get("error_context"):
-        return "pddl_parser"
-
-    return "__end__"

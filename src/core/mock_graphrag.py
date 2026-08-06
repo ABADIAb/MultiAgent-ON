@@ -20,7 +20,8 @@ def build_adjacency_graph(topology: TopologySnapshot) -> nx.Graph:
 
     Each graph node stores the NE name as an attribute.
     Each graph edge stores all fiber link attributes (length_km,
-    num_amplifiers, active_channels, link_id) for downstream use.
+    num_amplifiers, active_channels, link_id, port_loss_dB, amplifiers)
+    for downstream QoT computation.
 
     Args:
         topology: The network topology snapshot from the testbed client.
@@ -43,6 +44,8 @@ def build_adjacency_graph(topology: TopologySnapshot) -> nx.Graph:
             length_km=link.length_km,
             num_amplifiers=link.num_amplifiers,
             active_channels=link.active_channels,
+            port_loss_dB=link.port_loss_dB,
+            amplifiers=link.amplifiers,
         )
 
     return graph
