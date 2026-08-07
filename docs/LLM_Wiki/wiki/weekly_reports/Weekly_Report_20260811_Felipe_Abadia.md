@@ -42,8 +42,11 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 5. **Topology & Mocking Strategy:**
    - Downscaled the topology to a mathematically strict 3-node linear topology (`Milano-A ↔ Milano-B ↔ Milano-C`) to align with realistic physical lab capabilities.
    - Overcame the NBI parameter limitations (unexposed L0 values) by artificially enriching the `MockTestbedClient` with standard ECOC physical parameters (EDFAs, port losses), guaranteeing determinism for the baseline evaluation phase.
-6. **Codebase Stability:** Test suite grew from 172 to 231 tests, all passing with 100% success.
-7. **Documentation Hub Expansion:** Created and updated feature documentation across the wiki for all new components (Semantic Gate, RADG, Plan Synthesizer, etc.).
+6. **Optical RAG & Dynamic Topology:**
+   - Integrated Mock GraphRAG into Phase 1 (`intent_ingest`) to extract a $k=2$ hop subgraph around the target nodes.
+   - Eliminated the hardcoded testbed topology from the Phase 2 (`pddl_parser`) prompt. The parser now dynamically reads the serialized `topology_context` subgraph, ensuring scale-out readiness.
+7. **Codebase Stability:** Test suite grew from 172 to 235 tests, all passing with 100% success.
+8. **Documentation Hub Expansion:** Created and updated feature documentation across the wiki for all new components (Semantic Gate, RADG, Plan Synthesizer, etc.).
 
 ## 3. Issue List This Week
 
@@ -83,7 +86,7 @@ Yes, regarding the final MVP deadline execution:
 
 ## 6. One-Sentence Summary
 
-I successfully completed Sprint 3 by formalizing the Risk-Adaptive Decision Gate, wiring the Architecture V5 conditional loopbacks, and integrating real GN-model QoT validation against a downscaled 3-node mock topology.
+I successfully completed Sprint 3 by formalizing the Risk-Adaptive Decision Gate, wiring the Architecture V5 conditional loopbacks, integrating real GN-model QoT validation against a downscaled 3-node mock topology, and activating Optical RAG for dynamic topology injection.
 
 ---
 

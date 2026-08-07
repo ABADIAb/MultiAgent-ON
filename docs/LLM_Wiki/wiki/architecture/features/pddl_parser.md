@@ -1,6 +1,6 @@
 ---
 title: "Feature: PDDL Parser & CFG Validator"
-date: 2026-07-31
+date: 2026-08-07
 tags: [feature, pddl, parser, validator, llm, phase2, core, nodes]
 status: active
 ---
@@ -38,8 +38,8 @@ The system uses a simplified PDDL problem domain for optical routing:
 ```
 
 ## 4. How it Works
-1. Reads `enriched_intent` from state. If `error_context` exists (refinement loop), appends operator feedback to the prompt.
-2. Calls Kimi LLM with `PDDL_SYSTEM_PROMPT` — instructs the model to output ONLY PDDL, no markdown.
+1. Reads `enriched_intent` (which contains the dynamically injected `Topology Context:` from Phase 1 Optical RAG) from state. If `error_context` exists (refinement loop), appends operator feedback to the prompt.
+2. Calls Kimi LLM with `PDDL_SYSTEM_PROMPT` — instructs the model to use the topology provided dynamically in `enriched_intent` and output ONLY PDDL, no markdown.
 3. Strips markdown code fences if the LLM wraps the output (common LLM behavior).
 4. Validates via `validate_pddl_syntax()` — checks: balanced parentheses, `(define ...)` wrapper, and presence of `:domain`, `:objects`, `:init`, `:goal` sections.
 5. Returns `pddl_valid=True/False` and `error_context` with any CFG error messages.

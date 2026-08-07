@@ -41,6 +41,7 @@ class TestAgentStateV5Fields:
             "usem_score": None,
             "usem_passed": None,
             "radg_decision": None,
+            "topology_context": None,
         }
         assert state["enriched_intent"] == "Route from A to B with min 10 dB SNR"
 
@@ -62,6 +63,7 @@ class TestAgentStateV5Fields:
             "usem_score": None,
             "usem_passed": None,
             "radg_decision": None,
+            "topology_context": None,
         }
         assert state["pddl_constraints"] is not None
         assert state["pddl_valid"] is True
@@ -85,6 +87,7 @@ class TestAgentStateV5Fields:
             "usem_score": None,
             "usem_passed": None,
             "radg_decision": None,
+            "topology_context": None,
         }
         assert state["hitl_reconstruction"] is not None
         assert state["hitl_approved"] is True
@@ -107,6 +110,7 @@ class TestAgentStateV5Fields:
             "usem_score": None,
             "usem_passed": None,
             "radg_decision": None,
+            "topology_context": None,
         }
         assert state["candidate_paths"] is not None
         assert len(state["candidate_paths"]) == 1
@@ -129,6 +133,7 @@ class TestAgentStateV5Fields:
             "usem_score": None,
             "usem_passed": None,
             "radg_decision": None,
+            "topology_context": None,
         }
         assert state["qot_results"] is not None
         assert state["qot_results"][0]["feasible"] is True
@@ -151,6 +156,7 @@ class TestAgentStateV5Fields:
             "usem_score": None,
             "usem_passed": None,
             "radg_decision": None,
+            "topology_context": None,
         }
         assert state["planning_report"] is not None
         assert "feasible" in state["planning_report"]
@@ -165,6 +171,11 @@ class TestAgentStateV5Fields:
         """State must have radg_decision for V5 RADG gate."""
         hints = get_type_hints(AgentState)
         assert "radg_decision" in hints
+
+    def test_state_has_topology_context_field(self):
+        """State must have topology_context for Optical RAG subgraph serialization."""
+        hints = get_type_hints(AgentState)
+        assert "topology_context" in hints
 
     def test_fiber_link_has_amplifiers_field(self):
         """FiberLink must carry amplifiers list for QoT physics propagation."""

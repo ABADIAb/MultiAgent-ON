@@ -44,7 +44,7 @@ def compute_usem(v_struct: bool, d_sem: float) -> float:
         return 1.0
 
     # Layer 2: semantic divergence drives uncertainty
-    return float(d_sem)
+    return d_sem
 
 
 def evaluate_semantic_gate(usem: float, tau_sem: float = DEFAULT_TAU_SEM) -> bool:

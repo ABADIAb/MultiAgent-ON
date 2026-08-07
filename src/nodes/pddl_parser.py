@@ -46,8 +46,8 @@ PDDL problem string. Use this exact structure:
   )
 )
 
-The testbed has 4 nodes in a linear topology:
-Milano-A <-> Milano-B <-> Milano-C <-> Milano-D
+The network topology is provided in the enriched intent below. Use ONLY \
+the nodes and links described there for :objects and :init sections.
 
 Rules:
 - Output ONLY the PDDL string, no explanations or markdown.

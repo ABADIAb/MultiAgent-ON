@@ -23,7 +23,12 @@ status: active
 - **Result:** PENDING provisioning for the live run.
 - **Estimated possible solution:** For Sprint 4's baseline evaluations (Exp 4.1), the mocked topology is sufficient. However, for the final Live E2E Lab Testbed Execution (Exp 4.3), the server must be brought online and physical DWDM links must be provisioned in the SM Optics ONC.
 
-## 4. Test Corpus Generation for Baseline Evaluation (NEW)
+## 4. Hardcoded Topology in PDDL Parser (SOLVED)
+- **Issue:** The PDDL parser (Phase 2) relied on a hardcoded testbed topology string in its system prompt, preventing the pipeline from scaling to dynamic live topologies.
+- **What has already been tried:** Integrated Mock GraphRAG into the Intent Ingest node (Phase 1) to dynamically extract a $k=2$ hop neighborhood around the requested nodes. This subgraph is serialized into text and passed as `topology_context` to the PDDL parser.
+- **Result:** SOLVED. The parser now dynamically generates constraints based strictly on the provided context without relying on hardcoded strings.
+
+## 5. Test Corpus Generation for Baseline Evaluation (NEW)
 - **Issue:** To execute Exp 4.1, we require a mathematically sound synthetic test corpus that spans multiple risk categories (Safe, Ambiguous, Infeasible).
 - **What has already been tried:** N/A (Just starting Sprint 4).
 - **Result:** IN PROGRESS.

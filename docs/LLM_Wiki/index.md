@@ -109,6 +109,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/Thesis_Outline_v3]]: Active V3 draft with problem formalization and mapped citations.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 ## Session Summaries
+- [[session_summary/session_20260807_GraphRAG_Integration]]: Optical RAG integration for dynamic topology injection in Phase 1 and Phase 2.
 - [[session_summary/session_20260806_Sprint3_RADG_Integration]]: Sprint 3 completion, V5 Risk-Adaptive Pipeline integration (RADG, $U_{sem}$, and real QoT physics).
 - [[session_summary/session_20260731_Code_Reorganization]]: Codebase Reorganization, src/ Methodology Enactment, Feature Documentation Hub, and Architecture V5 Alignment.
 - [[session_summary/session_20260729_RESTConf_Integration]]: RESTConf Testbed Integration, CAS SSO auth flow on port 8443, and empty connections handling.

@@ -39,6 +39,7 @@ def _make_state(**overrides) -> AgentState:
         "usem_score": None,
         "usem_passed": None,
         "radg_decision": None,
+        "topology_context": None,
     }
     base.update(overrides)  # type: ignore[typeddict-item]
     return base
@@ -223,6 +224,13 @@ class TestPddlParserNode:
         message_contents = " ".join(msg.content for msg in call_args)
         assert feedback in message_contents
         assert previous_pddl in message_contents
+
+    def test_no_hardcoded_topology_in_system_prompt(self):
+        """PDDL_SYSTEM_PROMPT must not have hardcoded testbed nodes/topology."""
+        from src.nodes.pddl_parser import PDDL_SYSTEM_PROMPT
+
+        assert "Milano-A <-> Milano-B" not in PDDL_SYSTEM_PROMPT
+        assert "The network topology is provided in the enriched intent" in PDDL_SYSTEM_PROMPT
 
 
 # ---------------------------------------------------------------------------

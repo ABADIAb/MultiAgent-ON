@@ -18,7 +18,11 @@ from src.core.state import AgentState
 class TestIntentIngestNode:
     """Test the intent_ingest_node function."""
 
-    def _make_state(self, user_msg: str = "Route from Milano-A to Milano-D") -> AgentState:
+    def _make_state(
+        self,
+        user_msg: str = "Route from Milano-A to Milano-D",
+        topology_snapshot=None,
+    ) -> AgentState:
         """Create a minimal V5 AgentState dict."""
         return {
             "messages": [HumanMessage(content=user_msg)],
@@ -28,11 +32,15 @@ class TestIntentIngestNode:
             "pddl_parsed_constraints": None,
             "hitl_reconstruction": None,
             "hitl_approved": None,
-            "topology_snapshot": None,
+            "topology_snapshot": topology_snapshot,
             "candidate_paths": None,
             "qot_results": None,
             "planning_report": None,
             "error_context": None,
+            "usem_score": None,
+            "usem_passed": None,
+            "radg_decision": None,
+            "topology_context": None,
         }
 
     def test_returns_enriched_intent(self):
@@ -118,6 +126,66 @@ class TestIntentIngestNode:
         try:
             intent_ingest_node(self._make_state())
             mock_llm.with_structured_output.assert_called_once_with(IntentSummary)
+        finally:
+            llm_module._llm = None
+
+    def test_enriched_intent_includes_topology_context(self):
+        """When topology_snapshot is present, Optical RAG enriches enriched_intent."""
+        from src.core.state import FiberLink, NetworkNode, TopologySnapshot
+        from src.nodes.intent_ingest import IntentSummary, intent_ingest_node
+        from src.core import llm as llm_module
+
+        snap = TopologySnapshot(
+            nodes=[
+                NetworkNode(node_id="n1", name="Milano-A", interfaces=[]),
+                NetworkNode(node_id="n2", name="Milano-B", interfaces=[]),
+            ],
+            links=[
+                FiberLink(link_id="l1", source_node="n1", target_node="n2", length_km=20.0),
+            ],
+        )
+
+        mock_structured = MagicMock()
+        mock_structured.invoke.return_value = IntentSummary(
+            summary="Route from A to B",
+            source_node="Milano-A",
+            target_node="Milano-B",
+        )
+
+        mock_llm = MagicMock()
+        mock_llm.with_structured_output.return_value = mock_structured
+
+        llm_module.set_llm(mock_llm)
+        try:
+            state = self._make_state(topology_snapshot=snap)
+            result = intent_ingest_node(state)
+            assert result["topology_context"] is not None
+            assert "Milano-A" in result["topology_context"]
+            assert "Topology Context:" in result["enriched_intent"]
+        finally:
+            llm_module._llm = None
+
+    def test_no_topology_snapshot_skips_rag(self):
+        """When topology_snapshot is None, topology_context is None."""
+        from src.nodes.intent_ingest import IntentSummary, intent_ingest_node
+        from src.core import llm as llm_module
+
+        mock_structured = MagicMock()
+        mock_structured.invoke.return_value = IntentSummary(
+            summary="Route from A to B",
+            source_node="Milano-A",
+            target_node="Milano-B",
+        )
+
+        mock_llm = MagicMock()
+        mock_llm.with_structured_output.return_value = mock_structured
+
+        llm_module.set_llm(mock_llm)
+        try:
+            state = self._make_state(topology_snapshot=None)
+            result = intent_ingest_node(state)
+            assert result["topology_context"] is None
+            assert "Topology Context:" not in result["enriched_intent"]
         finally:
             llm_module._llm = None
 

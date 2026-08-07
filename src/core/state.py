@@ -86,6 +86,7 @@ class AgentState(TypedDict):
         usem_score: Semantic Uncertainty score U_sem ∈ [0, 1] from the Semantic Gate.
         usem_passed: Whether U_sem ≤ τ_sem (gate passed → proceed to solver).
         radg_decision: RADG physical gate outcome — "approve" | "replan".
+        topology_context: Serialized k-hop topology subgraph text from Optical RAG.
     """
 
     messages: Annotated[list, operator.add]
@@ -103,4 +104,5 @@ class AgentState(TypedDict):
     usem_score: float | None
     usem_passed: bool | None
     radg_decision: str | None
+    topology_context: str | None
 
