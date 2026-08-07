@@ -37,19 +37,21 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
       - (destination <node-name>) → destination
       - (avoid-link <link-id>) → added to avoid_links list
       - (max-hops <n>) → max_hops integer
+      - (min-gsnr <value>) → min_gsnr float
 
     Args:
         pddl_text: The raw PDDL problem string from AgentState.
 
     Returns:
         Dict with keys: source (str), destination (str),
-        avoid_links (list[str]), max_hops (int | None).
+        avoid_links (list[str]), max_hops (int | None), min_gsnr (float | None).
     """
     constraints: dict = {
         "source": None,
         "destination": None,
         "avoid_links": [],
         "max_hops": None,
+        "min_gsnr": None,
     }
 
     if not pddl_text:
@@ -73,6 +75,13 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
     hops_match = re.search(r"\(max-hops\s+(\d+)\)", pddl_text)
     if hops_match:
         constraints["max_hops"] = int(hops_match.group(1))
+
+    # Parse (min-gsnr <value>) / (min-snr <value>) / (target-snr <value>)
+    snr_match = re.search(
+        r"\((?:min-gsnr|min-snr|target-snr|min_gsnr)\s+([\d.]+)\)", pddl_text
+    )
+    if snr_match:
+        constraints["min_gsnr"] = float(snr_match.group(1))
 
     return constraints
 

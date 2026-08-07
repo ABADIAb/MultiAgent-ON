@@ -94,3 +94,31 @@ class TestEvaluateRadg:
         }
         result = evaluate_radg([error_result])
         assert result == "replan"
+
+
+class TestRadgNode:
+    """Validate radg_node behavior including interrupt and feedback capture."""
+
+    def test_approve_path_returns_approve_decision(self) -> None:
+        from src.nodes.radg_node import radg_node
+
+        state = {"qot_results": [FEASIBLE_RESULT]}
+        result = radg_node(state)
+        assert result["radg_decision"] == "approve"
+        assert result["error_context"] is None
+
+    def test_replan_interrupt_captures_refinement_feedback(self, monkeypatch) -> None:
+        """When RADG triggers replan interrupt, feedback from resume is stored in error_context."""
+        from src.nodes import radg_node as radg_node_module
+        from src.nodes.radg_node import radg_node
+
+        def mock_interrupt(payload):
+            return {"action": "refine", "feedback": "Not 40dB but 15dB"}
+
+        monkeypatch.setattr(radg_node_module, "interrupt", mock_interrupt)
+
+        state = {"qot_results": [INFEASIBLE_RESULT]}
+        result = radg_node(state)
+
+        assert result["radg_decision"] == "replan"
+        assert result["error_context"] == "Not 40dB but 15dB"

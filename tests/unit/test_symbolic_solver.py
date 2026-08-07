@@ -252,3 +252,22 @@ class TestSymbolicSolverConstraints:
         assert result["candidate_paths"] is not None
         for path in result["candidate_paths"]:
             assert path["hops"] <= 2
+
+    def test_min_gsnr_constraint_parsed(self) -> None:
+        """Verify _parse_pddl_constraints extracts min-gsnr."""
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = """
+        (define (problem optical-routing)
+          (:domain optical-network)
+          (:objects node_src - node node_dst - node)
+          (:init
+            (source Node-A)
+            (destination Node-C)
+            (min-gsnr 40.0)
+          )
+          (:goal (and (routed Node-A Node-C)))
+        )
+        """
+        constraints = _parse_pddl_constraints(pddl)
+        assert constraints["min_gsnr"] == 40.0

@@ -57,7 +57,7 @@ def radg_node(state: AgentState) -> dict:
         logger.warning(summary)
 
         # HITL interrupt: inform operator and request relaxed constraints
-        interrupt({
+        response = interrupt({
             "decision": "replan",
             "reason": summary,
             "suggestion": (
@@ -69,8 +69,25 @@ def radg_node(state: AgentState) -> dict:
             "qot_results": qot_results,
         })
 
+        feedback = ""
+        if isinstance(response, str):
+            feedback = response.strip()
+        elif isinstance(response, dict):
+            fb = response.get("feedback") or response.get("refinement")
+            if fb:
+                feedback = str(fb).strip()
+            elif "action" in response and response["action"] not in ("refine", "replan", "approve", "reject"):
+                feedback = str(response["action"]).strip()
+
+        return {
+            "radg_decision": decision,
+            "error_context": feedback if feedback else summary,
+            "messages": [AIMessage(content=summary, name="radg")],
+        }
+
     return {
         "radg_decision": decision,
+        "error_context": None,
         "messages": [AIMessage(content=summary, name="radg")],
     }
 

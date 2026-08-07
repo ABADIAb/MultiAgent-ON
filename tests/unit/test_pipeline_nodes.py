@@ -486,6 +486,19 @@ class TestQotValidationNode:
         assert "QoT validation" in msg
         assert "/1" in msg
 
+    def test_custom_min_gsnr_makes_path_infeasible(self):
+        """When min_gsnr in pddl_parsed_constraints is 40.0 dB, FEASIBLE_PATH (SNR ~20dB) should evaluate to feasible=False."""
+        from src.nodes.qot_validation import qot_validation_node
+
+        state = _make_state(
+            candidate_paths=[self.FEASIBLE_PATH],
+            pddl_parsed_constraints={"min_gsnr": 40.0},
+        )
+        result = qot_validation_node(state)
+        entry = result["qot_results"][0]
+        assert entry["feasible"] is False
+        assert entry["snr_threshold_dB"] == 40.0
+
 
 
 # ---------------------------------------------------------------------------
