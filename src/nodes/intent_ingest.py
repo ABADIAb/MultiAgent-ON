@@ -20,7 +20,7 @@ from src.core.mock_graphrag import (
     extract_k_hop_neighborhood,
     graph_to_context_string,
 )
-from src.core.state import AgentState
+from src.core.state import AgentState, TopologySnapshot
 
 INTENT_SYSTEM_PROMPT = """\
 You are the Intent Ingestion module of a Neurosymbolic Orchestrator for a \
@@ -107,6 +107,7 @@ def intent_ingest_node(state: AgentState) -> dict:
     # Perform Optical RAG enrichment if topology_snapshot is available
     topology_snapshot = state.get("topology_snapshot")
     topology_context: str | None = None
+    subtopology_snapshot: TopologySnapshot | None = None
 
     if topology_snapshot and topology_snapshot.nodes:
         graph = build_adjacency_graph(topology_snapshot)
@@ -120,9 +121,23 @@ def intent_ingest_node(state: AgentState) -> dict:
 
         if source_id and target_id and nx.has_path(graph, source_id, target_id):
             subgraph = extract_k_hop_neighborhood(graph, source_id, target_id, k=2)
-            topology_context = graph_to_context_string(subgraph)
         else:
-            topology_context = graph_to_context_string(graph)
+            subgraph = graph
+
+        topology_context = graph_to_context_string(subgraph)
+
+        # Build structured subtopology snapshot for downstream symbolic solver
+        sub_node_ids = set(subgraph.nodes)
+        sub_nodes = [n for n in topology_snapshot.nodes if n.node_id in sub_node_ids]
+        sub_links = [
+            l for l in topology_snapshot.links
+            if l.source_node in sub_node_ids and l.target_node in sub_node_ids
+        ]
+        subtopology_snapshot = TopologySnapshot(
+            nodes=sub_nodes,
+            links=sub_links,
+            timestamp=topology_snapshot.timestamp,
+        )
 
     # Build enriched intent string
     parts = [f"Intent: {intent.summary}"]
@@ -138,6 +153,7 @@ def intent_ingest_node(state: AgentState) -> dict:
     return {
         "enriched_intent": enriched,
         "topology_context": topology_context,
+        "subtopology_snapshot": subtopology_snapshot,
         "messages": [
             AIMessage(
                 content=f"Intent parsed: {enriched}",

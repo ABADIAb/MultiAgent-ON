@@ -25,24 +25,29 @@ class AgentState(TypedDict):
     # Core message history (append-only via operator.add reducer)
     messages: Annotated[list, operator.add]
 
-    # Phase 1 — Intent Ingest
+    # Phase 1 — Intent Ingest (Optical RAG)
     enriched_intent: str | None
+    topology_context: str | None
+    subtopology_snapshot: TopologySnapshot | None
 
     # Phase 2 — PDDL Parser
     pddl_constraints: str | None
     pddl_valid: bool | None
     pddl_parsed_constraints: dict | None  # structured: source, dest, avoid_links, max_hops
 
-    # Phase 3 — HITL
+    # Phase 3 — HITL & Semantic Gate
     hitl_reconstruction: str | None
     hitl_approved: bool | None
+    usem_score: float | None
+    usem_passed: bool | None
 
     # Phase 4 — Symbolic Solver (topology input)
     topology_snapshot: TopologySnapshot | None
     candidate_paths: list | None
 
-    # Phase 5 — QoT Validation
+    # Phase 5 & 6 — QoT Validation & RADG
     qot_results: list | None
+    radg_decision: str | None
 
     # Phase 7 — Plan Synthesizer
     planning_report: str | None

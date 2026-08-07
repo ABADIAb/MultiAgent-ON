@@ -188,7 +188,11 @@ def symbolic_solver_node(state: AgentState) -> dict:
         Partial state update with candidate_paths and a summary message.
     """
     pddl_text = state.get("pddl_constraints") or ""
-    topology: TopologySnapshot | None = state.get("topology_snapshot")
+    # Reuses subtopology_snapshot extracted by Phase 1 (Optical RAG) if available,
+    # avoiding redundant graph extraction. Falls back to full topology_snapshot.
+    topology: TopologySnapshot | None = (
+        state.get("subtopology_snapshot") or state.get("topology_snapshot")
+    )
 
     # Parse constraints from PDDL
     constraints = _parse_pddl_constraints(pddl_text)

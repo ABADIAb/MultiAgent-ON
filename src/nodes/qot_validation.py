@@ -14,7 +14,7 @@ import logging
 
 from langchain_core.messages import AIMessage
 
-from src.core.qot_bridge import candidate_path_to_fiber_links
+from src.core.models import FiberLink
 from src.core.qot_calculator import assess_qot
 from src.core.state import AgentState
 
@@ -25,7 +25,7 @@ def qot_validation_node(state: AgentState) -> dict:
     """Validate candidate paths using the GN-model QoT physics engine.
 
     For each candidate path from the Symbolic Solver:
-    1. Converts the path dict into models.FiberLink objects via qot_bridge.
+    1. Instantiates models.FiberLink objects directly from candidate physics data.
     2. Calls assess_qot() to compute GSNR and receiver power.
     3. Records feasibility verdict (GSNR >= threshold AND power >= threshold).
 
@@ -46,7 +46,8 @@ def qot_validation_node(state: AgentState) -> dict:
         path_label = " → ".join(path_nodes) if path_nodes else "unknown"
 
         try:
-            fiber_links = candidate_path_to_fiber_links(candidate)
+            link_physics_list = candidate.get("link_physics", [])
+            fiber_links = [FiberLink(**physics) for physics in link_physics_list]
 
             if not fiber_links:
                 qot_results.append({

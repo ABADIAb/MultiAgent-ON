@@ -20,7 +20,7 @@ The feature has three layers:
 | Layer | File | Role |
 |-------|------|------|
 | **Physics Engine** | `src/core/qot_calculator.py` | GN-model computation (ASE + NLI) |
-| **Domain Models** | `src/core/models.py` | Pydantic validation (`FiberLink`, `Amplifier`, `QoTResult`) |
+| **Domain Models** | `src/core/models.py` | Canonical Pydantic model (`FiberLink`, `Amplifier`, `QoTResult`) |
 | **Physical Constants** | `src/core/constants.py` | Fiber, EDFA, channel constants from C++ source |
 | **LangChain Tool Wrapper** | `src/tools/qot_tool.py` | `@tool`-decorated adapter for agent use |
 
@@ -33,16 +33,16 @@ The feature has three layers:
 
 ## 4. Associated Files
 - **Engine**: [src/core/qot_calculator.py](file:///home/felipeab/MultiAgentON/src/core/qot_calculator.py) — `span_snr()`, `calculate_demand_snr()`, `assess_qot()`
-- **Models**: [src/core/models.py](file:///home/felipeab/MultiAgentON/src/core/models.py) — `Amplifier`, `FiberLink`, `QoTResult`
+- **Models**: [src/core/models.py](file:///home/felipeab/MultiAgentON/src/core/models.py) — `Amplifier`, `FiberLink` (canonical unificado), `QoTResult`
 - **Constants**: [src/core/constants.py](file:///home/felipeab/MultiAgentON/src/core/constants.py) — `FIBER`, `CHANNEL`, `NODE`, `AMPLIFIER`, `THRESHOLD`
 - **Tool wrapper**: [src/tools/qot_tool.py](file:///home/felipeab/MultiAgentON/src/tools/qot_tool.py) — `qot_check` LangChain `@tool`
-- **Pipeline node**: [src/nodes/qot_validation.py](file:///home/felipeab/MultiAgentON/src/nodes/qot_validation.py) — Phase 5 node (placeholder until Sprint 3)
+- **Pipeline node**: [src/nodes/qot_validation.py](file:///home/felipeab/MultiAgentON/src/nodes/qot_validation.py) — Phase 5 node (instancia `FiberLink` directamente desde los candidate paths)
 - **Unit tests**: [tests/unit/test_qot_calculator.py](file:///home/felipeab/MultiAgentON/tests/unit/test_qot_calculator.py), [tests/unit/test_qot_tool.py](file:///home/felipeab/MultiAgentON/tests/unit/test_qot_tool.py)
 
 ## 5. Inputs / Outputs
 
 ### `qot_check` @tool
-Input (`path: list[dict]`): each dict is a fiber link with `link_id`, `src_node_id`, `dst_node_id`, `length_km`, optional `port_loss_dB`, optional `amplifiers` list.
+Input (`path: list[dict]`): each dict is a fiber link with `link_id`, `source_node`/`src_node_id`, `target_node`/`dst_node_id`, `length_km`, optional `port_loss_dB`, optional `amplifiers` list.
 
 Output:
 ```json
@@ -54,7 +54,7 @@ On error:
 ```
 
 ## 6. Pipeline Node Status
-`src/nodes/qot_validation.py` calls `assess_qot()` directly with real path data from the `candidate_paths` state field. It converts the output of the symbolic solver into `models.FiberLink` objects using `src/core/qot_bridge.py`. Paths without physical configuration are evaluated as infeasible.
+`src/nodes/qot_validation.py` calls `assess_qot()` directly with real path data from the `candidate_paths` state field. It instantiates `models.FiberLink` objects directly from candidate physics data without requiring a separate bridge module (`qot_bridge.py` fue eliminado al unificar el modelo). Paths without physical configuration are evaluated as infeasible.
 
 ## 7. How to Test
 ```bash

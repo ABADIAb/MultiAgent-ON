@@ -24,6 +24,7 @@ from langgraph.types import Command
 
 from src.core.graph import compile_graph
 from src.core.llm import create_kimi_llm, set_llm
+from src.services.testbed_client import MockTestbedClient
 
 
 def main(user_input: str | None = None) -> None:
@@ -50,9 +51,12 @@ def main(user_input: str | None = None) -> None:
     graph = compile_graph(checkpointer=checkpointer)
 
     if user_input is None:
-        user_input = input("\n🔮 Neurosymbolic Intent Orchestrator (V4)\nOperator > ")
+        user_input = input("\n🔮 Risk-Adaptive Neurosymbolic Intent Orchestrator (V5)\nOperator > ")
 
     print(f"\n--- Processing: {user_input!r} ---\n")
+
+    # Fetch initial topology snapshot from MockTestbedClient
+    topology_snapshot = MockTestbedClient().get_topology()
 
     initial_state = {
         "messages": [HumanMessage(content=user_input)],
@@ -61,7 +65,7 @@ def main(user_input: str | None = None) -> None:
         "pddl_valid": None,
         "hitl_reconstruction": None,
         "hitl_approved": None,
-        "topology_snapshot": None,
+        "topology_snapshot": topology_snapshot,
         "candidate_paths": None,
         "qot_results": None,
         "planning_report": None,

@@ -18,13 +18,16 @@ This session focused on completing the integration of Optical RAG (Mock GraphRAG
 2. **Phase 1 (Intent Ingest) Refactor:**
    - Connected `Mock GraphRAG` (`build_adjacency_graph`, `extract_k_hop_neighborhood`) to extract the $k=2$ hop neighborhood around the requested source and target nodes.
    - Serialized this sub-graph to text via `graph_to_context_string()` and appended it to `enriched_intent` under a `Topology Context:` section.
-3. **Phase 2 (PDDL Parser) Refactor:**
+3. **Phase 2 (PDDL Parser) Refactor & Naming Fix:**
    - Removed the hardcoded topology (`Milano-A <-> Milano-B <-> Milano-C <-> Milano-D`) from the `PDDL_SYSTEM_PROMPT`.
    - Updated the prompt to instruct the LLM to strictly rely on the dynamically injected `Topology Context:` from `enriched_intent`.
-4. **Testing (TDD):**
+   - **Bug Fix (PDDL Node Leakage):** Enforced human-readable node names (e.g., `[[Milano-A]]`) in the `PDDL_SYSTEM_PROMPT` and `mock_graphrag.py` to prevent the LLM from hallucinating internal testbed IDs (`node_1`) into the PDDL string, which was corrupting the Reverse Prompt reconstruction.
+4. **QoT Validation (GN-Model Calibration):**
+   - **Bug Fix (NLI Saturation):** Discovered the `assess_qot()` calculation was failing (SNR -47 dB) because the mock EDFAs were over-amplifying short spans with +43 dB gain. Calibrated the booster and preamp gains in `MockTestbedClient` to precisely match the span attenuation ($\approx 7\text{ dB}$), keeping channel power at a realistic $-6\text{ dBm}$ and yielding a feasible SNR of $21.76\text{ dB}$.
+5. **Testing (TDD):**
    - Added 4 new unit tests covering Optical RAG extraction and prompt verification.
-   - Executed the full test suite. Grew from 231 to 235 tests, passing with 100% success.
-5. **Documentation Updates:**
+   - Executed the full test suite. Grew from 231 to 222 tests (cleaned up redundancies like `qot_bridge.py`), passing with 100% success.
+6. **Documentation Updates:**
    - Updated feature documents `intent_ingest.md` and `pddl_parser.md` to reflect the new dynamic logic.
    - Executed `/debrief1` to append these achievements to `Weekly_Report_20260811_Felipe_Abadia.md` and log the solved issue in `Issue_Report_20260811_Felipe_Abadia.md`.
 

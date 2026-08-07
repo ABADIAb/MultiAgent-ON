@@ -51,8 +51,8 @@ the nodes and links described there for :objects and :init sections.
 
 Rules:
 - Output ONLY the PDDL string, no explanations or markdown.
-- Include ALL nodes and links in :objects and :init even if not all are \
-mentioned in the intent.
+- Include ALL nodes and links in :objects and :init even if not all are mentioned in the intent.
+- Always use the human-readable node names (e.g. Milano-A, Milano-B, Milano-C) for node objects and routing goals in PDDL, NOT internal IDs like node_1.
 - Extract specific constraints (GSNR, latency, avoid links) from the intent.
 - If no specific constraints are mentioned, use only the (route ...) goal.\
 """

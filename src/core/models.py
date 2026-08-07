@@ -7,7 +7,7 @@ object hierarchy (Unifiber, OaLoc, Node).
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -46,25 +46,59 @@ class Amplifier(BaseModel):
             self.nf_dB = 10.0 * math.log10(nf_lin)
         return self
 
+    def __getitem__(self, item: str) -> Any:
+        """Allow dict-like indexing for backwards compatibility."""
+        return getattr(self, item)
+
 
 class FiberLink(BaseModel):
-    """A unidirectional fiber segment between two nodes.
+    """A unidirectional fiber link connecting two nodes in the topology.
+
+    Canonical model for both topology layer and QoT physics engine.
 
     Attributes:
-        link_id: Unique identifier for the link.
-        src_node_id: Source node ID.
-        dst_node_id: Destination node ID.
+        link_id: Unique identifier for the link (string or int coerced to str).
+        source_node: Source node identifier (e.g. 'Milano-A' or '1').
+        target_node: Destination node identifier (e.g. 'Milano-B' or '2').
         length_km: Total fiber length [km].
+        num_amplifiers: Number of EDFAs on this link.
+        active_channels: Number of active WDM channels.
         port_loss_dB: Node port insertion loss [dB].
         amplifiers: EDFAs on this link, ordered by position_km.
     """
 
-    link_id: int
-    src_node_id: int
-    dst_node_id: int
+    link_id: str | int
+    source_node: str = ""
+    target_node: str = ""
     length_km: float = Field(gt=0)
+    num_amplifiers: int = 0
+    active_channels: int = 0
     port_loss_dB: float = Field(default=0.0, ge=0)
     amplifiers: list[Amplifier] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_fields(cls, data: dict | Any) -> dict | Any:
+        """Normalize legacy aliases (src_node_id, dst_node_id, link_id int)."""
+        if isinstance(data, dict):
+            data = dict(data)
+            if "link_id" in data and not isinstance(data["link_id"], str):
+                data["link_id"] = str(data["link_id"])
+            if "source_node" not in data and "src_node_id" in data:
+                data["source_node"] = str(data["src_node_id"])
+            if "target_node" not in data and "dst_node_id" in data:
+                data["target_node"] = str(data["dst_node_id"])
+        return data
+
+    @property
+    def src_node_id(self) -> str:
+        """Alias for physics engine compatibility."""
+        return self.source_node
+
+    @property
+    def dst_node_id(self) -> str:
+        """Alias for physics engine compatibility."""
+        return self.target_node
 
     @model_validator(mode="after")
     def validate_amplifier_positions(self) -> FiberLink:
@@ -77,6 +111,8 @@ class FiberLink(BaseModel):
                 )
                 raise ValueError(msg)
         self.amplifiers = sorted(self.amplifiers, key=lambda a: a.position_km)
+        if self.amplifiers:
+            self.num_amplifiers = len(self.amplifiers)
         return self
 
 

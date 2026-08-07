@@ -106,7 +106,7 @@ def graph_to_context_string(graph: nx.Graph) -> str:
     node_parts = []
     for node_id, attrs in graph.nodes(data=True):
         name = attrs.get("name", node_id)
-        node_parts.append(f"{name} ({node_id})")
+        node_parts.append(name)
     nodes_str = "Nodes: " + ", ".join(node_parts)
 
     # Edge/link summary

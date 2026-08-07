@@ -17,6 +17,8 @@ from typing import Annotated, TypedDict
 
 from pydantic import BaseModel, Field
 
+from src.core.models import FiberLink  # Canonical unified FiberLink model
+
 
 # ---------------------------------------------------------------------------
 # Domain Models (Pydantic) — Topology layer, preserved from V3
@@ -34,25 +36,6 @@ class NetworkNode(BaseModel):
     )
 
 
-class FiberLink(BaseModel):
-    """A fiber link connecting two nodes in the topology.
-
-    The ``amplifiers`` field carries the full EDFA configuration for each
-    span so the QoT calculator can run without a separate bridge lookup.
-    Each amplifier dict matches the ``models.Amplifier`` schema:
-      {position_km, gain_dB, amp_type, nf_dB (optional), att_dB (optional)}.
-    """
-
-    link_id: str
-    source_node: str
-    target_node: str
-    length_km: float
-    num_amplifiers: int = 0
-    active_channels: int = 0
-    port_loss_dB: float = 0.0
-    amplifiers: list[dict] = Field(default_factory=list)
-
-
 class TopologySnapshot(BaseModel):
     """Structured representation of the testbed topology."""
 
@@ -66,7 +49,7 @@ class TopologySnapshot(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-class AgentState(TypedDict):
+class AgentState(TypedDict, total=False):
     """Shared state for the V5 Risk-Adaptive Neurosymbolic Intent Pipeline.
 
     Fields:
@@ -105,4 +88,5 @@ class AgentState(TypedDict):
     usem_passed: bool | None
     radg_decision: str | None
     topology_context: str | None
+    subtopology_snapshot: TopologySnapshot | None
 

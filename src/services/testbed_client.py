@@ -90,7 +90,7 @@ class MockTestbedClient(TestbedClient):
                     # Booster at source node: compensates mux (6 dB) + connector (1 dB) losses
                     {
                         "position_km": 0.0,
-                        "gain_dB": 13.0,
+                        "gain_dB": 7.0,
                         "amp_type": "booster",
                         "att_dB": 0.0,
                     },
@@ -98,7 +98,7 @@ class MockTestbedClient(TestbedClient):
                     # plus connector (1 dB) + port (0.5 dB) losses
                     {
                         "position_km": 20.0,
-                        "gain_dB": 15.0,
+                        "gain_dB": 7.5,
                         "amp_type": "preamp",
                         "att_dB": 0.0,
                     },
@@ -116,21 +116,21 @@ class MockTestbedClient(TestbedClient):
                     # Booster at source node output (Milano-B)
                     {
                         "position_km": 0.0,
-                        "gain_dB": 13.0,
+                        "gain_dB": 3.0,
                         "amp_type": "booster",
                         "att_dB": 0.0,
                     },
                     # ILA at mid-span (20 km): compensates first half span + connector losses
                     {
                         "position_km": 20.0,
-                        "gain_dB": 15.0,
+                        "gain_dB": 7.0,
                         "amp_type": "ila",
                         "att_dB": 0.0,
                     },
                     # Preamp at destination (Milano-C): compensates second half span
                     {
                         "position_km": 40.0,
-                        "gain_dB": 15.0,
+                        "gain_dB": 7.5,
                         "amp_type": "preamp",
                         "att_dB": 0.0,
                     },

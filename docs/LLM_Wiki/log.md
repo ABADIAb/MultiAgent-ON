@@ -338,3 +338,9 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Consistency Audit: Verified `intent_ingest.py` and `pddl_parser.py` align perfectly with the V5 fail-fast conditional routing, executing dynamic topology context injection.
 - Session focus: Integrated Mock GraphRAG to extract k-hop physical topology and dynamically inject it into the PDDL constraint translation, eliminating hardcoded system prompts.
 - Actions: Created session summary `session_20260807_GraphRAG_Integration` and pushed all changes to `feat/sprint3-radg-pipeline-integration`.
+
+## [2026-08-07] debrief2 | QoT Calibration & PDDL Naming Hotfixes
+- Wiki Deep Lint: Audited the modified session summary and weekly report to inject `[[wikilinks]]` for new concepts like GN-model and NLI.
+- Consistency Audit: Validated that the updated `mock_graphrag.py` contextual naming strictly enforces human-readable objects for the LLM pipeline, preventing downstream semantic validation errors.
+- Session focus: Solved critical NLI mathematical saturation (QoT yielding -47 dB SNR due to EDFA over-amplification) and fixed PDDL parser node ID leakage (Reverse prompt using `node_1` instead of `Milano-A`).
+- Actions: Pushed hotfixes to the open remote branch.

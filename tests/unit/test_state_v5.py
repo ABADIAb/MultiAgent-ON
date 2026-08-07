@@ -265,3 +265,40 @@ class TestTopologyModelsUnchanged:
             timestamp="2026-07-09T00:00:00Z",
         )
         assert len(snap.nodes) == 1
+
+
+class TestUnifiedFiberLinkModel:
+    """Verify the unified FiberLink model handles physics aliases and coercion."""
+
+    def test_fiber_link_legacy_src_dst_node_id_aliases(self) -> None:
+        """FiberLink accepts legacy src_node_id and dst_node_id."""
+        link = FiberLink(
+            link_id=1,  # int coerced to str
+            src_node_id="n1",
+            dst_node_id="n2",
+            length_km=50.0,
+        )
+        assert link.link_id == "1"
+        assert link.source_node == "n1"
+        assert link.target_node == "n2"
+        assert link.src_node_id == "n1"
+        assert link.dst_node_id == "n2"
+
+    def test_fiber_link_auto_converts_amplifier_dicts(self) -> None:
+        """FiberLink automatically converts list of dicts to Amplifier models."""
+        link = FiberLink(
+            link_id="link_1",
+            source_node="A",
+            target_node="B",
+            length_km=100.0,
+            amplifiers=[
+                {"position_km": 0.0, "gain_dB": 15.0, "amp_type": "booster"},
+                {"position_km": 100.0, "gain_dB": 20.0, "amp_type": "preamp"},
+            ],
+        )
+        assert len(link.amplifiers) == 2
+        assert link.amplifiers[0].amp_type == "booster"
+        assert link.amplifiers[0]["amp_type"] == "booster"
+        assert link.amplifiers[1].amp_type == "preamp"
+        assert link.num_amplifiers == 2
+

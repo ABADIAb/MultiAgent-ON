@@ -28,7 +28,17 @@ status: active
 - **What has already been tried:** Integrated Mock GraphRAG into the Intent Ingest node (Phase 1) to dynamically extract a $k=2$ hop neighborhood around the requested nodes. This subgraph is serialized into text and passed as `topology_context` to the PDDL parser.
 - **Result:** SOLVED. The parser now dynamically generates constraints based strictly on the provided context without relying on hardcoded strings.
 
-## 5. Test Corpus Generation for Baseline Evaluation (NEW)
+## 5. GN-Model Non-Linear Interference Saturation in Short Spans (SOLVED)
+- **Issue:** The QoT Validation calculation using the GN-model yielded impossible values (-47 dB SNR) for feasible routes.
+- **What has already been tried:** Traced the root cause to the `MockTestbedClient`. It inherited default EDFA gains (+43 dB per link) meant for 80km spans. In our 20km and 40km MVP spans, this over-amplified the signal to 2 Watts (+33 dBm), triggering a cubic explosion in the non-linear interference ($NLI \propto P^3$). Calibrated the EDFA gains to exactly offset span attenuation.
+- **Result:** SOLVED. The GN-model now yields accurate physical ranges ($P_{rx} = -6.0\text{ dBm}$, $SNR = 21.76\text{ dB}$).
+
+## 6. PDDL Parser Node Naming Leakage (SOLVED)
+- **Issue:** The Reverse Prompting module (Phase 3) hallucinated internal technical node IDs (`node_1`) in its natural language reconstruction instead of human-readable names (`Milano-A`).
+- **What has already been tried:** Identified that `mock_graphrag.py` included `(node_1)` in the injected context, leading the `pddl_parser` to select it as the object name in the PDDL string. Restricted the context serialization and `PDDL_SYSTEM_PROMPT` to enforce human-readable names exclusively.
+- **Result:** SOLVED. PDDL properly generates with `Milano-A` and the HITL reconstruction correctly names the nodes.
+
+## 7. Test Corpus Generation for Baseline Evaluation (NEW)
 - **Issue:** To execute Exp 4.1, we require a mathematically sound synthetic test corpus that spans multiple risk categories (Safe, Ambiguous, Infeasible).
 - **What has already been tried:** N/A (Just starting Sprint 4).
 - **Result:** IN PROGRESS.

@@ -45,7 +45,10 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 6. **Optical RAG & Dynamic Topology:**
    - Integrated Mock GraphRAG into Phase 1 (`intent_ingest`) to extract a $k=2$ hop subgraph around the target nodes.
    - Eliminated the hardcoded testbed topology from the Phase 2 (`pddl_parser`) prompt. The parser now dynamically reads the serialized `topology_context` subgraph, ensuring scale-out readiness.
-7. **Codebase Stability:** Test suite grew from 172 to 235 tests, all passing with 100% success.
+7. **Codebase Stability:** Test suite cleaned up to 222 tests, all passing with 100% success.
+8. **MVP Quality Assurance (Bug Fixes):**
+   - **QoT GN-Model Calibration:** Fixed a critical bug where default +43 dB EDFA gains caused physical saturation (2 Watts of optical power) on short 20/40 km spans, destroying the Non-Linear Interference (NLI) calculation in the GN-model (yielding SNR of -47 dB). Calibrated the `MockTestbedClient` gains to closely match span attenuation ($\approx 7\text{ dB}$).
+   - **PDDL Node Naming Leakage:** Fixed a hallucination bug in the Reverse Prompt reconstruction. Ensured that `mock_graphrag.py` and `pddl_parser` strictly use human-readable node names (e.g. `Milano-A`) instead of internal IDs (e.g. `node_1`) in the generated `[[PDDL]]` strings.
 8. **Documentation Hub Expansion:** Created and updated feature documentation across the wiki for all new components (Semantic Gate, RADG, Plan Synthesizer, etc.).
 
 ## 3. Issue List This Week
