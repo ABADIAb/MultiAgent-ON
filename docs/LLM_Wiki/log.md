@@ -344,3 +344,14 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Consistency Audit: Validated that the updated `mock_graphrag.py` contextual naming strictly enforces human-readable objects for the LLM pipeline, preventing downstream semantic validation errors.
 - Session focus: Solved critical NLI mathematical saturation (QoT yielding -47 dB SNR due to EDFA over-amplification) and fixed PDDL parser node ID leakage (Reverse prompt using `node_1` instead of `Milano-A`).
 - Actions: Pushed hotfixes to the open remote branch.
+
+## [2026-08-07] ingest | Bug Registry & Resolution Log
+- Action: Created `docs/LLM_Wiki/wiki/experiments/Bug_Registry.md` to systematically track bugs, physical-layer anomalies, and HITL refinement fixes.
+- Documented Bugs: BUG-001 (GSNR threshold extraction & propagation), BUG-002 (Refinement loopback `interrupt()` state propagation), BUG-003 (NLI -47 dB explosion on short spans), BUG-004 (Node ID leakage in Reverse Prompt), BUG-005 (Schema duplication).
+- Updated: `docs/LLM_Wiki/index.md`.
+
+## [2026-08-12] ingest | Team Meeting Transcription (Thesis Outline & Mock Topology)
+- Ingested: `Transcript_20260811.pdf` (Meeting on August 11, 2026 with Qiaolun Zhang, Aryanaz Attarpour, Zheng Zhang, Felipe Abadia Bermeo).
+- Created: `docs/LLM_Wiki/wiki/transcriptions/Transcript_20260811_ThesisOutline_MockTopology.md`.
+- Action: Extracted transcript using `pymupdf4llm` tool. Covered paper/thesis outline restructuring (Introduction, baseline integration, defense timeline for October) and physical testbed vs mock topology strategy (shifting to 17-node German / 14-node Japan topology mocks).
+- Updated: `docs/LLM_Wiki/index.md`.

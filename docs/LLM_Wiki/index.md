@@ -89,11 +89,13 @@ Content-oriented catalog of everything in the wiki.
 - [[Presentation_20260430_DevEnvironment]]: Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
 
 ## Transcriptions
+- [[transcriptions/Transcript_20260811_ThesisOutline_MockTopology]]: Meeting with team on thesis outline feedback (introduction, baseline integration, October defense timeline) and shifting from physical testbed RESTConf topology to mock topologies (17-node German / 14-node Japan).
 - [[Transcript_20260519_Orchestrator&QoT_ArchitectureV2]]: Meeting regarding Orchestrator API access and progress update.
 - [[Transcript_20260505_QoT-Script]]: Meeting with Aryanaz explaining the QoT tool repo structure and SNR/Power functions.
 - [[Transcript_20260423_QoT-Meeting]]: Meeting with Aryanaz and Qiaolun about QoT feasibility tool and GN model.
 
 ## Experiments
+- [[experiments/Bug_Registry]]: **Active** — Registry and resolution log of system bugs, physical-layer edge cases, and pipeline loopback fixes.
 - [[experiments/MVP_Roadmap]]: **Active** — Detailed sprint plan and experimental roadmap targeting the August 25 MVP deadline.
 - [[experiments/Experiment_1_1_QoT_Port]]: QoT C++ to Python Port — execution specification for Sprint 1.
 - [[experiments/Experiment_001_Topology_Query_MVP]]: Topology Query MVP — first end-to-end LangGraph pipeline (Supervisor + Topology Agent + mock testbed).

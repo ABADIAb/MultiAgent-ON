@@ -68,7 +68,6 @@ flowchart TD
     Testbed[("SDON Testbed<br/>RESTConf NBI")]:::testbed
     Phase7 -.->|"Provisioning"| Testbed
     Testbed -.->|"k-hop Sub-Topology"| Phase1
-    Testbed -.->|"Topology"| Phase4
 ```
 
 ## 4. Phase-by-Phase Workflow
