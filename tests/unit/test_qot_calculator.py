@@ -332,6 +332,18 @@ class TestAssessQoT:
         assert result.power_dBm == pytest.approx(-16.0, abs=0.1)
         assert result.snr_threshold_dB == pytest.approx(8.6)
 
+    def test_custom_target_snr_overrides_default(
+        self, single_link_ila_preamp: list[FiberLink]
+    ) -> None:
+        """Path with SNR=19.96dB should fail if custom target_snr_dB is set to 40.0 dB."""
+        from src.core.qot_calculator import assess_qot
+
+        result = assess_qot(
+            single_link_ila_preamp, bitrate_gbps=100, target_snr_dB=40.0
+        )
+        assert result.feasible is False
+        assert result.snr_threshold_dB == 40.0
+
     def test_unfeasible_due_to_snr(self) -> None:
         """A very long path should fail the SNR threshold for 200G (15.2 dB).
 

@@ -19,11 +19,14 @@ Content-oriented catalog of everything in the wiki.
 ### Feature Docs (`docs/LLM_Wiki/wiki/architecture/features/`)
 - [[architecture/features/intent_ingest]]: Phase 1 — NL intent parsing node, IntentSummary schema, LLM structured output.
 - [[architecture/features/pddl_parser]]: Phase 2 — PDDL Parser node + CFG Validator. LLM as translator, refinement loop.
-- [[architecture/features/reverse_prompt]]: Phase 3 — Reverse Prompting HITL node, interrupt() pattern, hitl_route.
+- [[architecture/features/reverse_prompt]]: Phase 3 (HITL) — Reverse Prompting HITL node, LLM reconstruction, `interrupt()` pattern.
+- [[architecture/features/semantic_gate]]: Phase 3 (Gate) — Semantic Gate node computing $U_{sem}$ with 2-layer validation. Routes to Phase 4 or clarifies.
 - [[architecture/features/symbolic_solver]]: Phase 4 — Symbolic Solver (Yen's K-SP) + Mock GraphRAG (k-hop neighborhood extraction).
-- [[architecture/features/qot_tool]]: Phase 5 — QoT Physics Engine (GN model), @tool wrapper, placeholder node status.
+- [[architecture/features/qot_tool]]: Phase 5 — QoT Physics Engine (GN model), `@tool` wrapper, real physics integration in `qot_validation_node.py`.
+- [[architecture/features/radg]]: Phase 6 — Risk-Adaptive Decision Gate (RADG), evaluates physical risk, maps QoT to `{approve, replan}`.
+- [[architecture/features/plan_synthesizer]]: Phase 7 — Plan Synthesizer, compiles auditable trace of $U_{sem}$ and QoT decisions.
 - [[architecture/features/testbed_client]]: Testbed NBI — RESTConf client with CAS SSO, MockTestbedClient, topology assembly.
-- [[architecture/features/pipeline_graph]]: Pipeline wiring — LangGraph StateGraph, AgentState schema, V4/V5 topology comparison.
+- [[architecture/features/pipeline_graph]]: Pipeline wiring — LangGraph StateGraph, AgentState schema, full V5 active topology.
 
 ### Archived Architecture Documents
 - [[architecture/archive/Architecture_v4]]: (archived) V4 Neurosymbolic Intent Orchestration. Superseded by Architecture_v5.
@@ -37,6 +40,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
+- [[weekly_reports/Weekly_Report_20260811_Felipe_Abadia]]: Weekly report August 11, 2026. Sprint 3 completion, RADG integration, QoT physics, and Architecture V5 wiring.
 - [[weekly_reports/Weekly_Report_20260803_Felipe_Abadia]]: Weekly report August 03, 2026. RESTConf Testbed integration, Symbolic Solver, Codebase Reorganization, and Feature Documentation Hub.
 
 - [[weekly_reports/Weekly_Report_20260720_Felipe_Abadia]]: Weekly report July 20, 2026. Sprint 2 progress, PDDL Parser and HITL implementation.
@@ -60,6 +64,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
+- [[issues/Issue_Report_20260811_Felipe_Abadia]]: Sprint 3 blockers resolved (RADG, Pipeline); Pending unprovisioned testbed connections.
 - [[issues/Issue_Report_20260803_Felipe_Abadia]]: Solved RESTConf hook & codebase reorganization; pending physical link provisioning and LangGraph V5 RADG wiring.
 
 - [[issues/Issue_Report_20260720_Felipe_Abadia]]: Pending virtual testbed RESTConf API; Pending LangGraph refactor for Fail-Fast Architecture V5.
@@ -84,11 +89,13 @@ Content-oriented catalog of everything in the wiki.
 - [[Presentation_20260430_DevEnvironment]]: Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
 
 ## Transcriptions
+- [[transcriptions/Transcript_20260811_ThesisOutline_MockTopology]]: Meeting with team on thesis outline feedback (introduction, baseline integration, October defense timeline) and shifting from physical testbed RESTConf topology to mock topologies (17-node German / 14-node Japan).
 - [[Transcript_20260519_Orchestrator&QoT_ArchitectureV2]]: Meeting regarding Orchestrator API access and progress update.
 - [[Transcript_20260505_QoT-Script]]: Meeting with Aryanaz explaining the QoT tool repo structure and SNR/Power functions.
 - [[Transcript_20260423_QoT-Meeting]]: Meeting with Aryanaz and Qiaolun about QoT feasibility tool and GN model.
 
 ## Experiments
+- [[experiments/Bug_Registry]]: **Active** — Registry and resolution log of system bugs, physical-layer edge cases, and pipeline loopback fixes.
 - [[experiments/MVP_Roadmap]]: **Active** — Detailed sprint plan and experimental roadmap targeting the August 25 MVP deadline.
 - [[experiments/Experiment_1_1_QoT_Port]]: QoT C++ to Python Port — execution specification for Sprint 1.
 - [[experiments/Experiment_001_Topology_Query_MVP]]: Topology Query MVP — first end-to-end LangGraph pipeline (Supervisor + Topology Agent + mock testbed).
@@ -104,6 +111,8 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/Thesis_Outline_v3]]: Active V3 draft with problem formalization and mapped citations.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 ## Session Summaries
+- [[session_summary/session_20260807_GraphRAG_Integration]]: Optical RAG integration for dynamic topology injection in Phase 1 and Phase 2.
+- [[session_summary/session_20260806_Sprint3_RADG_Integration]]: Sprint 3 completion, V5 Risk-Adaptive Pipeline integration (RADG, $U_{sem}$, and real QoT physics).
 - [[session_summary/session_20260731_Code_Reorganization]]: Codebase Reorganization, src/ Methodology Enactment, Feature Documentation Hub, and Architecture V5 Alignment.
 - [[session_summary/session_20260729_RESTConf_Integration]]: RESTConf Testbed Integration, CAS SSO auth flow on port 8443, and empty connections handling.
 - [[session_summary/session_20260719_Architecture_V5_Fail_Fast]]: Architecture V5 Simplification, Fail-Fast Semantic Gate, and Binary QoT.

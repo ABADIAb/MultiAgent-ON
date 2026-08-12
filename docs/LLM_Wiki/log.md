@@ -326,3 +326,32 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited all modified docs (`ProblemStatement_v5`, `Thesis_Outline_v3`, `MVP_Roadmap`, `Experiment_001`, `intent_ingest`) to ensure valid links.
 - Session focus: Defined mathematical piecewise formulation of RADG, removing S_risk and converting optimization into friction minimization subject to strict safety constraints. Downscaled the MVP mock testbed from 4 nodes to a realistic 3-node laboratory linear topology (Milano-A ↔ B ↔ C), synchronizing the codebase and passing 172 tests.
 - Actions: Pushed all changes to a remote branch via PR.
+
+## [2026-08-06] debrief2 | Sprint 3 RADG Pipeline Integration Session
+- Wiki Deep Lint: Audited all modified docs (`index.md`, `qot_tool.md`, `pipeline_graph.md`, `reverse_prompt.md`, `MVP_Roadmap.md`) and new feature docs (`semantic_gate.md`, `radg.md`, `plan_synthesizer.md`) to ensure valid YAML frontmatter and `[[wikilinks]]`.
+- Consistency Audit: Verified the codebase perfectly aligns with the fail-fast conditional routing of Architecture V5.
+- Session focus: Implemented real GN-model QoT validation, fail-fast Semantic Gate ($U_{sem}$), and RADG mapping physical feasibility to `{approve, replan}` actions.
+- Actions: Pushed all changes to a new remote branch via an issue and PR.
+
+## [2026-08-07] debrief2 | GraphRAG Integration
+- Wiki Deep Lint: Audited modified files (`intent_ingest.md`, `pddl_parser.md`, `Weekly_Report`, `Issue_Report`) to ensure correct `[[wikilinks]]`.
+- Consistency Audit: Verified `intent_ingest.py` and `pddl_parser.py` align perfectly with the V5 fail-fast conditional routing, executing dynamic topology context injection.
+- Session focus: Integrated Mock GraphRAG to extract k-hop physical topology and dynamically inject it into the PDDL constraint translation, eliminating hardcoded system prompts.
+- Actions: Created session summary `session_20260807_GraphRAG_Integration` and pushed all changes to `feat/sprint3-radg-pipeline-integration`.
+
+## [2026-08-07] debrief2 | QoT Calibration & PDDL Naming Hotfixes
+- Wiki Deep Lint: Audited the modified session summary and weekly report to inject `[[wikilinks]]` for new concepts like GN-model and NLI.
+- Consistency Audit: Validated that the updated `mock_graphrag.py` contextual naming strictly enforces human-readable objects for the LLM pipeline, preventing downstream semantic validation errors.
+- Session focus: Solved critical NLI mathematical saturation (QoT yielding -47 dB SNR due to EDFA over-amplification) and fixed PDDL parser node ID leakage (Reverse prompt using `node_1` instead of `Milano-A`).
+- Actions: Pushed hotfixes to the open remote branch.
+
+## [2026-08-07] ingest | Bug Registry & Resolution Log
+- Action: Created `docs/LLM_Wiki/wiki/experiments/Bug_Registry.md` to systematically track bugs, physical-layer anomalies, and HITL refinement fixes.
+- Documented Bugs: BUG-001 (GSNR threshold extraction & propagation), BUG-002 (Refinement loopback `interrupt()` state propagation), BUG-003 (NLI -47 dB explosion on short spans), BUG-004 (Node ID leakage in Reverse Prompt), BUG-005 (Schema duplication).
+- Updated: `docs/LLM_Wiki/index.md`.
+
+## [2026-08-12] ingest | Team Meeting Transcription (Thesis Outline & Mock Topology)
+- Ingested: `Transcript_20260811.pdf` (Meeting on August 11, 2026 with Qiaolun Zhang, Aryanaz Attarpour, Zheng Zhang, Felipe Abadia Bermeo).
+- Created: `docs/LLM_Wiki/wiki/transcriptions/Transcript_20260811_ThesisOutline_MockTopology.md`.
+- Action: Extracted transcript using `pymupdf4llm` tool. Covered paper/thesis outline restructuring (Introduction, baseline integration, defense timeline for October) and physical testbed vs mock topology strategy (shifting to 17-node German / 14-node Japan topology mocks).
+- Updated: `docs/LLM_Wiki/index.md`.

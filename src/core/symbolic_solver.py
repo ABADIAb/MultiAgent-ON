@@ -37,19 +37,21 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
       - (destination <node-name>) → destination
       - (avoid-link <link-id>) → added to avoid_links list
       - (max-hops <n>) → max_hops integer
+      - (min-gsnr <value>) → min_gsnr float
 
     Args:
         pddl_text: The raw PDDL problem string from AgentState.
 
     Returns:
         Dict with keys: source (str), destination (str),
-        avoid_links (list[str]), max_hops (int | None).
+        avoid_links (list[str]), max_hops (int | None), min_gsnr (float | None).
     """
     constraints: dict = {
         "source": None,
         "destination": None,
         "avoid_links": [],
         "max_hops": None,
+        "min_gsnr": None,
     }
 
     if not pddl_text:
@@ -73,6 +75,13 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
     hops_match = re.search(r"\(max-hops\s+(\d+)\)", pddl_text)
     if hops_match:
         constraints["max_hops"] = int(hops_match.group(1))
+
+    # Parse (min-gsnr <value>) / (min-snr <value>) / (target-snr <value>)
+    snr_match = re.search(
+        r"\((?:min-gsnr|min-snr|target-snr|min_gsnr)\s+([\d.]+)\)", pddl_text
+    )
+    if snr_match:
+        constraints["min_gsnr"] = float(snr_match.group(1))
 
     return constraints
 
@@ -126,28 +135,43 @@ def _path_uses_avoided_links(
 def _build_path_dict(graph: nx.Graph, path_nodes: list[str]) -> dict:
     """Construct a structured path dict from an ordered list of node IDs.
 
+    Includes all physics data needed for QoT validation: link identifiers,
+    fiber geometry, and EDFA amplifier configurations.
+
     Args:
         graph: The adjacency graph.
         path_nodes: Ordered list of node IDs.
 
     Returns:
         Dict with: nodes (list of names), links (list of link_ids),
-        total_length_km (float), hops (int).
+        total_length_km (float), hops (int), link_physics (list of dicts).
+        Each entry in link_physics has: link_id, length_km, port_loss_dB,
+        amplifiers (list of dicts matching models.Amplifier schema).
     """
     node_names = [graph.nodes[n].get("name", n) for n in path_nodes]
     link_ids = []
     total_length = 0.0
+    link_physics: list[dict] = []
 
     for u, v in zip(path_nodes[:-1], path_nodes[1:]):
         edge_data = graph.get_edge_data(u, v) or {}
-        link_ids.append(edge_data.get("link_id", f"{u}-{v}"))
-        total_length += edge_data.get("length_km", 0.0)
+        link_id = edge_data.get("link_id", f"{u}-{v}")
+        length = edge_data.get("length_km", 0.0)
+        link_ids.append(link_id)
+        total_length += length
+        link_physics.append({
+            "link_id": link_id,
+            "length_km": length,
+            "port_loss_dB": edge_data.get("port_loss_dB", 0.0),
+            "amplifiers": edge_data.get("amplifiers", []),
+        })
 
     return {
         "nodes": node_names,
         "links": link_ids,
         "total_length_km": total_length,
         "hops": len(path_nodes) - 1,
+        "link_physics": link_physics,
     }
 
 
@@ -173,7 +197,11 @@ def symbolic_solver_node(state: AgentState) -> dict:
         Partial state update with candidate_paths and a summary message.
     """
     pddl_text = state.get("pddl_constraints") or ""
-    topology: TopologySnapshot | None = state.get("topology_snapshot")
+    # Reuses subtopology_snapshot extracted by Phase 1 (Optical RAG) if available,
+    # avoiding redundant graph extraction. Falls back to full topology_snapshot.
+    topology: TopologySnapshot | None = (
+        state.get("subtopology_snapshot") or state.get("topology_snapshot")
+    )
 
     # Parse constraints from PDDL
     constraints = _parse_pddl_constraints(pddl_text)

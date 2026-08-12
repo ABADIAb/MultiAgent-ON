@@ -1,11 +1,18 @@
-"""LangGraph StateGraph definition for the V4 Neurosymbolic Intent Pipeline.
+"""LangGraph StateGraph definition for the V5 Risk-Adaptive Neurosymbolic Pipeline.
 
-Wires the linear neurosymbolic pipeline:
-  Intent Ingest → PDDL Parser → Reverse Prompt (HITL) → Symbolic Solver
-  → QoT Validation → Plan Synthesizer
+Exp 3.0 / 3.2: Wires the complete V5 fail-fast conditional pipeline:
 
-The Reverse Prompt node uses interrupt() for HITL approval, with
-conditional routing for approve/refine/reject.
+  START → intent_ingest → pddl_parser → reverse_prompt → semantic_gate
+    → (U_sem <= tau) → symbolic_solver → qot_validation → radg
+        → (approve) → plan_synthesizer → END
+        → (replan)  → [HITL interrupt in radg_node] → pddl_parser (loop)
+    → (U_sem >  tau) → reverse_prompt (clarification loop)
+
+V5 Changes from V4:
+  - semantic_gate node added between reverse_prompt and symbolic_solver.
+  - HITL routing now owned by semantic_gate_route (not hitl_route).
+  - radg node added between qot_validation and plan_synthesizer.
+  - radg_route replaces the direct qot_validation → plan_synthesizer edge.
 """
 
 from __future__ import annotations
@@ -13,57 +20,89 @@ from __future__ import annotations
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from src.core.radg import evaluate_radg  # noqa: F401 — imported for test introspection
 from src.core.state import AgentState
 from src.core.symbolic_solver import symbolic_solver_node
 from src.nodes.intent_ingest import intent_ingest_node
 from src.nodes.pddl_parser import pddl_parser_node
 from src.nodes.plan_synthesizer import plan_synthesizer_node
 from src.nodes.qot_validation import qot_validation_node
-from src.nodes.reverse_prompt import hitl_route, reverse_prompt_node
+from src.nodes.radg_node import radg_node, radg_route
+from src.nodes.reverse_prompt import reverse_prompt_node
+from src.nodes.semantic_gate_node import semantic_gate_node, semantic_gate_route
 
 
 def build_graph() -> StateGraph:
-    """Construct the V4 Neurosymbolic Intent Pipeline.
+    """Construct the V5 Risk-Adaptive Neurosymbolic Intent Pipeline.
 
     Returns:
         A StateGraph builder (not yet compiled).
 
     Graph topology:
-        START → intent_ingest → pddl_parser → reverse_prompt
-          → (approved) → symbolic_solver → qot_validation → plan_synthesizer → END
-          → (refine)   → pddl_parser (loop)
-          → (reject)   → END
+        START → intent_ingest → pddl_parser → reverse_prompt → semantic_gate
+          → (pass)    → symbolic_solver → qot_validation → radg
+              → (approve) → plan_synthesizer → END
+              → (replan)  → pddl_parser (HITL loop via interrupt in radg_node)
+          → (clarify) → reverse_prompt (U_sem loop)
     """
     builder = StateGraph(AgentState)  # type: ignore
 
-    # Add pipeline nodes
+    # -----------------------------------------------------------------------
+    # Register all V5 pipeline nodes
+    # -----------------------------------------------------------------------
     builder.add_node("intent_ingest", intent_ingest_node)
     builder.add_node("pddl_parser", pddl_parser_node)
     builder.add_node("reverse_prompt", reverse_prompt_node)
+    builder.add_node("semantic_gate", semantic_gate_node)
     builder.add_node("symbolic_solver", symbolic_solver_node)
     builder.add_node("qot_validation", qot_validation_node)
+    builder.add_node("radg", radg_node)
     builder.add_node("plan_synthesizer", plan_synthesizer_node)
 
-    # Linear pipeline edges
+    # -----------------------------------------------------------------------
+    # Linear pipeline: START → NL parsing → HITL reconstruction
+    # -----------------------------------------------------------------------
     builder.add_edge(START, "intent_ingest")
     builder.add_edge("intent_ingest", "pddl_parser")
     builder.add_edge("pddl_parser", "reverse_prompt")
 
-    # HITL conditional routing
-    builder.add_conditional_edges("reverse_prompt", hitl_route)
+    # -----------------------------------------------------------------------
+    # Semantic Gate conditional routing (Phase 3 → 3b / Phase 4)
+    # Replaces the old hitl_route from V4.
+    # Routes:
+    #   semantic_gate_route → "symbolic_solver"  (U_sem <= tau, gate passes)
+    #   semantic_gate_route → "reverse_prompt"   (U_sem > tau, clarify)
+    # -----------------------------------------------------------------------
+    builder.add_edge("reverse_prompt", "semantic_gate")
+    builder.add_conditional_edges("semantic_gate", semantic_gate_route)
 
-    # Post-HITL linear pipeline
+    # -----------------------------------------------------------------------
+    # Symbolic solver → QoT validation → RADG physical risk gate
+    # -----------------------------------------------------------------------
     builder.add_edge("symbolic_solver", "qot_validation")
-    builder.add_edge("qot_validation", "plan_synthesizer")
+    builder.add_edge("qot_validation", "radg")
+
+    # -----------------------------------------------------------------------
+    # RADG conditional routing (Phase 6)
+    # Routes:
+    #   radg_route → "plan_synthesizer"  (approve)
+    #   radg_route → "pddl_parser"       (replan loop — refined by operator)
+    # -----------------------------------------------------------------------
+    builder.add_conditional_edges("radg", radg_route)
+
+    # -----------------------------------------------------------------------
+    # Terminal edge
+    # -----------------------------------------------------------------------
     builder.add_edge("plan_synthesizer", END)
 
     return builder
 
 
 def compile_graph(*, checkpointer=None) -> CompiledStateGraph:
-    """Build and compile the V4 graph with an optional checkpointer.
+    """Build and compile the V5 graph with an optional checkpointer.
 
-    Note: A checkpointer is REQUIRED for interrupt() to work.
+    Note: A checkpointer is REQUIRED for interrupt() to work in both
+    the reverse_prompt and radg_node HITL checkpoints.
     Use InMemorySaver for development, SqliteSaver for persistence.
 
     Args:
@@ -73,7 +112,7 @@ def compile_graph(*, checkpointer=None) -> CompiledStateGraph:
         A compiled graph ready for .invoke() or .stream().
     """
     builder = build_graph()
-    kwargs = {}
+    kwargs: dict = {}
     if checkpointer:
         kwargs["checkpointer"] = checkpointer
     return builder.compile(**kwargs)

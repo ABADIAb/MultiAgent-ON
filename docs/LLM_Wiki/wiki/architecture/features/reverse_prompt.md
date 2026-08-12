@@ -21,28 +21,18 @@ Implements the formal Human-in-the-Loop convergence mechanism that prevents **se
 ## 3. How it Works
 1. Calls the LLM with `REVERSE_PROMPT_SYSTEM` — instructs it to translate the PDDL constraints into a plain English paragraph starting with "I understand you want to..."
 2. Presents the reconstruction to the operator via `interrupt()` — LangGraph pauses the graph here, waiting for the CLI/UI to resume it.
-3. The operator's response (`approve` / `refine` / `reject`) resumes the graph:
-   - `approve` → `hitl_approved=True`, proceeds to Phase 4
-   - `refine` → `hitl_approved=False`, `error_context=feedback`, routes back to `pddl_parser`
-   - `reject` → `hitl_approved=False`, routes to `__end__`
+   - `approve` → `hitl_approved=True`, graph continues to Semantic Gate for $U_{sem}$ evaluation
+   - `refine` → `hitl_approved=False`, `error_context=feedback`, graph continues to Semantic Gate which will route back to `pddl_parser`
 
-### HITL Routing Function (`hitl_route`)
-```python
-def hitl_route(state: AgentState) -> str:
-    if state["hitl_approved"] is True:
-        return "symbolic_solver"
-    if state["hitl_approved"] is False and state.get("error_context"):
-        return "pddl_parser"   # refinement loop
-    return "__end__"           # rejected
-```
+In V5, the 3-way routing logic has been removed from this node. The `reverse_prompt` node purely focuses on reconstruction and the interrupt checkpoint, delegating routing decisions to the downstream `semantic_gate`.
 
 ## 4. V4 vs V5 HITL Strategy
 | Version | HITL Trigger |
 |---------|-------------|
-| V4 | Always-on — every intent triggers `interrupt()` |
-| V5 (planned) | Risk-adaptive — HITL triggered only when $U_{sem}$ is high (Sprint 3, Exp 3.2) |
+| V4 | Always-on, 3-way routing (approve/refine/reject) directly in this node |
+| V5 | Simplified schema (approve/refine). Routing is delegated to the Semantic Gate (Phase 3). |
 
-Currently (end of Sprint 2), the node still uses always-on HITL. The RADG semantic gate (which will make this conditional) is the key Sprint 3 deliverable.
+In Sprint 3, the `hitl_route` conditional edge was replaced by `semantic_gate_route`.
 
 ## 5. LangGraph interrupt() Pattern
 `interrupt()` requires a **checkpointer** to be set. Without a checkpointer, `interrupt()` raises an error. The `compile_graph()` function in `src/core/graph.py` accepts an optional checkpointer; `main.py` passes `InMemorySaver()` for development.
@@ -51,8 +41,8 @@ Currently (end of Sprint 2), the node still uses always-on HITL. The RADG semant
 # Pattern used:
 response = interrupt({
     "reconstruction": reconstruction,
-    "options": ["approve", "refine", "reject"],
-    "message": "Please review the parsed constraints and choose an action.",
+    "options": ["approve", "refine"],
+    "message": "Please review my understanding of your request. If accurate, approve to proceed. If not, choose 'refine' and provide feedback.",
 })
 ```
 

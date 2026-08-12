@@ -67,13 +67,13 @@ flowchart TD
 
     Testbed[("SDON Testbed<br/>RESTConf NBI")]:::testbed
     Phase7 -.->|"Provisioning"| Testbed
-    Testbed -.->|"Topology"| Phase4
+    Testbed -.->|"k-hop Sub-Topology"| Phase1
 ```
 
 ## 4. Phase-by-Phase Workflow
 
 ### Phase 1: Intent Ingestion & Optical RAG
-The operator submits a natural language request. The system may query local documentation (ITU-T specs, transponder datasheets) to add missing context before passing the enriched prompt to the LLM.
+The operator submits a natural language request. The system connects to the testbed via Mock GraphRAG to dynamically extract a $k$-hop neighborhood around the requested nodes. It may also query local documentation (ITU-T specs) to add missing context, combining these into an enriched prompt containing the dynamic `topology_context` for the LLM.
 
 ### Phase 2: PDDL Parsing (CFG Validated)
 The LLM reads the enriched intent and generates a simplified PDDL string. A deterministic CFG (Context-Free Grammar) regex validator checks the string for syntactical correctness, blocking structural hallucinations. The CFG validation result feeds the first layer of $U_{sem}$.
@@ -84,8 +84,8 @@ Implementing a **fail-fast** principle, the system assesses Semantic Uncertainty
 - *Layer 2 (Semantic)*: Does the Reverse Prompting reconstruction match the original operator intent?
 **Action**: If $U_{sem}$ is high, the system immediately halts and triggers the HITL interface, proactively asking the operator to provide specific missing constraints or clarify the intent. Once low (cleared), it proceeds to Phase 4.
 
-### Phase 4: Symbolic Solver & Mock GraphRAG
-The validated PDDL constraints are sent to a Python-based symbolic solver. The solver requests a compressed local neighborhood from the testbed topology (Mock GraphRAG) and calculates 3–5 candidate paths that satisfy the topological rules.
+### Phase 4: Symbolic Solver
+The validated PDDL constraints are sent to a Python-based symbolic solver. The solver mathematically calculates 3–5 candidate paths that satisfy the topological rules.
 
 ### Phase 5: QoT Validation
 The structurally valid paths are sent to the Python QoT Tool (GN-model port). The tool computes the exact GSNR for each candidate and produces a binary feasibility verdict ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$).

@@ -17,7 +17,7 @@ This is the "System 2" deterministic engine — the LLM is strictly forbidden fr
 ## 2. Associated Files
 - **Solver (LangGraph node)**: [src/core/symbolic_solver.py](file:///home/felipeab/MultiAgentON/src/core/symbolic_solver.py) — `symbolic_solver_node(state) -> dict`
 - **GraphRAG utilities**: [src/core/mock_graphrag.py](file:///home/felipeab/MultiAgentON/src/core/mock_graphrag.py) — `build_adjacency_graph()`, `extract_k_hop_neighborhood()`, `graph_to_context_string()`
-- **State fields read**: `pddl_constraints`, `topology_snapshot`
+- **State fields read**: `pddl_constraints`, `subtopology_snapshot` (fallback: `topology_snapshot`)
 - **State fields written**: `candidate_paths: list | None`, `pddl_parsed_constraints: dict | None`
 - **Tests**: [tests/unit/test_symbolic_solver.py](file:///home/felipeab/MultiAgentON/tests/unit/test_symbolic_solver.py), [tests/unit/test_mock_graphrag.py](file:///home/felipeab/MultiAgentON/tests/unit/test_mock_graphrag.py)
 
@@ -32,10 +32,9 @@ This is the "System 2" deterministic engine — the LLM is strictly forbidden fr
 - `(avoid-link <id>)` → list of prohibited link IDs
 - `(max-hops <n>)` → maximum hop count constraint
 
-### Step 2 — Mock GraphRAG (Context Bounding)
-`build_adjacency_graph(topology)` converts the `TopologySnapshot` into a `networkx.Graph` with node names and edge attributes (link_id, length_km, num_amplifiers, active_channels).
-
-`extract_k_hop_neighborhood(graph, source_id, dest_id, k=2)` extracts the union of k-hop neighborhoods around source and destination, bounding the search space and preventing the full topology from being injected into LLM context.
+### Step 2 — Sub-Topology Reuse & Mock GraphRAG
+`symbolic_solver_node` reuses `subtopology_snapshot` directly if already extracted by Phase 1 (`intent_ingest_node` via Mock GraphRAG), avoiding redundant sub-graph extraction and preventing re-querying the full testbed graph.
+If not present, `build_adjacency_graph(topology)` converts the `TopologySnapshot` into a `networkx.Graph` and `extract_k_hop_neighborhood(graph, source_id, dest_id, k=2)` extracts the $k$-hop neighborhood.
 
 ### Step 3 — Yen's K-Shortest Paths
 `nx.shortest_simple_paths(subgraph, source_id, dest_id, weight="length_km")` enumerates paths by ascending total fiber length. Up to `_K_PATHS=5` candidate paths are returned.

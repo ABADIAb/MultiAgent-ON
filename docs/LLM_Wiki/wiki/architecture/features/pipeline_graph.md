@@ -25,24 +25,29 @@ class AgentState(TypedDict):
     # Core message history (append-only via operator.add reducer)
     messages: Annotated[list, operator.add]
 
-    # Phase 1 — Intent Ingest
+    # Phase 1 — Intent Ingest (Optical RAG)
     enriched_intent: str | None
+    topology_context: str | None
+    subtopology_snapshot: TopologySnapshot | None
 
     # Phase 2 — PDDL Parser
     pddl_constraints: str | None
     pddl_valid: bool | None
     pddl_parsed_constraints: dict | None  # structured: source, dest, avoid_links, max_hops
 
-    # Phase 3 — HITL
+    # Phase 3 — HITL & Semantic Gate
     hitl_reconstruction: str | None
     hitl_approved: bool | None
+    usem_score: float | None
+    usem_passed: bool | None
 
     # Phase 4 — Symbolic Solver (topology input)
     topology_snapshot: TopologySnapshot | None
     candidate_paths: list | None
 
-    # Phase 5 — QoT Validation
+    # Phase 5 & 6 — QoT Validation & RADG
     qot_results: list | None
+    radg_decision: str | None
 
     # Phase 7 — Plan Synthesizer
     planning_report: str | None
@@ -51,29 +56,22 @@ class AgentState(TypedDict):
     error_context: str | None
 ```
 
-## 4. Current Graph Topology (V4 — Sprint 2 complete)
+## 4. Graph Topology (V5)
 
 ```
-START → intent_ingest → pddl_parser → reverse_prompt
-    ├─ [approve]  → symbolic_solver → qot_validation → plan_synthesizer → END
-    ├─ [refine]   → pddl_parser (loop)
-    └─ [reject]   → END
+START → intent_ingest → pddl_parser → reverse_prompt → semantic_gate
+  → (U_sem <= tau) → symbolic_solver → qot_validation → radg
+      → (approve) → plan_synthesizer → END
+      → (replan)  → [HITL interrupt in radg] → pddl_parser (loop)
+  → (U_sem > tau)  → reverse_prompt (clarification loop)
 ```
 
-## 5. V5 Target Graph Topology (Sprint 3)
+Key V5 additions to `graph.py` (implemented in Sprint 3):
+- `src/nodes/semantic_gate_node.py` — Phase 3 conditional HITL routing, evaluating $U_{sem}$.
+- `src/nodes/radg_node.py` — Phase 6 physical risk gate, evaluating $QoT$.
+- `src/core/radg.py` — Decision function `D(U_sem, QoT_valid)`.
+- `semantic_gate_route` and `radg_route` manage conditionals.
 
-```
-START → intent_ingest → pddl_parser → semantic_gate
-    ├─ [U_sem High]  → reverse_prompt (HITL clarify) → pddl_parser (loop)
-    └─ [U_sem Low]   → symbolic_solver → qot_validation → physical_risk_gate (RADG)
-                              ├─ [Valid]    → plan_synthesizer → provisioning → END
-                              └─ [Invalid]  → reverse_prompt (HITL replan) → pddl_parser (loop)
-```
-
-Key Sprint 3 additions to `graph.py`:
-- `src/nodes/semantic_gate_node.py` — Phase 3 conditional HITL routing
-- `src/nodes/radg_node.py` — Phase 6 physical risk gate
-- `src/core/radg.py` — Decision function `D(U_sem, QoT_valid)`
 
 ## 6. Checkpointer & HITL Pattern
 `compile_graph(checkpointer=InMemorySaver())` is required for `interrupt()` to work. Without a checkpointer, `interrupt()` in `reverse_prompt_node` will raise a `RuntimeError`.

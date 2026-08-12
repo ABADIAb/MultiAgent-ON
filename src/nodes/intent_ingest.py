@@ -10,11 +10,17 @@ transponder specs) before the LLM call.
 
 from __future__ import annotations
 
+import networkx as nx
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
 from src.core.llm import get_llm
-from src.core.state import AgentState
+from src.core.mock_graphrag import (
+    build_adjacency_graph,
+    extract_k_hop_neighborhood,
+    graph_to_context_string,
+)
+from src.core.state import AgentState, TopologySnapshot
 
 INTENT_SYSTEM_PROMPT = """\
 You are the Intent Ingestion module of a Neurosymbolic Orchestrator for a \
@@ -24,9 +30,6 @@ Your job is to parse the operator's natural language request and extract:
 1. A one-sentence summary of the intent.
 2. The source node (if mentioned).
 3. The target/sink node (if mentioned).
-
-The testbed has 4 nodes in a linear topology:
-Milano-A ↔ Milano-B ↔ Milano-C
 
 Be precise. If the operator mentions specific nodes, extract them exactly.
 If no specific nodes are mentioned, leave source_node and target_node as null.\
@@ -49,14 +52,25 @@ class IntentSummary(BaseModel):
     )
 
 
-def intent_ingest_node(state: AgentState) -> dict:
-    """Ingest operator intent and verify LLM connection.
+def _resolve_node_id(graph: nx.Graph, name_or_id: str) -> str | None:
+    """Resolve a node name or ID to a node ID in the graph."""
+    if name_or_id in graph.nodes:
+        return name_or_id
+    for node_id, attrs in graph.nodes(data=True):
+        if attrs.get("name") == name_or_id:
+            return node_id
+    return None
 
-    Exp 1.0: Parses the operator's NL intent into a structured
-    IntentSummary using the Kimi LLM with structured output.
+
+def intent_ingest_node(state: AgentState) -> dict:
+    """Ingest operator intent and enrich with Optical RAG context.
+
+    Parses the operator's NL intent into a structured IntentSummary using the
+    LLM with structured output, then extracts a k-hop topology neighborhood
+    using Mock GraphRAG to populate topology_context and enriched_intent.
 
     Returns:
-        Partial state update with enriched_intent and messages.
+        Partial state update with enriched_intent, topology_context, and messages.
     """
     # Extract the last human message
     user_messages = [
@@ -69,6 +83,7 @@ def intent_ingest_node(state: AgentState) -> dict:
     if not user_messages:
         return {
             "enriched_intent": None,
+            "topology_context": None,
             "messages": [
                 AIMessage(
                     content="No operator message received. Awaiting input.",
@@ -89,7 +104,42 @@ def intent_ingest_node(state: AgentState) -> dict:
     intent = structured_llm.invoke(messages)
     assert isinstance(intent, IntentSummary)
 
-    # Build enriched intent string (future: add RAG context here)
+    # Perform Optical RAG enrichment if topology_snapshot is available
+    topology_snapshot = state.get("topology_snapshot")
+    topology_context: str | None = None
+    subtopology_snapshot: TopologySnapshot | None = None
+
+    if topology_snapshot and topology_snapshot.nodes:
+        graph = build_adjacency_graph(topology_snapshot)
+        source_id = _resolve_node_id(graph, intent.source_node) if intent.source_node else None
+        target_id = _resolve_node_id(graph, intent.target_node) if intent.target_node else None
+
+        if source_id is None and graph.nodes:
+            source_id = list(graph.nodes)[0]
+        if target_id is None and graph.nodes:
+            target_id = list(graph.nodes)[-1]
+
+        if source_id and target_id and nx.has_path(graph, source_id, target_id):
+            subgraph = extract_k_hop_neighborhood(graph, source_id, target_id, k=2)
+        else:
+            subgraph = graph
+
+        topology_context = graph_to_context_string(subgraph)
+
+        # Build structured subtopology snapshot for downstream symbolic solver
+        sub_node_ids = set(subgraph.nodes)
+        sub_nodes = [n for n in topology_snapshot.nodes if n.node_id in sub_node_ids]
+        sub_links = [
+            l for l in topology_snapshot.links
+            if l.source_node in sub_node_ids and l.target_node in sub_node_ids
+        ]
+        subtopology_snapshot = TopologySnapshot(
+            nodes=sub_nodes,
+            links=sub_links,
+            timestamp=topology_snapshot.timestamp,
+        )
+
+    # Build enriched intent string
     parts = [f"Intent: {intent.summary}"]
     if intent.source_node:
         parts.append(f"Source: {intent.source_node}")
@@ -97,8 +147,13 @@ def intent_ingest_node(state: AgentState) -> dict:
         parts.append(f"Target: {intent.target_node}")
     enriched = " | ".join(parts)
 
+    if topology_context:
+        enriched = f"{enriched}\nTopology Context:\n{topology_context}"
+
     return {
         "enriched_intent": enriched,
+        "topology_context": topology_context,
+        "subtopology_snapshot": subtopology_snapshot,
         "messages": [
             AIMessage(
                 content=f"Intent parsed: {enriched}",

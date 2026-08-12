@@ -46,14 +46,19 @@ class TestbedClient(ABC):
 
 
 class MockTestbedClient(TestbedClient):
-    """Mock testbed client returning realistic ECOC 4-node topology.
+    """Mock testbed client returning a realistic 3-node ECOC topology.
 
-    Based on the ECOC 2024 paper's testbed at Politecnico di Milano:
-    3 nodes in a linear topology with fiber spans and OAs.
+    Based on the Politecnico di Milano ECOC 2024 testbed parameters.
+    3 nodes in a linear topology: Milano-A ↔ Milano-B ↔ Milano-C.
+
+    Amplifier configurations are calibrated to produce physically meaningful
+    QoT outcomes so Sprint 3 tests exercise the real RADG decision logic:
+      - link_ab (20 km): feasible at 100G
+      - link_bc (40 km): adds enough ASE/NLI to make A→B→C marginal at 100G
     """
 
     def get_topology(self) -> TopologySnapshot:
-        """Return a hardcoded but realistic 4-node linear topology."""
+        """Return a realistic 3-node linear topology with EDFA physics data."""
         nodes = [
             NetworkNode(
                 node_id="node_1",
@@ -78,16 +83,58 @@ class MockTestbedClient(TestbedClient):
                 source_node="node_1",
                 target_node="node_2",
                 length_km=20.0,
-                num_amplifiers=1,
+                num_amplifiers=2,
                 active_channels=4,
+                port_loss_dB=0.5,
+                amplifiers=[
+                    # Booster at source node: compensates mux (6 dB) + connector (1 dB) losses
+                    {
+                        "position_km": 0.0,
+                        "gain_dB": 7.0,
+                        "amp_type": "booster",
+                        "att_dB": 0.0,
+                    },
+                    # Preamp at destination: compensates 20 km span attenuation (5 dB)
+                    # plus connector (1 dB) + port (0.5 dB) losses
+                    {
+                        "position_km": 20.0,
+                        "gain_dB": 7.5,
+                        "amp_type": "preamp",
+                        "att_dB": 0.0,
+                    },
+                ],
             ),
             FiberLink(
                 link_id="link_bc",
                 source_node="node_2",
                 target_node="node_3",
                 length_km=40.0,
-                num_amplifiers=2,
+                num_amplifiers=3,
                 active_channels=6,
+                port_loss_dB=0.5,
+                amplifiers=[
+                    # Booster at source node output (Milano-B)
+                    {
+                        "position_km": 0.0,
+                        "gain_dB": 3.0,
+                        "amp_type": "booster",
+                        "att_dB": 0.0,
+                    },
+                    # ILA at mid-span (20 km): compensates first half span + connector losses
+                    {
+                        "position_km": 20.0,
+                        "gain_dB": 7.0,
+                        "amp_type": "ila",
+                        "att_dB": 0.0,
+                    },
+                    # Preamp at destination (Milano-C): compensates second half span
+                    {
+                        "position_km": 40.0,
+                        "gain_dB": 7.5,
+                        "amp_type": "preamp",
+                        "att_dB": 0.0,
+                    },
+                ],
             ),
         ]
 

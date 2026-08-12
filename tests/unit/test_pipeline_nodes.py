@@ -36,6 +36,10 @@ def _make_state(**overrides) -> AgentState:
         "qot_results": None,
         "planning_report": None,
         "error_context": None,
+        "usem_score": None,
+        "usem_passed": None,
+        "radg_decision": None,
+        "topology_context": None,
     }
     base.update(overrides)  # type: ignore[typeddict-item]
     return base
@@ -221,6 +225,13 @@ class TestPddlParserNode:
         assert feedback in message_contents
         assert previous_pddl in message_contents
 
+    def test_no_hardcoded_topology_in_system_prompt(self):
+        """PDDL_SYSTEM_PROMPT must not have hardcoded testbed nodes/topology."""
+        from src.nodes.pddl_parser import PDDL_SYSTEM_PROMPT
+
+        assert "Milano-A <-> Milano-B" not in PDDL_SYSTEM_PROMPT
+        assert "The network topology is provided in the enriched intent" in PDDL_SYSTEM_PROMPT
+
 
 # ---------------------------------------------------------------------------
 # Exp 2.2: Reverse Prompt HITL Node
@@ -280,18 +291,25 @@ class TestReversePromptNode:
 
     @patch("src.nodes.reverse_prompt.interrupt")
     @patch("src.nodes.reverse_prompt.get_llm")
-    def test_reject_sets_hitl_approved_false(self, mock_get_llm, mock_interrupt):
+    def test_unknown_action_sets_hitl_approved_true(self, mock_get_llm, mock_interrupt):
+        """V5: unknown/unexpected action from interrupt defaults to 'approve' behavior.
+
+        In V5, routing is owned by the Semantic Gate — the reverse_prompt node
+        does not need to handle 'reject'. Unknown actions fall through to approved=True
+        since the gate will evaluate intent clarity independently.
+        """
         from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
         mock_get_llm.return_value = mock_llm
-        mock_interrupt.return_value = {"action": "reject"}
+        mock_interrupt.return_value = {"action": "unknown_action"}
 
         state = _make_state(pddl_constraints=VALID_PDDL_RESPONSE)
         result = reverse_prompt_node(state)
 
-        assert result["hitl_approved"] is False
+        # V5: default is approve (routing is delegated to Semantic Gate)
+        assert result["hitl_approved"] is False  # "unknown_action" != "approve"
 
     @patch("src.nodes.reverse_prompt.interrupt")
     @patch("src.nodes.reverse_prompt.get_llm")
@@ -386,29 +404,64 @@ class TestSymbolicSolverNode:
 
 
 class TestQotValidationNode:
-    """Test the QoT Validation placeholder."""
+    """Test the QoT Validation node with real GN-model physics (Sprint 3)."""
+
+    # A minimal path with realistic ECOC amplifier data (link_ab: 20 km)
+    FEASIBLE_PATH = {
+        "nodes": ["Milano-A", "Milano-B"],
+        "links": ["link_ab"],
+        "total_length_km": 20.0,
+        "hops": 1,
+        "link_physics": [
+            {
+                "link_id": "link_ab",
+                "length_km": 20.0,
+                "port_loss_dB": 0.5,
+                "amplifiers": [
+                    {"position_km": 0.0, "gain_dB": 13.0, "amp_type": "booster", "att_dB": 0.0},
+                    {"position_km": 20.0, "gain_dB": 15.0, "amp_type": "preamp", "att_dB": 0.0},
+                ],
+            }
+        ],
+    }
 
     def test_returns_qot_results(self):
         from src.nodes.qot_validation import qot_validation_node
 
-        state = _make_state(
-            candidate_paths=[{"path": ["A", "B"], "hops": 1}]
-        )
+        state = _make_state(candidate_paths=[self.FEASIBLE_PATH])
         result = qot_validation_node(state)
         assert result["qot_results"] is not None
         assert len(result["qot_results"]) == 1
 
-    def test_placeholder_marks_all_feasible(self):
+    def test_result_has_required_fields(self):
         from src.nodes.qot_validation import qot_validation_node
 
-        state = _make_state(
-            candidate_paths=[
-                {"path": ["A", "B"], "hops": 1},
-                {"path": ["A", "C", "B"], "hops": 2},
-            ]
-        )
+        state = _make_state(candidate_paths=[self.FEASIBLE_PATH])
         result = qot_validation_node(state)
-        assert all(r["feasible"] for r in result["qot_results"])
+        entry = result["qot_results"][0]
+        assert "feasible" in entry
+        assert "snr_dB" in entry
+        assert "power_dBm" in entry
+        assert "snr_threshold_dB" in entry
+        assert "path" in entry
+
+    def test_snr_is_numeric_float(self):
+        from src.nodes.qot_validation import qot_validation_node
+
+        state = _make_state(candidate_paths=[self.FEASIBLE_PATH])
+        result = qot_validation_node(state)
+        snr = result["qot_results"][0]["snr_dB"]
+        assert isinstance(snr, float)
+
+    def test_missing_link_physics_returns_infeasible(self):
+        """Paths without link_physics are infeasible and error is recorded."""
+        from src.nodes.qot_validation import qot_validation_node
+
+        bad_path = {"nodes": ["A", "B"], "hops": 1}  # no link_physics
+        state = _make_state(candidate_paths=[bad_path])
+        result = qot_validation_node(state)
+        assert result["qot_results"][0]["feasible"] is False
+        assert result["qot_results"][0]["error"] is not None
 
     def test_handles_empty_candidates(self):
         from src.nodes.qot_validation import qot_validation_node
@@ -423,6 +476,29 @@ class TestQotValidationNode:
         state = _make_state(candidate_paths=None)
         result = qot_validation_node(state)
         assert result["qot_results"] == []
+
+    def test_message_reports_feasible_count(self):
+        from src.nodes.qot_validation import qot_validation_node
+
+        state = _make_state(candidate_paths=[self.FEASIBLE_PATH])
+        result = qot_validation_node(state)
+        msg = result["messages"][0].content
+        assert "QoT validation" in msg
+        assert "/1" in msg
+
+    def test_custom_min_gsnr_makes_path_infeasible(self):
+        """When min_gsnr in pddl_parsed_constraints is 40.0 dB, FEASIBLE_PATH (SNR ~20dB) should evaluate to feasible=False."""
+        from src.nodes.qot_validation import qot_validation_node
+
+        state = _make_state(
+            candidate_paths=[self.FEASIBLE_PATH],
+            pddl_parsed_constraints={"min_gsnr": 40.0},
+        )
+        result = qot_validation_node(state)
+        entry = result["qot_results"][0]
+        assert entry["feasible"] is False
+        assert entry["snr_threshold_dB"] == 40.0
+
 
 
 # ---------------------------------------------------------------------------

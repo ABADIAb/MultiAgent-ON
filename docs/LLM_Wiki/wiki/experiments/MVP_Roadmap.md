@@ -68,14 +68,14 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 
 ## Sprint 3: RADG & Orchestrator Integration (July 27 – August 09)
 
-### Exp 3.0: LangGraph State Pipeline Assembly
+### Exp 3.0: LangGraph State Pipeline Assembly ✅ (Completed)
 - **Objective:** Connect all generative and symbolic modules into a cohesive, fail-fast StateGraph.
 - **Action:** Wire all components together in `src/core/graph.py`:
   `Ingest → RAG → PDDL → Semantic Gate (U_sem) → [HITL if needed] → Symbolic Solver → QoT Tool → Physical Gate (QoT_valid) → Synthesizer → Testbed Push`.
 - Configure the LangGraph Memory Checkpointer to ensure state persistence across human interruptions.
 - **Deliverable:** Fully compiled `StateGraph` in `src/core/graph.py`.
 
-### Exp 3.1: Two-Stage Risk-Adaptive Gates
+### Exp 3.1: Two-Stage Risk-Adaptive Gates ✅ (Completed)
 - **Objective:** Implement the pre-deployment decision mechanism that sequentially evaluates semantic uncertainty and QoT risk margin.
 - **Action:**
   1. **Semantic Gate ($U_{sem}$):**
@@ -84,13 +84,13 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
   2. **Physical Risk Gate:**
      - Binary evaluation: $\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$.
      - Routes to `Auto-Approve` (Valid) or `Suggest Replan` via HITL (Invalid).
-  3. **Integration:** Implemented as two separate LangGraph conditional routing nodes in `src/core/radg.py`.
+  3. **Integration:** Implemented as two separate LangGraph conditional routing nodes.
 - **Deliverable:** `src/core/radg.py` containing both decision gate logics.
 
-### Exp 3.2: Early Conditional HITL Routing
+### Exp 3.2: Early Conditional HITL Routing ✅ (Completed)
 - **Objective:** Modify the LangGraph to make Reverse Prompting an early conditional branch — invoked only when the Semantic Gate detects ambiguity.
 - **Action:**
-  1. The Reverse Prompting node (`src/agents/reverse_prompt.py`) identifies missing PDDL constraints to suggest to the user.
+  1. The Reverse Prompting node (`src/nodes/reverse_prompt.py`) identifies missing PDDL constraints to suggest to the user.
   2. The graph routing loops back to PDDL parsing upon refinement.
 - **Deliverable:** Updated `src/core/graph.py` with early HITL routing.
 

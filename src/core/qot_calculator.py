@@ -308,6 +308,7 @@ def calculate_demand_snr(path: list[FiberLink]) -> tuple[float, float]:
 def assess_qot(
     path: list[FiberLink],
     bitrate_gbps: int = 100,
+    target_snr_dB: float | None = None,
 ) -> QoTResult:
     """Assess QoT feasibility of a lightpath.
 
@@ -316,11 +317,18 @@ def assess_qot(
     Args:
         path: Ordered list of ``FiberLink`` objects forming the lightpath.
         bitrate_gbps: Demand bitrate (10, 100, or 200 Gbps).
+        target_snr_dB: Optional user-specified minimum GSNR threshold [dB].
+            If provided, overrides or raises the default transceiver threshold.
 
     Returns:
         ``QoTResult`` with feasibility verdict.
     """
-    snr_threshold = THRESHOLD.get_snr_threshold(bitrate_gbps)
+    default_threshold = THRESHOLD.get_snr_threshold(bitrate_gbps)
+    if target_snr_dB is not None:
+        snr_threshold = max(target_snr_dB, default_threshold)
+    else:
+        snr_threshold = default_threshold
+
     power_threshold = THRESHOLD.prec_threshold_dBm
 
     snr_dB, power_dBm = calculate_demand_snr(path)
