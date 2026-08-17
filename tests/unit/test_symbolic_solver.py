@@ -271,3 +271,60 @@ class TestSymbolicSolverConstraints:
         """
         constraints = _parse_pddl_constraints(pddl)
         assert constraints["min_gsnr"] == 40.0
+
+
+class TestNobelGermanySymbolicSolver:
+    """Validate pathfinding and constraints directly on the 17-node German topology."""
+
+    def test_finds_multiple_paths_berlin_to_frankfurt(self) -> None:
+        from src.core.symbolic_solver import symbolic_solver_node
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        pddl = """
+        (define (problem optical-routing)
+          (:domain optical-network)
+          (:objects Berlin Frankfurt - node)
+          (:init
+            (source Berlin)
+            (destination Frankfurt)
+          )
+          (:goal (and (routed Berlin Frankfurt)))
+        )
+        """
+        state = _make_state(topology, pddl)
+        result = symbolic_solver_node(state)
+        paths = result["candidate_paths"]
+        assert paths is not None
+        assert len(paths) >= 2
+        # Verify first and last nodes in each path
+        for p in paths:
+            assert p["nodes"][0] == "Berlin"
+            assert p["nodes"][-1] == "Frankfurt"
+            assert p["total_length_km"] > 0
+            assert len(p["link_physics"]) == p["hops"]
+
+    def test_avoid_link_on_german_topology(self) -> None:
+        from src.core.symbolic_solver import symbolic_solver_node
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        # Avoid the direct Leipzig-Frankfurt link
+        pddl = """
+        (define (problem optical-routing)
+          (:domain optical-network)
+          (:objects Berlin Frankfurt - node)
+          (:init
+            (source Berlin)
+            (destination Frankfurt)
+            (avoid-link link_frankfurt_leipzig)
+          )
+          (:goal (and (routed Berlin Frankfurt)))
+        )
+        """
+        state = _make_state(topology, pddl)
+        result = symbolic_solver_node(state)
+        paths = result["candidate_paths"]
+        assert paths is not None
+        for p in paths:
+            assert "link_frankfurt_leipzig" not in p["links"]

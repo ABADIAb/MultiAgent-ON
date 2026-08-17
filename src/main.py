@@ -1,7 +1,7 @@
-"""CLI entrypoint for the Neurosymbolic Intent Orchestrator (V4).
+"""CLI entrypoint for the Risk-Adaptive Neurosymbolic Intent Orchestrator (V5).
 
 Usage:
-    uv run python src/main.py "Route from Milano-A to Milano-D"
+    uv run python src/main.py "Route from Berlin to Frankfurt with at least 15 dB GSNR"
     uv run python src/main.py  # Interactive mode
 
 The pipeline uses interrupt() for HITL approval at the Reverse Prompting

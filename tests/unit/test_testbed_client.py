@@ -13,38 +13,45 @@ class TestTestbedClientInterface:
 
 
 class TestMockTestbedClient:
-    """Verify the mock returns realistic ECOC topology data."""
+    """Verify the mock returns realistic Nobel-Germany 17-node topology data."""
 
     def test_get_topology_returns_snapshot(self) -> None:
         client = MockTestbedClient()
         result = client.get_topology()
         assert isinstance(result, TopologySnapshot)
 
-    def test_topology_has_three_nodes(self) -> None:
+    def test_topology_has_seventeen_nodes(self) -> None:
         client = MockTestbedClient()
         topology = client.get_topology()
-        assert len(topology.nodes) == 3
+        assert len(topology.nodes) == 17
 
-    def test_topology_has_two_links(self) -> None:
+    def test_topology_has_twenty_six_links(self) -> None:
         client = MockTestbedClient()
         topology = client.get_topology()
-        assert len(topology.links) == 2
+        assert len(topology.links) == 26
 
-    def test_node_names_match_ecoc_testbed(self) -> None:
+    def test_node_names_match_nobel_germany_cities(self) -> None:
         client = MockTestbedClient()
         topology = client.get_topology()
         names = [n.name for n in topology.nodes]
-        assert names == ["Milano-A", "Milano-B", "Milano-C"]
+        expected_names = [
+            "Hannover", "Frankfurt", "Hamburg", "Norden", "Bremen", "Berlin",
+            "Munich", "Ulm", "Nuremberg", "Stuttgart", "Karlsruhe", "Mannheim",
+            "Essen", "Dortmund", "Dusseldorf", "Cologne", "Leipzig",
+        ]
+        assert names == expected_names
 
-    def test_links_form_linear_chain(self) -> None:
-        """Verify links connect nodes sequentially: A-B, B-C."""
+    def test_key_connections_exist(self) -> None:
+        """Verify standard Nobel-Germany links exist in the topology."""
         client = MockTestbedClient()
         topology = client.get_topology()
-        connections = [
+        connections = {
             (link.source_node, link.target_node) for link in topology.links
-        ]
-        assert ("node_1", "node_2") in connections
-        assert ("node_2", "node_3") in connections
+        }
+        # e.g., Hannover (node_1) <-> Berlin (node_6), Frankfurt (node_2) <-> Cologne (node_16)
+        assert ("node_1", "node_6") in connections
+        assert ("node_2", "node_16") in connections
+        assert ("node_7", "node_9") in connections  # Munich <-> Nuremberg
 
     def test_fiber_lengths_are_positive(self) -> None:
         client = MockTestbedClient()
@@ -58,13 +65,13 @@ class TestMockTestbedClient:
         for node in topology.nodes:
             assert len(node.interfaces) >= 2
 
-    def test_interior_nodes_have_more_interfaces(self) -> None:
-        """Interior nodes (B, C) should have more interfaces than edge nodes (A, D)."""
+    def test_high_degree_nodes_have_more_interfaces(self) -> None:
+        """High-degree hub nodes (Hannover, Frankfurt) have more interfaces than degree-2 nodes."""
         client = MockTestbedClient()
         topology = client.get_topology()
-        edge_interfaces = len(topology.nodes[0].interfaces)
-        interior_interfaces = len(topology.nodes[1].interfaces)
-        assert interior_interfaces > edge_interfaces
+        hannover = next(n for n in topology.nodes if n.name == "Hannover")
+        norden = next(n for n in topology.nodes if n.name == "Norden")
+        assert len(hannover.interfaces) > len(norden.interfaces)
 
     def test_timestamp_is_populated(self) -> None:
         client = MockTestbedClient()
@@ -87,31 +94,35 @@ class TestMockTestbedClient:
 class TestMockTopologyAmplifierPhysics:
     """Verify that MockTestbedClient supplies realistic EDFA physics on each link."""
 
-    def test_link_ab_has_two_amplifiers(self) -> None:
+    def test_short_link_has_booster_and_preamp(self) -> None:
+        """Short links (<= 55km, e.g. Essen-Dortmund 44.4km) should have 2 amplifiers."""
         topology = MockTestbedClient().get_topology()
-        link_ab = next(lk for lk in topology.links if lk.link_id == "link_ab")
-        assert len(link_ab.amplifiers) == 2
+        link = next(lk for lk in topology.links if lk.link_id == "link_essen_dortmund")
+        assert len(link.amplifiers) == 2
+        assert link.amplifiers[0]["amp_type"] == "booster"
+        assert link.amplifiers[-1]["amp_type"] == "preamp"
 
-    def test_link_bc_has_three_amplifiers(self) -> None:
+    def test_long_link_has_ilas(self) -> None:
+        """Long links (> 55km, e.g. Frankfurt-Leipzig 381.9km) should have ILAs."""
         topology = MockTestbedClient().get_topology()
-        link_bc = next(lk for lk in topology.links if lk.link_id == "link_bc")
-        assert len(link_bc.amplifiers) == 3
-
-    def test_link_ab_first_amp_is_booster(self) -> None:
-        topology = MockTestbedClient().get_topology()
-        link_ab = next(lk for lk in topology.links if lk.link_id == "link_ab")
-        assert link_ab.amplifiers[0]["amp_type"] == "booster"
-
-    def test_link_ab_last_amp_is_preamp(self) -> None:
-        topology = MockTestbedClient().get_topology()
-        link_ab = next(lk for lk in topology.links if lk.link_id == "link_ab")
-        assert link_ab.amplifiers[-1]["amp_type"] == "preamp"
-
-    def test_link_bc_has_ila_at_midspan(self) -> None:
-        topology = MockTestbedClient().get_topology()
-        link_bc = next(lk for lk in topology.links if lk.link_id == "link_bc")
-        amp_types = [a["amp_type"] for a in link_bc.amplifiers]
+        link = next(lk for lk in topology.links if lk.link_id == "link_frankfurt_leipzig")
+        assert len(link.amplifiers) >= 3
+        amp_types = [a["amp_type"] for a in link.amplifiers]
+        assert "booster" in amp_types
         assert "ila" in amp_types
+        assert "preamp" in amp_types
+
+    def test_first_amp_is_always_booster(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        for link in topology.links:
+            assert link.amplifiers[0]["amp_type"] == "booster"
+            assert link.amplifiers[0]["position_km"] == 0.0
+
+    def test_last_amp_is_always_preamp(self) -> None:
+        topology = MockTestbedClient().get_topology()
+        for link in topology.links:
+            assert link.amplifiers[-1]["amp_type"] == "preamp"
+            assert link.amplifiers[-1]["position_km"] == round(link.length_km, 1)
 
     def test_all_links_have_positive_port_loss(self) -> None:
         topology = MockTestbedClient().get_topology()
@@ -123,12 +134,4 @@ class TestMockTopologyAmplifierPhysics:
         for link in topology.links:
             for amp in link.amplifiers:
                 assert amp["gain_dB"] > 0
-
-    def test_preamp_position_equals_link_length(self) -> None:
-        """Preamp should sit at the end of the span (at link length km)."""
-        topology = MockTestbedClient().get_topology()
-        for link in topology.links:
-            preamps = [a for a in link.amplifiers if a["amp_type"] == "preamp"]
-            for preamp in preamps:
-                assert preamp["position_km"] == link.length_km
 

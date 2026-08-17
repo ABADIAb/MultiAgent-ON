@@ -447,3 +447,52 @@ class TestMultiHopPath:
         assert snr_dB < snr_single
         # Power should be finite (not -inf)
         assert power_dBm > -50
+
+
+class TestNobelGermanyQoT:
+    """Validate QoT feasibility on links and multi-hop paths of Nobel-Germany."""
+
+    def test_single_german_link_qot_feasibility(self) -> None:
+        from src.core.qot_calculator import assess_qot
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        # Hannover <-> Hamburg (169.4 km)
+        link = next(lk for lk in topology.links if lk.link_id == "link_hannover_hamburg")
+        res = assess_qot([link], bitrate_gbps=100)
+        assert res.feasible is True
+        assert res.snr_dB > 15.0  # High SNR on well-amplified single link
+        assert res.power_dBm > -18.0  # Above receiver threshold
+
+    def test_longest_german_link_qot_feasibility(self) -> None:
+        from src.core.qot_calculator import assess_qot
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        # Frankfurt <-> Leipzig (381.9 km, ~6 spans)
+        link = next(lk for lk in topology.links if lk.link_id == "link_frankfurt_leipzig")
+        res = assess_qot([link], bitrate_gbps=100)
+        assert res.feasible is True
+        assert res.snr_dB > 12.0
+        assert res.power_dBm > -18.0
+
+    def test_multihop_trans_germany_route_feasibility_at_100g_vs_200g(self) -> None:
+        from src.core.qot_calculator import assess_qot
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        # Hamburg -> Berlin -> Leipzig -> Nuremberg -> Munich (~1019 km)
+        link_hb = next(lk for lk in topology.links if lk.link_id == "link_hamburg_berlin")
+        link_bl = next(lk for lk in topology.links if lk.link_id == "link_berlin_leipzig")
+        link_ln = next(lk for lk in topology.links if lk.link_id == "link_nuremberg_leipzig")
+        link_nm = next(lk for lk in topology.links if lk.link_id == "link_munich_nuremberg")
+
+        long_route = [link_hb, link_bl, link_ln, link_nm]
+        res_100g = assess_qot(long_route, bitrate_gbps=100)
+        # Should be feasible at 100G (threshold 8.6 dB)
+        assert res_100g.feasible is True
+        assert res_100g.snr_dB >= 8.6
+
+        # Strict target SNR (e.g. 25 dB) triggers unfeasibility for RADG replanning evaluation
+        res_strict = assess_qot(long_route, bitrate_gbps=100, target_snr_dB=25.0)
+        assert res_strict.feasible is False

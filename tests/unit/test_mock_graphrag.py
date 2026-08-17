@@ -215,3 +215,42 @@ class TestGraphToContextString:
         graph = build_adjacency_graph(empty_topology)
         result = graph_to_context_string(graph)
         assert isinstance(result, str)
+
+
+class TestNobelGermanyGraphRAG:
+    """Validate GraphRAG behavior directly on the 17-node German topology."""
+
+    def test_german_topology_adjacency_graph_nodes_and_edges(self) -> None:
+        from src.core.mock_graphrag import build_adjacency_graph
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        graph = build_adjacency_graph(topology)
+        assert graph.number_of_nodes() == 17
+        assert graph.number_of_edges() == 26
+
+    def test_german_topology_khop_extraction_bounds_subgraph(self) -> None:
+        from src.core.mock_graphrag import build_adjacency_graph, extract_k_hop_neighborhood
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        graph = build_adjacency_graph(topology)
+        # Berlin (node_6) to Leipzig (node_17) with k=1
+        subgraph = extract_k_hop_neighborhood(graph, source_node="node_6", target_node="node_17", k=1)
+        # Subgraph bounds context: contains only nodes within 1 hop of Berlin or Leipzig
+        assert subgraph.number_of_nodes() < 17
+        assert "node_6" in subgraph.nodes
+        assert "node_17" in subgraph.nodes
+
+    def test_german_topology_context_string_serialization(self) -> None:
+        from src.core.mock_graphrag import build_adjacency_graph, extract_k_hop_neighborhood, graph_to_context_string
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        graph = build_adjacency_graph(topology)
+        subgraph = extract_k_hop_neighborhood(graph, source_node="node_6", target_node="node_2", k=2)
+        ctx = graph_to_context_string(subgraph)
+        assert "Berlin" in ctx
+        assert "Frankfurt" in ctx
+        assert "km" in ctx
+

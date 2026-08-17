@@ -45,97 +45,135 @@ class TestbedClient(ABC):
         ...
 
 
+def _build_link_amplifiers(length_km: float) -> list[dict]:
+    """Generate realistic EDFA amplifier placements for a fiber link.
+
+    Places:
+      - Booster at 0.0 km (gain calibrated to compensate node mux/connector loss)
+      - Inline Amplifiers (ILAs) every ~60-80 km for links > 55 km
+      - Preamp at destination (at length_km)
+    """
+    amps: list[dict] = [
+        {
+            "position_km": 0.0,
+            "gain_dB": 3.0,
+            "amp_type": "booster",
+            "att_dB": 0.0,
+        }
+    ]
+
+    if length_km <= 55.0:
+        # Single span: Preamp at end
+        span_loss = length_km * 0.25 + 1.0  # att_coeff (0.25 dB/km) + connector (1.0 dB)
+        amps.append({
+            "position_km": round(length_km, 1),
+            "gain_dB": round(span_loss, 2),
+            "amp_type": "preamp",
+            "att_dB": 0.0,
+        })
+    else:
+        # Multi-span: target span length ~70 km
+        num_spans = max(2, round(length_km / 70.0))
+        span_len = length_km / num_spans
+        for i in range(1, num_spans):
+            pos = i * span_len
+            ila_gain = span_len * 0.25 + 2.0  # span att + 2 connectors
+            amps.append({
+                "position_km": round(pos, 1),
+                "gain_dB": round(ila_gain, 2),
+                "amp_type": "ila",
+                "att_dB": 0.0,
+            })
+        # Preamp at destination
+        last_span_loss = span_len * 0.25 + 1.0
+        amps.append({
+            "position_km": round(length_km, 1),
+            "gain_dB": round(last_span_loss, 2),
+            "amp_type": "preamp",
+            "att_dB": 0.0,
+        })
+    return amps
+
+
 class MockTestbedClient(TestbedClient):
-    """Mock testbed client returning a realistic 3-node ECOC topology.
+    """Mock testbed client returning the 17-node Nobel-Germany optical backbone topology.
 
-    Based on the Politecnico di Milano ECOC 2024 testbed parameters.
-    3 nodes in a linear topology: Milano-A ↔ Milano-B ↔ Milano-C.
+    Standard benchmark topology from SNDlib (17 nodes, 26 bidirectional links).
+    Nodes represent major German core optical centers:
+      Hannover, Frankfurt, Hamburg, Norden, Bremen, Berlin, Munich, Ulm,
+      Nuremberg, Stuttgart, Karlsruhe, Mannheim, Essen, Dortmund, Dusseldorf,
+      Cologne, Leipzig.
 
-    Amplifier configurations are calibrated to produce physically meaningful
-    QoT outcomes so Sprint 3 tests exercise the real RADG decision logic:
-      - link_ab (20 km): feasible at 100G
-      - link_bc (40 km): adds enough ASE/NLI to make A→B→C marginal at 100G
+    Amplifier configurations are generated with physical EDFA placements:
+      - Booster at 0.0 km
+      - Inline Amplifiers (ILAs) every ~60-80 km
+      - Preamp at destination (L km)
     """
 
     def get_topology(self) -> TopologySnapshot:
-        """Return a realistic 3-node linear topology with EDFA physics data."""
+        """Return the 17-node Nobel-Germany optical backbone topology."""
         nodes = [
-            NetworkNode(
-                node_id="node_1",
-                name="Milano-A",
-                interfaces=[101, 102],
-            ),
-            NetworkNode(
-                node_id="node_2",
-                name="Milano-B",
-                interfaces=[201, 202, 203, 204],
-            ),
-            NetworkNode(
-                node_id="node_3",
-                name="Milano-C",
-                interfaces=[301, 302, 303, 304],
-            ),
+            NetworkNode(node_id="node_1", name="Hannover", interfaces=[101, 102, 103, 104, 105, 106]),
+            NetworkNode(node_id="node_2", name="Frankfurt", interfaces=[201, 202, 203, 204, 205]),
+            NetworkNode(node_id="node_3", name="Hamburg", interfaces=[301, 302, 303]),
+            NetworkNode(node_id="node_4", name="Norden", interfaces=[401, 402]),
+            NetworkNode(node_id="node_5", name="Bremen", interfaces=[501, 502, 503]),
+            NetworkNode(node_id="node_6", name="Berlin", interfaces=[601, 602, 603]),
+            NetworkNode(node_id="node_7", name="Munich", interfaces=[701, 702]),
+            NetworkNode(node_id="node_8", name="Ulm", interfaces=[801, 802]),
+            NetworkNode(node_id="node_9", name="Nuremberg", interfaces=[901, 902, 903, 904]),
+            NetworkNode(node_id="node_10", name="Stuttgart", interfaces=[1001, 1002, 1003]),
+            NetworkNode(node_id="node_11", name="Karlsruhe", interfaces=[1101, 1102]),
+            NetworkNode(node_id="node_12", name="Mannheim", interfaces=[1201, 1202]),
+            NetworkNode(node_id="node_13", name="Essen", interfaces=[1301, 1302]),
+            NetworkNode(node_id="node_14", name="Dortmund", interfaces=[1401, 1402, 1403, 1404]),
+            NetworkNode(node_id="node_15", name="Dusseldorf", interfaces=[1501, 1502]),
+            NetworkNode(node_id="node_16", name="Cologne", interfaces=[1601, 1602, 1603]),
+            NetworkNode(node_id="node_17", name="Leipzig", interfaces=[1701, 1702, 1703, 1704]),
+        ]
+
+        # 26 standard physical bidirectional links of Nobel-Germany topology
+        raw_links_spec = [
+            ("link_hannover_berlin", "node_1", "node_6", 324.7, 8),
+            ("link_hannover_bremen", "node_1", "node_5", 132.7, 6),
+            ("link_hannover_dortmund", "node_1", "node_14", 242.7, 8),
+            ("link_hannover_frankfurt", "node_1", "node_2", 341.2, 10),
+            ("link_hannover_hamburg", "node_1", "node_3", 169.4, 8),
+            ("link_hannover_leipzig", "node_1", "node_17", 275.8, 8),
+            ("link_frankfurt_cologne", "node_2", "node_16", 188.9, 8),
+            ("link_frankfurt_leipzig", "node_2", "node_17", 381.9, 10),
+            ("link_frankfurt_mannheim", "node_2", "node_12", 95.3, 6),
+            ("link_frankfurt_nuremberg", "node_2", "node_9", 246.8, 8),
+            ("link_hamburg_berlin", "node_3", "node_6", 330.9, 10),
+            ("link_hamburg_bremen", "node_3", "node_5", 129.7, 6),
+            ("link_norden_bremen", "node_4", "node_5", 156.5, 4),
+            ("link_norden_dortmund", "node_4", "node_14", 303.0, 6),
+            ("link_berlin_leipzig", "node_6", "node_17", 196.7, 8),
+            ("link_munich_nuremberg", "node_7", "node_9", 193.2, 8),
+            ("link_munich_ulm", "node_7", "node_8", 154.4, 6),
+            ("link_ulm_stuttgart", "node_8", "node_10", 95.9, 6),
+            ("link_nuremberg_leipzig", "node_9", "node_17", 298.3, 8),
+            ("link_nuremberg_stuttgart", "node_9", "node_10", 212.7, 8),
+            ("link_stuttgart_karlsruhe", "node_10", "node_11", 78.7, 6),
+            ("link_karlsruhe_mannheim", "node_11", "node_12", 69.8, 6),
+            ("link_essen_dortmund", "node_13", "node_14", 44.4, 4),
+            ("link_essen_dusseldorf", "node_13", "node_15", 37.5, 4),
+            ("link_dortmund_cologne", "node_14", "node_16", 95.3, 6),
+            ("link_dusseldorf_cologne", "node_15", "node_16", 48.1, 4),
         ]
 
         links = [
             FiberLink(
-                link_id="link_ab",
-                source_node="node_1",
-                target_node="node_2",
-                length_km=20.0,
-                num_amplifiers=2,
-                active_channels=4,
+                link_id=link_id,
+                source_node=src,
+                target_node=dst,
+                length_km=length_km,
+                num_amplifiers=len(_build_link_amplifiers(length_km)),
+                active_channels=channels,
                 port_loss_dB=0.5,
-                amplifiers=[
-                    # Booster at source node: compensates mux (6 dB) + connector (1 dB) losses
-                    {
-                        "position_km": 0.0,
-                        "gain_dB": 7.0,
-                        "amp_type": "booster",
-                        "att_dB": 0.0,
-                    },
-                    # Preamp at destination: compensates 20 km span attenuation (5 dB)
-                    # plus connector (1 dB) + port (0.5 dB) losses
-                    {
-                        "position_km": 20.0,
-                        "gain_dB": 7.5,
-                        "amp_type": "preamp",
-                        "att_dB": 0.0,
-                    },
-                ],
-            ),
-            FiberLink(
-                link_id="link_bc",
-                source_node="node_2",
-                target_node="node_3",
-                length_km=40.0,
-                num_amplifiers=3,
-                active_channels=6,
-                port_loss_dB=0.5,
-                amplifiers=[
-                    # Booster at source node output (Milano-B)
-                    {
-                        "position_km": 0.0,
-                        "gain_dB": 3.0,
-                        "amp_type": "booster",
-                        "att_dB": 0.0,
-                    },
-                    # ILA at mid-span (20 km): compensates first half span + connector losses
-                    {
-                        "position_km": 20.0,
-                        "gain_dB": 7.0,
-                        "amp_type": "ila",
-                        "att_dB": 0.0,
-                    },
-                    # Preamp at destination (Milano-C): compensates second half span
-                    {
-                        "position_km": 40.0,
-                        "gain_dB": 7.5,
-                        "amp_type": "preamp",
-                        "att_dB": 0.0,
-                    },
-                ],
-            ),
+                amplifiers=_build_link_amplifiers(length_km),
+            )
+            for link_id, src, dst, length_km, channels in raw_links_spec
         ]
 
         return TopologySnapshot(
