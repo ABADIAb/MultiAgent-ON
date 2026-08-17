@@ -108,7 +108,8 @@ Content-oriented catalog of everything in the wiki.
 
 ## Thesis Drafts
 - [[thesis_drafts/Writing_Roadmap_v1]]: Roadmap de escritura y estrategia de uso de NotebookLM/Antigravity.
-- [[thesis_drafts/Thesis_Outline_v3]]: Active V3 draft with problem formalization and mapped citations.
+- [[thesis_drafts/Thesis_Outline_v4]]: Active V4 draft with problem formalization and mapped citations based on NotebookLM structural recommendations.
+- [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 ## Session Summaries
 - [[session_summary/session_20260807_GraphRAG_Integration]]: Optical RAG integration for dynamic topology injection in Phase 1 and Phase 2.

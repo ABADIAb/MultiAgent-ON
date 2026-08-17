@@ -1,12 +1,12 @@
 ---
-title: "Thesis Outline Draft - V3"
-date: 2026-08-03
+title: "Thesis Outline Draft - V4"
+date: 2026-08-12
 tags: [thesis, outline, draft, citations]
 status: active
 ---
 
 # Summary
-This document provides the third iteration of the thesis outline, mapping cited literature directly to the specific sections where they will be discussed. It also formalizes the Problem Statement (Section 3.1) to rigorously define the system's inputs, constraints, and optimization objectives, reflecting the V5 architecture.
+This document provides the fourth iteration of the thesis outline, incorporating structural feedback to elevate the theoretical discussion. The Problem Statement (Section 3.1) rigorously defines the system's inputs, constraints, and optimization objectives, reflecting the V5 architecture. Experimental setup uses a mock 17-node German topology.
 
 # **Abstract** 
 
@@ -18,26 +18,23 @@ This document provides the third iteration of the thesis outline, mapping cited 
 
 --------------------------------------------------------------------------------
 # **1 Introduction** 
-- **1.1 The Evolution of Intent-Based Optical Networks:** The shift from manual configuration towards Software-Defined Optical Networks (SDON) and Level-4 (L4) autonomous operations. The promise of Intent-Based Networking (IBN) to abstract low-level complexity.
-  - *Citations:* `[SOTA] ETSI_AI_in_the_evolution_of_Autonomous_Networks.pdf` (vision of autonomous networks); `[SOTA] Assurance_and_Conflict_Detection_in_Intent-Based_Networking...pdf` (standard IBN definitions).
-- **1.2 The Promise and Perils of Generative AI in Network Control:** How Large Language Models (LLMs) and Agentic AI are being adopted to interpret operator intents, alongside the severe physical and computational risks they introduce (Token Budget Saturation and Hallucinated Physics).
-  - *Citations:* `[SOTA] Netconfeval-Can_llms_facilitate_network_configuration.pdf` (hallucination risks); `[SOTA] Open_Implementation_of_a_Large_Language_Model_Pipeline..._POLIMI.pdf` (early implementations).
-- **1.3 Motivation:** The specific bottlenecks in translating human intent into physical optical configurations, emphasizing the danger of hallucinated physics.
-  - *Citations:* `[[ProblemStatement_v5]]` (Formalizing the five bottlenecks).
-- **1.4 Proposed Solution and Contributions:** Introduction of the Risk-Adaptive Decision Gate (RADG) and the strict separation of semantic reasoning from symbolic physical calculation.
+- **1.1 Overview and Motivation:** The shift from manual configuration towards Level-4 (L4) autonomous operations and Intent-Based Networking (IBN). How Large Language Models (LLMs) and Agentic AI are being adopted to interpret operator intents, alongside the severe physical and computational risks they introduce (Token Budget Saturation and Hallucinated Physics). The specific bottlenecks in translating human intent into physical optical configurations.
+  - *Citations:* `[SOTA] ETSI_AI_in_the_evolution_of_Autonomous_Networks.pdf`; `[SOTA] Assurance_and_Conflict_Detection_in_Intent-Based_Networking...pdf`; `[SOTA] Netconfeval-Can_llms_facilitate_network_configuration.pdf`; `[SOTA] Open_Implementation_of_a_Large_Language_Model_Pipeline..._POLIMI.pdf`; `[[ProblemStatement_v5]]` (Formalizing the five bottlenecks).
+- **1.2 Proposed Solution and Contributions:** Introduction of the Risk-Adaptive Decision Gate (RADG) and the strict separation of semantic reasoning from symbolic physical calculation.
   - *Citations:* `[[Architecture_v5]]` and `[[Scope_Pivot_20260706]]`.
-- **1.5 Thesis Structure:** Brief description of the remaining chapters.
+- **1.3 Thesis Structure:** Brief description of the remaining chapters.
 
 --------------------------------------------------------------------------------
 # **2 Background and State of the Art** 
-- **2.1 Agentic AI and Multi-Agent Systems in Optical Networks:** Review of SOTA solutions achieving high-level orchestration, such as LangGraph-based hierarchical MAS and distributed intent resolution.
-  - *Citations:* `[SOTA] Intent-Driven Network Management with Multi-Agent LLMs The.pdf` (Confucius framework); `[SOTA] Field_trial_of_an_LLM-powered_AI_agent..._full-lifecycle_demonstration.pdf` (AutoLight/SJTU field trials); `[SOTA] Agentic_AI_for_Scalable_and_Robust_Optical.pdf` (AgentOptics and MCP).
-- **2.2 Limitations of Purely Generative Pipelines:** Why standard LLMs fundamentally struggle with deterministic Quality of Transmission (QoT) constraints, complex numerical analysis, and large topological datasets.
-  - *Citations:* `[SOTA] JOCN2026_AutoONBench...pdf` (highlighting LLM limitations in context-aware numerical analysis); `[SOTA] AI_agent_for_autonomous_optical_networks_architectures...pdf` (challenges in reasoning reliability).
-- **2.3 The Reliance on Post-Deployment Retry Loops (The Baseline):** Critical analysis of how current literature attempts to solve LLM hallucinations. Most systems deploy configurations and rely on trial-and-error retry loops when the network rejects them.
-  - *Citations:* `[SOTA] Flow-Rule_Generation_for_SDN_Using_LLMs_with_Retry-Based_Deployment_Validation.pdf` (establishing the "Fixed-Retry" baseline).
-- **2.4 The Research Gap - The Need for Pre-Deployment Neurosymbolic Verification:** Emphasizing the lack of fail-fast, pre-deployment evaluation mechanisms. Introducing formal methods and neurosymbolic AI as the missing link for mission-critical optical networks.
-  - *Citations:* `[SOTA] Bridging_Language_Models_and_Formal_Methods_for_Intent-Driven_OpticalNetwork_Design.pdf` (validating the need for formal methods); `[SOTA] Few-Shot_Neuro-Symbolic_Imitation_Learning_for_Long-Horizon_Planning.pdf` (for PDDL and classical planners).
+
+- **2.1 Agentic AI and Multi-Agent Systems in Intent-Driven Networks:** The evolution from monolithic LLMs to distributed, cooperative Multi-Agent Systems (MAS) for intent translation and network orchestration.
+  - *Citations:* `[SOTA] Intent-Driven Network Management with Multi-Agent LLMs The.pdf`; `[SOTA] Field_trial_of_an_LLM-powered_AI_agent..._full-lifecycle_demonstration.pdf`; `[SOTA] LLM-Based_Multi-Agent_Architecture_for_Transport_Networks.pdf`; `[SOTA] Enhancing_Secure_Intent-Based_Networking_with_an_Agentic_AI_The_EU_Project_MARE.pdf`; `[SOTA] Agentic_AI_for_Scalable_and_Robust_Optical.pdf`; `[SOTA] IntentLLM_An_AI_Chatbot_to_Create_Find_and_Explain_Slice_Intents_in_TeraFlowSDN.pdf`.
+- **2.2 Physical-Layer Constraints and QoT Estimation in Optical Network Planning:** Traditional physical-layer modeling (GN-model) and the fundamental limitations of purely generative LLMs in deterministic numerical analysis ("hallucinated physics").
+  - *Citations:* `[SOTA] Network_Planning_With_Actual_Margins.pdf`; `[SOTA] GNPy_as_a_benchmark_for_open_and_disaggregated_optical_networks.pdf`; `[SOTA] JOCN2026_AutoONBench_a_benchmark_for_large_language_model_agents_in_autonomous_optical_networks 1.pdf`; `[SOTA] Scientific_Knowledge-driven_Decoding_Constraints_Improving_the_Reliability_of_LLMs.pdf`.
+- **2.3 Intent Verification, Service Assurance, and Deployment Correction Strategies:** Contrasting closed-loop service assurance and pre-execution formal validation (CFG, PDDL) against reactive post-deployment retry paradigms.
+  - *Citations:* `[SOTA] Assurance_and_Conflict_Detection_in_Intent-Based_Networking...Survey.pdf`; `[SOTA] ETSI_AI_in_the_evolution_of_Autonomous_Networks.pdf`; `[SOTA] Bridging_Language_Models_and_Formal_Methods_for_Intent-Driven_OpticalNetwork_Design.pdf`; `[SOTA] Flow-Rule_Generation_for_SDN_Using_LLMs_with_Retry-Based_Deployment_Validation.pdf`.
+- **2.4 The Research Gap: Pre-Deployment Risk-Adaptive Neurosymbolic Verification:** The lack of joint sequential estimation of semantic uncertainty and physical-layer deterministic risk prior to deployment.
+  - *Citations:* `[SOTA] Bridging_Language_Models_and_Formal_Methods_for_Intent-Driven_OpticalNetwork_Design.pdf`; `[SOTA] LOOP-A_Plug-and-Play_Neuro-Symbolic_Framework_for_Enhancing_Planning.pdf`.
 
 --------------------------------------------------------------------------------
 # **3 System Model: The Risk-Adaptive Neurosymbolic Architecture** 
@@ -68,14 +65,13 @@ This document provides the third iteration of the thesis outline, mapping cited 
 
 --------------------------------------------------------------------------------
 # **5 Experimental Evaluation and Results** 
-- **5.1 Experimental Setup and Baselines:** Definition of the synthetic intent dataset and the benchmark strategies (No-HITL, Always-HITL, and Fixed-Retry).
-  - *Citations:* `[[Scope_Pivot_20260706]]` (experimental design); `[SOTA] Flow-Rule_Generation_for_SDN_Using_LLMs_with_Retry...pdf` (as the Fixed-Retry baseline).
+- **5.1 Experimental Setup:** Definition of the synthetic intent dataset, utilizing a **17-node German Mock Topology** to evaluate realistic fiber lengths and EDFA amplifier placement.
+  - *Citations:* `[[Scope_Pivot_20260706]]` (experimental design).
 - **5.2 Performance Metrics:** Unsafe Approval Rate (UAR), Human Interaction Count (HIC), QoT Feasibility Rate (QFR), End-to-End Latency (E2EL), and Token Cost (TC).
   - *Citations:* `[[Scope_Pivot_20260706]]`.
-- **5.3 Performance under Safe Conditions:** Results data of the architecture autonomously processing unambiguous, QoT-valid intents.
-- **5.4 Performance under Ambiguity:** Results data of the system engaging the HITL proportionally via reverse prompting when constraints are missing.
-- **5.5 Comparison against Baselines:** Demonstrating how RADG outperforms No-HITL in safety (QFR, UAR) and Always-HITL in efficiency (HIC, E2EL).
-- **5.6 Summary of Findings:** The computational and operational savings achieved by avoiding post-deployment failures.
+- **5.3 Performance under Safe Conditions:** Results data of the architecture autonomously processing unambiguous, QoT-valid intents. Integrates comparison against No-HITL and Always-HITL baselines.
+- **5.4 Performance under Ambiguity:** Results data of the system engaging the HITL proportionally via reverse prompting when constraints are missing. Integrates comparison against the reactive-retry baseline.
+- **5.5 Summary of Findings:** The computational and operational savings achieved by avoiding post-deployment failures and applying pre-deployment verification.
   - *Citations:* `[SOTA] Cost_and_accuracy_of_long-term_graph_memory_in_distributed_LLM-based_multi-agent_systems.pdf` (cross-referencing Token Cost savings).
 
 --------------------------------------------------------------------------------

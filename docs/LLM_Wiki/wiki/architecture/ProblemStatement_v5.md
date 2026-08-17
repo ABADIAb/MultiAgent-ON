@@ -24,7 +24,7 @@ The translation of high-level operator intent into physical optical network conf
 
 3. **Semantic Drift in HITL Refinement.** Unstructured conversational loops for intent refinement lack convergence guarantees. A correction in one turn may cause the LLM to inadvertently drop constraints from prior turns, creating an infinite loop of unverified plan states.
 
-4. **Post-Deployment Failure Discovery.** Existing LLM-based networking systems (e.g., El Hachimi et al., CNSM 2025) rely on **fixed retry loops after deployment failure**: the system generates a configuration, deploys it, observes a controller error, and retries. This reactive pattern allows physically infeasible or unsafe configurations to reach the network controller before any corrective action is taken.
+4. **Reactive Post-Deployment Verification.** Existing LLM-based networking systems rely on **heuristic trial-and-error loops after a deployment failure**: the system generates a configuration, deploys it, observes a controller error, and retries. This reactive pattern allows physically infeasible or unsafe configurations to reach the network controller before any corrective action is taken.
 
 5. **Suboptimal HITL Engagement.** Current systems offer only two extremes: **always-on HITL** (every intent requires human review, creating bottlenecks and operator fatigue) or **no HITL** (fully autonomous, risking unsafe approvals). There is no mechanism to engage the human operator **proportionally to the assessed risk** of a given intent.
 
@@ -32,7 +32,7 @@ The translation of high-level operator intent into physical optical network conf
 
 | System | HITL Strategy | When Applied | Key Limitation |
 |--------|--------------|--------------|----------------|
-| **PoliMi/CNSM 2025** (El Hachimi et al.) | Fixed retry after controller deployment failure | Post-deployment | Reactive; deploys unsafe configs first, then retries up to N times |
+| **Reactive-Retry Baseline** | Heuristic retry after controller deployment failure | Post-deployment | Reactive; deploys unsafe configs first, then retries up to N times |
 | **Confucius** (Meta, SIGCOMM 2025) | Collector primitive for structured Q&A | Pre-execution | No optical physical-layer awareness; no QoT |
 | **AutoLight** (SJTU, ECOC 2025) | None — pre-defined task sequences | Pre-execution | No operator validation; no risk assessment |
 | **IntentLLM** | None — single-pass chatbot | N/A | No multi-agent coordination; no QoT |
@@ -127,7 +127,7 @@ Where:
 |----------|-------------|
 | **No-HITL** | System runs end-to-end without any human check. Measures the risk of fully autonomous operation. |
 | **Always-HITL** | Every intent triggers mandatory human review via Reverse Prompting. Measures the cost of maximum safety. |
-| **Fixed-Retry** (à la PoliMi/CNSM 2025) | System generates config, deploys, observes failure, retries up to N times. Measures post-deployment correction. |
+| **Reactive-Retry** | System generates config, deploys, observes failure, retries up to N times. Measures post-deployment correction. |
 | **Risk-Adaptive HITL (Ours)** | RADG decides when and how to involve the human based on joint $U_{sem}$ and $\text{QoT}_{valid}$. |
 
 ### 8.2 Evaluation Metrics

@@ -15,7 +15,7 @@ This document defines the V5 system architecture for the **Risk-Adaptive Neurosy
 
 The system translates natural language intent into PDDL. Before executing expensive symbolic solvers and physical simulations, a **Semantic Uncertainty Gate** evaluates if the intent is clear, triggering a targeted HITL request for missing data if it is not. Once semantically clear, the system filters valid topologies, validates physical feasibility, and applies a **Physical Risk Gate** to decide whether the plan should be **auto-approved**, **suggest replanning** with alternative paths, or **rejected** to prevent unfeasible deployments.
 
-**Key distinction from prior work:** Existing systems (e.g., El Hachimi et al., CNSM 2025) use fixed retry loops *after* deployment failure. This architecture applies a fail-fast risk evaluation *before* deployment, saving compute by catching semantic ambiguity early and preventing physically infeasible lightpaths from reaching the network controller.
+**Key distinction from prior work:** Existing systems rely on reactive post-deployment configurations and heuristic LLM trial-and-error loops *after* a deployment failure occurs. This architecture applies a fail-fast risk evaluation *before* deployment, saving compute by catching semantic ambiguity early and preventing physically infeasible lightpaths from reaching the network controller.
 
 **Evolution rationale:** See [[Scope_Pivot_20260706]] for the complete architectural journey from V2 through V5.
 
@@ -125,7 +125,7 @@ The Orchestrator summarizes the feasible, approved paths into a Planning Report 
 | **Pre-deployment Safety** | Implicit via pipeline stages | Explicit via two-stage Decision Gates |
 | **Decision Outcomes** | Approve / Refine / Reject (binary) | Auto-Approve / Clarify / Suggest Replan (3 outcomes, looping to Phase 2) |
 | **Evaluation** | Ad-hoc demo | Formal baselines + metrics (UAR, HIC, QFR, E2EL, TC) |
-| **Prior Art Positioning** | Against Confucius, AutoLight | + PoliMi/CNSM 2025 (retry-based) |
+| **Prior Art Positioning** | Against Confucius, AutoLight | + Reactive-Retry Baseline |
 
 ## 7. `src/` Folder Convention
 
