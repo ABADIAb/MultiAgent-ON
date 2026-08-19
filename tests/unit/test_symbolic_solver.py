@@ -271,3 +271,199 @@ class TestSymbolicSolverConstraints:
         """
         constraints = _parse_pddl_constraints(pddl)
         assert constraints["min_gsnr"] == 40.0
+
+
+class TestNobelGermanySymbolicSolver:
+    """Validate pathfinding and constraints directly on the 17-node German topology."""
+
+    def test_finds_multiple_paths_berlin_to_frankfurt(self) -> None:
+        from src.core.symbolic_solver import symbolic_solver_node
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        pddl = """
+        (define (problem optical-routing)
+          (:domain optical-network)
+          (:objects Berlin Frankfurt - node)
+          (:init
+            (source Berlin)
+            (destination Frankfurt)
+          )
+          (:goal (and (routed Berlin Frankfurt)))
+        )
+        """
+        state = _make_state(topology, pddl)
+        result = symbolic_solver_node(state)
+        paths = result["candidate_paths"]
+        assert paths is not None
+        assert len(paths) >= 2
+        # Verify first and last nodes in each path
+        for p in paths:
+            assert p["nodes"][0] == "Berlin"
+            assert p["nodes"][-1] == "Frankfurt"
+            assert p["total_length_km"] > 0
+            assert len(p["link_physics"]) == p["hops"]
+
+    def test_avoid_link_on_german_topology(self) -> None:
+        from src.core.symbolic_solver import symbolic_solver_node
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        # Avoid the direct Leipzig-Frankfurt link
+        pddl = """
+        (define (problem optical-routing)
+          (:domain optical-network)
+          (:objects Berlin Frankfurt - node)
+          (:init
+            (source Berlin)
+            (destination Frankfurt)
+            (avoid-link link_frankfurt_leipzig)
+          )
+          (:goal (and (routed Berlin Frankfurt)))
+        )
+        """
+        state = _make_state(topology, pddl)
+        result = symbolic_solver_node(state)
+        paths = result["candidate_paths"]
+        assert paths is not None
+        for p in paths:
+            assert "link_frankfurt_leipzig" not in p["links"]
+
+    def test_finds_paths_munich_to_cologne_with_goal_route_predicate(self) -> None:
+        """BUG-006: Route goal (route Munich Cologne) must yield Munich -> Cologne paths, NOT Hannover -> Leipzig."""
+        from src.core.symbolic_solver import symbolic_solver_node
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        pddl = """
+        (define (problem establish-service-munich-cologne)
+          (:domain optical-network)
+          (:objects
+            Hannover Frankfurt Hamburg Norden Bremen Berlin Munich Ulm
+            Nuremberg Stuttgart Karlsruhe Mannheim Essen Dortmund Dusseldorf
+            Cologne Leipzig - node
+          )
+          (:init
+            (connected Munich Ulm)
+            (connected Ulm Stuttgart)
+          )
+          (:goal
+            (and
+              (route Munich Cologne)
+            )
+          )
+        )
+        """
+        state = _make_state(topology, pddl)
+        result = symbolic_solver_node(state)
+        paths = result["candidate_paths"]
+        assert paths is not None
+        assert len(paths) >= 1
+        for p in paths:
+            assert p["nodes"][0] == "Munich"
+            assert p["nodes"][-1] == "Cologne"
+        # Ensure message does NOT say 'from None to None'
+        assert "from 'Munich' to 'Cologne'" in result["messages"][-1].content
+
+    def test_fallback_to_enriched_intent_when_pddl_lacks_endpoints(self) -> None:
+        """If PDDL does not contain source/target, fallback to enriched_intent."""
+        from src.core.symbolic_solver import symbolic_solver_node
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        pddl = """
+        (define (problem generic-problem)
+          (:domain optical-network)
+          (:objects Munich Cologne - node)
+          (:init)
+          (:goal (and (min-gsnr 15.0)))
+        )
+        """
+        state = _make_state(topology, pddl)
+        state["enriched_intent"] = "Intent: Establish service | Source: Munich | Target: Cologne"
+        result = symbolic_solver_node(state)
+        paths = result["candidate_paths"]
+        assert paths is not None
+        assert len(paths) >= 1
+        for p in paths:
+            assert p["nodes"][0] == "Munich"
+            assert p["nodes"][-1] == "Cologne"
+
+    def test_fails_gracefully_when_no_endpoints_specified(self) -> None:
+        """When neither PDDL nor state has endpoints, return empty paths and descriptive error."""
+        from src.core.symbolic_solver import symbolic_solver_node
+        from src.services.testbed_client import MockTestbedClient
+
+        topology = MockTestbedClient().get_topology()
+        pddl = """
+        (define (problem generic-problem)
+          (:domain optical-network)
+          (:objects Node-A - node)
+          (:init)
+          (:goal (and (min-gsnr 15.0)))
+        )
+        """
+        state = _make_state(topology, pddl)
+        state["enriched_intent"] = "Intent: Generic query without endpoints"
+        result = symbolic_solver_node(state)
+        assert result["candidate_paths"] == []
+        assert "source or destination not specified" in result["messages"][-1].content.lower()
+
+
+class TestPDDLConstraintParsingVariations:
+    """Validate _parse_pddl_constraints against various PDDL goal syntax variations."""
+
+    def test_parse_route_predicate(self) -> None:
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = "(:goal (and (route Munich Cologne)))"
+        c = _parse_pddl_constraints(pddl)
+        assert c["source"] == "Munich"
+        assert c["destination"] == "Cologne"
+
+    def test_parse_routed_predicate(self) -> None:
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = "(:goal (and (routed Berlin Frankfurt)))"
+        c = _parse_pddl_constraints(pddl)
+        assert c["source"] == "Berlin"
+        assert c["destination"] == "Frankfurt"
+
+    def test_parse_path_predicate(self) -> None:
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = "(:goal (and (path Hamburg Munich)))"
+        c = _parse_pddl_constraints(pddl)
+        assert c["source"] == "Hamburg"
+        assert c["destination"] == "Munich"
+
+    def test_parse_target_predicate(self) -> None:
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = "(:init (source Munich) (target Cologne))"
+        c = _parse_pddl_constraints(pddl)
+        assert c["source"] == "Munich"
+        assert c["destination"] == "Cologne"
+
+    def test_parse_sink_predicate(self) -> None:
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = "(:init (src Munich) (sink Cologne))"
+        c = _parse_pddl_constraints(pddl)
+        assert c["source"] == "Munich"
+        assert c["destination"] == "Cologne"
+
+    def test_resolve_node_id_case_insensitive(self) -> None:
+        from src.core.mock_graphrag import build_adjacency_graph
+        from src.core.symbolic_solver import _resolve_node_id
+        from src.services.testbed_client import MockTestbedClient
+
+        graph = build_adjacency_graph(MockTestbedClient().get_topology())
+        # Case-insensitive by name
+        assert _resolve_node_id(graph, "munich") == "node_7"
+        assert _resolve_node_id(graph, "cologne") == "node_16"
+        assert _resolve_node_id(graph, "Munich") == "node_7"
+        # By node_id directly
+        assert _resolve_node_id(graph, "node_7") == "node_7"
+        assert _resolve_node_id(graph, "NODE_16") == "node_16"
+

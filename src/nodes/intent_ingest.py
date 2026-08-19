@@ -44,11 +44,11 @@ class IntentSummary(BaseModel):
     )
     source_node: str | None = Field(
         default=None,
-        description="Source node name if mentioned (e.g., 'Milano-A').",
+        description="Source node name if mentioned (e.g., 'Berlin').",
     )
     target_node: str | None = Field(
         default=None,
-        description="Target/sink node name if mentioned (e.g., 'Milano-C').",
+        description="Target/sink node name if mentioned (e.g., 'Munich').",
     )
 
 

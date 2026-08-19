@@ -40,6 +40,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
+- [[weekly_reports/Weekly_Report_20260824_Felipe_Abadia]]: Weekly report August 24, 2026. Nobel-Germany 17-node topology migration, EDFA physical calibration, BUG-006 solver parsing fix, and test suite expansion.
 - [[weekly_reports/Weekly_Report_20260811_Felipe_Abadia]]: Weekly report August 11, 2026. Sprint 3 completion, RADG integration, QoT physics, and Architecture V5 wiring.
 - [[weekly_reports/Weekly_Report_20260803_Felipe_Abadia]]: Weekly report August 03, 2026. RESTConf Testbed integration, Symbolic Solver, Codebase Reorganization, and Feature Documentation Hub.
 
@@ -64,6 +65,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
+- [[issues/Issue_Report_20260824_Felipe_Abadia]]: Solved 3-node numerical evaluation limitation via Nobel-Germany 17-node topology; solved multi-hop power accumulation; solved BUG-006 solver endpoint parsing; pending testbed link provisioning; in progress Sprint 4 test corpus.
 - [[issues/Issue_Report_20260811_Felipe_Abadia]]: Sprint 3 blockers resolved (RADG, Pipeline); Pending unprovisioned testbed connections.
 - [[issues/Issue_Report_20260803_Felipe_Abadia]]: Solved RESTConf hook & codebase reorganization; pending physical link provisioning and LangGraph V5 RADG wiring.
 
@@ -95,10 +97,18 @@ Content-oriented catalog of everything in the wiki.
 - [[Transcript_20260423_QoT-Meeting]]: Meeting with Aryanaz and Qiaolun about QoT feasibility tool and GN model.
 
 ## Experiments
-- [[experiments/Bug_Registry]]: **Active** — Registry and resolution log of system bugs, physical-layer edge cases, and pipeline loopback fixes.
+- [[experiments/Bug_Registry]]: **Active** — Registry and resolution index of system bugs, physical-layer edge cases, and pipeline loopback fixes.
 - [[experiments/MVP_Roadmap]]: **Active** — Detailed sprint plan and experimental roadmap targeting the August 25 MVP deadline.
 - [[experiments/Experiment_1_1_QoT_Port]]: QoT C++ to Python Port — execution specification for Sprint 1.
 - [[experiments/Experiment_001_Topology_Query_MVP]]: Topology Query MVP — first end-to-end LangGraph pipeline (Supervisor + Topology Agent + mock testbed).
+
+### Bug Reports (`docs/LLM_Wiki/wiki/experiments/bugs/`)
+- [[experiments/bugs/bug001_GSNR_Threshold]]: BUG-001 — GSNR threshold constraint parsing in Symbolic Solver & QoT calculator.
+- [[experiments/bugs/bug002_Refinement_Loopback]]: BUG-002 — HITL interrupt feedback capture in RADG loopback.
+- [[experiments/bugs/bug003_NLI_Explosion]]: BUG-003 — GN-model NLI saturation and EDFA gain calibration.
+- [[experiments/bugs/bug004_Node_ID_Leakage]]: BUG-004 — Synthetic node ID leakage in Reverse Prompting.
+- [[experiments/bugs/bug005_Schema_Duplication]]: BUG-005 — Schema unification between state.py and models.py.
+- [[experiments/bugs/bug006_Source_Target_Loss]]: BUG-006 — Source and Target endpoint parsing in Symbolic Solver.
 
 ### Archived Experiment Documents
 - [[experiments/archive/Proposal_Orchestrator_Integration]]: (archived) Formal proposal for modernizing the ECOC 2024 orchestrator. Superseded by Architecture_v2.
@@ -112,6 +122,8 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 ## Session Summaries
+- [[session_summary/session_20260819_Bug006_Source_Target_Loss_and_Bug_Registry]]: Diagnostic and resolution of BUG-006 (symbolic solver source/target loss), Bug Registry modularization, and bug-debugger skill creation.
+- [[session_summary/session_20260817_Nobel_Germany_Topology_Migration]]: Adoption of 17-node Nobel-Germany optical backbone topology, EDFA physical calibration, and test suite expansion.
 - [[session_summary/session_20260807_GraphRAG_Integration]]: Optical RAG integration for dynamic topology injection in Phase 1 and Phase 2.
 - [[session_summary/session_20260806_Sprint3_RADG_Integration]]: Sprint 3 completion, V5 Risk-Adaptive Pipeline integration (RADG, $U_{sem}$, and real QoT physics).
 - [[session_summary/session_20260731_Code_Reorganization]]: Codebase Reorganization, src/ Methodology Enactment, Feature Documentation Hub, and Architecture V5 Alignment.
