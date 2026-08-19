@@ -361,3 +361,11 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Consistency Audit: Validated that `MockTestbedClient`, `intent_ingest_node`, `pddl_parser_node`, and `main.py` adhere to the 17-node Nobel-Germany optical backbone topology (SNDlib) with calibrated EDFA physics (3.0 dB booster, ~70 km ILAs, preamps).
 - Session focus: Migrated mock testbed from 3-node linear line to 17-node Nobel-Germany network. Calibrated multi-hop optical power levels ($-15\text{ dBm}$ to $-11\text{ dBm}$) preventing GN-model non-linear saturation on $>1000\text{ km}$ routes. Expanded test suite to 233 unit tests (100% pass). Prepared repository for Sprint 4 (Exp 4.0 Test Corpus & Exp 4.1 Baselines).
 
+## [2026-08-19] debrief2 | BUG-006 Resolution, Bug Registry Modularization & Reporting Consolidation
+- Wiki Deep Lint: Audited all newly created bug documents (`bug001` to `bug006`), `Bug_Registry.md`, `Weekly_Report_20260824_Felipe_Abadia.md`, `Issue_Report_20260824_Felipe_Abadia.md`, and `session_20260819_Bug006_Source_Target_Loss_and_Bug_Registry.md` to ensure valid YAML frontmatter and total `[[wikilinks]]` interlinking.
+- Consistency Audit: Verified that `src/core/symbolic_solver.py`, `pddl_parser.py`, and `test_symbolic_solver.py` strictly adhere to the V5 architecture and Nobel-Germany 17-node topology without silent arbitrary fallbacks.
+- Session focus: Diagnosed and solved BUG-006 under Strict TDD, authored the `bug-debugger` skill, modularized the bug registry into `wiki/experiments/bugs/`, and consolidated the 2026-08-24 weekly and issue reports.
+- Testing & Verification: 242 unit tests passing with 100% success (`uv run pytest`).
+
+
+
