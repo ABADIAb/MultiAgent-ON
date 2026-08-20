@@ -7,8 +7,14 @@ can consume without each needing their own configuration.
 
 from __future__ import annotations
 
+import os
+from typing import Any
+
 from langchain_core.language_models import BaseChatModel
 from langchain_openai import ChatOpenAI
+
+# Default model on the Kimi Coding endpoint
+DEFAULT_KIMI_MODEL = "kimi-for-coding-highspeed"
 
 # Module-level LLM reference, set during graph initialization.
 _llm: BaseChatModel | None = None
@@ -35,25 +41,46 @@ def create_kimi_llm(
     *,
     api_key: str,
     base_url: str | None = None,
-    #model: str = "kimi-k2-0711-preview",
-    model: str = "moonshot-v1-8k",
+    model: str | None = None,
+    temperature: float = 1.0,
+    max_tokens: int = 2500,
+    think_effort: str | None = None,
+    thinking_disabled: bool = False,
+    extra_body: dict[str, Any] | None = None,
 ) -> ChatOpenAI:
     """Create a ChatOpenAI instance configured for the Kimi API.
 
     Args:
         api_key: API key for the Kimi service.
         base_url: Custom base URL (required for Kimi).
-        model: Model identifier to use.
+        model: Model identifier (defaults to KIMI_MODEL env or 'kimi-for-coding-highspeed').
+        temperature: Sampling temperature.
+        max_tokens: Maximum tokens for completion (including reasoning tokens).
+        think_effort: Optional reasoning effort ('low', 'high', 'max') for K3 models.
+        thinking_disabled: Whether to disable reasoning/thinking entirely.
+        extra_body: Additional raw payload attributes.
 
     Returns:
         A configured ChatOpenAI instance.
     """
-    kwargs: dict = {
-        "model": model,
+    resolved_model = model or os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL)
+
+    body_params: dict[str, Any] = dict(extra_body) if extra_body else {}
+    if thinking_disabled:
+        body_params["thinking"] = {"type": "disabled"}
+    elif think_effort:
+        body_params["think_effort"] = think_effort
+
+    kwargs: dict[str, Any] = {
+        "model": resolved_model,
         "api_key": api_key,
-        "temperature": 1,
-        "max_tokens": 1500,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
     }
     if base_url:
         kwargs["base_url"] = base_url
+    if body_params:
+        kwargs["extra_body"] = body_params
+
     return ChatOpenAI(**kwargs)
+

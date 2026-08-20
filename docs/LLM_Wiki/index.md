@@ -122,6 +122,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 ## Session Summaries
+- [[session_summary/session_20260820_Kimi_LLM_Optimization_and_Benchmarking]]: Diagnostic of Kimi LLM latency bottleneck (~189s to 2-4s), factory upgrade with reasoning controls (think_effort, thinking_disabled), and multi-model benchmark suite.
 - [[session_summary/session_20260819_Bug006_Source_Target_Loss_and_Bug_Registry]]: Diagnostic and resolution of BUG-006 (symbolic solver source/target loss), Bug Registry modularization, and bug-debugger skill creation.
 - [[session_summary/session_20260817_Nobel_Germany_Topology_Migration]]: Adoption of 17-node Nobel-Germany optical backbone topology, EDFA physical calibration, and test suite expansion.
 - [[session_summary/session_20260807_GraphRAG_Integration]]: Optical RAG integration for dynamic topology injection in Phase 1 and Phase 2.
@@ -132,3 +133,4 @@ Content-oriented catalog of everything in the wiki.
 - [[session_summary/session_20260717_Pivot_V5]]: Scope Pivot to V5 Risk-Adaptive Neurosymbolic Intent Planning.
 - [[session_summary/session_20260714_Sprint2_PDDL_HITL]]: Sprint 2, PDDL Parser and Reverse Prompting HITL.
 - [[session_summary/session_20260710_Architecture_V4_Refactor]]: Architecture V4 Refactor & HITL Integration.
+
