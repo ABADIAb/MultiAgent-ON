@@ -12,7 +12,7 @@ Requires:
     - KIMI_BASE_URL environment variable set.
 
 Run with:
-    uv run pytest tests/integration/test_kimi_configurations.py -v -s -m integration
+    uv run pytest tests/integration/test_kimi_configurations.py -v -m integration -rs
 """
 
 from __future__ import annotations

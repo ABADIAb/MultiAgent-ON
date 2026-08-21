@@ -89,7 +89,7 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
     avoid_matches = re.findall(
         r"\(avoid-link\s+([^\s)]+(?:\s+[^\s)]+)?)\)", pddl_text, re.IGNORECASE
     )
-    constraints["avoid_links"] = [m.strip() for m in avoid_matches]
+    constraints["avoid_links"] = [m.strip().strip("'\"") for m in avoid_matches]
 
     # 5. Parse (max-hops <n>)
     hops_match = re.search(
@@ -171,7 +171,7 @@ def _path_uses_avoided_links(
     if not avoid_links:
         return False
 
-    avoid_set = {a.lower() for a in avoid_links}
+    avoid_set = {a.strip("'\"").lower() for a in avoid_links}
 
     for u, v in zip(path_nodes[:-1], path_nodes[1:]):
         edge_data = graph.get_edge_data(u, v) or {}
@@ -185,7 +185,7 @@ def _path_uses_avoided_links(
 
         # Check node pair patterns (e.g. "Munich Ulm" or "Munich-Ulm")
         for avoid_entry in avoid_set:
-            tokens = re.split(r"[\s\-_]+", avoid_entry)
+            tokens = [t.strip("'\"") for t in re.split(r"[\s\-_]+", avoid_entry) if t.strip("'\"")]
             if len(tokens) == 2:
                 t1, t2 = tokens[0], tokens[1]
                 if (u_name == t1 and v_name == t2) or (u_name == t2 and v_name == t1):

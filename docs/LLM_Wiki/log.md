@@ -367,11 +367,13 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Diagnosed and solved BUG-006 under Strict TDD, authored the `bug-debugger` skill, modularized the bug registry into `wiki/experiments/bugs/`, and consolidated the 2026-08-24 weekly and issue reports.
 - Testing & Verification: 242 unit tests passing with 100% success (`uv run pytest`).
 
-## [2026-08-20] debrief2 | Kimi LLM Latency Optimization & Multi-Model Benchmark Suite
-- Wiki Deep Lint: Audited and verified all newly created and modified files (`session_20260820_Kimi_LLM_Optimization_and_Benchmarking.md`, `Weekly_Report_20260824_Felipe_Abadia.md`, `Issue_Report_20260824_Felipe_Abadia.md`, `index.md`) for YAML frontmatter, `[[wikilinks]]`, and index synchronization.
-- Consistency Audit: Validated that `src/core/llm.py`, `tests/unit/test_llm.py`, `tests/integration/test_llm_connection.py`, and `tests/integration/test_kimi_configurations.py` adhere to the Kimi for Coding endpoint API specifications (`kimi-for-coding-highspeed`, `k3`, `think_efforts`, `thinking: {"type": "disabled"}`).
-- Session focus: Isolated LLM pipeline latency bottleneck (~189s down to 2–4s per node). Upgraded `create_kimi_llm()` factory with reasoning controls, added `KIMI_MODEL` env configuration, expanded unit test suite to 246 tests passing 100% under Strict TDD, and authored multi-model integration benchmark suite. Handled billing cycle quota limits gracefully with test guards.
-- Testing & Verification: 246 unit tests passing with 100% success (`uv run pytest tests/unit/`).
+## [2026-08-21] debrief | Comprehensive Pipeline QA Flow Verification & BUG-007 Resolution
+- Wiki Deep Lint: Audited and verified `bug007_Semantic_Gate_Refinement_Loop.md`, `Bug_Registry.md`, `index.md`, and `.agents/rules/src-methodology.md`.
+- Consistency Audit: Updated `.agents/rules/src-methodology.md` reflecting Sprint 3 completion and Sprint 4 readiness. Verified that all active V5 pipeline nodes and decision gates (`radg.py`, `semantic_gate.py`, `semantic_gate_node.py`, `radg_node.py`) are documented and active.
+- Session focus: Acted as QA Department to develop a complete End-to-End Pipeline Flow test suite (`tests/unit/test_e2e_pipeline_flow.py`) covering all V5 paths (Happy path, Semantic Gate clarification loop, RADG replan loop, Avoid-link/max-hops filtering, Topology edge cases, Resumption payload resilience, and Checkpointer state persistence).
+- Bug Resolution: Diagnosed, documented, and resolved BUG-007 (Semantic Gate routing loopback bypassed `pddl_parser` on refinement feedback) and fixed quote stripping in avoid-link constraint matching.
+- Testing & Verification: Full test suite expanded to 255 tests passing with 100% success (`uv run pytest`).
+
 
 
 

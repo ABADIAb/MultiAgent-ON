@@ -92,18 +92,18 @@ class TestSemanticGateRoute:
         state = cast(AgentState, {"usem_passed": True, "usem_score": 0.1})
         assert semantic_gate_route(state) == "symbolic_solver"
 
-    def test_usem_failed_routes_to_reverse_prompt(self):
+    def test_usem_failed_routes_to_pddl_parser(self):
         from src.nodes.semantic_gate_node import semantic_gate_route
 
         state = cast(AgentState, {"usem_passed": False, "usem_score": 0.8})
-        assert semantic_gate_route(state) == "reverse_prompt"
+        assert semantic_gate_route(state) == "pddl_parser"
 
-    def test_usem_none_routes_to_reverse_prompt(self):
-        """None (not yet evaluated) → clarify loop."""
+    def test_usem_none_routes_to_pddl_parser(self):
+        """None (not yet evaluated) → clarify / refinement loop."""
         from src.nodes.semantic_gate_node import semantic_gate_route
 
         state = cast(AgentState, {"usem_passed": None, "usem_score": None})
-        assert semantic_gate_route(state) == "reverse_prompt"
+        assert semantic_gate_route(state) == "pddl_parser"
 
 
 class TestRadgRoute:

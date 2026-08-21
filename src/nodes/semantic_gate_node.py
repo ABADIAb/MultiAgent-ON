@@ -94,6 +94,8 @@ def semantic_gate_node(state: AgentState) -> dict:
     intent: str = state.get("enriched_intent") or ""
     reconstruction: str = state.get("hitl_reconstruction") or ""
 
+    hitl_approved: bool | None = state.get("hitl_approved")
+
     # Layer 2: only meaningful if Layer 1 passed and we have a reconstruction
     if v_struct and reconstruction:
         d_sem = _score_semantic_agreement(intent, reconstruction)
@@ -107,6 +109,11 @@ def semantic_gate_node(state: AgentState) -> dict:
 
     usem = compute_usem(v_struct=v_struct, d_sem=d_sem)
     passed = evaluate_semantic_gate(usem=usem, tau_sem=DEFAULT_TAU_SEM)
+
+    # If operator explicitly requested refinement, enforce gate failure
+    if hitl_approved is False:
+        passed = False
+        usem = max(usem, 1.0)
 
     gate_result = "PASS" if passed else "FAIL (clarify)"
     summary = (
@@ -128,8 +135,9 @@ def semantic_gate_route(state: AgentState) -> str:
 
     Returns:
         - ``"symbolic_solver"`` if U_sem <= tau_sem (gate passes).
-        - ``"reverse_prompt"`` if U_sem > tau_sem (clarify via HITL).
+        - ``"pddl_parser"`` if U_sem > tau_sem (clarify via refinement loop).
     """
     if state.get("usem_passed"):
         return "symbolic_solver"
-    return "reverse_prompt"
+    return "pddl_parser"
+

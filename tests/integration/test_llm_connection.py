@@ -9,7 +9,7 @@ Requires:
     - Network connectivity to the Kimi API endpoint.
 
 Run with:
-    uv run pytest tests/integration/test_llm_connection.py -v -s -m integration
+    uv run pytest tests/integration/test_llm_connection.py -v -m integration -rs
 """
 
 import os

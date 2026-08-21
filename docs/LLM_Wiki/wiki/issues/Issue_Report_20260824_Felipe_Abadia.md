@@ -27,21 +27,27 @@ status: active
 - **What has already been tried:** Traced the bottleneck to `src/core/llm.py` defaulting to legacy `moonshot-v1-8k`, which invoked an emulated reasoning path over `https://api.kimi.com/coding/v1`. Migrated default model to `kimi-for-coding-highspeed` (2–4s per node), introduced `KIMI_MODEL` environment variable support, and added native controls for `think_effort` (`"low"`, `"high"`, `"max"`) and `thinking_disabled` (`True`/`False`).
 - **Result:** SOLVED. Node latency reduced by over 98% (down to 2–4s) with 100% PDDL syntax validity across all 246 unit tests.
 
-## 5. Unprovisioned Infrastructure Connections on Testbed (PENDING)
+## 5. Semantic Gate Refinement Loopback Infinite Cycle (BUG-007) (SOLVED)
+- **Issue:** When the operator requested refinement feedback during Reverse Prompting (or when the Semantic Gate detected uncertainty $U_{sem} > \tau_{sem}$), `semantic_gate_route` returned `"reverse_prompt"`. Because `reverse_prompt` transitions directly to `semantic_gate`, the graph entered a closed 2-node infinite loop that bypassed `pddl_parser_node`, preventing the LLM from regenerating corrected PDDL constraints.
+- **What has already been tried:** Updated `semantic_gate_route` to return `"pddl_parser"` on gate failure / refinement, enforced gate failure (`passed = False`) whenever `hitl_approved is False`, and fixed quote-stripping in `symbolic_solver.py` for `avoid-link` constraints.
+- **Result:** SOLVED. Verified with 9 new end-to-end unit tests in `tests/unit/test_e2e_pipeline_flow.py` and documented in [[experiments/bugs/bug007_Semantic_Gate_Refinement_Loop]].
+
+## 6. Unprovisioned Infrastructure Connections on Testbed (PENDING)
 - **Issue:** The physical ONC controller returns 0 connections for `infrastructure-eth` when queried via RESTConf.
 - **What has already been tried:** Handled gracefully via the mocked topology layer (`MockTestbedClient`), unblocking all offline algorithmic and baseline evaluations.
 - **Result:** PENDING provisioning for final live testbed execution (Exp 4.3).
 - **Estimated possible solution:** Connect to the live server once brought back online and provision physical DWDM links in the SM Optics ONC.
 
-## 6. Kimi API Billing Quota Limit (PENDING)
+## 7. Kimi API Billing Quota Limit (PENDING)
 - **Issue:** The Kimi API account reached its billing cycle usage limit (HTTP 403 `access_terminated_error`) during live benchmark execution.
 - **What has already been tried:** Added test guards (`pytest.skip`) in `tests/integration/test_kimi_configurations.py` and `tests/integration/test_llm_connection.py` so that quota exhaustion does not fail test runner pipelines.
 - **Result:** PENDING quota refresh or API key top-up.
 - **Estimated possible solution:** Quota will automatically refresh at the start of the next billing cycle, or an updated API key with credits can be set in `.env`.
 
-## 7. Test Corpus Generation for Baseline Evaluation (IN PROGRESS / SPRINT 4)
+## 8. Test Corpus Generation for Baseline Evaluation (IN PROGRESS / SPRINT 4)
 - **Issue:** To execute Exp 4.1, a structured dataset of 20–30 synthetic operator intents spanning Safe, Ambiguous, and Infeasible risk categories mapped to the 17-node German topology is required.
 - **What has already been tried:** Topology scaffolding, EDFA calibration, and highspeed LLM configuration completed.
 - **Result:** IN PROGRESS. Scheduled as the primary task for Sprint 4.
 - **Estimated possible solution:** Construct synthetic intent JSON dataset mapping semantic requests to ground-truth physical and semantic risk outcomes across the 17 German cities.
+
 
