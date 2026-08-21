@@ -55,7 +55,13 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - Upgraded `src/core/llm.py` to default to `kimi-for-coding-highspeed` (reducing latency to 2–4s per node) and added environment-based selection via `KIMI_MODEL`.
    - Engineered native support for reasoning controls: `think_effort` (`"low"`, `"high"`, `"max"`) and `thinking_disabled` (`True`/`False`), configuring `extra_body` parameters seamlessly without triggering framework deprecations.
    - Built a comprehensive integration benchmark suite in `tests/integration/test_kimi_configurations.py` comparing latency, token consumption (reasoning tokens), and PDDL syntax validity across multiple models and reasoning configurations.
-6. **Git & Feature Documentation:**
+6. **End-to-End QA Pipeline Flow Validation & BUG-007 Resolution:**
+   - Acted as the QA Department to perform a comprehensive audit and author an End-to-End test suite (`tests/unit/test_e2e_pipeline_flow.py`) covering all 7 pipeline execution branches (Happy path, Semantic Gate clarification loop, RADG replan loop, Avoid-link/max-hops filtering, Topology edge cases, Resumption resilience, and Checkpointer persistence).
+   - Diagnosed and resolved **BUG-007**: `semantic_gate_route` returned `"reverse_prompt"` on gate failure / refinement, creating a closed 2-node infinite loop that bypassed `pddl_parser`. Fixed routing to `"pddl_parser"` and enforced gate failure on explicit refinement (`hitl_approved=False`).
+   - Fixed quote-stripping in `symbolic_solver.py` for `(avoid-link ...)` constraints and node pair matching.
+   - Updated `.agents/rules/src-methodology.md` reflecting Sprint 3 completion and Sprint 4 readiness.
+   - Expanded the test suite to **255 unit tests**, passing with 100% success.
+7. **Git & Feature Documentation:**
    - Published feature branch `feat/17-node-german-mock-topology`.
    - Updated feature documentation in [[architecture/features/testbed_client]], [[architecture/features/symbolic_solver]], and [[architecture/features/pipeline_graph]].
 
@@ -83,12 +89,17 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 - **What has already been tried:** Migrated default model from legacy `moonshot-v1-8k` to `kimi-for-coding-highspeed`, added `KIMI_MODEL` configurability, and added reasoning controls (`think_effort`, `thinking_disabled`).
 - **Result:** SOLVED. Node latency reduced to 2–4s with 100% PDDL syntax validity.
 
-### Issue 5 (PENDING)
+### Issue 5 (SOLVED)
+- **Issue:** Semantic Gate loopback route returned `"reverse_prompt"` on clarification/refinement feedback, creating a closed 2-node infinite loop that bypassed `pddl_parser` (BUG-007).
+- **What has already been tried:** Corrected `semantic_gate_route` to return `"pddl_parser"`, enforced `passed = False` on `hitl_approved=False`, and resolved quote stripping in avoid-link constraint parsing.
+- **Result:** SOLVED. Verified with 9 new E2E tests in `test_e2e_pipeline_flow.py`.
+
+### Issue 6 (PENDING)
 - **Issue:** The physical testbed returns 0 connections for `infrastructure-eth` (unprovisioned links).
 - **What has already been tried:** Handled gracefully via the mocked topology layer.
 - **Result:** PENDING provisioning for the live run (Exp 4.3).
 
-### Issue 6 (PENDING)
+### Issue 7 (PENDING)
 - **Issue:** The Kimi API reached its billing cycle usage limit (HTTP 403 `access_terminated_error`) during live benchmark execution.
 - **What has already been tried:** Added test guards (`pytest.skip`) to gracefully handle quota limits without breaking test suite runs.
 - **Result:** PENDING quota refresh/recharge.
@@ -113,7 +124,7 @@ No blocker at this moment. The 17-node German mock environment, solver pipeline,
 
 ## 6. One-Sentence Summary
 
-I migrated the mock environment to the 17-node Nobel-Germany optical backbone network with calibrated EDFA physics, resolved symbolic solver goal parsing, and optimized Kimi LLM pipeline latency from ~189s to 2–4s with a multi-model benchmark suite, verified across 246 unit tests passing 100%.
+I migrated the mock environment to the 17-node Nobel-Germany optical backbone network with calibrated EDFA physics, resolved symbolic solver goal parsing, optimized Kimi LLM pipeline latency to 2–4s, resolved BUG-007, and authored an End-to-End QA Pipeline Flow test suite across all execution branches, verified across 255 unit tests passing 100%.
 
 ---
 

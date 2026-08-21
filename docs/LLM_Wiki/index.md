@@ -109,6 +109,7 @@ Content-oriented catalog of everything in the wiki.
 - [[experiments/bugs/bug004_Node_ID_Leakage]]: BUG-004 — Synthetic node ID leakage in Reverse Prompting.
 - [[experiments/bugs/bug005_Schema_Duplication]]: BUG-005 — Schema unification between state.py and models.py.
 - [[experiments/bugs/bug006_Source_Target_Loss]]: BUG-006 — Source and Target endpoint parsing in Symbolic Solver.
+- [[experiments/bugs/bug007_Semantic_Gate_Refinement_Loop]]: BUG-007 — Semantic Gate refinement loopback infinite cycle and routing fix.
 
 ### Archived Experiment Documents
 - [[experiments/archive/Proposal_Orchestrator_Integration]]: (archived) Formal proposal for modernizing the ECOC 2024 orchestrator. Superseded by Architecture_v2.
@@ -122,6 +123,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 ## Session Summaries
+- [[session_summary/session_20260821_QA_Pipeline_Verification_and_Bug007]]: Comprehensive QA flow validation across all 7 execution paths, BUG-007 resolution, avoid-link quote parsing fix, and test suite expansion to 255 tests.
 - [[session_summary/session_20260820_Kimi_LLM_Optimization_and_Benchmarking]]: Diagnostic of Kimi LLM latency bottleneck (~189s to 2-4s), factory upgrade with reasoning controls (think_effort, thinking_disabled), and multi-model benchmark suite.
 - [[session_summary/session_20260819_Bug006_Source_Target_Loss_and_Bug_Registry]]: Diagnostic and resolution of BUG-006 (symbolic solver source/target loss), Bug Registry modularization, and bug-debugger skill creation.
 - [[session_summary/session_20260817_Nobel_Germany_Topology_Migration]]: Adoption of 17-node Nobel-Germany optical backbone topology, EDFA physical calibration, and test suite expansion.
