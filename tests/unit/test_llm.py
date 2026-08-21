@@ -70,17 +70,28 @@ class TestCreateKimiLLM:
         assert isinstance(llm.openai_api_key, SecretStr)
         assert llm.openai_api_key.get_secret_value() == "my-secret-key"
 
-    def test_create_kimi_llm_default_model(self):
-        """Default model is kimi-k2-0711-preview."""
-        from src.core.llm import create_kimi_llm
+    def test_create_kimi_llm_default_model(self, monkeypatch):
+        """Default model is kimi-for-coding-highspeed when env var is unset."""
+        from src.core.llm import DEFAULT_KIMI_MODEL, create_kimi_llm
 
+        monkeypatch.delenv("KIMI_MODEL", raising=False)
         llm = create_kimi_llm(api_key="test-key", base_url="https://test.example.com")
-        assert llm.model_name == "moonshot-v1-8k"
+        assert llm.model_name == DEFAULT_KIMI_MODEL
+        assert llm.model_name == "kimi-for-coding-highspeed"
 
-    def test_create_kimi_llm_custom_model(self):
-        """Custom model name is respected."""
+    def test_create_kimi_llm_model_from_env(self, monkeypatch):
+        """Model identifier is read from KIMI_MODEL environment variable if not passed."""
         from src.core.llm import create_kimi_llm
 
+        monkeypatch.setenv("KIMI_MODEL", "k3")
+        llm = create_kimi_llm(api_key="test-key", base_url="https://test.example.com")
+        assert llm.model_name == "k3"
+
+    def test_create_kimi_llm_custom_model_overrides_env(self, monkeypatch):
+        """Explicit model argument overrides KIMI_MODEL environment variable."""
+        from src.core.llm import create_kimi_llm
+
+        monkeypatch.setenv("KIMI_MODEL", "k3")
         llm = create_kimi_llm(
             api_key="test-key",
             base_url="https://test.example.com",
@@ -88,9 +99,50 @@ class TestCreateKimiLLM:
         )
         assert llm.model_name == "custom-model"
 
+    def test_create_kimi_llm_think_effort(self):
+        """think_effort is passed into extra_body."""
+        from src.core.llm import create_kimi_llm
+
+        llm = create_kimi_llm(
+            api_key="test-key",
+            base_url="https://test.example.com",
+            model="k3",
+            think_effort="low",
+        )
+        assert getattr(llm, "extra_body", None) == {"think_effort": "low"}
+
+    def test_create_kimi_llm_thinking_disabled(self):
+        """thinking_disabled sets thinking type to disabled in extra_body."""
+        from src.core.llm import create_kimi_llm
+
+        llm = create_kimi_llm(
+            api_key="test-key",
+            base_url="https://test.example.com",
+            model="k3",
+            thinking_disabled=True,
+        )
+        assert getattr(llm, "extra_body", None) == {"thinking": {"type": "disabled"}}
+
+    def test_create_kimi_llm_merges_extra_body(self):
+        """Custom extra_body keys are preserved alongside reasoning options."""
+        from src.core.llm import create_kimi_llm
+
+        llm = create_kimi_llm(
+            api_key="test-key",
+            base_url="https://test.example.com",
+            model="k3",
+            think_effort="high",
+            extra_body={"custom_field": "custom_value"},
+        )
+        assert getattr(llm, "extra_body", None) == {
+            "custom_field": "custom_value",
+            "think_effort": "high",
+        }
+
     def test_create_kimi_llm_without_base_url(self):
         """Factory works when base_url is None (uses OpenAI default)."""
         from src.core.llm import create_kimi_llm
 
         llm = create_kimi_llm(api_key="test-key")
         assert isinstance(llm, BaseChatModel)
+
