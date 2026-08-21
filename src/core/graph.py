@@ -6,7 +6,7 @@ Exp 3.0 / 3.2: Wires the complete V5 fail-fast conditional pipeline:
     → (U_sem <= tau) → symbolic_solver → qot_validation → radg
         → (approve) → plan_synthesizer → END
         → (replan)  → [HITL interrupt in radg_node] → pddl_parser (loop)
-    → (U_sem >  tau) → reverse_prompt (clarification loop)
+    → (U_sem >  tau) → [HITL refine in reverse_prompt] → pddl_parser (loop)
 
 V5 Changes from V4:
   - semantic_gate node added between reverse_prompt and symbolic_solver.
@@ -43,7 +43,7 @@ def build_graph() -> StateGraph:
           → (pass)    → symbolic_solver → qot_validation → radg
               → (approve) → plan_synthesizer → END
               → (replan)  → pddl_parser (HITL loop via interrupt in radg_node)
-          → (clarify) → reverse_prompt (U_sem loop)
+          → (clarify) → pddl_parser (U_sem / refinement feedback loop)
     """
     builder = StateGraph(AgentState)  # type: ignore
 
@@ -71,7 +71,7 @@ def build_graph() -> StateGraph:
     # Replaces the old hitl_route from V4.
     # Routes:
     #   semantic_gate_route → "symbolic_solver"  (U_sem <= tau, gate passes)
-    #   semantic_gate_route → "reverse_prompt"   (U_sem > tau, clarify)
+    #   semantic_gate_route → "pddl_parser"      (U_sem > tau, clarify / refine)
     # -----------------------------------------------------------------------
     builder.add_edge("reverse_prompt", "semantic_gate")
     builder.add_conditional_edges("semantic_gate", semantic_gate_route)
