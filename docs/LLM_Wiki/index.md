@@ -40,7 +40,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
-- [[weekly_reports/Weekly_Report_20260824_Felipe_Abadia]]: Weekly report August 24, 2026. Nobel-Germany 17-node topology migration, EDFA physical calibration, BUG-006 solver parsing fix, and test suite expansion.
+- [[weekly_reports/Weekly_Report_20260901_Felipe_Abadia]]: Weekly report September 01, 2026. Thesis Chapter 3 drafting, formal mathematical problem formulation and code validation, Sprint 3 synthesis, and Sprint 4 preparation.
 - [[weekly_reports/Weekly_Report_20260811_Felipe_Abadia]]: Weekly report August 11, 2026. Sprint 3 completion, RADG integration, QoT physics, and Architecture V5 wiring.
 - [[weekly_reports/Weekly_Report_20260803_Felipe_Abadia]]: Weekly report August 03, 2026. RESTConf Testbed integration, Symbolic Solver, Codebase Reorganization, and Feature Documentation Hub.
 
@@ -120,9 +120,16 @@ Content-oriented catalog of everything in the wiki.
 ## Thesis Drafts
 - [[thesis_drafts/Writing_Roadmap_v1]]: Roadmap de escritura y estrategia de uso de NotebookLM/Antigravity.
 - [[thesis_drafts/Thesis_Outline_v4]]: Active V4 draft with problem formalization and mapped citations based on NotebookLM structural recommendations.
+- [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition]]: Chapter 3 Section 3.1 — Formal Problem Definition, architectural vulnerabilities, physical parameters, and optimization objective.
+- [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework]]: Chapter 3 Section 3.2 — Conceptual Framework, 7-phase fail-fast pipeline, and complexity bounds.
+- [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]: Chapter 3 Section 3.3 — Strict Neurosymbolic Separation, CFG validator, and token context bounds.
+- [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gate (RADG) decision function and GN model physics integration.
+- [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]]: Chapter 3 Section 3.5 — Formal HITL Reverse Prompting, state preservation, and refinement invariants.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
+
 ## Session Summaries
+- [[session_summary/session_20260826_Thesis_Chapter3_Drafting_and_Formal_Problem_Definition]]: Thesis Chapter 3 kick-off, drafting Sections 3.1-3.5, rigorous validation of Section 3.1 math vs codebase, and engineering assumptions formalization.
 - [[session_summary/session_20260821_QA_Pipeline_Verification_and_Bug007]]: Comprehensive QA flow validation across all 7 execution paths, BUG-007 resolution, avoid-link quote parsing fix, and test suite expansion to 255 tests.
 - [[session_summary/session_20260820_Kimi_LLM_Optimization_and_Benchmarking]]: Diagnostic of Kimi LLM latency bottleneck (~189s to 2-4s), factory upgrade with reasoning controls (think_effort, thinking_disabled), and multi-model benchmark suite.
 - [[session_summary/session_20260819_Bug006_Source_Target_Loss_and_Bug_Registry]]: Diagnostic and resolution of BUG-006 (symbolic solver source/target loss), Bug Registry modularization, and bug-debugger skill creation.

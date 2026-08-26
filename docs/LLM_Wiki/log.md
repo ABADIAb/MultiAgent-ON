@@ -374,6 +374,13 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Bug Resolution: Diagnosed, documented, and resolved BUG-007 (Semantic Gate routing loopback bypassed `pddl_parser` on refinement feedback) and fixed quote stripping in avoid-link constraint matching.
 - Testing & Verification: Full test suite expanded to 255 tests passing with 100% success (`uv run pytest`).
 
+## [2026-08-26] debrief | Chapter 3 System Model Drafting & Formal Problem Formulation
+- Wiki Deep Lint: Audited all newly created Chapter 3 draft files (`3_1_Formal_Problem_Definition.md` through `3_5_Formal_HITL_Reverse_Prompting.md`), `Writing_Roadmap_v1.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, and `session_20260826_Thesis_Chapter3_Drafting_and_Formal_Problem_Definition.md` for YAML frontmatter and `[[wikilinks]]`. Synchronized `index.md`.
+- Consistency Audit: Validated mathematical formulas in Section 3.1.2 against `src/core/` implementation. Formalized Assumption 1 (homogeneous fiber parameters) and Assumption 2 (zero equalization loss, filtered ROADM network). Aligned `ProblemStatement_v5.md` physical validity definition: $\text{QoT}_{valid} = \mathbb{I}(\text{GSNR} \ge \text{GSNR}_{th} \land P_{rx} \ge P_{rx, min})$.
+- Session focus: Formal kick-off of Master's thesis drafting (Chapter 3: System Model & Architecture). Validated mathematical problem formulation, resource bounds ($T_{max}$, $t_{exec}$, $K$-shortest paths), and composite objective function.
+- Testing & Verification: 255 unit tests passing with 100% success (`uv run pytest`).
+
+
 
 
 

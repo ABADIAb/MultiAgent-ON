@@ -63,7 +63,7 @@ The system acts upon two orthogonal risk signals in a sequential, fail-fast mann
   - *Layer 2 (Semantic)*: Disagreement score between the original operator intent and the Reverse Prompting natural language reconstruction. High $U_{sem}$ triggers early **Clarify** (HITL).
 
 - **QoT Feasibility (Evaluated Later).** 
-Binary check: $\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$
+Binary check: $\text{GSNR}_{computed} \ge \text{GSNR}_{threshold} \land P_{rx} \ge P_{rx, min}$
 
 Assuming $U_{sem}$ is low (resolved in the earlier gate), the physical gate maps to two outcomes:
 
@@ -81,7 +81,7 @@ The RADG is formulated as a piecewise decision function $D$ that evaluates two c
    Given a tolerance threshold $\tau_{sem}$, if $U_{sem} > \tau_{sem}$, the intent is considered ambiguous.
 
 2. **Physical Viability ($QoT_{valid}$):** A binary indicator based on deterministic physics:
-   $$QoT_{valid} = \mathbb{I}(\text{GSNR}_{computed} \ge \text{GSNR}_{threshold})$$
+   $$QoT_{valid} = \mathbb{I}(\text{GSNR}_{computed} \ge \text{GSNR}_{threshold} \land P_{rx} \ge P_{rx, min})$$
 
 The decision function maps the state to an action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$:
 
