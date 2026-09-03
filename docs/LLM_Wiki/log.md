@@ -380,6 +380,13 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Formal kick-off of Master's thesis drafting (Chapter 3: System Model & Architecture). Validated mathematical problem formulation, resource bounds ($T_{max}$, $t_{exec}$, $K$-shortest paths), and composite objective function.
 - Testing & Verification: 255 unit tests passing with 100% success (`uv run pytest`).
 
+## [2026-09-03] debrief2 | Architecture Refactoring, CFG Validation & Chapter 3 Refinement
+- Wiki Deep Lint: Audited and verified `Weekly_Report_20260901_Felipe_Abadia.md`, `session_20260903_Architecture_Refactoring_CFG_Validation_and_Chapter3_Refinement.md`, `Drafting_Backlog.md`, `3_2_Conceptual_Framework.md`, `3_3_Strict_Neurosymbolic_Separation.md`, and all updated feature docs (`pddl_parser.md`, `symbolic_solver.md`, `reverse_prompt.md`, `semantic_gate.md`, `pipeline_graph.md`, `Architecture_v5.md`) for YAML frontmatter and `[[wikilinks]]`. Synchronized `index.md`.
+- Consistency Audit: Verified strict alignment between `src/core/` domain logic and thesis documentation. Confirmed full CFG AST PDDL validation in `pddl_validator.py`, deterministic `avoid-node` topological vertex pruning in `symbolic_solver.py`, decoupled Phase 3a/3b conditional HITL routing in `graph.py` and `reverse_prompt.py`, and dynamic Kimi LLM temperature configuration in `llm.py`.
+- Session focus: Consolidated 4 sessions into a single narrative: refactored Reverse Prompting to eliminate unnecessary human friction on unambiguous intents, implemented full Context-Free Grammar AST validator to block structural hallucinations, added node exclusion pruning to the symbolic solver, and rigorously refined Thesis Chapter 3 Sections 3.2 and 3.3.
+- Testing & Verification: Test suite expanded from 255 to 268 passing unit tests with 100% success (`uv run pytest`).
+
+
 
 
 
