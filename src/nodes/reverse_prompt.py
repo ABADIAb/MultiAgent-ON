@@ -1,20 +1,12 @@
-"""Reverse Prompting HITL node for the V5 Neurosymbolic Intent Pipeline.
+"""Reverse Prompting & HITL Clarification nodes for the V5 Pipeline.
 
 Exp 2.2 / 3.2: Implements the formal Human-in-the-Loop convergence mechanism
 for PDDL validation via natural language reconstruction.
 
-V5 Changes from V4:
-  - The node no longer owns the approve/refine/reject routing decision.
-  - The Semantic Gate (semantic_gate_node) now evaluates U_sem and decides
-    whether to loop back for clarification or proceed to the Symbolic Solver.
-  - This node still performs the LLM reconstruction and the interrupt(), but
-    the routing decision belongs to the Semantic Gate conditional edge.
-  - A simplified response schema: approve (continue) or refine (provide feedback).
-
 Architecture V5 flow:
   pddl_parser → reverse_prompt → semantic_gate
-    → (U_sem <= tau) → symbolic_solver
-    → (U_sem >  tau) → reverse_prompt  (clarification loop)
+    → (U_sem <= tau) → symbolic_solver (0 interrupts)
+    → (U_sem >  tau) → hitl_clarify (interrupt for operator feedback) → pddl_parser
 """
 
 from __future__ import annotations
@@ -44,22 +36,17 @@ Rules:
 
 
 def reverse_prompt_node(state: AgentState) -> dict:
-    """HITL Reverse Prompting node with LLM reconstruction.
+    """Automated Reverse Prompting node (Phase 3a: PDDL → English reconstruction).
 
-    Performs two actions:
-    1. Calls the LLM to reconstruct PDDL → natural language.
-    2. Presents the reconstruction to the operator via interrupt().
-
-    After the interrupt, control returns to the graph. The Semantic Gate
-    (next node) evaluates U_sem and decides whether to loop back here
-    for further clarification or proceed to the Symbolic Solver.
+    Translates the formal PDDL specification into a natural language paragraph
+    without pausing execution. This reconstruction is passed to the Semantic Gate
+    to evaluate semantic divergence (d_sem) and uncertainty (U_sem).
 
     Args:
         state: AgentState with pddl_constraints.
 
     Returns:
-        Partial state update with hitl_approved, hitl_reconstruction,
-        error_context, and messages.
+        Partial state update with hitl_reconstruction and messages.
     """
     pddl = state.get("pddl_constraints", "No constraints generated")
 
@@ -70,32 +57,76 @@ def reverse_prompt_node(state: AgentState) -> dict:
         HumanMessage(content=pddl),
     ]
     reconstruction_response = llm.invoke(messages)
-    reconstruction = reconstruction_response.content
-
-    # Present reconstruction to operator and pause for review
-    # V5: simplified schema — the gate decides the routing, not this node
-    response = interrupt({
-        "reconstruction": reconstruction,
-        "options": ["approve", "refine"],
-        "message": (
-            "Please review my understanding of your request. "
-            "If accurate, approve to proceed. "
-            "If not, choose 'refine' and provide feedback."
-        ),
-    })
-
-    action = response.get("action", "approve") if isinstance(response, dict) else "approve"
-    approved = action == "approve"
-    feedback = response.get("feedback", "") if isinstance(response, dict) else ""
+    reconstruction = (
+        reconstruction_response.content
+        if isinstance(reconstruction_response.content, str)
+        else str(reconstruction_response.content)
+    )
 
     return {
-        "hitl_approved": approved,
         "hitl_reconstruction": reconstruction,
         "messages": [
             AIMessage(
-                content=f"HITL: {action}" + (f" — {feedback}" if feedback else ""),
+                content=f"Reconstructed intent: {reconstruction}",
                 name="reverse_prompt",
             )
         ],
-        "error_context": feedback if action == "refine" else None,
+    }
+
+
+def hitl_clarify_node(state: AgentState) -> dict:
+    """HITL Clarification node (Phase 3b: Ambiguity Disambiguation).
+
+    Invoked strictly when Semantic Gate fails (U_sem > tau_sem or structural failure).
+    Suspends execution via interrupt(), presenting the system's ambiguous understanding
+    and validation errors to the operator to gather targeted refinement feedback.
+
+    Args:
+        state: AgentState with hitl_reconstruction, usem_score, and error_context.
+
+    Returns:
+        Partial state update with hitl_approved, error_context, and messages.
+    """
+    reconstruction = state.get("hitl_reconstruction") or "No reconstruction available"
+    usem_score = state.get("usem_score")
+    error_context = state.get("error_context")
+    pddl_valid = state.get("pddl_valid")
+
+    response = interrupt({
+        "status": "clarification_required",
+        "reconstruction": reconstruction,
+        "usem_score": usem_score,
+        "pddl_valid": pddl_valid,
+        "error_context": error_context,
+        "options": ["clarify", "refine", "approve"],
+        "message": (
+            "Semantic uncertainty is high or intent requires clarification. "
+            "Please review the system's understanding and provide refined instructions."
+        ),
+    })
+
+    feedback = ""
+    if isinstance(response, str):
+        feedback = response.strip()
+    elif isinstance(response, dict):
+        fb = response.get("feedback") or response.get("refinement")
+        if fb:
+            feedback = str(fb).strip()
+        elif "action" in response and response["action"] not in ("refine", "approve", "reject", "clarify"):
+            feedback = str(response["action"]).strip()
+
+    action = response.get("action", "refine") if isinstance(response, dict) else "refine"
+    approved = action == "approve"
+
+    resolved_feedback = feedback if feedback else (error_context or "Refinement requested by operator")
+
+    return {
+        "hitl_approved": approved,
+        "error_context": resolved_feedback,
+        "messages": [
+            AIMessage(
+                content=f"HITL Clarification: {action}" + (f" — {feedback}" if feedback else ""),
+                name="hitl_clarify",
+            )
+        ],
     }

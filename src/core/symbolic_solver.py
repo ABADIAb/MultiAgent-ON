@@ -2,8 +2,9 @@
 
 Implements deterministic constraint-based path finding using:
 - Mock GraphRAG for k-hop neighborhood extraction (prevents token saturation)
+- Topological graph pruning: removes avoided nodes and prohibited links
 - Yen's K-Shortest Paths algorithm for candidate path enumeration
-- PDDL constraint enforcement (avoid-links, max-hops)
+- PDDL constraint enforcement (avoid-node, avoid-link, max-hops)
 
 No LLM calls — this is the purely symbolic half of the neurosymbolic
 architecture (Architecture V5, Phase 4). The LLM is strictly forbidden
@@ -35,6 +36,7 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
     Parses the simplified optical network PDDL subset used by this system:
       - Combined route goals: (route <src> <dst>), (routed <src> <dst>), (path <src> <dst>)
       - Individual predicates: (source <node>), (destination <node>), (target <node>), (sink <node>)
+      - (avoid-node <node>) → added to avoid_nodes list
       - (avoid-link <link-id>) → added to avoid_links list
       - (max-hops <n>) → max_hops integer
       - (min-gsnr <value>) → min_gsnr float
@@ -44,11 +46,13 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
 
     Returns:
         Dict with keys: source (str), destination (str),
-        avoid_links (list[str]), max_hops (int | None), min_gsnr (float | None).
+        avoid_nodes (list[str]), avoid_links (list[str]),
+        max_hops (int | None), min_gsnr (float | None).
     """
     constraints: dict = {
         "source": None,
         "destination": None,
+        "avoid_nodes": [],
         "avoid_links": [],
         "max_hops": None,
         "min_gsnr": None,
@@ -85,20 +89,34 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
         if dest_match:
             constraints["destination"] = dest_match.group(1).strip()
 
-    # 4. Parse (avoid-link <link-id>) or (avoid-link <src> <dst>) — multiple occurrences allowed
+    # 4. Parse (avoid-node <node>) or (avoid-nodes <node>...)
+    avoid_node_matches = re.findall(
+        r"\((?:avoid-node|avoid-nodes|avoid)\s+([^\s)]+(?:\s+[^\s)]+)*)\)",
+        pddl_text,
+        re.IGNORECASE,
+    )
+    avoid_nodes_list: list[str] = []
+    for match in avoid_node_matches:
+        for node_token in match.split():
+            cleaned = node_token.strip().strip("'\"")
+            if cleaned:
+                avoid_nodes_list.append(cleaned)
+    constraints["avoid_nodes"] = avoid_nodes_list
+
+    # 5. Parse (avoid-link <link-id>) or (avoid-link <src> <dst>) — multiple occurrences allowed
     avoid_matches = re.findall(
         r"\(avoid-link\s+([^\s)]+(?:\s+[^\s)]+)?)\)", pddl_text, re.IGNORECASE
     )
     constraints["avoid_links"] = [m.strip().strip("'\"") for m in avoid_matches]
 
-    # 5. Parse (max-hops <n>)
+    # 6. Parse (max-hops <n>)
     hops_match = re.search(
         r"\((?:max-hops|max_hops|hops)\s+(\d+)\)", pddl_text, re.IGNORECASE
     )
     if hops_match:
         constraints["max_hops"] = int(hops_match.group(1))
 
-    # 6. Parse (min-gsnr <value>) / (min-snr <value>) / (target-snr <value>)
+    # 7. Parse (min-gsnr <value>) / (min-snr <value>) / (target-snr <value>)
     snr_match = re.search(
         r"\((?:min-gsnr|min-snr|target-snr|min_gsnr|target_snr)\s+([\d.]+)\)",
         pddl_text,
@@ -151,6 +169,41 @@ def _resolve_node_id(graph: nx.Graph, name: str | None) -> str | None:
             return node_id
 
     return None
+
+
+def _path_uses_avoided_nodes(
+    graph: nx.Graph,
+    path_nodes: list[str],
+    avoid_nodes: list[str],
+) -> bool:
+    """Check whether a path traverses any of the avoided nodes.
+
+    Args:
+        graph: The adjacency graph.
+        path_nodes: Ordered list of node IDs in the path.
+        avoid_nodes: Node names or node IDs that must not be used.
+
+    Returns:
+        True if the path uses at least one avoided node.
+    """
+    if not avoid_nodes:
+        return False
+
+    avoid_set = set()
+    for a in avoid_nodes:
+        cleaned = a.strip("'\"").lower()
+        avoid_set.add(cleaned)
+        resolved = _resolve_node_id(graph, cleaned)
+        if resolved:
+            avoid_set.add(resolved.lower())
+
+    for n in path_nodes:
+        n_id = n.lower()
+        n_name = str(graph.nodes[n].get("name", n)).lower()
+        if n_id in avoid_set or n_name in avoid_set:
+            return True
+
+    return False
 
 
 def _path_uses_avoided_links(
@@ -251,8 +304,8 @@ def symbolic_solver_node(state: AgentState) -> dict:
     """Deterministic path-finding node for the V5 pipeline.
 
     Reads PDDL constraints and topology from state, builds a networkx
-    graph, extracts a k-hop neighborhood via Mock GraphRAG, then runs
-    Yen's K-Shortest Paths with PDDL constraint filtering.
+    graph, extracts a k-hop neighborhood via Mock GraphRAG, prunes
+    avoided nodes/links, then runs Yen's K-Shortest Paths with PDDL constraint filtering.
 
     Args:
         state: Current AgentState with pddl_constraints and topology_snapshot.
@@ -271,6 +324,7 @@ def symbolic_solver_node(state: AgentState) -> dict:
     constraints = _parse_pddl_constraints(pddl_text)
     source_name = constraints["source"]
     dest_name = constraints["destination"]
+    avoid_nodes: list[str] = constraints["avoid_nodes"]
     avoid_links: list[str] = constraints["avoid_links"]
     max_hops: int | None = constraints["max_hops"]
 
@@ -351,14 +405,66 @@ def symbolic_solver_node(state: AgentState) -> dict:
             ],
         }
 
+    # Guard: check if source or destination itself is in avoid_nodes
+    avoid_node_resolved = set()
+    for an in avoid_nodes:
+        res = _resolve_node_id(full_graph, an)
+        if res:
+            avoid_node_resolved.add(res.lower())
+        avoid_node_resolved.add(an.strip("'\"").lower())
+
+    if source_id.lower() in avoid_node_resolved or str(source_name).lower() in avoid_node_resolved:
+        return {
+            "candidate_paths": [],
+            "pddl_parsed_constraints": constraints,
+            "messages": [
+                AIMessage(
+                    content=f"Symbolic solver: source node '{source_name}' is in avoid-node constraints.",
+                    name="symbolic_solver",
+                )
+            ],
+        }
+
+    if dest_id.lower() in avoid_node_resolved or str(dest_name).lower() in avoid_node_resolved:
+        return {
+            "candidate_paths": [],
+            "pddl_parsed_constraints": constraints,
+            "messages": [
+                AIMessage(
+                    content=f"Symbolic solver: destination node '{dest_name}' is in avoid-node constraints.",
+                    name="symbolic_solver",
+                )
+            ],
+        }
+
     # Extract k-hop neighborhood (Mock GraphRAG)
     subgraph = extract_k_hop_neighborhood(full_graph, source_id, dest_id, k=_K_HOP)
 
-    # Guard: source and dest not connected in subgraph
-    if not nx.has_path(subgraph, source_id, dest_id):
-        # Fall back to full graph if k-hop cutoff disconnected a valid route
-        if nx.has_path(full_graph, source_id, dest_id):
-            subgraph = full_graph
+    # Prune avoided intermediate nodes from subgraph: \widetilde{V}_{sub} = V_{sub} \ { u | avoid-node(u) }
+    pruned_subgraph = subgraph.copy()
+    nodes_to_remove = [
+        n for n in pruned_subgraph.nodes
+        if n != source_id and n != dest_id and (
+            str(n).lower() in avoid_node_resolved or
+            str(pruned_subgraph.nodes[n].get("name", n)).lower() in avoid_node_resolved
+        )
+    ]
+    pruned_subgraph.remove_nodes_from(nodes_to_remove)
+
+    # Guard: source and dest not connected in pruned subgraph
+    if not nx.has_path(pruned_subgraph, source_id, dest_id):
+        # Fall back to full graph with avoided nodes pruned if k-hop cutoff disconnected a valid detour
+        pruned_full = full_graph.copy()
+        nodes_to_remove_full = [
+            n for n in pruned_full.nodes
+            if n != source_id and n != dest_id and (
+                str(n).lower() in avoid_node_resolved or
+                str(pruned_full.nodes[n].get("name", n)).lower() in avoid_node_resolved
+            )
+        ]
+        pruned_full.remove_nodes_from(nodes_to_remove_full)
+        if nx.has_path(pruned_full, source_id, dest_id):
+            pruned_subgraph = pruned_full
         else:
             return {
                 "candidate_paths": [],
@@ -371,10 +477,10 @@ def symbolic_solver_node(state: AgentState) -> dict:
                 ],
             }
 
-    # Run Yen's K-Shortest Paths
+    # Run Yen's K-Shortest Paths on pruned subgraph
     try:
         raw_paths = list(
-            nx.shortest_simple_paths(subgraph, source_id, dest_id, weight="length_km")
+            nx.shortest_simple_paths(pruned_subgraph, source_id, dest_id, weight="length_km")
         )
     except (nx.NetworkXNoPath, nx.NodeNotFound):
         raw_paths = []
@@ -392,11 +498,15 @@ def symbolic_solver_node(state: AgentState) -> dict:
         if max_hops is not None and hops > max_hops:
             continue
 
-        # Enforce avoid-link constraint
-        if _path_uses_avoided_links(subgraph, path_nodes, avoid_links):
+        # Enforce avoid-node constraint
+        if _path_uses_avoided_nodes(pruned_subgraph, path_nodes[1:-1], avoid_nodes):
             continue
 
-        candidate_paths.append(_build_path_dict(subgraph, path_nodes))
+        # Enforce avoid-link constraint
+        if _path_uses_avoided_links(pruned_subgraph, path_nodes, avoid_links):
+            continue
+
+        candidate_paths.append(_build_path_dict(pruned_subgraph, path_nodes))
 
     summary = (
         f"Symbolic solver found {len(candidate_paths)} candidate path(s) "

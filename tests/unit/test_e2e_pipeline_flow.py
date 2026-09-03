@@ -141,7 +141,7 @@ class TestHappyPathExecution:
     def test_happy_path_auto_approve_single_pass(
         self, mock_topology, checkpointer
     ):
-        """Operator submits clear feasible intent -> approves reconstruction -> auto-approves."""
+        """Operator submits clear feasible intent -> single-pass auto-approval with ZERO interrupts."""
         valid_pddl = (
             "(define (problem route-berlin-frankfurt)\n"
             "  (:domain optical-network)\n"
@@ -174,26 +174,13 @@ class TestHappyPathExecution:
             "Route from Berlin to Frankfurt with at least 12 dB GSNR", mock_topology
         )
 
-        # 1. First execution up to the Reverse Prompt interrupt
-        graph.invoke(initial_state, config=config)
+        # 1. Single invocation runs completely from START to plan_synthesizer (0 interrupts)
+        final_result = graph.invoke(initial_state, config=config)
 
-        state_after_interrupt = graph.get_state(config)
-        assert state_after_interrupt.next == ("reverse_prompt",)
-        assert state_after_interrupt.tasks[0].interrupts[0].value["options"] == [
-            "approve",
-            "refine",
-        ]
-        assert (
-            reconstruction_text
-            in state_after_interrupt.tasks[0].interrupts[0].value["reconstruction"]
-        )
+        state_after = graph.get_state(config)
+        assert state_after.next == ()  # Graph is completely finished
 
-        # 2. Operator approves
-        final_result = graph.invoke(
-            Command(resume={"action": "approve"}), config=config
-        )
-
-        # 3. Assertions on completed state
+        # 2. Assertions on completed state
         assert final_result["pddl_valid"] is True
         assert final_result["usem_score"] == pytest.approx(0.05)
         assert final_result["usem_passed"] is True
@@ -227,12 +214,12 @@ class TestHappyPathExecution:
 
 
 class TestSemanticGateLoops:
-    """Validate fail-fast clarification and refinement loopback (BUG-007 fix)."""
+    """Validate fail-fast clarification and refinement loopback (Phase 3b HITL)."""
 
     def test_structural_pddl_error_triggers_refinement_loop_and_reparses(
         self, mock_topology, checkpointer
     ):
-        """When PDDL has structural syntax failure (U_sem=1.0), pipeline loops back to pddl_parser."""
+        """When PDDL has structural syntax failure (U_sem=1.0), pipeline interrupts at hitl_clarify."""
         invalid_pddl = "(define (problem broken (:domain optical-network)"
         corrected_pddl = (
             "(define (problem route-hamburg-munich)\n"
@@ -250,7 +237,7 @@ class TestSemanticGateLoops:
                 target_node="Munich",
             ),
             pddl_handler=[invalid_pddl, corrected_pddl],
-            reconstruction_handler=None,  # auto-generate from PDDL
+            reconstruction_handler=None,
             agreement_score=0.05,
         )
         set_llm(mock_llm)
@@ -262,26 +249,20 @@ class TestSemanticGateLoops:
             "Route from Hamburg to Munich", mock_topology
         )
 
-        # 1. First run halts at reverse_prompt interrupt
+        # 1. First run halts at hitl_clarify interrupt due to U_sem = 1.0 (CFG fail)
         graph.invoke(initial_state, config=config)
 
+        state_pass1 = graph.get_state(config)
+        assert state_pass1.next == ("hitl_clarify",)
+        assert state_pass1.tasks[0].interrupts[0].value["status"] == "clarification_required"
+
         # 2. Operator submits refinement feedback
-        graph.invoke(
+        final_result = graph.invoke(
             Command(resume={"action": "refine", "feedback": "Fix syntax and close parenthesis"}),
             config=config,
         )
 
-        # 3. Graph looped back to pddl_parser, then to reverse_prompt, and is now paused at second interrupt
-        state_pass2 = graph.get_state(config)
-        assert state_pass2.next == ("reverse_prompt",)
-        assert "min GSNR 10.0 dB" in state_pass2.tasks[0].interrupts[0].value["reconstruction"]
-
-        # 4. Operator approves the corrected reconstruction
-        final_result = graph.invoke(
-            Command(resume={"action": "approve"}), config=config
-        )
-
-        # 5. Pipeline completes successfully
+        # 3. Pipeline completes successfully after reparsing
         assert final_result["pddl_valid"] is True
         assert final_result["usem_passed"] is True
         assert final_result["radg_decision"] == "approve"
@@ -291,7 +272,7 @@ class TestSemanticGateLoops:
     def test_semantic_divergence_refinement_loop(
         self, mock_topology, checkpointer
     ):
-        """When operator requests refinement due to missing constraints, pipeline re-parses with feedback."""
+        """When semantic divergence d_sem > tau_sem, pipeline interrupts at hitl_clarify and re-parses."""
         pddl_v1 = (
             "(define (problem route-koln-berlin)\n"
             "  (:domain optical-network)\n"
@@ -309,16 +290,36 @@ class TestSemanticGateLoops:
             ")"
         )
 
-        mock_llm = _create_mock_llm(
-            intent_summary=IntentSummary(
-                summary="Route from Cologne to Berlin avoiding Frankfurt",
-                source_node="Cologne",
-                target_node="Berlin",
-            ),
-            pddl_handler=[pddl_v1, pddl_v2],
-            reconstruction_handler=None,
-            agreement_score=0.05,
+        # First pass scores 0.6 divergence (fails), second pass scores 0.05 (passes)
+        call_count = {"count": 0}
+
+        def _mock_dispatcher(messages, *args, **kwargs):
+            first_msg = messages[0] if messages else None
+            system_prompt = getattr(first_msg, "content", "")
+            user_content = messages[1].content if len(messages) > 1 else ""
+
+            if "PDDL Parser module" in system_prompt:
+                if "Operator refinement feedback:" in user_content:
+                    return AIMessage(content=pddl_v2)
+                return AIMessage(content=pddl_v1)
+            elif "Reverse Prompting module" in system_prompt:
+                return AIMessage(content="I understand you want to route from Cologne to Berlin.")
+            elif "semantic similarity evaluator" in system_prompt:
+                call_count["count"] += 1
+                if call_count["count"] == 1:
+                    return AIMessage(content="0.60")  # High divergence
+                return AIMessage(content="0.05")  # Low divergence on pass 2
+            return AIMessage(content="OK")
+
+        mock_llm = MagicMock()
+        mock_structured = MagicMock()
+        mock_structured.invoke.return_value = IntentSummary(
+            summary="Route from Cologne to Berlin avoiding Frankfurt",
+            source_node="Cologne",
+            target_node="Berlin",
         )
+        mock_llm.with_structured_output.return_value = mock_structured
+        mock_llm.invoke.side_effect = _mock_dispatcher
         set_llm(mock_llm)
 
         graph = compile_graph(checkpointer=checkpointer)
@@ -328,18 +329,16 @@ class TestSemanticGateLoops:
             "Route from Cologne to Berlin avoiding Frankfurt", mock_topology
         )
 
-        # Pass 1: interrupt at reverse_prompt
+        # Pass 1: halts at hitl_clarify because U_sem = 0.60 > 0.3
         graph.invoke(initial_state, config=config)
 
-        # Operator notices avoid constraint is missing -> requests refine
-        graph.invoke(
+        state_pass1 = graph.get_state(config)
+        assert state_pass1.next == ("hitl_clarify",)
+
+        # Operator provides clarification feedback
+        final_result = graph.invoke(
             Command(resume={"action": "refine", "feedback": "Please avoid the Cologne to Frankfurt link"}),
             config=config,
-        )
-
-        # Pass 2: interrupt with updated reconstruction -> approve
-        final_result = graph.invoke(
-            Command(resume={"action": "approve"}), config=config
         )
 
         assert final_result["pddl_valid"] is True
@@ -395,14 +394,9 @@ class TestRadgReplanLoops:
             "Route from Bremen to Leipzig with 45 dB GSNR", mock_topology
         )
 
-        # 1. First execution -> pauses at Reverse Prompt
+        # 1. First execution: passes semantic gate autonomously, then halts at RADG replan interrupt!
         graph.invoke(initial_state, config=config)
 
-        # 2. Operator approves reverse prompt
-        graph.invoke(Command(resume={"action": "approve"}), config=config)
-
-        # 3. Graph executed semantic_gate -> symbolic_solver -> qot_validation -> radg (fails QoT)
-        # Graph should now be paused at the RADG interrupt!
         radg_state = graph.get_state(config)
         assert radg_state.next == ("radg",)
         radg_payload = radg_state.tasks[0].interrupts[0].value
@@ -410,23 +404,13 @@ class TestRadgReplanLoops:
         assert "SUGGEST REPLAN" in radg_payload["reason"]
         assert "lowering the minimum GSNR threshold" in radg_payload["suggestion"]
 
-        # 4. Operator resumes RADG interrupt with relaxed constraint feedback
-        graph.invoke(
+        # 2. Operator resumes RADG interrupt with relaxed constraint feedback
+        final_result = graph.invoke(
             Command(resume={"action": "refine", "feedback": "Relax GSNR threshold to 12 dB"}),
             config=config,
         )
 
-        # 5. Graph looped back to pddl_parser -> reverse_prompt -> paused at Reverse Prompt interrupt
-        state_relaxed_prompt = graph.get_state(config)
-        assert state_relaxed_prompt.next == ("reverse_prompt",)
-        assert "12.0 dB" in state_relaxed_prompt.tasks[0].interrupts[0].value["reconstruction"]
-
-        # 6. Operator approves the relaxed reconstruction
-        final_result = graph.invoke(
-            Command(resume={"action": "approve"}), config=config
-        )
-
-        # 7. Assertions on approved final plan
+        # 3. Assertions on approved final plan
         assert final_result["radg_decision"] == "approve"
         assert len(final_result["candidate_paths"]) > 0
         assert any(r["feasible"] for r in final_result["qot_results"])
@@ -445,7 +429,7 @@ class TestComplexConstraintFiltering:
     def test_avoid_link_constraint_filters_paths(
         self, mock_topology, checkpointer
     ):
-        """Avoid link constraint removes direct edge and selects valid detour."""
+        """Avoid link constraint removes direct edge and selects valid detour in a single pass."""
         pddl_with_avoid = (
             "(define (problem route-hamburg-berlin-detour)\n"
             "  (:domain optical-network)\n"
@@ -474,10 +458,8 @@ class TestComplexConstraintFiltering:
             "Route Hamburg to Berlin avoiding direct link", mock_topology
         )
 
-        graph.invoke(initial_state, config=config)
-        final_result = graph.invoke(
-            Command(resume={"action": "approve"}), config=config
-        )
+        # Single pass execution (0 interrupts)
+        final_result = graph.invoke(initial_state, config=config)
 
         assert final_result["radg_decision"] == "approve"
         # None of the candidate paths should be the 1-hop direct Hamburg -> Berlin
@@ -490,7 +472,7 @@ class TestComplexConstraintFiltering:
     def test_max_hops_constraint_filters_longer_paths(
         self, mock_topology, checkpointer
     ):
-        """Max-hops constraint excludes paths exceeding the hop limit."""
+        """Max-hops constraint excludes paths exceeding the hop limit in a single pass."""
         pddl_max_hops = (
             "(define (problem route-hannover-berlin-maxhops)\n"
             "  (:domain optical-network)\n"
@@ -519,10 +501,8 @@ class TestComplexConstraintFiltering:
             "Route Hannover to Berlin max 1 hop", mock_topology
         )
 
-        graph.invoke(initial_state, config=config)
-        final_result = graph.invoke(
-            Command(resume={"action": "approve"}), config=config
-        )
+        # Single pass execution (0 interrupts)
+        final_result = graph.invoke(initial_state, config=config)
 
         assert final_result["radg_decision"] == "approve"
         for path in final_result["candidate_paths"]:
@@ -569,11 +549,8 @@ class TestTopologyEdgeCases:
             "Route Atlantis to ElDorado", mock_topology
         )
 
-        # 1. Reverse prompt interrupt
+        # 1. Passes semantic gate autonomously, solver fails to find nodes -> RADG replan interrupt
         graph.invoke(initial_state, config=config)
-
-        # 2. Approve reverse prompt -> solver fails to find nodes -> RADG replan interrupt
-        graph.invoke(Command(resume={"action": "approve"}), config=config)
 
         radg_state = graph.get_state(config)
         assert radg_state.next == ("radg",)
@@ -588,13 +565,14 @@ class TestTopologyEdgeCases:
 
 
 class TestInterruptResumptionResilience:
-    """Validate that interrupt handlers in reverse_prompt and radg handle various resume formats."""
+    """Validate that interrupt handlers in hitl_clarify and radg handle various resume formats."""
 
-    def test_reverse_prompt_handles_string_resume(
+    def test_hitl_clarify_handles_string_resume(
         self, mock_topology, checkpointer
     ):
-        """reverse_prompt_node handles string command 'approve'."""
-        valid_pddl = (
+        """hitl_clarify_node handles string command resume."""
+        invalid_pddl = "(define (problem broken (:domain optical-network)"
+        corrected_pddl = (
             "(define (problem route-stuttgart-munich)\n"
             "  (:domain optical-network)\n"
             "  (:objects Stuttgart Munich - node)\n"
@@ -609,7 +587,7 @@ class TestInterruptResumptionResilience:
                 source_node="Stuttgart",
                 target_node="Munich",
             ),
-            pddl_handler=valid_pddl,
+            pddl_handler=[invalid_pddl, corrected_pddl],
             reconstruction_handler=None,
             agreement_score=0.05,
         )
@@ -622,10 +600,11 @@ class TestInterruptResumptionResilience:
             "Route Stuttgart to Munich", mock_topology
         )
 
+        # First run pauses at hitl_clarify interrupt
         graph.invoke(initial_state, config=config)
 
         # Resume with plain string
-        final_result = graph.invoke(Command(resume="approve"), config=config)
+        final_result = graph.invoke(Command(resume="Fixed PDDL"), config=config)
         assert final_result["radg_decision"] == "approve"
 
 
@@ -637,11 +616,12 @@ class TestInterruptResumptionResilience:
 class TestCheckpointerPersistence:
     """Validate that LangGraph StateGraph checkpointer retains complete state history."""
 
-    def test_state_history_captured_across_multiple_interrupts(
+    def test_state_history_captured_across_interrupts(
         self, mock_topology, checkpointer
     ):
-        """Ensure checkpointer tracks state snapshots through multiple interruptions."""
-        pddl = (
+        """Ensure checkpointer tracks state snapshots through interruption cycles."""
+        invalid_pddl = "(define (problem broken (:domain optical-network)"
+        valid_pddl = (
             "(define (problem route-nuremberg-munich)\n"
             "  (:domain optical-network)\n"
             "  (:objects Nuremberg Munich - node)\n"
@@ -656,7 +636,7 @@ class TestCheckpointerPersistence:
                 source_node="Nuremberg",
                 target_node="Munich",
             ),
-            pddl_handler=pddl,
+            pddl_handler=[invalid_pddl, valid_pddl],
             reconstruction_handler=None,
             agreement_score=0.05,
         )
@@ -669,11 +649,11 @@ class TestCheckpointerPersistence:
             "Route Nuremberg to Munich", mock_topology
         )
 
-        # Step 1: run to interrupt
+        # Step 1: run to hitl_clarify interrupt
         graph.invoke(initial_state, config=config)
 
         # Step 2: resume and complete
-        graph.invoke(Command(resume={"action": "approve"}), config=config)
+        graph.invoke(Command(resume={"action": "refine", "feedback": "Fix syntax"}), config=config)
 
         # Inspect history
         history = list(graph.get_state_history(config))

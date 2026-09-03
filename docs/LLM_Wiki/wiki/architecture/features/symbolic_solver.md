@@ -29,19 +29,28 @@ This is the "System 2" deterministic engine — the LLM is strictly forbidden fr
 `_parse_pddl_constraints(pddl_text)` extracts:
 - `(source <name>)` → source node name
 - `(destination <name>)` → destination node name
+- `(avoid-node <id|name>)` → list of prohibited node names/IDs
 - `(avoid-link <id>)` → list of prohibited link IDs
 - `(max-hops <n>)` → maximum hop count constraint
+- `(min-gsnr <val>)` → minimum GSNR threshold
 
 ### Step 2 — Sub-Topology Reuse & Mock GraphRAG
 `symbolic_solver_node` reuses `subtopology_snapshot` directly if already extracted by Phase 1 (`intent_ingest_node` via Mock GraphRAG), avoiding redundant sub-graph extraction and preventing re-querying the full testbed graph.
 If not present, `build_adjacency_graph(topology)` converts the `TopologySnapshot` into a `networkx.Graph` and `extract_k_hop_neighborhood(graph, source_id, dest_id, k=2)` extracts the $k$-hop neighborhood.
 
-### Step 3 — Yen's K-Shortest Paths
-`nx.shortest_simple_paths(subgraph, source_id, dest_id, weight="length_km")` enumerates paths by ascending total fiber length. Up to `_K_PATHS=5` candidate paths are returned.
+### Step 3 — Topological Graph Pruning ($\widetilde{V}_{sub}, \widetilde{E}_{sub}$)
+Before finding paths, the solver prunes the search graph:
+- Prohibited nodes in `avoid_nodes` are removed from the graph: $\widetilde{V}_{sub} = V_{sub} \setminus \{ u \mid \text{avoid-node}(u) \}$.
+- If source or destination is prohibited, the solver fails fast.
+- If pruning disconnects the $k$-hop subgraph, it falls back to the pruned full graph to find detours.
 
-### Step 4 — PDDL Constraint Filtering
+### Step 4 — Yen's K-Shortest Paths
+`nx.shortest_simple_paths(pruned_subgraph, source_id, dest_id, weight="length_km")` enumerates paths by ascending total fiber length. Up to `_K_PATHS=5` candidate paths are returned.
+
+### Step 5 — PDDL Constraint Filtering
 Each candidate path is checked against:
 - **max-hops**: path hop count ≤ constraint
+- **avoid-node**: no intermediate path node matches any prohibited node
 - **avoid-link**: no path edge matches any prohibited link ID
 
 Only paths passing all constraints are added to `candidate_paths`.

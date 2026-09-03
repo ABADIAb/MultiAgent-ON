@@ -1,58 +1,71 @@
 ---
-title: "Feature: Reverse Prompting HITL Node"
-date: 2026-07-31
+title: "Feature: Reverse Prompting & HITL Clarification Nodes"
+date: 2026-09-01
 tags: [feature, hitl, reverse-prompting, interrupt, semantic-gate, phase3, nodes]
 status: active
 ---
 
-# Feature: Reverse Prompting HITL Node
+# Feature: Reverse Prompting & HITL Clarification Nodes
 
 ## 1. Architecture Placement
-**Phase 3: Semantic Gate & HITL ($U_{sem}$)** | [[Architecture_v5]]
+**Phase 3a: Automated Reverse Prompting & Phase 3b: HITL Clarification** | [[Architecture_v5]]
 
-Implements the formal Human-in-the-Loop convergence mechanism that prevents **semantic drift** in intent refinement. Rather than showing the operator raw PDDL (opaque, error-prone), the system translates PDDL back to natural language and asks the operator to approve exactly what the system will execute. This mathematically bounds the operator's approval to the logical constraints the solver will use.
+Implements the formal closed-loop validation contract that prevents **semantic drift** in intent refinement without imposing unnecessary human latency on unambiguous intents.
+- **Phase 3a (Automated Reverse Prompting):** The system translates PDDL back to natural language $\mathcal{I}_{recon}$ autonomously (zero interrupts), allowing the downstream [[architecture/features/semantic_gate]] to compute $U_{sem} = f(v_{struct}, d_{sem})$.
+- **Phase 3b (HITL Clarification):** Triggered *only* when $U_{sem} > \tau_{sem}$ (ambiguous intent or structural syntax failure). It pauses execution via `interrupt()` to request targeted operator clarification.
 
 ## 2. Associated Files
-- **Node**: [src/nodes/reverse_prompt.py](file:///home/felipeab/MultiAgentON/src/nodes/reverse_prompt.py) — `reverse_prompt_node(state) -> dict`
-- **Router**: [src/nodes/reverse_prompt.py](file:///home/felipeab/MultiAgentON/src/nodes/reverse_prompt.py) — `hitl_route(state) -> str`
+- **Phase 3a Node**: [src/nodes/reverse_prompt.py](file:///home/felipeab/MultiAgentON/src/nodes/reverse_prompt.py) — `reverse_prompt_node(state) -> dict` (automated, 0 interrupts)
+- **Phase 3b Node**: [src/nodes/reverse_prompt.py](file:///home/felipeab/MultiAgentON/src/nodes/reverse_prompt.py) — `hitl_clarify_node(state) -> dict` (conditional HITL `interrupt()`)
 - **State fields written**: `hitl_reconstruction: str | None`, `hitl_approved: bool | None`, `error_context: str | None`
 - **Tests**: [tests/unit/test_pipeline_nodes.py](file:///home/felipeab/MultiAgentON/tests/unit/test_pipeline_nodes.py)
 
 ## 3. How it Works
-1. Calls the LLM with `REVERSE_PROMPT_SYSTEM` — instructs it to translate the PDDL constraints into a plain English paragraph starting with "I understand you want to..."
-2. Presents the reconstruction to the operator via `interrupt()` — LangGraph pauses the graph here, waiting for the CLI/UI to resume it.
-   - `approve` → `hitl_approved=True`, graph continues to Semantic Gate for $U_{sem}$ evaluation
-   - `refine` → `hitl_approved=False`, `error_context=feedback`, graph continues to Semantic Gate which will route back to `pddl_parser`
+1. **Phase 3a (`reverse_prompt_node`):**
+   - Calls the LLM with `REVERSE_PROMPT_SYSTEM` — translates the formal PDDL constraints into a plain English explanation starting with "I understand you want to..."
+   - Saves `hitl_reconstruction` into `AgentState` and passes control directly to `semantic_gate` with **0 human pauses**.
+2. **Downstream Gate Evaluation ([[architecture/features/semantic_gate]]):**
+   - If $U_{sem} \le \tau_{sem}$ (default 0.3): passes autonomously to `symbolic_solver` (Phase 4).
+   - If $U_{sem} > \tau_{sem}$: routes to `hitl_clarify` (Phase 3b).
+3. **Phase 3b (`hitl_clarify_node`):**
+   - Pauses execution via `interrupt()` presenting the reconstructed intent, uncertainty score, and error context.
+   - Resumes with operator feedback:
+     - `refine` / textual feedback $\to$ `hitl_approved=False`, `error_context=feedback`, loops back to `pddl_parser`.
+     - `approve` $\to$ `hitl_approved=True`, loops back to `pddl_parser`.
 
-In V5, the 3-way routing logic has been removed from this node. The `reverse_prompt` node purely focuses on reconstruction and the interrupt checkpoint, delegating routing decisions to the downstream `semantic_gate`.
-
-## 4. V4 vs V5 HITL Strategy
-| Version | HITL Trigger |
-|---------|-------------|
-| V4 | Always-on, 3-way routing (approve/refine/reject) directly in this node |
-| V5 | Simplified schema (approve/refine). Routing is delegated to the Semantic Gate (Phase 3). |
-
-In Sprint 3, the `hitl_route` conditional edge was replaced by `semantic_gate_route`.
+## 4. HITL Strategy Evolution
+| Version | Phase 3 HITL Trigger |
+|---------|-----------------------|
+| V4 | Always-on, 3-way routing (approve/refine/reject) directly in this node. |
+| V5 (Initial) | Always-on, pauses on every intent even when $U_{sem} \le \tau_{sem}$. |
+| **V5 (Refined / Current)** | **Risk-Adaptive Decoupling**: Phase 3a is automated (0 interrupts). Phase 3b (`hitl_clarify`) triggers *only* when $U_{sem} > \tau_{sem}$. |
 
 ## 5. LangGraph interrupt() Pattern
-`interrupt()` requires a **checkpointer** to be set. Without a checkpointer, `interrupt()` raises an error. The `compile_graph()` function in `src/core/graph.py` accepts an optional checkpointer; `main.py` passes `InMemorySaver()` for development.
+`interrupt()` requires a **checkpointer** to be configured (e.g. `InMemorySaver()` in `compile_graph()`).
 
 ```python
-# Pattern used:
+# Pattern used in hitl_clarify_node:
 response = interrupt({
+    "status": "clarification_required",
+    "usem_score": state.get("usem_score"),
     "reconstruction": reconstruction,
+    "error_context": state.get("error_context"),
     "options": ["approve", "refine"],
-    "message": "Please review my understanding of your request. If accurate, approve to proceed. If not, choose 'refine' and provide feedback.",
+    "message": (
+        f"Semantic uncertainty is high (U_sem = {usem:.2f} > 0.30) or syntax was invalid. "
+        "Please review the understanding or provide refinement feedback."
+    ),
 })
 ```
 
 ## 6. How to Test
 ```bash
-uv run pytest tests/unit/test_pipeline_nodes.py -k "reverse_prompt" -v
+uv run pytest tests/unit/test_pipeline_nodes.py -k "reverse_prompt or hitl_clarify" -v
 ```
 
 ## 7. Cross-References
-- [[Architecture_v5]] — Phase 3 description and V5 conditional HITL goal
-- [[architecture/features/pddl_parser]] — Produces PDDL consumed here; receives operator feedback on refine
-- [[architecture/features/symbolic_solver]] — Phase 4 executed on `approve`
-- [[architecture/features/pipeline_graph]] — `hitl_route` is registered as a conditional edge
+- [[Architecture_v5]] — System architecture and phase workflow
+- [[architecture/features/semantic_gate]] — Computes $U_{sem}$ and routes to `hitl_clarify` or `symbolic_solver`
+- [[architecture/features/pddl_parser]] — Generates PDDL consumed by Phase 3a; receives feedback from Phase 3b
+- [[architecture/features/symbolic_solver]] — Phase 4 executed upon autonomous or clarified pass
+- [[architecture/features/pipeline_graph]] — StateGraph topology wiring

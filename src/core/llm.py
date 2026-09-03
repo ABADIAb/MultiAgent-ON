@@ -42,7 +42,7 @@ def create_kimi_llm(
     api_key: str,
     base_url: str | None = None,
     model: str | None = None,
-    temperature: float = 1.0,
+    temperature: float | None = None,
     max_tokens: int = 2500,
     think_effort: str | None = None,
     thinking_disabled: bool = False,
@@ -54,7 +54,7 @@ def create_kimi_llm(
         api_key: API key for the Kimi service.
         base_url: Custom base URL (required for Kimi).
         model: Model identifier (defaults to KIMI_MODEL env or 'kimi-for-coding-highspeed').
-        temperature: Sampling temperature.
+        temperature: Sampling temperature. Defaults to 0.6 if thinking is disabled, 1.0 otherwise.
         max_tokens: Maximum tokens for completion (including reasoning tokens).
         think_effort: Optional reasoning effort ('low', 'high', 'max') for K3 models.
         thinking_disabled: Whether to disable reasoning/thinking entirely.
@@ -64,6 +64,7 @@ def create_kimi_llm(
         A configured ChatOpenAI instance.
     """
     resolved_model = model or os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL)
+    resolved_temp = (0.6 if thinking_disabled else 1.0) if temperature is None else temperature
 
     body_params: dict[str, Any] = dict(extra_body) if extra_body else {}
     if thinking_disabled:
@@ -74,7 +75,7 @@ def create_kimi_llm(
     kwargs: dict[str, Any] = {
         "model": resolved_model,
         "api_key": api_key,
-        "temperature": temperature,
+        "temperature": resolved_temp,
         "max_tokens": max_tokens,
     }
     if base_url:

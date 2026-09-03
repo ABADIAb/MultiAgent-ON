@@ -58,7 +58,7 @@ class AgentState(TypedDict, total=False):
         pddl_constraints: PDDL constraint string from the parser.
         pddl_valid: Whether the PDDL passed CFG validation.
         pddl_parsed_constraints: Structured dict extracted from PDDL for downstream nodes.
-            Keys: source (str), destination (str), avoid_links (list[str]), max_hops (int | None).
+            Keys: source (str), destination (str), avoid_nodes (list[str]), avoid_links (list[str]), max_hops (int | None), min_gsnr (float | None).
         hitl_reconstruction: Natural language reconstruction of PDDL.
         hitl_approved: Whether the operator approved via Reverse Prompting.
         topology_snapshot: Current testbed topology.

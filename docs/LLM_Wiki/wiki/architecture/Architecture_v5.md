@@ -30,6 +30,7 @@ The system translates natural language intent into PDDL. Before executing expens
 ## 3. System Overview
 
 ### 3.1 Architecture Diagram
+
 ```mermaid
 flowchart TD
     %% Styling
@@ -43,8 +44,9 @@ flowchart TD
      
     Phase1["Phase 1: Optical RAG<br/>(Enrich Intent)"]:::phase
     Phase2["Phase 2: PDDL Parsing<br/>(NL → PDDL)"]:::phase
-    Phase3{"Phase 3: Semantic Gate<br/>(Evaluate U_sem via Reverse Prompting)"}:::decision
-    Phase3b["Phase 3b: HITL<br/>(Clarify Missing Data)"]:::hitl
+    Phase3a["Phase 3a: Reverse Prompting<br/>(PDDL → NL Reconstruction, 0 Interrupts)"]:::phase
+    Phase3{"Phase 3: Semantic Gate<br/>(Evaluate U_sem = f(v_struct, d_sem))"}:::decision
+    Phase3b["Phase 3b: HITL Clarify<br/>(Operator Disambiguation via interrupt())"]:::hitl
     Phase4["Phase 4: Symbolic Solver<br/>(Extract valid paths)"]:::phase
     Phase5["Phase 5: QoT Validation<br/>(Binary Feasibility)"]:::phase
     Phase6{"Phase 6: Physical Risk Gate<br/>(Valid/Invalid)"}:::decision
@@ -53,10 +55,11 @@ flowchart TD
     Replan["Suggest Replan to Operator<br/>(Physics Failed)"]:::hitl
     
     Phase1 --> Phase2
-    Phase2 --> Phase3
-    Phase3 -->|"U_sem High<br/>(Clarify)"| Phase3b
+    Phase2 --> Phase3a
+    Phase3a --> Phase3
+    Phase3 -->|"U_sem > τ_sem<br/>(Clarify)"| Phase3b
     Phase3b -.->|"Refined Intent"| Phase2
-    Phase3 -->|"U_sem Low<br/>(Pass)"| Phase4
+    Phase3 -->|"U_sem ≤ τ_sem<br/>(Auto-Pass)"| Phase4
     Phase4 --> Phase5
     Phase5 --> Phase6
     
@@ -76,13 +79,16 @@ flowchart TD
 The operator submits a natural language request. The system connects to the testbed via Mock GraphRAG to dynamically extract a $k$-hop neighborhood around the requested nodes. It may also query local documentation (ITU-T specs) to add missing context, combining these into an enriched prompt containing the dynamic `topology_context` for the LLM.
 
 ### Phase 2: PDDL Parsing (CFG Validated)
-The LLM reads the enriched intent and generates a simplified PDDL string. A deterministic CFG (Context-Free Grammar) regex validator checks the string for syntactical correctness, blocking structural hallucinations. The CFG validation result feeds the first layer of $U_{sem}$.
+The LLM reads the enriched intent and generates a simplified PDDL string. A deterministic CFG (Context-Free Grammar) AST validator checks the string for syntactical and grammar correctness ($v_{struct} \in \{0, 1\}$), blocking structural hallucinations.
 
-### Phase 3: Semantic Uncertainty Gate & HITL ($U_{sem}$)
+### Phase 3: Automated Reverse Prompting & Semantic Uncertainty Gate ($U_{sem}$)
 Implementing a **fail-fast** principle, the system assesses Semantic Uncertainty ($U_{sem}$) *before* any complex routing or physics calculations:
-- *Layer 1 (Structural)*: Did the PDDL pass CFG validation?
-- *Layer 2 (Semantic)*: Does the Reverse Prompting reconstruction match the original operator intent?
-**Action**: If $U_{sem}$ is high, the system immediately halts and triggers the HITL interface, proactively asking the operator to provide specific missing constraints or clarify the intent. Once low (cleared), it proceeds to Phase 4.
+- **Phase 3a (Reverse Prompting):** Automated PDDL $\to$ Natural Language reconstruction ($\mathcal{I}_{recon}$) executed by the LLM without human interruption.
+- **Layer 1 (Structural)**: Did the PDDL pass CFG validation ($v_{struct}$)?
+- **Layer 2 (Semantic)**: Does the Reverse Prompting reconstruction match the original operator intent ($d_{sem}$)?
+- **Gate Evaluation**: $U_{sem} = 1.0$ if $v_{struct}=0$, else $U_{sem} = d_{sem}$.
+- **Autonomous Pass**: If $U_{sem} \le \tau_{sem}$ (default 0.3), the pipeline proceeds directly to Phase 4 with **0 human interruptions**.
+- **Phase 3b (HITL Clarification)**: If $U_{sem} > \tau_{sem}$, execution pauses via `interrupt()`, presenting $\mathcal{I}_{recon}$ and ambiguity metrics to the operator, whose feedback loops back to Phase 2.
 
 ### Phase 4: Symbolic Solver
 The validated PDDL constraints are sent to a Python-based symbolic solver. The solver mathematically calculates 3–5 candidate paths that satisfy the topological rules.
@@ -90,7 +96,7 @@ The validated PDDL constraints are sent to a Python-based symbolic solver. The s
 ### Phase 5: QoT Validation
 The structurally valid paths are sent to the Python QoT Tool (GN-model port). The tool computes the exact GSNR for each candidate and produces a binary feasibility verdict ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$).
 
-### Phase 6: Physical Risk Decision Gate
+### Phase 6: Physical Risk Decision Gate (RADG)
 This gate evaluates the binary physical safety of the proposed paths:
 
 | Decision | Condition | Action |
@@ -106,14 +112,14 @@ The Orchestrator summarizes the feasible, approved paths into a Planning Report 
 | Component | Technology | Package/Location |
 |-----------|-----------|--------------------|
 | Orchestration framework | LangGraph | `langgraph` |
-| LLM provider | Kimi (via Professor) | `langchain-openai` |
-| State persistence | LangGraph Checkpointer | `langgraph` |
-| PDDL Validator | Python CFG Regex | `src/core/pddl_validator.py` |
+| LLM provider | Kimi / OpenAI compatible | `langchain-openai` / `src/core/llm.py` |
+| State persistence | LangGraph Checkpointer | `langgraph` (`InMemorySaver` / Postgres) |
+| PDDL Validator | Python CFG AST Parser | `src/core/pddl_validator.py` |
 | Symbolic Solver | Python / networkx | `src/core/symbolic_solver.py` |
 | GraphRAG | Mock Python / networkx | `src/core/mock_graphrag.py` |
-| QoT Validation | Python GN-Model Port | `src/tools/qot_tool.py` |
-| **RADG** | **Python Decision Module** | **`src/core/radg.py`** *(Sprint 3)* |
-| Semantic Similarity | Sentence Embeddings | `sentence-transformers` *(Sprint 3)* |
+| QoT Validation | Python GN-Model Port | `src/tools/qot_tool.py` + `src/core/qot_calculator.py` |
+| **RADG** | **Python Decision Module** | **`src/core/radg.py`** + **`src/nodes/radg_node.py`** |
+| **Semantic Gate** | **Mathematical Gate + Judge** | **`src/core/semantic_gate.py`** + **`src/nodes/semantic_gate_node.py`** |
 | Testbed NBI | SSH / RESTConf | `src/services/testbed_client.py` |
 
 ## 6. What Changed from V4 to V5
@@ -121,7 +127,7 @@ The Orchestrator summarizes the feasible, approved paths into a Planning Report 
 | Aspect | V4 | V5 |
 |--------|----|-----|
 | **Core Novelty** | Reverse Prompting convergence | Fail-fast, sequential Semantic ($U_{sem}$) and Physical ($\text{QoT}_{valid}$) risk assessment |
-| **HITL Strategy** | Always-on (every intent) | Risk-adaptive (early trigger only when semantic uncertainty is high) |
+| **HITL Strategy** | Always-on (every intent) | Risk-adaptive (early trigger only when semantic uncertainty is high: $U_{sem} > \tau_{sem}$) |
 | **Pre-deployment Safety** | Implicit via pipeline stages | Explicit via two-stage Decision Gates |
 | **Decision Outcomes** | Approve / Refine / Reject (binary) | Auto-Approve / Clarify / Suggest Replan (3 outcomes, looping to Phase 2) |
 | **Evaluation** | Ad-hoc demo | Formal baselines + metrics (UAR, HIC, QFR, E2EL, TC) |
@@ -146,11 +152,12 @@ Each pipeline phase has a dedicated feature doc in `docs/LLM_Wiki/wiki/architect
 |-------|---------|-------------|
 | **Phase 1**: Intent Ingestion | `src/nodes/intent_ingest.py` | [[architecture/features/intent_ingest]] |
 | **Phase 2**: PDDL Parsing | `src/nodes/pddl_parser.py` + `src/core/pddl_validator.py` | [[architecture/features/pddl_parser]] |
-| **Phase 3**: Semantic Gate & HITL | `src/nodes/reverse_prompt.py` | [[architecture/features/reverse_prompt]] |
+| **Phase 3a**: Reverse Prompting | `src/nodes/reverse_prompt.py` | [[architecture/features/reverse_prompt]] |
+| **Phase 3**: Semantic Gate & Phase 3b HITL | `src/core/semantic_gate.py` + `src/nodes/semantic_gate_node.py` + `src/nodes/reverse_prompt.py` | [[architecture/features/semantic_gate]] |
 | **Phase 4**: Symbolic Solver | `src/core/symbolic_solver.py` + `src/core/mock_graphrag.py` | [[architecture/features/symbolic_solver]] |
 | **Phase 5**: QoT Validation | `src/core/qot_calculator.py` + `src/tools/qot_tool.py` | [[architecture/features/qot_tool]] |
-| **Phase 6**: RADG (Physical Gate) | `src/core/radg.py` *(Sprint 3)* | *(planned)* |
-| **Phase 7**: Synthesis | `src/nodes/plan_synthesizer.py` | *(planned Sprint 3)* |
+| **Phase 6**: RADG (Physical Gate) | `src/core/radg.py` + `src/nodes/radg_node.py` | [[architecture/features/radg]] |
+| **Phase 7**: Synthesis | `src/nodes/plan_synthesizer.py` | [[architecture/features/plan_synthesizer]] |
 | **Testbed NBI** | `src/services/testbed_client.py` | [[architecture/features/testbed_client]] |
 | **Pipeline Wiring** | `src/core/graph.py` + `src/core/state.py` | [[architecture/features/pipeline_graph]] |
 
