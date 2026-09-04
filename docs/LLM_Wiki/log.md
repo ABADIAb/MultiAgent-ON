@@ -386,6 +386,12 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Consolidated 4 sessions into a single narrative: refactored Reverse Prompting to eliminate unnecessary human friction on unambiguous intents, implemented full Context-Free Grammar AST validator to block structural hallucinations, added node exclusion pruning to the symbolic solver, and rigorously refined Thesis Chapter 3 Sections 3.2 and 3.3.
 - Testing & Verification: Test suite expanded from 255 to 268 passing unit tests with 100% success (`uv run pytest`).
 
+## [2026-09-04] debrief2 | Thesis Section 3.4 RADG Mathematical Refinement
+- Wiki Deep Lint: Audited and verified `session_20260904_Thesis_Section_3_4_RADG_Refinement.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, `3_4_Risk_Adaptive_Decision_Gate.md`, and `index.md` for complete YAML frontmatter and `[[wikilinks]]`.
+- Consistency Audit: Verified strict alignment between `src/core/radg.py`, `src/nodes/radg_node.py`, `src/core/qot_calculator.py`, `Architecture_v5.md`, and Chapter 3 Section 3.4. Confirmed that the theoretical piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ is correctly documented as decoupled across Phase 3 (Semantic Gate) and Phase 6 (Physical Risk Gate) to preserve the fail-fast execution paradigm.
+- Session focus: Rigorous review, mathematical formalization, and academic refinement of Thesis Chapter 3 Section 3.4 (The Risk-Adaptive Decision Gate). Standardized GN-model GSNR formulas, verified single-sided receiver power sensitivity constraints, and formatted Figure 3.4 drafting blueprint.
+- Testing & Verification: Test suite remains 100% passing across 268 unit tests (`uv run pytest`).
+
 
 
 

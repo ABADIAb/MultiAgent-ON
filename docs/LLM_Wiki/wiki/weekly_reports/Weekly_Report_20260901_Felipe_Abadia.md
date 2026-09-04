@@ -37,6 +37,7 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - **Section 3.1 Formal Problem Definition:** Validated the optimization problem $\min \mathcal{J} = \alpha N_{hitl} + \beta T_{tokens}$ subject to $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ against `src/core/`. Formally grounded the model with Assumption 1 (Homogeneous SMF-28 Fiber Profile) and Assumption 2 (Zero Equalization Loss in Filtered ROADM Networks), aligning `ProblemStatement_v5.md` with receiver floor verification $P_{rx}(\pi) \ge P_{rx, min}$.
    - **Section 3.2 Conceptual Framework:** Refined the 7-phase fail-fast pipeline description, architectural separation invariants, and asymptotic complexity bounds.
    - **Section 3.3 Strict Neurosymbolic Separation:** Detailed the formal PDDL grammar, predicate typing, and added rigorous mathematical explanations for Section 3.3.4 (Token Budget and Context Scoping), bounding context size $\mathcal{O}(|V_{sub}| + |E_{sub}|)$ to eliminate LLM attention degradation ("lost-in-the-middle").
+   - **Section 3.4 Risk-Adaptive Decision Gate:** Rigorously refined the mathematical formulation of $D(U_{sem}, \text{QoT}_{valid}) \to \{\text{approve}, \text{clarify}, \text{replan}\}$ and GN model equations ($P_{ASE}$, $P_{NLI}$, $\text{GSNR}_{dB}$). Explicitly formalized the architectural mapping between the unified theoretical decision function and its decoupled fail-fast realization across Phase 3 (Semantic Gate) and Phase 6 (Physical Risk Gate), meeting IEEE Transactions / ACM SIGCOMM rigor and Flesch readability standards.
    - **Drafting Backlog:** Created [[thesis_drafts/Drafting_Backlog]] to capture forward-looking clarifications (e.g., Phase 1 ITU-T grid enrichment) for future chapters.
 
 2. **Decoupled Reverse Prompting & Conditional Risk-Adaptive HITL:**
@@ -96,7 +97,7 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 ## 4. Plan for Next Week
 
-1. **Chapter 3 Deep Review & Refinement:** Complete and refine Section 3.4 (*Risk-Adaptive Decision Gate*) and Section 3.5 (*Formal HITL Reverse Prompting Protocol*), aligning decision functions and mathematical formulas against `radg.py` and `radg_node.py`.
+1. **Chapter 3 Section 3.5 Refinement:** Review and mathematically synchronize Section 3.5 (*Formal HITL Reverse Prompting Protocol*), formalizing reverse translation invariance, state schema preservation, and convergence guarantees.
 2. **Sprint 4 (Exp 4.0 & Exp 4.1):** Finalize the 20–30 intent synthetic test corpus on the 17-node German network and execute offline baseline benchmarks comparing Risk-Adaptive HITL vs No-HITL vs Always-HITL.
 3. **Drafting Chapter 4:** Begin drafting Section 4.1 and Section 4.2 detailing the LangGraph orchestrator implementation and physical engine port.
 
@@ -110,7 +111,7 @@ No blockers at this time. The thesis drafts, architectural refactoring, AST CFG 
 
 ## 6. One-Sentence Summary
 
-I completed and refined Sections 3.1 through 3.3 of Chapter 3, decoupled Reverse Prompting to enable zero-interrupt autonomous execution for unambiguous intents, implemented a full CFG AST validator and `avoid-node` vertex pruning in the symbolic solver, and maintained 100% passing status across 268 unit tests.
+I completed and refined Sections 3.1 through 3.4 of Chapter 3, decoupled Reverse Prompting to enable zero-interrupt autonomous execution for unambiguous intents, implemented a full CFG AST validator and `avoid-node` vertex pruning in the symbolic solver, and maintained 100% passing status across 268 unit tests.
 
 ---
 

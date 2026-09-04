@@ -130,6 +130,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260904_Thesis_Section_3_4_RADG_Refinement]]: Mathematical refinement of Chapter 3 Section 3.4 (RADG), GN model GSNR accumulation equations, and formalization of theoretical vs. pipeline execution decoupling across Phase 3 and Phase 6.
 - [[session_summary/session_20260903_Architecture_Refactoring_CFG_Validation_and_Chapter3_Refinement]]: Decoupling Reverse Prompting & conditional HITL, full S-expression CFG AST PDDL validator, symbolic solver node exclusion (avoid-node), Kimi API dynamic parameters, and Thesis Chapter 3 (Sections 3.2 & 3.3) formal refinement.
 - [[session_summary/session_20260826_Thesis_Chapter3_Drafting_and_Formal_Problem_Definition]]: Thesis Chapter 3 kick-off, drafting Sections 3.1-3.5, rigorous validation of Section 3.1 math vs codebase, and engineering assumptions formalization.
 - [[session_summary/session_20260821_QA_Pipeline_Verification_and_Bug007]]: Comprehensive QA flow validation across all 7 execution paths, BUG-007 resolution, avoid-link quote parsing fix, and test suite expansion to 255 tests.
