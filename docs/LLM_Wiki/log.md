@@ -392,6 +392,13 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Rigorous review, mathematical formalization, and academic refinement of Thesis Chapter 3 Section 3.4 (The Risk-Adaptive Decision Gate). Standardized GN-model GSNR formulas, verified single-sided receiver power sensitivity constraints, and formatted Figure 3.4 drafting blueprint.
 - Testing & Verification: Test suite remains 100% passing across 268 unit tests (`uv run pytest`).
 
+## [2026-09-05] debrief2 | Thesis Section 3.5 Refinement, Divergence Alignment & BUG-008 Resolution
+- Wiki Deep Lint: Audited and verified `session_20260905_Thesis_Section_3_5_HITL_Refinement_and_Bugfix.md`, `bug008_Inadmissible_HITL_Approval_on_Gate_Failure.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, `3_5_Formal_HITL_Reverse_Prompting.md`, `3_4_Risk_Adaptive_Decision_Gate.md`, and `index.md` for complete YAML frontmatter and `[[wikilinks]]`.
+- Consistency Audit: Verified mathematical alignment across Chapter 3 drafts and `src/core/semantic_gate.py`: standardized on $d_{sem} = \text{Score}_{divergence}$ as direct divergence rather than $1 - \text{Score}_{agreement}$. Audited Phase 3b execution in `src/nodes/reverse_prompt.py` and resolved BUG-008 by disallowing inadmissible operator approval on gate failure.
+- Session focus: Rigorous review, mathematical formalization, and academic refinement of Thesis Chapter 3 Section 3.5 (Formal HITL Reverse Prompting), proving Theorem 3.1 (Finite Convergence). Hardened Phase 3b interrupt payload and synchronized test suite.
+- Testing & Verification: Full test suite remains 100% passing across 268 unit tests (`uv run pytest`).
+
+
 
 
 

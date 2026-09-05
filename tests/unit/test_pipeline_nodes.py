@@ -311,15 +311,16 @@ class TestHitlClarifyNode:
         assert payload["usem_score"] == 0.75
 
     @patch("src.nodes.reverse_prompt.interrupt")
-    def test_approve_sets_hitl_approved_true(self, mock_interrupt):
+    def test_unsupported_action_sets_hitl_approved_false(self, mock_interrupt):
         from src.nodes.reverse_prompt import hitl_clarify_node
 
+        # "approve" is no longer a supported action in V5 Phase 3b.
         mock_interrupt.return_value = {"action": "approve"}
 
         state = _make_state(hitl_reconstruction=REVERSE_PROMPT_RECONSTRUCTION)
         result = hitl_clarify_node(state)
 
-        assert result["hitl_approved"] is True
+        assert result["hitl_approved"] is False
 
     @patch("src.nodes.reverse_prompt.interrupt")
     def test_refine_sets_feedback_in_error_context(self, mock_interrupt):

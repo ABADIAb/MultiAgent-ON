@@ -44,13 +44,13 @@ $$
 
 ### Layer 2: Reverse Prompting Semantic Divergence ($d_{sem}$)
 
-Assuming $v_{struct} = 1$, the formal PDDL specification is reconstructed into a natural language confirmation statement $\mathcal{I}_{recon}$ via an independent Reverse Prompting mechanism. The semantic divergence $d_{sem}$ is computed as the complement of the cross-encoder agreement score:
+Assuming $v_{struct} = 1$, the formal PDDL specification is reconstructed into a natural language confirmation statement $\mathcal{I}_{recon}$ via an independent Reverse Prompting mechanism. The semantic divergence $d_{sem} \in [0, 1]$ is computed directly by a dedicated evaluator LLM that scores the semantic discrepancy between the original operator request $\mathcal{I}_{NL}$ and the algorithmic reconstruction $\mathcal{I}_{recon}$:
 
 $$
-d_{sem} = 1 - \text{Score}_{agreement}\left( \mathcal{I}_{NL}, \mathcal{I}_{recon} \right)
+d_{sem} = \text{Score}_{divergence}\left( \mathcal{I}_{NL}, \mathcal{I}_{recon} \right)
 $$
 
-where $\mathcal{I}_{NL}$ is the original operator request and $\text{Score}_{agreement} \in [0, 1]$ represents the normalized semantic similarity between the original intent and its algorithmic reconstruction.
+where $0.0$ indicates perfect semantic alignment and $1.0$ indicates catastrophic constraint loss.
 
 ### Composite $U_{sem}$ Evaluation
 

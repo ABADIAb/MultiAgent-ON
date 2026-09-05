@@ -98,7 +98,7 @@ def hitl_clarify_node(state: AgentState) -> dict:
         "usem_score": usem_score,
         "pddl_valid": pddl_valid,
         "error_context": error_context,
-        "options": ["clarify", "refine", "approve"],
+        "options": ["clarify", "refine", "cancel"],
         "message": (
             "Semantic uncertainty is high or intent requires clarification. "
             "Please review the system's understanding and provide refined instructions."
@@ -112,16 +112,15 @@ def hitl_clarify_node(state: AgentState) -> dict:
         fb = response.get("feedback") or response.get("refinement")
         if fb:
             feedback = str(fb).strip()
-        elif "action" in response and response["action"] not in ("refine", "approve", "reject", "clarify"):
+        elif "action" in response and response["action"] not in ("refine", "cancel", "clarify"):
             feedback = str(response["action"]).strip()
 
     action = response.get("action", "refine") if isinstance(response, dict) else "refine"
-    approved = action == "approve"
 
     resolved_feedback = feedback if feedback else (error_context or "Refinement requested by operator")
 
     return {
-        "hitl_approved": approved,
+        "hitl_approved": False,
         "error_context": resolved_feedback,
         "messages": [
             AIMessage(
