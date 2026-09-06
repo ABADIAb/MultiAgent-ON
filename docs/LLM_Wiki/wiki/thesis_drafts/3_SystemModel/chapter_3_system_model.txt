@@ -1,0 +1,570 @@
+\chapter{System Model and Neurosymbolic Architecture}
+\label{chap:system_model}
+
+\section{Formal Problem Definition}
+\label{sec:problem_definition}
+
+\subsection{Architectural Vulnerabilities in LLM-Driven Optical Intent Planning}
+\label{subsec:architectural_vulnerabilities}
+
+The automated translation of high-level operator intent into operational physical-layer configurations in Software-Defined Optical Networks (SDON) introduces fundamental architectural vulnerabilities when relying solely on generative Large Language Models (LLMs) \cite{bekri_bridging_2025, hachimi_flow-rule_2025, zacarias_enhancing_2026}. Optical transport networks operate under strict physical-layer limitations governed by nonlinear propagation physics, where configuration errors can cause widespread service degradation, optical amplifier saturation, or transponder damage \cite{soumplis_network_2017, cruzes_telemetry_2026, damico_gnpy_2026}. Current generative paradigms exhibit five interconnected failure modes that compromise operational integrity:
+
+\begin{enumerate}
+    \item \textbf{Token Budget Saturation and Attention Degradation:} Modern optical topologies described via standard Network Configuration Protocol (NETCONF) or Representational State Transfer Configuration Protocol (RESTCONF) data models, or Transport API (T-API) northbound interfaces, generate extensive JSON/YANG payloads \cite{cruzes_telemetry_2026, gharbaoui_assurance_2026, ahmadian_t-api-compliant_2026}. Injecting complete network state representations into the LLM context window exhausts token budgets ($T_{\text{context}} \ge T_{\max}$) and triggers attention degradation---commonly characterized as the ``lost-in-the-middle'' phenomenon \cite{ahmadian_t-api-compliant_2026, di_cicco_open_2024}. Consequently, long-horizon dependency constraints and critical intermediate node attributes are omitted during prompt synthesis \cite{du_memory_2026}.
+    \item \textbf{Hallucinated Physical Feasibility:} Generative autoregressive models operate as probabilistic token predictors trained on textual distributions; they lack internal mathematical physics engines and cannot solve wave propagation equations. When tasked with route determination, the LLM hallucinates topological paths that appear syntactically plausible but violate Generalized Signal-to-Noise Ratio (GSNR) margins \cite{bekri_bridging_2025, zhang_autoonbench_2026}.
+    \item \textbf{Semantic Drift in Iterative Intent Refinement:} Unconstrained multi-turn conversational interaction for intent disambiguation lacks formal convergence bounds \cite{bekri_bridging_2025, hachimi_flow-rule_2025}. When an operator introduces modifications in turn $t_k$, standard conversational memory may drop or mutate immutable boundary constraints established in turn $t_0$, causing semantic drift and infinite negotiation cycles \cite{wang_intent-driven_nodate, bekri_bridging_2025}.
+    \item \textbf{Reactive Post-Deployment Failure Latency:} Automated networking frameworks can rely on trial-and-error post-deployment execution. In such architectures, an unverified candidate configuration is pushed directly to the network controller or southbound interface (SBI); only after hardware or controller-level rejection does the system invoke an LLM retry loop \cite{hachimi_flow-rule_2025}. However, in high-capacity optical backbones, pushing unverified configurations introduces substantial control-plane latency and risks transient link disruptions \cite{cruzes_telemetry_2026}.
+    \item \textbf{Suboptimal Human-in-the-Loop Engagement:} Existing operational paradigms exhibit a binary interaction model: either mandatory operator review for every transaction (\textit{always-on HITL}), causing cognitive fatigue and operational bottlenecks, or fully autonomous unverified deployment (\textit{no-HITL}), exposing the transport layer to configuration faults \cite{zhang_ai_2026, zhang_autoonbench_2026, cruzes_telemetry_2026}. This is compounded by the fact that generative LLMs exhibit a documented failure to ``fail early'' and deterministically \cite{wang_intent-driven_nodate}. When presented with ambiguous operator inputs, rather than safely stopping and initiating a structured semantic clarification loop to resolve user-required errors, the model frequently fabricates missing physical parameters to force a deployment \cite{wang_intent-driven_nodate, bekri_bridging_2025}. Without mechanisms to dynamically assess the operational risk of a control command---distinguishing low-risk telemetry collection from high-risk optical power optimization---the agent cannot adapt its gating threshold to engage operators solely when calculated risks exceed acceptable safety boundaries \cite{cruzes_telemetry_2026, zhang_autoonbench_2026, liu_field_2026}.
+\end{enumerate}
+
+To resolve these vulnerabilities, the intent-to-configuration lifecycle must be formulated as a pre-deployment, risk-bounded optimization problem that evaluates both linguistic ambiguity and physical transmission feasibility prior to network actuation.
+
+\subsection{Formal Mathematical Formulation}
+\label{subsec:formal_mathematical_formulation}
+
+Given an unstructured natural language intent ($\mathcal{I}_{\text{NL}}$), an active topological and physical network state ($G, \mathbf{P}$), and a physical-layer feasibility threshold ($\text{GSNR}_{\text{th}}$), decide the formal symbolic specification ($\mathcal{S}_{\text{PDDL}}$), the optimal lightpath ($\pi^*$), and the pre-deployment control action ($a \in \mathcal{A}$), with the objective of minimizing the composite operational and computational friction ($\mathcal{J}$). The constraints of the problem are: maximum bounded token context limit, finite computational inference latency, restriction to $K$-shortest loopless paths, deterministic physical Quality of Transmission (QoT) feasibility, strict optical receiver dynamic range compliance, and bounded semantic ambiguity tolerance.
+
+Let the optical physical topology be represented as a directed graph:
+\begin{equation}
+G = (V, E)
+\end{equation}
+where $V = \{v_1, v_2, \dots, v_{|V|}\}$ denotes the set of optical network elements (Reconfigurable Optical Add-Drop Multiplexers, ROADMs, and transponder nodes) and $E = \{e_{ij} = (v_i, v_j) \mid v_i, v_j \in V\}$ represents the set of unidirectional fiber links connecting node pairs.
+
+Each directed link $e_{ij} \in E$ is parameterized by a physical attribute tuple:
+\begin{equation}
+\mathbf{p}(e_{ij}) = \left( L_{ij}, \alpha_{ij}, D_{ij}, \gamma_{ij}, \mathcal{A}_{ij} \right)
+\end{equation}
+where $L_{ij} \in \mathbb{R}^+$ denotes the link physical span length ($\text{km}$), $\alpha_{ij} \in \mathbb{R}^+$ represents the fiber attenuation coefficient ($\text{dB/km}$), $D_{ij}$ is the chromatic dispersion parameter ($\text{ps/(nm}\cdot\text{km)}$), $\gamma_{ij}$ is the nonlinear Kerr coefficient ($\text{W}^{-1}\text{km}^{-1}$), and $\mathcal{A}_{ij} = \{a_{ij, 1}, a_{ij, 2}, \dots, a_{ij, M}\}$ defines the ordered chain of $M$ optical inline amplifiers (Erbium-Doped Fiber Amplifiers, EDFAs) deployed along the link, each characterized by gain $G_{\text{amp}}$ ($\text{dB}$) and noise figure $\text{NF}$ ($\text{dB}$).
+
+\begin{remark}[Homogeneous Fiber Profile]
+While the formal model defines physical properties per link ($\alpha_{ij}, D_{ij}, \gamma_{ij}$), the practical evaluation testbed implemented in this thesis assumes a homogeneous standard single-mode fiber (e.g., SMF-28) across the entire topology, simplifying these parameters to global constants ($\alpha, D, \gamma$).
+\end{remark}
+
+\subsubsection{System Inputs (Given)}
+
+The intent planning architecture receives three primary inputs:
+\begin{enumerate}
+    \item \textbf{Unstructured Natural Language Intent ($\mathcal{I}_{\text{NL}}$):} An informal string emitted by the network operator expressing routing requirements, explicit link exclusions, maximum latency constraints, and Quality of Service (QoS) specifications:
+    \begin{equation}
+    \mathcal{I}_{\text{NL}} = \left( s, d, \mathcal{C}_{\text{req}} \right)
+    \end{equation}
+    where $s \in V$ is the source endpoint, $d \in V$ is the destination endpoint, and $\mathcal{C}_{\text{req}}$ denotes the set of expressed operational constraints.
+    \item \textbf{Topological and Physical Network State ($G, \mathbf{P}$):} The active topological graph $G(V, E)$ alongside the physical parameter space $\mathbf{P} = \{\mathbf{p}(e_{ij}) \mid e_{ij} \in E\}$.
+    \item \textbf{Physical-Layer Feasibility Threshold ($\text{GSNR}_{\text{th}}$):} The minimum acceptable Generalized Signal-to-Noise Ratio for the target modulation format:
+    \begin{equation}
+    \text{GSNR}_{\text{th}} = \text{SNR}_{\min} + \text{Margin}_{\text{design}} \quad [\text{dB}]
+    \end{equation}
+\end{enumerate}
+
+\subsubsection{Resource Constraints}
+
+The orchestration process is subject to finite operational and computational bounds:
+\begin{enumerate}
+    \item \textbf{Token Context Limit:} The prompt context length $T_{\text{prompt}}$ supplied to the reasoning engine must remain bounded by the maximum effective attention threshold $T_{\max}$:
+    \begin{equation}
+    T_{\text{prompt}}(\mathcal{I}_{\text{NL}}, G_{\text{sub}}) \le T_{\max} \ll T_{\text{full}}(G)
+    \end{equation}
+    where $G_{\text{sub}} \subseteq G$ represents a localized $k$-hop subtopology extracted via topological retrieval.
+    \item \textbf{Computational Inference Latency:} The end-to-end planning execution time $t_{\text{exec}}$ must satisfy:
+    \begin{equation}
+    t_{\text{exec}} = t_{\text{LLM}} + t_{\text{solver}} + t_{\text{QoT}} \le t_{\text{max\_budget}}
+    \end{equation}
+    where $t_{\text{LLM}}$ is the cumulative generative inference latency of the LLM, $t_{\text{solver}}$ is the execution time of the deterministic path-finding algorithm, and $t_{\text{QoT}}$ is the physical feasibility computation time.
+    \item \textbf{Symbolic Solver Complexity:} Candidate path generation is restricted to the $K$-shortest loopless paths:
+    \begin{equation}
+    \mathcal{K}_{\text{path}} = \{ \pi_1, \pi_2, \dots, \pi_K \}, \quad K \in [3, 5]
+    \end{equation}
+    Bounding $K$ mitigates the time complexity of Yen's algorithm in highly meshed topologies. A range of $K \in [3, 5]$ provides sufficient path diversity to ensure high probability of finding at least one physically feasible route, without violating $t_{\text{max\_budget}}$.
+\end{enumerate}
+
+\subsubsection{Decision Variables and Operational Action Space}
+
+The planning engine must determine:
+\begin{enumerate}
+    \item The formal symbolic specification $\mathcal{S}_{\text{PDDL}}$ translating $\mathcal{I}_{\text{NL}}$ into Planning Domain Definition Language predicates:
+    \begin{equation}
+    \mathcal{S}_{\text{PDDL}} = \mathcal{M}_{\text{trans}}(\mathcal{I}_{\text{NL}}, G_{\text{sub}})
+    \end{equation}
+    \item The optimal lightpath $\pi^* \in \mathcal{K}_{\text{path}}$, defined as a sequence of connected nodes:
+    \begin{equation}
+    \pi^* = (v_{(1)}, v_{(2)}, \dots, v_{(H)}), \quad v_{(1)} = s, \; v_{(H)} = d, \; (v_{(h)}, v_{(h+1)}) \in E
+    \end{equation}
+    \item The pre-deployment control action $a \in \mathcal{A}$:
+    \begin{equation}
+    \mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}
+    \end{equation}
+\end{enumerate}
+
+\subsubsection{Physical and Semantic Boundary Constraints}
+
+A candidate path $\pi \in \mathcal{K}_{\text{path}}$ is strictly admissible if and only if it satisfies both deterministic physical-layer feasibility and semantic alignment:
+\begin{enumerate}
+    \item \textbf{Deterministic Physical QoT Feasibility:} The accumulated Generalized Signal-to-Noise Ratio over path $\pi$, evaluated via the coherent Gaussian Noise (GN) model, and the received power $P_{\text{rx}}(\pi)$ at destination $d$ must meet their respective target thresholds to guarantee signal recovery. The combined physical validity indicator is defined as:
+    \begin{equation}
+    \text{QoT}_{\text{valid}}(\pi) = \mathbb{I}\left( \text{GSNR}(\pi, \mathbf{P}) \ge \text{GSNR}_{\text{th}} \land P_{\text{rx}}(\pi) \ge P_{\text{rx}, \min} \right) = 1
+    \end{equation}
+\end{enumerate}
+
+\begin{remark}[Zero Equalization Loss \& Filtered Network]
+The QoT GN-model evaluation assumes a filtered (ROADM-based) network architecture where equalization loss at intermediate nodes is neglected (all active channels are assumed to be equalized at uniform launch power).
+\end{remark}
+
+\begin{enumerate}
+    \setcounter{enumi}{1}
+    \item \textbf{Semantic Ambiguity Bound:} The semantic uncertainty metric $U_{\text{sem}} \in [0, 1]$, computed through structural Context-Free Grammar (CFG) verification and reverse reconstruction alignment, must not exceed the tolerance threshold $\tau_{\text{sem}}$:
+    \begin{equation}
+    U_{\text{sem}}(\mathcal{I}_{\text{NL}}, \mathcal{S}_{\text{PDDL}}) \le \tau_{\text{sem}}
+    \end{equation}
+\end{enumerate}
+
+\subsubsection{The Global Optimization Objective}
+
+In mission-critical optical transport, physical transmission safety is non-negotiable. Consequently, rather than formulating safety as a soft penalty within an unconstrained objective, physical feasibility and semantic certainty are enforced as strict pre-deployment hard constraints.
+
+The optimization objective minimizes composite operational and computational friction:
+\begin{equation}
+\min_{\mathcal{S}_{\text{PDDL}}, \pi^*} \mathcal{J} = \alpha \cdot N_{\text{hitl}}(\mathcal{I}_{\text{NL}}) + \beta \cdot T_{\text{tokens}}(\mathcal{I}_{\text{NL}})
+\end{equation}
+\begin{equation}
+\text{subject to:} \quad D\left( U_{\text{sem}}, \text{QoT}_{\text{valid}}(\pi^*) \right) = \text{approve}
+\end{equation}
+\begin{equation}
+\pi^* \in \mathcal{K}_{\text{path}}(G, \mathcal{S}_{\text{PDDL}})
+\end{equation}
+where:
+\begin{itemize}
+    \item $N_{\text{hitl}} \in \mathbb{N}_0$ denotes the number of operator interruptions triggered during the planning lifecycle.
+    \item $T_{\text{tokens}} \in \mathbb{N}^+$ represents the total cumulative LLM token consumption.
+    \item $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs. In this theoretical formulation, they act as operational policy parameters (OPEX) and normalization factors that project discrete human interaction events ($N_{\text{hitl}}$) and high-magnitude token consumption ($T_{\text{tokens}}$) into a unified evaluation scale. Exact empirical values for these parameters are defined by the specific testbed configuration during system evaluation.
+    \item $D(U_{\text{sem}}, \text{QoT}_{\text{valid}}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figs/figure_3_1_problem_formulation.pdf}
+    \caption{High-level architectural problem formulation: transforming unstructured operator intent and optical network state into a verified lightpath and risk-bounded pre-deployment control action.}
+    \label{fig:problem_formulation}
+\end{figure}
+
+\section{Conceptual Framework}
+\label{sec:conceptual_framework}
+
+\subsection{The Fail-Fast Pre-Deployment Paradigm}
+\label{subsec:fail_fast_paradigm}
+
+To overcome the latency penalties and operational risks of trial-and-error network configuration, the proposed architecture introduces a \textbf{Fail-Fast Risk-Adaptive Neurosymbolic Framework}. The foundational premise rests on a strict pre-deployment verification invariant: \textit{no configuration directive shall be dispatched to the physical or virtual optical controller until it has been verified through a sequence of orthogonal, risk-bounded validation gates}.
+
+Unlike reactive paradigms---which execute unverified configurations and rely on controller error logs to trigger iterative regeneration---our framework evaluates plan viability along two distinct axes:
+\begin{enumerate}
+    \item \textbf{Linguistic and Structural Certainty (Semantic Domain):} Ensuring the high-level intent is fully disambiguated and faithfully translated into formal mathematical constraints.
+    \item \textbf{Physical-Layer Transmission Feasibility (Optical Domain):} Verifying that candidate lightpaths satisfy deterministic Generalized Signal-to-Noise Ratio (GSNR) margins and dynamic range limits under realistic fiber propagation models.
+\end{enumerate}
+
+By decoupling and ordering these validation checks sequentially, the architecture implements a \textbf{fail-fast operational hierarchy}: computationally cheap semantic verification is executed early to catch misunderstandings and missing parameters before invoking non-linear physical simulations or path-finding algorithms.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figs/figure_3_2_conceptual_framework.pdf}
+    \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
+    \label{fig:conceptual_framework}
+\end{figure}
+
+\subsection{End-to-End Pipeline Overview}
+\label{subsec:pipeline_overview}
+
+The framework operates through seven interconnected functional phases managed by a stateful orchestration graph:
+\begin{itemize}
+    \item \textbf{Phase 1: Intent Ingestion and Optical Retrieval-Augmented Generation (Optical RAG):}
+    The raw operator intent $\mathcal{I}_{\text{NL}}$ is ingested. To prevent token context exhaustion, an optical topological retriever queries the active network state to extract a localized $k$-hop subtopology $G_{\text{sub}} \subseteq G$ encompassing the candidate endpoints. Relevant ITU-T optical grid specifications and amplifier parameters are merged into an enriched intent schema.
+    \item \textbf{Phase 2: Context-Free Grammar (CFG) Validated PDDL Parsing:}
+    The enriched intent is processed by an LLM acting strictly as a linguistic compiler, translating the operational requirements into Planning Domain Definition Language (PDDL) goal predicates and constraint clauses. A deterministic Context-Free Grammar (CFG) validator immediately audits the output to eliminate structural hallucinations ($v_{\text{struct}} \in \{0, 1\}$).
+    \item \textbf{Phase 3: Automated Reverse Prompting \& Semantic Uncertainty Gate ($U_{\text{sem}}$ Evaluation):}
+    \begin{itemize}
+        \item \textbf{Phase 3a (Automated Reverse Prompting):} The LLM reconstructs the PDDL specification back into natural language $\mathcal{I}_{\text{recon}}$ autonomously without pausing execution.
+        \item \textbf{Semantic Gate:} The gate computes the composite semantic uncertainty metric $U_{\text{sem}} = f(v_{\text{struct}}, d_{\text{sem}})$, measuring syntactic integrity and semantic divergence against the original intent. If $U_{\text{sem}} \le \tau_{\text{sem}}$, the pipeline proceeds autonomously to Phase 4 with \textbf{zero human intervention}.
+        \item \textbf{Phase 3b (HITL Clarification):} If $U_{\text{sem}} > \tau_{\text{sem}}$ (due to syntax invalidity or high ambiguity), execution interrupts, prompting the human operator for explicit clarification and looping back to Phase 2 with operator guidance.
+    \end{itemize}
+    \item \textbf{Phase 4: Deterministic Symbolic Solver:}
+    Once semantic clarity is established ($U_{\text{sem}} \le \tau_{\text{sem}}$), the validated PDDL constraints are passed to a non-neural symbolic graph engine. The solver executes Yen's $K$-Shortest Paths algorithm over $G_{\text{sub}}$, pruning paths that violate topological constraints (e.g., node/link exclusions, maximum hop bounds).
+    \item \textbf{Phase 5: Deterministic Quality of Transmission (QoT) Validation:}
+    Each structurally valid candidate path $\pi_k \in \mathcal{K}_{\text{path}}$ is evaluated by a standalone physics engine implementing the analytical coherent Gaussian Noise (GN) model. The engine computes span-by-span amplifier noise accumulation, fiber attenuation, and non-linear interference (NLI), yielding exact GSNR predictions.
+    \item \textbf{Phase 6: Physical Risk Decision Gate (RADG):}
+    The physical feasibility vector $\text{QoT}_{\text{valid}}$ is evaluated. If at least one candidate path satisfies $\text{GSNR}(\pi) \ge \text{GSNR}_{\text{th}}$, the plan is marked as valid and \textbf{auto-approved}. If all paths violate transmission thresholds, the gate triggers a \textit{Suggest Replan} signal via HITL interrupt, querying the operator to relax constraints (e.g., lower GSNR target, alternative modulation, or split bandwidth) and looping back to Phase 2.
+    \item \textbf{Phase 7: Plan Synthesis and Configuration Provisioning:}
+    Approved paths, complete with their deterministic physical telemetry and full verification traces, are formatted into an auditable Planning Report. Upon final confirmation, configuration payloads are dispatched to the SDON controller via RESTCONF/SSH interfaces.
+\end{itemize}
+
+\subsection{State Representation and Transaction Lifecycle}
+\label{subsec:state_representation}
+
+The pipeline state $\mathcal{S}_{\text{state}}$ is managed as an immutable, append-only data structure within the orchestration runtime:
+\begin{equation}
+\mathcal{S}_{\text{state}} = \langle \mathcal{I}_{\text{enriched}}, G_{\text{sub}}, \mathcal{S}_{\text{PDDL}}, U_{\text{sem}}, \mathcal{K}_{\text{path}}, \mathbf{\Gamma}_{\text{QoT}}, \mathcal{D}_{\text{action}}, \mathcal{H}_{\text{trace}} \rangle
+\end{equation}
+where:
+\begin{itemize}
+    \item $\mathcal{I}_{\text{enriched}}$ is the operator intent after contextual enrichment.
+    \item $G_{\text{sub}} = (V_{\text{sub}}, E_{\text{sub}})$ is the extracted $k$-hop subgraph context.
+    \item $\mathcal{S}_{\text{PDDL}}$ represents the generated PDDL constraint specification.
+    \item $U_{\text{sem}} \in [0, 1]$ stores the quantified semantic uncertainty score.
+    \item $\mathcal{K}_{\text{path}}$ is the set of topological candidate paths.
+    \item $\mathbf{\Gamma}_{\text{QoT}} = \{ (\pi_k, \text{GSNR}_k, P_{\text{rx}, k}, \text{QoT}_{\text{valid}, k}) \}_{k=1}^K$ stores the computed physical metrics.
+    \item $\mathcal{D}_{\text{action}} \in \{ \text{approve}, \text{replan} \}$ is the resolved decision outcome.
+    \item $\mathcal{H}_{\text{trace}}$ is the append-only message list preserving the chronological execution trace.
+\end{itemize}
+
+State transitions are governed by deterministic guard functions, ensuring that backward loopbacks (e.g., Phase 3b $\to$ Phase 2 or Phase 6 $\to$ Phase 2) preserve the audit history while resetting transient execution variables, preventing infinite recursion and memory leaks.
+
+\section{Strict Neurosymbolic Separation}
+\label{sec:neurosymbolic_separation}
+
+\subsection{The ``LLMs Reason, Tools Calculate'' Paradigm}
+\label{subsec:reason_tools_calculate}
+
+A central design tenet of the proposed architecture is strict neurosymbolic separation. In telecommunications domains, neural generative models and symbolic algorithms exhibit complementary, non-overlapping operational capabilities:
+\begin{itemize}
+    \item \textbf{Large Language Models (Neural Subsystem):} Generative language models excel at semantic reasoning, natural language ambiguity resolution, contextual synthesis, and unstructured intent extraction. However, they demonstrate fundamental unreliability regarding deterministic numerical computation, combinatorial graph exploration, and constraint satisfaction over physical systems.
+    \item \textbf{Symbolic and Analytical Solvers (Symbolic Subsystem):} Symbolic algorithms execute deterministic path optimization, exact graph traversal (such as Yen's $K$-Shortest Paths), mathematical constraint enforcement, and numerical physics modeling. Yet, these solvers require rigid formal syntax and cannot process unstructured human requests natively.
+\end{itemize}
+
+Forcing an LLM to compute optical lightpath feasibility natively induces severe hallucination, yielding non-existent fiber spans or violating physical conservation laws. Conversely, restricting network operators to rigid command-line scripts nullifies the core objective of autonomous Intent-Based Networking (IBN).
+
+To reconcile this operational tension, the architecture enforces a strict boundary: the LLM functions exclusively as a semantic compiler that translates linguistic intent into formal symbolic logic. The system delegates all topological search operations and physical QoT calculations to deterministic external engines.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figs/figure_3_3_neurosymbolic_separation.pdf}
+    \caption{Architectural comparison between a conventional black-box LLM baseline (prone to physical hallucination and high-latency deployment failure) and the proposed strict neurosymbolic separation framework.}
+    \label{fig:neurosymbolic_separation}
+\end{figure}
+
+\subsection{PDDL Domain Formalization for Optical Routing}
+\label{subsec:pddl_domain_formalization}
+
+To establish a standard formal intermediate representation, we define an optical routing subset within the Planning Domain Definition Language (PDDL). This domain formalizes the types, predicates, and constraint structures required to model optical path establishment.
+
+\subsubsection{Formal Type Hierarchy}
+
+\begin{verbatim}
+(define (domain optical-routing-v5)
+  (:requirements :strips :typing :equality :conditional-effects)
+  (:types
+    node - object
+    roadm transponder - node
+    link - object
+  )
+)
+\end{verbatim}
+
+\subsubsection{Predicate Definitions}
+
+The state and intent constraints are expressed using a minimal, closed set of first-order predicates:
+\begin{equation}
+\mathcal{P} = \{ \text{connected}(u, v), \text{route}(s, d), \text{avoid-node}(u), \text{avoid-link}(u, v), \text{max-hops}(h), \text{min-gsnr}(g) \}
+\end{equation}
+\textit{(Note: The implementation supports a broader set of syntactic aliases, such as \texttt{target-snr} or \texttt{routed}, which the parser normalizes to this formal set).}
+
+Formally declared in PDDL syntax:
+\begin{verbatim}
+(:predicates
+  (connected ?u - node ?v - node)
+  (route ?s - node ?d - node)
+  (avoid-node ?n - node)
+  (avoid-link ?u - node ?v - node)
+  (max-hops ?h - object)
+  (min-gsnr ?g - object)
+)
+\end{verbatim}
+
+\subsubsection{Intent Translation Mapping}
+
+When the operator submits an intent such as \textit{``Provision a lightpath from Hamburg to Leipzig with at least 15 dB GSNR, strictly avoiding Hannover''}, the neural translator produces the formal goal specification:
+\begin{verbatim}
+(:goal
+  (and
+    (route Hamburg Leipzig)
+    (avoid-node Hannover)
+    (min-gsnr 15.0)
+  )
+)
+\end{verbatim}
+
+\subsection{Context-Free Grammar (CFG) Structural Validation}
+\label{subsec:cfg_validation}
+
+To guarantee that the neural translation output contains zero structural or syntactical hallucinations, a deterministic Context-Free Grammar (CFG) validator immediately audits the generated string.
+
+Let the grammar $\mathcal{G}_{\text{pddl}}$ be defined by the 4-tuple:
+\begin{equation}
+\mathcal{G}_{\text{pddl}} = (V_N, \Sigma, R, S_0)
+\end{equation}
+where:
+\begin{itemize}
+    \item $V_N = \{ S_0, \text{ProblemDef}, \text{DomainBlock}, \text{ObjectsBlock}, \text{InitBlock}, \text{GoalBlock}, \text{ExprList}, \text{Predicate}, \text{NodePair}, \text{SingleNode}, \text{NumericVal}, \text{IntVal} \}$ defines the non-terminal symbols.
+    \item $\Sigma = \{ \text{'(', ')', 'define', 'problem', ':domain', ':objects', ':init', ':goal', 'and', 'route', 'avoid-node', 'avoid-link', 'max-hops', 'min-gsnr', } \allowbreak \texttt{[A-Za-z0-9\_-]+} \}$ constitutes the terminal alphabet.
+    \item $R$ specifies the production rules mapping the problem envelope and nested goal logic:
+    \begin{align}
+    S_0 &\to \text{'('} \text{'define'} \text{'('} \text{'problem'} \; \text{SingleNode} \text{')'} \; \text{DomainBlock} \; \text{ObjectsBlock} \; \text{InitBlock} \; \text{GoalBlock} \text{')'} \nonumber \\
+    \text{GoalBlock} &\to \text{'('} \text{':goal'} \text{'('} \text{'and'} \; \text{ExprList} \; \text{')'} \text{')'} \mid \text{'('} \text{':goal'} \text{Predicate} \text{')'} \nonumber \\
+    \text{ExprList} &\to \text{Predicate} \; \text{ExprList} \mid \text{Predicate} \nonumber \\
+    \text{Predicate} &\to \text{'('} \text{'route'} \; \text{NodePair} \text{')'} \nonumber \\
+    &\mid \text{'('} \text{'avoid-node'} \; \text{SingleNode} \text{')'} \nonumber \\
+    &\mid \text{'('} \text{'avoid-link'} \; \text{NodePair} \text{')'} \nonumber \\
+    &\mid \text{'('} \text{'max-hops'} \; \text{IntVal} \text{')'} \nonumber \\
+    &\mid \text{'('} \text{'min-gsnr'} \; \text{NumericVal} \text{')'}
+    \end{align}
+    \item $S_0$ serves as the start symbol.
+\end{itemize}
+
+The CFG validator parses the PDDL text into an Abstract Syntax Tree (AST) and computes the structural indicator $v_{\text{struct}} \in \{0, 1\}$:
+\begin{equation}
+v_{\text{struct}} = \begin{cases} 1 & \text{if } \mathcal{S}_{\text{PDDL}} \in \mathcal{L}(\mathcal{G}_{\text{pddl}}) \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+
+If $v_{\text{struct}} = 0$, the plan fails the structural audit. The system assigns maximum semantic uncertainty ($U_{\text{sem}} = 1.0$) and triggers a clarification request, avoiding wasted downstream computational resources.
+
+\subsection{Deterministic Symbolic Solver and Graph Traversal}
+\label{subsec:symbolic_solver}
+
+Upon validation by the CFG gate, the system translates the PDDL predicates into topological graph pruning and constraint filtering operations. These execute over the $k$-hop subtopology $G_{\text{sub}}(V_{\text{sub}}, E_{\text{sub}})$ extracted by the Mock GraphRAG:
+\begin{enumerate}
+    \item \textbf{Topological Vertex Pruning:}
+    The solver constructs a filtered vertex set $\widetilde{V}_{\text{sub}}$ by strictly subtracting any node $u$ designated by an $\text{avoid-node}$ predicate within the validated PDDL structure $\mathcal{S}_{\text{PDDL}}$. This guarantees the topological removal of prohibited entities prior to routing:
+    \begin{equation}
+    \widetilde{V}_{\text{sub}} = V_{\text{sub}} \setminus \{ u \mid \text{avoid-node}(u) \in \mathcal{S}_{\text{PDDL}} \}
+    \end{equation}
+    \item \textbf{Topological Edge Pruning:}
+    The system filters the edge set to produce $\widetilde{E}_{\text{sub}}$. An edge $(u, v)$ remains viable strictly if both terminal nodes exist within the pruned vertex set $\widetilde{V}_{\text{sub}}$, and the edge itself avoids direct prohibition via an $\text{avoid-link}$ predicate. This yields the safe, fully pruned subtopology $\widetilde{G}_{\text{sub}} = (\widetilde{V}_{\text{sub}}, \widetilde{E}_{\text{sub}})$:
+    \begin{equation}
+    \widetilde{E}_{\text{sub}} = \{ (u, v) \in E_{\text{sub}} \mid u, v \in \widetilde{V}_{\text{sub}} \land (u, v) \notin \{ (x, y) \mid \text{avoid-link}(x, y) \in \mathcal{S}_{\text{PDDL}} \} \}
+    \end{equation}
+    \item \textbf{$K$-Shortest Paths Search:}
+    Operating strictly upon the pruned subtopology $\widetilde{G}_{\text{sub}}$, the solver executes Yen's algorithm to compute $\mathcal{K}_{\text{path}}$, representing the $K$ optimal, loopless paths from source $s$ to destination $d$, minimizing the physical fiber distance objective:
+    \begin{equation}
+    \mathcal{K}_{\text{path}} = \text{YenKSP}\left(\widetilde{G}_{\text{sub}}, s, d, K=5\right)
+    \end{equation}
+    \item \textbf{Hop Constraint Enforcement:}
+    The solver iterates over the candidate set $\mathcal{K}_{\text{path}}$. If the operator designates a maximum hop threshold $h_{\max}$, any path $\pi$ exhibiting a hop cardinality $|\pi| > h_{\max}$ undergoes strict elimination:
+    \begin{equation}
+    \mathcal{K}_{\text{path}}^{\text{final}} = \{ \pi \in \mathcal{K}_{\text{path}} \mid |\pi| \le h_{\max} \}
+    \end{equation}
+\end{enumerate}
+
+Delegating path exploration to Yen's deterministic algorithm over the pruned topology $\widetilde{G}_{\text{sub}}$ mathematically precludes routing loops, traversal of non-existent links, or constraint violations prior to initiating the computationally intensive GN-model QoT evaluation.
+
+\section{The Risk-Adaptive Decision Gate (RADG)}
+\label{sec:radg}
+
+\subsection{Mathematical Formulation of the RADG Decision Function}
+\label{subsec:radg_formulation}
+
+The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gate (RADG). Formulated as a deterministic, piecewise decision function $D$, the RADG evaluates two orthogonal, sequentially computed risk signals to guarantee pre-deployment safety. These signals comprise:
+\begin{enumerate}
+    \item \textbf{Semantic Uncertainty ($U_{\text{sem}} \in [0, 1]$):} A quantifiable metric capturing linguistic ambiguity, unstated network parameters, and structural LLM translation errors.
+    \item \textbf{Physical Transmission Viability ($\text{QoT}_{\text{valid}} \in \{0, 1\}$):} A binary indicator of physical feasibility derived analytically via the uncompensated Gaussian Noise (GN) model.
+\end{enumerate}
+
+The RADG maps the joint state space of these variables to an actionable operational space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$. Formally, the overarching decision function is defined as:
+\begin{equation}
+D\left(U_{\text{sem}}, \text{QoT}_{\text{valid}}\right) = \begin{cases} 
+\text{clarify} & \text{if } U_{\text{sem}} > \tau_{\text{sem}} \\ 
+\text{replan} & \text{if } U_{\text{sem}} \le \tau_{\text{sem}} \land \text{QoT}_{\text{valid}} = 0 \\ 
+\text{approve} & \text{if } U_{\text{sem}} \le \tau_{\text{sem}} \land \text{QoT}_{\text{valid}} = 1 
+\end{cases}
+\end{equation}
+where the constant $\tau_{\text{sem}} \in (0, 1)$ represents the operational semantic tolerance threshold, calibrated empirically for this architecture to $\tau_{\text{sem}} = 0.30$.
+
+While conceptualized as a unified mathematical function, the software implementation decouples $D$ hierarchically to enforce a fail-fast execution paradigm. Semantic uncertainty ($U_{\text{sem}}$) is evaluated exclusively at Phase 3, halting execution prior to complex route computation if $\tau_{\text{sem}}$ is exceeded. The subsequent physical viability ($\text{QoT}_{\text{valid}}$) is assessed exclusively at Phase 6, ensuring that the computationally expensive GN-model calculations are reserved strictly for semantically verified intents.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.82\textwidth]{figs/figure_3_4_radg_decision_space.pdf}
+    \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
+    \label{fig:radg_decision_space}
+\end{figure}
+
+\subsection{Two-Layer Semantic Uncertainty Quantification ($U_{\text{sem}}$)}
+\label{subsec:semantic_uncertainty_quantification}
+
+To prevent false positives during automated intent translation, $U_{\text{sem}}$ undergoes a two-layer hierarchical assessment.
+
+\subsubsection{Layer 1: Structural CFG Validity ($v_{\text{struct}}$)}
+
+The generated Planning Domain Definition Language (PDDL) constraint block $\mathcal{S}_{\text{PDDL}}$ is evaluated against a deterministic Context-Free Grammar $\mathcal{G}_{\text{pddl}}$, while verifying node existence against the active topology subgraph $V_{\text{sub}}$:
+\begin{equation}
+v_{\text{struct}} = \begin{cases} 1 & \text{if } \mathcal{S}_{\text{PDDL}} \in \mathcal{L}(\mathcal{G}_{\text{pddl}}) \land \text{EndpointsExist}(\mathcal{S}_{\text{PDDL}}, V_{\text{sub}}) \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+
+\subsubsection{Layer 2: Reverse Prompting Semantic Divergence ($d_{\text{sem}}$)}
+
+Assuming $v_{\text{struct}} = 1$, the formal PDDL specification is reconstructed into a natural language confirmation statement $\mathcal{I}_{\text{recon}}$ via an independent Reverse Prompting mechanism. The semantic divergence $d_{\text{sem}} \in [0, 1]$ is computed directly by a dedicated evaluator LLM that scores the semantic discrepancy between the original operator request $\mathcal{I}_{\text{NL}}$ and the algorithmic reconstruction $\mathcal{I}_{\text{recon}}$:
+\begin{equation}
+d_{\text{sem}} = \text{Score}_{\text{divergence}}\left( \mathcal{I}_{\text{NL}}, \mathcal{I}_{\text{recon}} \right)
+\end{equation}
+where $0.0$ indicates perfect semantic alignment and $1.0$ indicates catastrophic constraint loss.
+
+\subsubsection{Composite $U_{\text{sem}}$ Evaluation}
+
+The composite uncertainty metric combines both layers into a strict fail-fast formulation. Structural grammar violations immediately maximize uncertainty, neutralizing downstream processing:
+\begin{equation}
+U_{\text{sem}} = \begin{cases} 1.0 & \text{if } v_{\text{struct}} = 0 \\ d_{\text{sem}} & \text{if } v_{\text{struct}} = 1 \end{cases}
+\end{equation}
+
+\subsection{Deterministic Physical-Layer QoT Evaluation}
+\label{subsec:qot_evaluation}
+
+Following semantic validation, physical feasibility is assessed deterministically utilizing the analytical coherent Gaussian Noise (GN) model for uncompensated optical fiber transmission.
+
+\subsubsection{Optical Signal-to-Noise Ratio (Amplified Spontaneous Emission)}
+
+Within each fiber span $m$ comprising link $e_{ij}$, Erbium-Doped Fiber Amplifiers (EDFAs) introduce Amplified Spontaneous Emission (ASE) noise. The ASE noise power within the optical reference bandwidth (set to the symbol rate $R_s$) is defined as:
+\begin{equation}
+P_{\text{ASE}, m} = (G_m - 1) \cdot h \nu \cdot R_s \cdot \text{NF}_m
+\end{equation}
+where $h$ is Planck's constant ($6.626 \times 10^{-34} \text{ J}\cdot\text{s}$), $\nu$ represents the optical carrier frequency ($193.1 \text{ THz}$), $G_m$ dictates the linear amplifier gain compensating for span attenuation, and $\text{NF}_m$ is the specific amplifier noise figure.
+
+Consequently, the linear inverse Optical Signal-to-Noise Ratio attributable to ASE over link $e_{ij}$ containing $M$ discrete spans is:
+\begin{equation}
+\text{OSNR}_{\text{ASE}}^{-1}(e_{ij}) = \sum_{m=1}^M \frac{P_{\text{ASE}, m}}{P_{\text{ch}}}
+\end{equation}
+where $P_{\text{ch}}$ denotes the launch channel power expressed in Watts.
+
+\subsubsection{Non-Linear Interference (NLI) Modeling}
+
+Under the coherent GN model paradigm, Non-Linear Interference (NLI) generated by Kerr non-linearities---specifically Self-Phase Modulation and Cross-Phase Modulation---is approximated as an additive Gaussian noise disturbance. The specific analytical GN-model formulation utilized computes the uncompensated NLI power as:
+\begin{equation}
+\eta_0 = \frac{8}{27} \frac{\alpha \gamma^2}{\pi |\beta_2| R_s^2} \ln\left( \frac{\pi^2 |\beta_2| R_s^2 N_{\text{ch}}^{2 R_s / \Delta f}}{\alpha} \right)
+\end{equation}
+\begin{equation}
+P_{\text{NLI}, m} = \eta_0 L_{\text{eff}}^2 P_{\text{ch}}^3
+\end{equation}
+where $\gamma$ specifies the fiber non-linear coefficient, $\beta_2$ characterizes the group velocity dispersion parameter, $R_s$ is the transmitted symbol rate, $N_{\text{ch}}$ is the channel count, $\Delta f$ is the channel spacing, and $L_{\text{eff}} = \frac{1 - e^{-\alpha L_m}}{\alpha}$ represents the effective non-linear fiber length for linear attenuation $\alpha$. The associated non-linear signal-to-noise ratio contribution is thus formulated as:
+\begin{equation}
+\text{SNR}_{\text{NLI}}^{-1}(e_{ij}) = \sum_{m=1}^M \frac{P_{\text{NLI}, m}}{P_{\text{ch}}}
+\end{equation}
+
+\subsubsection{Generalized SNR (GSNR) Accumulation}
+
+The aggregate Generalized Signal-to-Noise Ratio characterizing a candidate path $\pi = (e_1, e_2, \dots, e_H)$ is calculated by accumulating the inverse linear SNR contributions across all cascaded links:
+\begin{equation}
+\text{GSNR}(\pi)^{-1} = \sum_{h=1}^H \left( \text{OSNR}_{\text{ASE}}^{-1}(e_h) + \text{SNR}_{\text{NLI}}^{-1}(e_h) \right)
+\end{equation}
+
+Converted to a standard logarithmic decibel scale, the final measurement is expressed as:
+\begin{equation}
+\text{GSNR}_{\text{dB}}(\pi) = 10 \log_{10}\left( \frac{1}{\text{GSNR}(\pi)^{-1}} \right)
+\end{equation}
+
+\subsubsection{Binary QoT Feasibility Indicator}
+
+The ultimate physical viability of a routed candidate path set $\mathcal{K}_{\text{path}}$ is subsequently evaluated against a strict modulation-dependent design threshold $\text{GSNR}_{\text{th}}$:
+\begin{equation}
+\text{QoT}_{\text{valid}} = \begin{cases} 1 & \text{if } \exists \pi \in \mathcal{K}_{\text{path}} \text{ such that } \text{GSNR}_{\text{dB}}(\pi) \ge \text{GSNR}_{\text{th}} \land P_{\text{rx}}(\pi) \ge P_{\text{rx},\min} \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+
+\subsection{Decision Matrix and Action Execution Policies}
+\label{subsec:decision_matrix}
+
+The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADG operational decision matrix (Table~\ref{tab:radg_decision_matrix}).
+
+\begin{table}[htbp]
+\centering
+\caption{RADG Operational Decision Matrix and Human Engagement Policies.}
+\label{tab:radg_decision_matrix}
+\begin{tabular}{llll}
+\hline
+\textbf{$U_{\text{sem}}$ Evaluation} & \textbf{$\text{QoT}_{\text{valid}}$ Status} & \textbf{RADG Decision} & \textbf{Pipeline Action \& Human Engagement} \\
+\hline
+$U_{\text{sem}} > \tau_{\text{sem}}$ & \textit{Bypassed} & \texttt{clarify} & \textbf{Early HITL Clarification:} Halts execution prior to \\
+ & & & topology extraction. Queries operator directly to \\
+ & & & resolve ambiguities. \\
+$U_{\text{sem}} \le \tau_{\text{sem}}$ & $\text{QoT}_{\text{valid}} = 0$ & \texttt{replan} & \textbf{Physical Risk HITL:} Signals unfeasible physics state. \\
+ & & & Halts execution, presents inadequate GSNR margins, \\
+ & & & and requests permission to relax constraints. \\
+$U_{\text{sem}} \le \tau_{\text{sem}}$ & $\text{QoT}_{\text{valid}} = 1$ & \texttt{approve} & \textbf{Autonomous Auto-Approval:} Zero-friction validation. \\
+ & & & Compiles verified routing report for provisioning. \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Formal Human-in-the-Loop (HITL) via Reverse Prompting}
+\label{sec:hitl_reverse_prompting}
+
+\subsection{The Semantic Drift Problem in Conversational Networking}
+\label{subsec:semantic_drift}
+
+Intent refinement in conversational Intent-Based Networking (IBN) typically utilizes unconstrained multi-turn chat sessions. While these interfaces offer high usability, open-ended conversational memory structures introduce a severe vulnerability defined here as \textbf{Semantic Drift}.
+
+When an operator modifies a requirement during iteration $t_k$, autoregressive language models frequently discard or mutate constraints established during earlier iterations $t_0, \dots, t_{k-1}$. Because standard conversational architectures process context windows probabilistically, they cannot mathematically guarantee the preservation of prior operational rules. Consequently, critical parameters such as minimum Generalized Signal-to-Noise Ratio ($\text{GSNR}_{\min}$) or maximum hop boundaries may silently vanish. This structural flaw produces two primary failure modes:
+\begin{enumerate}
+    \item \textbf{Constraint Erosion:} Hard physical constraints degrade during sequential negotiation turns.
+    \item \textbf{Infinite Negotiation Cycles:} Operators must repeatedly correct dropped constraints, escalating token consumption and control-plane latency without achieving a valid topology configuration.
+\end{enumerate}
+
+\subsection{The Reverse Prompting Invariant}
+\label{subsec:reverse_prompting_invariant}
+
+To enforce formal semantic convergence, the architecture implements \textbf{Reverse Prompting} as a closed-loop validation contract. Instead of preserving an unstructured dialogue history, the intent refinement mechanism operates exclusively over explicit, immutable symbolic state variables.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figs/figure_3_5_hitl_sequence.pdf}
+    \caption{UML Sequence diagram illustrating the formal Human-in-the-Loop (HITL) Reverse Prompting lifecycle, showcasing atomic checkpoint state serialization via native LangGraph \texttt{interrupt()} and monotonic constraint recovery.}
+    \label{fig:hitl_sequence}
+\end{figure}
+
+The validation protocol executes three deterministic phases:
+\begin{enumerate}
+    \item \textbf{Forward Formal Translation:}
+    \begin{equation}
+    \mathcal{S}_{\text{PDDL}} = \mathcal{M}_{\text{forward}}(\mathcal{I}_{\text{NL}}, G_{\text{sub}})
+    \end{equation}
+    The primary LLM translates the linguistic intent $\mathcal{I}_{\text{NL}}$ into formal Planning Domain Definition Language (PDDL) predicates, bounded by the optical sub-graph $G_{\text{sub}}$.
+    \item \textbf{Reverse Natural Language Reconstruction:}
+    \begin{equation}
+    \mathcal{I}_{\text{recon}} = \mathcal{M}_{\text{reverse}}(\mathcal{S}_{\text{PDDL}})
+    \end{equation}
+    An independent generative execution translates the formalized PDDL syntax back into an unambiguous natural language paragraph. This mechanism exposes the exact constraints the system parsed.
+    \item \textbf{Closed-Loop Agreement Verification:}
+    The architecture directly queries an evaluator LLM to compute the semantic divergence scalar $d_{\text{sem}} \in [0, 1]$ between $\mathcal{I}_{\text{NL}}$ and $\mathcal{I}_{\text{recon}}$, where $0$ indicates perfect semantic agreement and $1$ represents catastrophic constraint loss. If the divergence exceeds the acceptable threshold ($d_{\text{sem}} > \tau_{\text{sem}}$), the system presents $\mathcal{I}_{\text{recon}}$ to the operator alongside the explicit structural state. Presenting the natural language reconstruction allows network engineers to verify complex physical constraints without requiring advanced PDDL syntax expertise.
+\end{enumerate}
+
+\subsection{State-Preserving Execution Pausing via LangGraph Interrupts}
+\label{subsec:langgraph_interrupts}
+
+Conventional asynchronous control-plane servers utilize stateless webhooks or polling loops to capture human feedback. These approaches frequently generate orphaned execution threads and precipitate race conditions within the optical controller.
+
+The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic Gate when $U_{\text{sem}} > \tau_{\text{sem}}$:
+
+\begin{verbatim}
+# Formal LangGraph Interrupt Pattern within the HITL Clarification Node
+response = interrupt({
+    "status": "clarification_required",
+    "reconstruction": reconstruction,
+    "usem_score": usem_score,
+    "pddl_valid": pddl_valid,
+    "error_context": error_context,
+    "options": ["clarify", "refine", "cancel"],
+    "message": (
+        "Semantic uncertainty is high or intent requires clarification. "
+        "Please review the system's understanding and provide refined instructions."
+    )
+})
+\end{verbatim}
+
+\paragraph{Execution Lifecycle under Interruption:}
+\begin{enumerate}
+    \item \textbf{Atomic Checkpoint Serialization:} Invoking the \texttt{interrupt()} function halts node execution and serializes the complete \texttt{AgentState} tuple $\mathcal{S}_{\text{state}}$ into a persistent storage checkpointer, keyed by a unique transaction thread identifier.
+    \item \textbf{Resource Deallocation:} The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
+    \item \textbf{Resumption and State Injection:} Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. It injects the human feedback directly into the $\mathcal{S}_{\text{state}}$ dictionary under \texttt{error\_context}, routing cleanly back to the parsing phase for targeted PDDL regeneration.
+\end{enumerate}
+
+\subsection{Monotonic Constraint Preservation and Convergence Guarantees}
+\label{subsec:monotonic_constraint_preservation}
+
+To ensure multi-turn refinement strictly terminates, the architecture defines a \textbf{Monotonic Constraint Preservation} invariant. Let $\mathcal{C}_k$ denote the set of active hard constraints during iteration $k$. Following operator feedback $\mathcal{F}_k$, the subsequent constraint set satisfies:
+\begin{equation}
+\mathcal{C}_{k+1} = \mathcal{C}_k \cup \text{ExtractConstraints}(\mathcal{F}_k) \setminus \text{ExplicitRevocations}(\mathcal{F}_k)
+\end{equation}
+
+Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{\max} = 3$. If an intent fails to achieve $U_{\text{sem}} \le \tau_{\text{sem}}$ after $N_{\max}$ iterations, the system rejects the transaction gracefully, preventing control-plane deadlocks.

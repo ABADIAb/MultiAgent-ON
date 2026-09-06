@@ -1,0 +1,94 @@
+<mxfile host="app.diagrams.net" modified="2026-09-06T10:30:00.000Z" agent="5.0" version="22.0.0" type="device">
+  <diagram id="fig_3_2" name="Figure 3.2: Conceptual Framework">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p1" value="&lt;b&gt;Phase 1: Intent Ingestion &amp; Optical RAG&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#4A5568&quot;&gt;Raw intent &lt;i&gt;I&lt;/i&gt;&lt;sub&gt;NL&lt;/sub&gt; + &lt;i&gt;k&lt;/i&gt;-hop subtopology &lt;i&gt;G&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt; extraction&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="304" y="36" width="352" height="60" as="geometry" />
+</mxCell>
+        <mxCell id="p2" value="&lt;b&gt;Phase 2: CFG-Validated PDDL Parsing&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#4A5568&quot;&gt;LLM Semantic Compiler → &lt;i&gt;S&lt;/i&gt;&lt;sub&gt;PDDL&lt;/sub&gt; + AST Audit (&lt;i&gt;v&lt;/i&gt;&lt;sub&gt;struct&lt;/sub&gt;)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="304" y="128" width="352" height="60" as="geometry" />
+</mxCell>
+        <mxCell id="p3a" value="&lt;b&gt;Phase 3a: Automated Reverse Prompting&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#4A5568&quot;&gt;Autonomous PDDL → &lt;i&gt;I&lt;/i&gt;&lt;sub&gt;recon&lt;/sub&gt; (0 interrupts, LLM reconstruction)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FAF5FF;strokeColor=#805AD5;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="304" y="220" width="352" height="60" as="geometry" />
+</mxCell>
+        <mxCell id="g1" value="&lt;b&gt;GATE 1: Semantic Gate&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;i&gt;&lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; = &lt;i&gt;f&lt;/i&gt;(&lt;i&gt;v&lt;/i&gt;&lt;sub&gt;struct&lt;/sub&gt;, &lt;i&gt;d&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt;) ≤ &lt;i&gt;τ&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; ?&lt;/i&gt;&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEFCBF;strokeColor=#B7791F;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#744210;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="312" y="324" width="336" height="80" as="geometry" />
+</mxCell>
+        <mxCell id="p3b" value="&lt;b&gt;Phase 3b: HITL Clarify&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#4A5568&quot;&gt;LangGraph interrupt()&lt;br&gt;Operator resolves ambiguity&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FEEBC8;strokeColor=#DD6B20;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="48" y="328" width="192" height="72" as="geometry" />
+</mxCell>
+        <mxCell id="p4" value="&lt;b&gt;Phase 4: Deterministic Symbolic Solver&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#4A5568&quot;&gt;Pruned topology &lt;i&gt;G̃&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt; + Yen&#x27;s K-Shortest Paths (&lt;i&gt;K&lt;/i&gt; = 5)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="304" y="416" width="352" height="60" as="geometry" />
+</mxCell>
+        <mxCell id="p5" value="&lt;b&gt;Phase 5: Deterministic QoT Validation&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#4A5568&quot;&gt;Analytical Coherent GN Model: GSNR &amp; &lt;i&gt;P&lt;/i&gt;&lt;sub&gt;rx&lt;/sub&gt; calculation&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="304" y="508" width="352" height="60" as="geometry" />
+</mxCell>
+        <mxCell id="g2" value="&lt;b&gt;GATE 2: Physical Risk Gate&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;i&gt;QoT&lt;sub&gt;valid&lt;/sub&gt;(&lt;i&gt;π&lt;/i&gt;) = 1 ? (GSNR ≥ GSNR&lt;sub&gt;th&lt;/sub&gt;)&lt;/i&gt;&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEFCBF;strokeColor=#B7791F;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#744210;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="312" y="616" width="336" height="80" as="geometry" />
+</mxCell>
+        <mxCell id="p6" value="&lt;b&gt;Phase 6: Suggest Replan (RADG)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#4A5568&quot;&gt;LangGraph interrupt()&lt;br&gt;Relax constraints / modulation&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FED7D7;strokeColor=#E53E3E;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="48" y="620" width="192" height="72" as="geometry" />
+</mxCell>
+        <mxCell id="p7" value="&lt;b&gt;Phase 7: Plan Synthesis &amp; Provisioning&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#4A5568&quot;&gt;Auditable Planning Report + RESTCONF / NETCONF Dispatch&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F0FFF4;strokeColor=#38A169;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="1">
+  <mxGeometry x="304" y="704" width="352" height="60" as="geometry" />
+</mxCell>
+        <mxCell id="panel_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=4;fillColor=#F7FAFC;strokeColor=#CBD5E0;strokeWidth=1.2;" vertex="1" parent="1">
+  <mxGeometry x="704" y="104" width="312" height="560" as="geometry" />
+</mxCell>
+        <mxCell id="panel_title" value="&lt;b&gt;Fail-Fast Properties&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontFamily=Georgia, Times New Roman, serif;fontSize=15;fontColor=#2D3748;" vertex="1" parent="1">
+  <mxGeometry x="704" y="119" width="312" height="30" as="geometry" />
+</mxCell>
+        <mxCell id="prop_0" value="&lt;b&gt;&lt;font color=&quot;#2B6CB0&quot;&gt;Orthogonal Gating:&lt;/font&gt;&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#4A5568&quot; style=&quot;font-size:11px;&quot;&gt;Decouples linguistic ambiguity (Gate 1)&lt;br&gt;from physical propagation feasibility (Gate 2).&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;fontFamily=Georgia, Times New Roman, serif;fontSize=12;" vertex="1" parent="1">
+  <mxGeometry x="719" y="159" width="282" height="75" as="geometry" />
+</mxCell>
+        <mxCell id="prop_1" value="&lt;b&gt;&lt;font color=&quot;#2B6CB0&quot;&gt;Zero-Overhead Autonomy:&lt;/font&gt;&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#4A5568&quot; style=&quot;font-size:11px;&quot;&gt;When &lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; ≤ 0.30 and QoT passes,&lt;br&gt;execution completes with 0 human pauses.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;fontFamily=Georgia, Times New Roman, serif;fontSize=12;" vertex="1" parent="1">
+  <mxGeometry x="719" y="247" width="282" height="75" as="geometry" />
+</mxCell>
+        <mxCell id="prop_2" value="&lt;b&gt;&lt;font color=&quot;#2B6CB0&quot;&gt;Deterministic Physics:&lt;/font&gt;&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#4A5568&quot; style=&quot;font-size:11px;&quot;&gt;GN model physics calculations never&lt;br&gt;run on hallucinatory paths.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;fontFamily=Georgia, Times New Roman, serif;fontSize=12;" vertex="1" parent="1">
+  <mxGeometry x="719" y="335" width="282" height="75" as="geometry" />
+</mxCell>
+        <mxCell id="prop_3" value="&lt;b&gt;&lt;font color=&quot;#2B6CB0&quot;&gt;Protected Control Plane:&lt;/font&gt;&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#4A5568&quot; style=&quot;font-size:11px;&quot;&gt;No unverified commands ever reach&lt;br&gt;the SDON controller or ROADM hardware.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;fontFamily=Georgia, Times New Roman, serif;fontSize=12;" vertex="1" parent="1">
+  <mxGeometry x="719" y="423" width="282" height="75" as="geometry" />
+</mxCell>
+        <mxCell id="prop_4" value="&lt;b&gt;&lt;font color=&quot;#2B6CB0&quot;&gt;LangGraph Checkpointing:&lt;/font&gt;&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#4A5568&quot; style=&quot;font-size:11px;&quot;&gt;Human-in-the-Loop interrupts use&lt;br&gt;atomic state serialization.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFFFFF;strokeColor=#E2E8F0;strokeWidth=1;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;fontFamily=Georgia, Times New Roman, serif;fontSize=12;" vertex="1" parent="1">
+  <mxGeometry x="719" y="511" width="282" height="75" as="geometry" />
+</mxCell>
+        <mxCell id="e_p1_p2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2D3748;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="p1" target="p2">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_p2_p3a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2D3748;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="p2" target="p3a">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_p3a_g1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2D3748;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="p3a" target="g1">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_g1_p4" value="Yes (Auto-Pass)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#276749;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="g1" target="p4">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_g1_p3b" value="No (&lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; &gt; &lt;i&gt;τ&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt;)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C05621;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="g1" target="p3b">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_p3b_p2" value="Operator Clarification Loop" style="edgeStyle=none;curved=1;html=1;strokeColor=#C05621;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;dashed=1;" edge="1" parent="1" source="p3b" target="p2">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_p4_p5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2D3748;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="p4" target="p5">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_p5_g2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2D3748;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="p5" target="g2">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_g2_p7" value="Yes (Auto-Approve)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#276749;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="g2" target="p7">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_g2_p6" value="No (QoT Invalid)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C53030;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="g2" target="p6">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+        <mxCell id="e_p6_p2" value="Replan &amp; Constraint Relaxation Loop" style="edgeStyle=none;curved=1;html=1;strokeColor=#C53030;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=11;endArrow=block;endFill=1;dashed=1;" edge="1" parent="1" source="p6" target="p2">
+  <mxGeometry relative="1" as="geometry" />
+</mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
