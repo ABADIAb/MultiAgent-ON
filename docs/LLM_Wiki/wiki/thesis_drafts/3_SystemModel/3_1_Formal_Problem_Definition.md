@@ -113,6 +113,10 @@ where:
 - $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs. In this theoretical formulation, they act as operational policy parameters (OPEX) and normalization factors that project discrete human interaction events ($N_{hitl}$) and high-magnitude token consumption ($T_{tokens}$) into a unified evaluation scale. Exact empirical values for these parameters are defined by the specific testbed configuration during system evaluation.
 - $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved.
 
+<!-- FIGURE_PLACEHOLDER: problem_formulation -->
+> **Figure: Problem Formulation Block Diagram** (`figs/pdf/problem_formulation.pdf`)
+> High-level transformation pipeline: unstructured operator intent $\mathcal{I}_{NL}$ and physical optical topology $G(V, E)$ mapped through the pre-deployment planning engine to yield admissible decision actions $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$.
+
 ---
 
 ## Drafting Recommendations & Figure Placement

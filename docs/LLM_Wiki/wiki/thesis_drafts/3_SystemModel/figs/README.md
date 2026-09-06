@@ -1,91 +1,119 @@
 ---
-title: "Chapter 3: Figure Guide & LaTeX Integration Placement"
-date: 2026-09-05
-tags: [thesis, chapter-3, figures, diagrams, system-model, overleaf]
+title: "Chapter 3: Figure Catalog & Diagram Guide"
+date: 2026-09-06
+tags: [thesis, chapter-3, figures, diagrams, drawio, system-model, overleaf]
 status: active
 ---
 
-# Chapter 3: Figure Catalog & Placement Guide
+# Chapter 3: Figure Catalog & Diagram Guide
 
-This directory contains the Python generator scripts, vector PDF files, and raster PNG previews for all figures of **Chapter 3: System Model and Neurosymbolic Architecture**.
-
-Every figure is programmatically rendered using `matplotlib` with vector font embedding (`pdf.fonttype = 42`). When compiled into Overleaf, all text elements, mathematical notation, and labels remain crisp and fully selectable with the cursor.
+This directory contains the visual artifacts for **Chapter 3: System Model and Neurosymbolic Architecture**, strictly structured according to the guidelines defined in [`thesis-coauthor`](file:///home/felipeab/MultiAgentON/.agents/skills/thesis-coauthor/SKILL.md) and [`figure-guidelines.md`](file:///home/felipeab/MultiAgentON/.agents/skills/thesis-coauthor/references/figure-guidelines.md).
 
 ---
 
-## 1. Quick Execution
-To re-generate all figures at once, run:
+## 1. Directory Organization & Semantic Naming
 
-```bash
-uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/fig_3_1_problem_formulation.py
-uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/fig_3_2_conceptual_framework.py
-uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/fig_3_3_neurosymbolic_separation.py
-uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/fig_3_4_radg_decision_space.py
-uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/fig_3_5_hitl_sequence.py
+To ensure clean separation between editable source models and compiled publication deliverables, files are organized into distinct subdirectories:
+
+```text
+figs/
+├── src/
+│   ├── diagrams/       # Pathway A: Native Draw.io XML (.drawio) source models
+│   └── plots/          # Pathway B: Python Matplotlib generator scripts (.py)
+├── pdf/                # Vector graphics for Overleaf / LaTeX (\includegraphics)
+├── png/                # 300 DPI high-resolution raster previews for visual QA
+└── README.md           # Catalog & LaTeX snippets
 ```
 
+**Semantic Naming Policy:** All filenames use descriptive names without hardcoded figure numbers (e.g., `conceptual_framework.drawio` or `radg_decision_space.py`). Sequence numbering is dynamically resolved by LaTeX via `\label{fig:...}` and `Figure~\ref{fig:...}`.
+
 ---
 
-## 2. Figure Catalog & Section Placement
+## 2. Complete Figure Catalog
 
-| Figure | Script | Output PDF / PNG | Target Section in `chapter_3_system_model.txt` | Key Concept Visualized |
-| :--- | :--- | :--- | :--- | :--- |
-| **Figure 3.1** | `fig_3_1_problem_formulation.py` | `figure_3_1_problem_formulation.pdf` | End of Section **3.1.2** (after Global Objective) | Transformation from $(\mathcal{I}_{NL}, G, \mathbf{P}) \to \mathcal{S}_{PDDL} \to a \in \{\text{approve}, \text{clarify}, \text{replan}\}$. |
-| **Figure 3.2** | `fig_3_2_conceptual_framework.py` / `export_fig_3_2_to_drawio.py` | `figure_3_2_conceptual_framework.pdf` / `.drawio` | End of Section **3.2.1** (Fail-Fast Paradigm) | Complete 7-Phase Swimlane showing Gate 1 ($U_{sem}$) and Gate 2 ($\text{QoT}_{valid}$) loops (editable Draw.io XML). |
-| **Figure 3.3** | `fig_3_3_neurosymbolic_separation.py` | `figure_3_3_neurosymbolic_separation.pdf` | End of Section **3.3.1** ("LLMs Reason, Tools Calculate") | Side-by-side comparison: Baseline End-to-End LLM vs. Neurosymbolic Pipeline. |
-| **Figure 3.4** | `fig_3_4_radg_decision_space.py` | `figure_3_4_radg_decision_space.pdf` | Directly after Section **3.4.1** (Decision Function) | 2D Operational Space ($U_{sem}$ vs $\Delta\text{GSNR}$ [dB]) showing the 3 Action Zones. |
-| **Figure 3.5** | `fig_3_5_hitl_sequence.py` | `figure_3_5_hitl_sequence.pdf` | Section **3.5.2** (Reverse Prompting Invariant) | Sequence diagram: Operator $\leftrightarrow$ Orchestrator $\leftrightarrow$ LLM $\leftrightarrow$ Checkpointer. |
+| Semantic Label | Source File | Deliverable Files | Pathway | Section | Key Visual Concept |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `fig:problem_formulation` | `src/diagrams/problem_formulation.drawio` | `pdf/problem_formulation.pdf`<br>`png/problem_formulation.png` | **Pathway A** (Draw.io) | **3.1.2** | High-level transformation: $(\mathcal{I}_{NL}, G(V, E), \mathbf{P}, \text{GSNR}_{th}) \to$ Pre-Deployment Engine $\to$ Decision Action $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$. |
+| `fig:conceptual_framework` | `src/diagrams/conceptual_framework.drawio` | `pdf/conceptual_framework.pdf`<br>`png/conceptual_framework.png` | **Pathway A** (Draw.io) | **3.2.1** | 7-Phase Fail-Fast Pipeline with Gate 1 (Semantic Uncertainty $U_{sem}$) and Gate 2 (Physical Risk Gate $\text{QoT}_{valid}$), including HITL clarify & replan loops. |
+| `fig:neural_symbolic_subsystems` | `src/diagrams/neural_symbolic_subsystems.drawio` | `pdf/neural_symbolic_subsystems.pdf`<br>`png/neural_symbolic_subsystems.png` | **Pathway A** (Draw.io) | **3.3.1** | Functional division: Neural Subsystem (linguistic reasoning) and Symbolic Subsystem (deterministic physics) bound by the typed PDDL predicates and CFG structural contract. |
+| `fig:neurosymbolic_comparison` | `src/diagrams/neurosymbolic_comparison.drawio` | `pdf/neurosymbolic_comparison.pdf`<br>`png/neurosymbolic_comparison.png` | **Pathway A** (Draw.io) | **3.3.4** | Architectural side-by-side comparison: Conventional End-to-End LLM baseline (attention degradation, hallucinated paths, reactive failure) vs. Proposed Neurosymbolic Framework. |
+| `fig:radg_decision_space` | `src/plots/radg_decision_space.py` | `pdf/radg_decision_space.pdf`<br>`png/radg_decision_space.png` | **Pathway B** (Python Plot) | **3.4.1** | 2D Operational State Space: $U_{sem} \in [0, 1]$ vs. $\Delta\text{GSNR}$ (dB) demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify). |
+| `fig:reverse_prompting_loop` | `src/diagrams/reverse_prompting_loop.drawio` | `pdf/reverse_prompting_loop.pdf`<br>`png/reverse_prompting_loop.png` | **Pathway A** (Draw.io) | **3.5.2** | Closed-loop validation cycle: Forward translation $\mathcal{M}_{forward} \to \mathcal{S}_{PDDL} \to$ Reverse reconstruction $\mathcal{M}_{reverse} \to \mathcal{I}_{recon} \to$ Semantic divergence $d_{sem} \to$ LangGraph `interrupt()`. |
+| `fig:hitl_sequence` | `src/diagrams/hitl_sequence.drawio` | `pdf/hitl_sequence.pdf`<br>`png/hitl_sequence.png` | **Pathway A** (Draw.io) | **3.5.3** | UML sequence diagram across Human Operator, Orchestrator Graph, LLM Engine, and State Checkpointer detailing state serialization and zero-token operator dwell time. |
 
 ---
 
 ## 3. Ready-to-Copy LaTeX Snippets for Overleaf
 
-### Figure 3.1
+Copy the vector files from `figs/pdf/` directly to your Overleaf project under `figs/`:
+
 ```latex
+% 1. Problem Formulation
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figure_3_1_problem_formulation.pdf}
+    \includegraphics[width=0.95\textwidth]{figs/problem_formulation.pdf}
     \caption{High-level architectural problem formulation: transforming unstructured operator intent and optical network state into a verified lightpath and risk-bounded pre-deployment control action.}
     \label{fig:problem_formulation}
 \end{figure}
-```
 
-### Figure 3.2
-```latex
+% 2. Conceptual Framework
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{figure_3_2_conceptual_framework.pdf}
+    \includegraphics[width=0.98\textwidth]{figs/conceptual_framework.pdf}
     \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
-```
 
-### Figure 3.3
-```latex
+% 3. Subsystem Architecture
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figure_3_3_neurosymbolic_separation.pdf}
-    \caption{Architectural comparison between a conventional black-box LLM baseline (prone to physical hallucination and high-latency deployment failure) and the proposed strict neurosymbolic separation framework.}
-    \label{fig:neurosymbolic_separation}
+    \includegraphics[width=0.95\textwidth]{figs/neural_symbolic_subsystems.pdf}
+    \caption{Neurosymbolic subsystem division of responsibilities: decoupling linguistic formalization within the Neural Subsystem from deterministic constraint satisfaction and physical simulation in the Symbolic Subsystem via typed PDDL predicates.}
+    \label{fig:neural_symbolic_subsystems}
 \end{figure}
-```
 
-### Figure 3.4
-```latex
+% 4. Architectural Comparison
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.82\textwidth]{figure_3_4_radg_decision_space.pdf}
+    \includegraphics[width=0.95\textwidth]{figs/neurosymbolic_comparison.pdf}
+    \caption{Architectural comparison between a conventional black-box LLM baseline (prone to physical hallucination and high-latency deployment failure) and the proposed strict neurosymbolic separation framework.}
+    \label{fig:neurosymbolic_comparison}
+\end{figure}
+
+% 5. RADG Decision Space
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.82\textwidth]{figs/radg_decision_space.pdf}
     \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
 \end{figure}
-```
 
-### Figure 3.5
-```latex
+% 6. Reverse Prompting Loop
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figure_3_5_hitl_sequence.pdf}
+    \includegraphics[width=0.95\textwidth]{figs/reverse_prompting_loop.pdf}
+    \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
+    \label{fig:reverse_prompting_loop}
+\end{figure}
+
+% 7. HITL Sequence Diagram
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figs/hitl_sequence.pdf}
     \caption{UML Sequence diagram illustrating the formal Human-in-the-Loop (HITL) Reverse Prompting lifecycle, showcasing atomic checkpoint state serialization via native LangGraph \texttt{interrupt()} and monotonic constraint recovery.}
     \label{fig:hitl_sequence}
 \end{figure}
 ```
+
+---
+
+## 4. Re-generation Commands
+
+- **To re-export all Draw.io diagrams to PDF and PNG:**
+  ```bash
+  python3 scratch/export_drawio_batch.py
+  ```
+- **To re-generate the RADG scientific plot:**
+  ```bash
+  uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/plots/radg_decision_space.py
+  ```

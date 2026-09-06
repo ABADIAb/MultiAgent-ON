@@ -16,52 +16,9 @@ Unlike reactive paradigms—which execute unverified configurations and rely on 
 2. **Physical-Layer Transmission Feasibility (Optical Domain):** Verifying that candidate lightpaths satisfy deterministic Generalized Signal-to-Noise Ratio (GSNR) margins and dynamic range limits under realistic fiber propagation models.
 
 By decoupling and ordering these validation checks sequentially, the architecture implements a **fail-fast operational hierarchy**: computationally cheap semantic verification is executed early to catch misunderstandings and missing parameters before invoking non-linear physical simulations or path-finding algorithms.
-
-```
-       [ Unstructured Intent ]
-                  │
-                  ▼
-      ┌───────────────────────┐
-      │  Phase 1: Optical RAG │  ◄── Injects Localized k-hop Topology Context
-      └───────────┬───────────┘
-                  ▼
-      ┌───────────────────────┐
-      │ Phase 2: PDDL Parsing │  ◄── Constrained LLM Translation (Intent → PDDL)
-      └───────────┬───────────┘
-                  ▼
-      ┌───────────────────────┐
-      │Phase 3a: Rev. Prompt  │  ◄── Automated PDDL → NL Reconstruction (0 interrupts)
-      └───────────┬───────────┘
-                  ▼
-    ═════════════════════════════
-    GATE 1: Semantic Gate ($U_{sem}$)
-    ═════════════════════════════
-          │               │
-    [U_sem > τ_sem] [U_sem ≤ τ_sem] (Autonomous Pass)
-          │               │
-          ▼               ▼
-    ┌───────────┐   ┌─────────────────────────┐
-    │ Phase 3b: │   │ Phase 4: Symbolic Solver│ ◄── Deterministic K-Shortest Paths
-    │ HITL      │   └────────────┬────────────┘
-    │ (Clarify) │                ▼
-    └─────┬─────┘   ┌─────────────────────────┐
-          │         │ Phase 5: QoT Validation │ ◄── Deterministic GN-Model Physics
-          └────────►└────────────┬────────────┘
-          (Loops back to Phase 2)▼
-                    ═════════════════════════════
-                    GATE 2: Physical Risk Gate ($QoT_{valid}$)
-                    ═════════════════════════════
-                          │               │
-                    [QoT Invalid]   [QoT Valid] (Auto-Approve)
-                          │               │
-                          ▼               ▼
-                    ┌───────────┐   ┌─────────────────────────┐
-                    │  Suggest  │   │   Phase 7: Synthesis    │
-                    │  Replan   │   │     & Provisioning      │
-                    └─────┬─────┘   └─────────────────────────┘
-                          │
-                          └────────► (Refines Constraints to Phase 2)
-```
+<!-- FIGURE_PLACEHOLDER: conceptual_framework -->
+> **Figure: Conceptual Framework & 7-Phase Orchestration Pipeline** (`figs/pdf/conceptual_framework.pdf`)
+> End-to-end architecture of the Risk-Adaptive Neurosymbolic Intent Orchestrator, illustrating the two-gate validation hierarchy: Gate 1 (Semantic Uncertainty Gate $U_{sem} \le \tau_{sem}$) preventing semantic drift, and Gate 2 (Physical Risk Gate $\text{QoT}_{valid} = 1$) ensuring deterministic optical transmission feasibility prior to provisioning.
 
 ---
 

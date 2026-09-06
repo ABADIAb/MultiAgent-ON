@@ -1,0 +1,99 @@
+<mxfile host="app.diagrams.net" modified="2026-09-06T14:20:00.000Z" agent="5.0" version="22.0.0" type="device">
+  <diagram id="fig_3_3" name="Figure 3.3 - Strict Neurosymbolic Separation">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- BASELINE CONTAINER (LEFT) -->
+        <mxCell id="base_container" value="&lt;b&gt;Conventional Baseline: End-to-End LLM / ReAct Agent&lt;/b&gt;" style="swimlane;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFF5F5;strokeColor=#FEB2B2;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#9B2C2C;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="460" height="520" as="geometry" />
+        </mxCell>
+
+        <!-- Base Step 1: Intent -->
+        <mxCell id="b_step1" value="&lt;b&gt;Operator Natural Language Intent&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#742A2A&quot;&gt;&lt;i&gt;I&lt;/i&gt;&lt;sub&gt;NL&lt;/sub&gt;: &quot;Route Hamburg to Leipzig, avoid Hannover, min GSNR 15 dB&quot;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFFFFF;strokeColor=#E53E3E;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="base_container">
+          <mxGeometry x="25" y="45" width="410" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Base Step 2: Black-Box LLM -->
+        <mxCell id="b_step2" value="&lt;b&gt;Black-Box LLM / Stateless ReAct Agent&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#742A2A&quot;&gt;Direct Prompting over Full JSON/YANG Topology Payload&lt;br&gt;&lt;i&gt;Token Budget Saturation &amp;amp; &quot;Lost-in-the-Middle&quot; Attention Degradation&lt;/i&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FED7D7;strokeColor=#E53E3E;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="base_container">
+          <mxGeometry x="25" y="150" width="410" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Base Step 3: Hallucinated Path -->
+        <mxCell id="b_step3" value="&lt;b&gt;Hallucinated Candidate Route&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#742A2A&quot;&gt;Syntactically plausible, but physically unfeasible:&lt;br&gt;Violates non-linear GSNR margins or traverses disconnected nodes&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFF5F5;strokeColor=#E53E3E;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="base_container">
+          <mxGeometry x="25" y="265" width="410" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Base Step 4: Reactive Failure -->
+        <mxCell id="b_step4" value="&lt;b&gt;Reactive Post-Deployment Failure&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#742A2A&quot;&gt;Direct SBI / Controller Error Logging &amp;amp; Repeated Retries&lt;br&gt;&lt;i&gt;High recovery latency, optical link degradation, service disruption risk&lt;/i&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FEB2B2;strokeColor=#9B2C2C;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="base_container">
+          <mxGeometry x="25" y="380" width="410" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Baseline Arrows -->
+        <mxCell id="b_arr1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C53030;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" source="b_step1" target="b_step2" parent="base_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b_arr2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C53030;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" source="b_step2" target="b_step3" parent="base_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b_arr3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C53030;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" source="b_step3" target="b_step4" parent="base_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- PROPOSED ARCHITECTURE CONTAINER (RIGHT) -->
+        <mxCell id="prop_container" value="&lt;b&gt;Proposed Framework: Strict Neurosymbolic Separation&lt;/b&gt;" style="swimlane;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F0FFF4;strokeColor=#9AE6B4;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#22543D;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="540" y="40" width="500" height="520" as="geometry" />
+        </mxCell>
+
+        <!-- Prop Step 1: Context Scoping -->
+        <mxCell id="p_step1" value="&lt;b&gt;Operator Intent &amp;amp; Optical RAG Context Scoping&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#2B6CB0&quot;&gt;&lt;i&gt;I&lt;/i&gt;&lt;sub&gt;NL&lt;/sub&gt; + Localized &lt;i&gt;k&lt;/i&gt;-hop subtopology &lt;i&gt;G&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt; context bounding&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FFFFFF;strokeColor=#3182CE;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="prop_container">
+          <mxGeometry x="25" y="45" width="450" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- Prop Step 2: Neural Subsystem (PDDL Compiler) -->
+        <mxCell id="p_step2" value="&lt;b&gt;Neural Subsystem: LLM Semantic Compiler&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#2C5282&quot;&gt;Translates intent into formal PDDL goal predicates &lt;i&gt;S&lt;/i&gt;&lt;sub&gt;PDDL&lt;/sub&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="prop_container">
+          <mxGeometry x="25" y="118" width="450" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- Prop Step 3: CFG AST Audit -->
+        <mxCell id="p_step3" value="&lt;b&gt;Context-Free Grammar (CFG) Structural Audit&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#553C9A&quot;&gt;Deterministic AST validation: &lt;i&gt;v&lt;/i&gt;&lt;sub&gt;struct&lt;/sub&gt; ∈ {0, 1} blocks syntax hallucinations&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FAF5FF;strokeColor=#805AD5;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="prop_container">
+          <mxGeometry x="25" y="191" width="450" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- Prop Step 4: Symbolic Path Solver -->
+        <mxCell id="p_step4" value="&lt;b&gt;Symbolic Subsystem: Topological Solver&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#234E52&quot;&gt;Vertex/edge pruning &lt;i&gt;G̃&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt; + Yen&#39;s &lt;i&gt;K&lt;/i&gt;-Shortest Paths (&lt;i&gt;K&lt;/i&gt; = 5 loopless)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="prop_container">
+          <mxGeometry x="25" y="264" width="450" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- Prop Step 5: Analytical GN Model -->
+        <mxCell id="p_step5" value="&lt;b&gt;Analytical Physics Engine: Coherent GN Model&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#234E52&quot;&gt;Span-by-span ASE noise accumulation, NLI modeling, GSNR &amp;amp; &lt;i&gt;P&lt;/i&gt;&lt;sub&gt;rx&lt;/sub&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#E6FFFA;strokeColor=#234E52;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="prop_container">
+          <mxGeometry x="25" y="337" width="450" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- Prop Step 6: Verified Pre-Deployment -->
+        <mxCell id="p_step6" value="&lt;b&gt;Verified Pre-Deployment Configuration&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#22543D&quot;&gt;Zero physical risk: authenticated provisioning to ROADM optical controller&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#C6F6D5;strokeColor=#22543D;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" vertex="1" parent="prop_container">
+          <mxGeometry x="25" y="415" width="450" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Proposed Arrows -->
+        <mxCell id="p_arr1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#276749;strokeWidth=1.4;endArrow=block;endFill=1;" edge="1" source="p_step1" target="p_step2" parent="prop_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p_arr2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#276749;strokeWidth=1.4;endArrow=block;endFill=1;" edge="1" source="p_step2" target="p_step3" parent="prop_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p_arr3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#276749;strokeWidth=1.4;endArrow=block;endFill=1;" edge="1" source="p_step3" target="p_step4" parent="prop_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p_arr4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#276749;strokeWidth=1.4;endArrow=block;endFill=1;" edge="1" source="p_step4" target="p_step5" parent="prop_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p_arr5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#276749;strokeWidth=1.4;endArrow=block;endFill=1;" edge="1" source="p_step5" target="p_step6" parent="prop_container">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

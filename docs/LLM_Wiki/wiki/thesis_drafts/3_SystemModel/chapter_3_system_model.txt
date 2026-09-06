@@ -139,9 +139,11 @@ where:
     \item $D(U_{\text{sem}}, \text{QoT}_{\text{valid}}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved.
 \end{itemize}
 
+The overall pre-deployment planning pipeline and architectural problem formulation are illustrated in Figure~\ref{fig:problem_formulation}.
+
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/figure_3_1_problem_formulation.pdf}
+    \includegraphics[width=0.95\textwidth]{figs/pdf/problem_formulation.pdf}
     \caption{High-level architectural problem formulation: transforming unstructured operator intent and optical network state into a verified lightpath and risk-bounded pre-deployment control action.}
     \label{fig:problem_formulation}
 \end{figure}
@@ -162,9 +164,11 @@ Unlike reactive paradigms---which execute unverified configurations and rely on 
 
 By decoupling and ordering these validation checks sequentially, the architecture implements a \textbf{fail-fast operational hierarchy}: computationally cheap semantic verification is executed early to catch misunderstandings and missing parameters before invoking non-linear physical simulations or path-finding algorithms.
 
+The comprehensive 7-phase architecture and its two-gate validation hierarchy are illustrated in Figure~\ref{fig:conceptual_framework}.
+
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{figs/figure_3_2_conceptual_framework.pdf}
+    \includegraphics[width=0.98\textwidth]{figs/pdf/conceptual_framework.pdf}
     \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
@@ -231,11 +235,13 @@ Forcing an LLM to compute optical lightpath feasibility natively induces severe 
 
 To reconcile this operational tension, the architecture enforces a strict boundary: the LLM functions exclusively as a semantic compiler that translates linguistic intent into formal symbolic logic. The system delegates all topological search operations and physical QoT calculations to deterministic external engines.
 
+The functional decoupling between the neural generative components and deterministic symbolic tools is depicted in Figure~\ref{fig:neural_symbolic_subsystems}.
+
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/figure_3_3_neurosymbolic_separation.pdf}
-    \caption{Architectural comparison between a conventional black-box LLM baseline (prone to physical hallucination and high-latency deployment failure) and the proposed strict neurosymbolic separation framework.}
-    \label{fig:neurosymbolic_separation}
+    \includegraphics[width=0.95\textwidth]{figs/pdf/neural_symbolic_subsystems.pdf}
+    \caption{Neurosymbolic subsystem division of responsibilities: decoupling linguistic formalization within the Neural Subsystem from deterministic constraint satisfaction and physical simulation in the Symbolic Subsystem via typed PDDL predicates.}
+    \label{fig:neural_symbolic_subsystems}
 \end{figure}
 
 \subsection{PDDL Domain Formalization for Optical Routing}
@@ -352,6 +358,15 @@ Upon validation by the CFG gate, the system translates the PDDL predicates into 
 
 Delegating path exploration to Yen's deterministic algorithm over the pruned topology $\widetilde{G}_{\text{sub}}$ mathematically precludes routing loops, traversal of non-existent links, or constraint violations prior to initiating the computationally intensive GN-model QoT evaluation.
 
+An architectural comparison between the conventional unconstrained LLM baseline and our proposed neurosymbolic separation framework is detailed in Figure~\ref{fig:neurosymbolic_comparison}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figs/pdf/neurosymbolic_comparison.pdf}
+    \caption{Architectural comparison between a conventional black-box LLM baseline (prone to physical hallucination and high-latency deployment failure) and the proposed strict neurosymbolic separation framework.}
+    \label{fig:neurosymbolic_comparison}
+\end{figure}
+
 \section{The Risk-Adaptive Decision Gate (RADG)}
 \label{sec:radg}
 
@@ -376,9 +391,11 @@ where the constant $\tau_{\text{sem}} \in (0, 1)$ represents the operational sem
 
 While conceptualized as a unified mathematical function, the software implementation decouples $D$ hierarchically to enforce a fail-fast execution paradigm. Semantic uncertainty ($U_{\text{sem}}$) is evaluated exclusively at Phase 3, halting execution prior to complex route computation if $\tau_{\text{sem}}$ is exceeded. The subsequent physical viability ($\text{QoT}_{\text{valid}}$) is assessed exclusively at Phase 6, ensuring that the computationally expensive GN-model calculations are reserved strictly for semantically verified intents.
 
+The resulting two-dimensional operational state space is illustrated in Figure~\ref{fig:radg_decision_space}.
+
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.82\textwidth]{figs/figure_3_4_radg_decision_space.pdf}
+    \includegraphics[width=0.82\textwidth]{figs/pdf/radg_decision_space.pdf}
     \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
 \end{figure}
@@ -506,11 +523,13 @@ When an operator modifies a requirement during iteration $t_k$, autoregressive l
 
 To enforce formal semantic convergence, the architecture implements \textbf{Reverse Prompting} as a closed-loop validation contract. Instead of preserving an unstructured dialogue history, the intent refinement mechanism operates exclusively over explicit, immutable symbolic state variables.
 
+The closed-loop validation contract of Reverse Prompting is depicted in Figure~\ref{fig:reverse_prompting_loop}.
+
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/figure_3_5_hitl_sequence.pdf}
-    \caption{UML Sequence diagram illustrating the formal Human-in-the-Loop (HITL) Reverse Prompting lifecycle, showcasing atomic checkpoint state serialization via native LangGraph \texttt{interrupt()} and monotonic constraint recovery.}
-    \label{fig:hitl_sequence}
+    \includegraphics[width=0.95\textwidth]{figs/pdf/reverse_prompting_loop.pdf}
+    \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
+    \label{fig:reverse_prompting_loop}
 \end{figure}
 
 The validation protocol executes three deterministic phases:
@@ -558,6 +577,15 @@ response = interrupt({
     \item \textbf{Resource Deallocation:} The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
     \item \textbf{Resumption and State Injection:} Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. It injects the human feedback directly into the $\mathcal{S}_{\text{state}}$ dictionary under \texttt{error\_context}, routing cleanly back to the parsing phase for targeted PDDL regeneration.
 \end{enumerate}
+
+The complete asynchronous interaction lifecycle across the operator, orchestrator graph, LLM engine, and state checkpointer is modeled as a sequence diagram in Figure~\ref{fig:hitl_sequence}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figs/pdf/hitl_sequence.pdf}
+    \caption{UML Sequence diagram illustrating the formal Human-in-the-Loop (HITL) Reverse Prompting lifecycle, showcasing atomic checkpoint state serialization via native LangGraph \texttt{interrupt()} and monotonic constraint recovery.}
+    \label{fig:hitl_sequence}
+\end{figure}
 
 \subsection{Monotonic Constraint Preservation and Convergence Guarantees}
 \label{subsec:monotonic_constraint_preservation}

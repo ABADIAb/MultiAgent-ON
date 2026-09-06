@@ -1,0 +1,78 @@
+<mxfile host="Electron" agent="5.0">
+  <diagram id="fig_3_1" name="Figure 3.1 - Problem Formulation">
+    <mxGraphModel dx="1030" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="input_group" parent="1" style="swimlane;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F7FAFC;strokeColor=#CBD5E0;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#2D3748;collapsible=0;" value="&lt;b&gt;System Inputs&lt;/b&gt;" vertex="1">
+          <mxGeometry height="320" width="230" x="40" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="in_intent" parent="input_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Operator Intent (NL)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#2B6CB0&quot;&gt;&lt;i&gt;I&lt;/i&gt;&lt;sub&gt;NL&lt;/sub&gt; = (&lt;i&gt;s&lt;/i&gt;, &lt;i&gt;d&lt;/i&gt;, &lt;i&gt;C&lt;/i&gt;&lt;sub&gt;req&lt;/sub&gt;)&lt;br&gt;Source, Destination, Hard Constraints&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="200" x="15" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="in_network" parent="input_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Optical Network State&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#2B6CB0&quot;&gt;&lt;i&gt;G&lt;/i&gt;(&lt;i&gt;V&lt;/i&gt;, &lt;i&gt;E&lt;/i&gt;), &lt;b&gt;P&lt;/b&gt;, GSNR&lt;sub&gt;th&lt;/sub&gt;&lt;br&gt;Physical Links, Spans, Amplifiers&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="200" x="15" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="in_limits" parent="input_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FFFFFF;strokeColor=#A0AEC0;strokeWidth=1.2;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#4A5568;align=center;verticalAlign=middle;" value="&lt;b&gt;Resource Limits&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;&lt;i&gt;T&lt;/i&gt;&lt;sub&gt;prompt&lt;/sub&gt; ≤ &lt;i&gt;T&lt;/i&gt;&lt;sub&gt;max&lt;/sub&gt;, &lt;i&gt;t&lt;/i&gt;&lt;sub&gt;exec&lt;/sub&gt; ≤ &lt;i&gt;t&lt;/i&gt;&lt;sub&gt;budget&lt;/sub&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="200" x="15" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="engine_group" parent="1" style="swimlane;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F7FAFC;strokeColor=#276749;strokeWidth=1.8;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#22543D;collapsible=0;" value="&lt;b&gt;Pre-Deployment Intent Planning Engine&lt;/b&gt;" vertex="1">
+          <mxGeometry height="320" width="370" x="300" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_pddl" parent="engine_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Symbolic Specification: &lt;i&gt;S&lt;/i&gt;&lt;sub&gt;PDDL&lt;/sub&gt;&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#2C5282&quot;&gt;NL → PDDL Compiler + CFG AST Audit (&lt;i&gt;v&lt;/i&gt;&lt;sub&gt;struct&lt;/sub&gt; ∈ {0, 1})&lt;/font&gt;" vertex="1">
+          <mxGeometry height="52" width="330" x="20" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_solver" parent="engine_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Topological Path Search: &lt;i&gt;π&lt;/i&gt;* ∈ &lt;i&gt;K&lt;/i&gt;&lt;sub&gt;path&lt;/sub&gt;&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#234E52&quot;&gt;Pruned Subgraph &lt;i&gt;G̃&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt; &amp;amp; Yen&#39;s &lt;i&gt;K&lt;/i&gt;-Shortest Paths (&lt;i&gt;K&lt;/i&gt; = 5)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="52" width="330" x="20" y="105" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_qot" parent="engine_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Deterministic QoT Validation: QoT&lt;sub&gt;valid&lt;/sub&gt;&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#234E52&quot;&gt;Analytical Coherent GN Model: GSNR &amp;amp; &lt;i&gt;P&lt;/i&gt;&lt;sub&gt;rx&lt;/sub&gt; Verification&lt;/font&gt;" vertex="1">
+          <mxGeometry height="52" width="330" x="20" y="172" as="geometry" />
+        </mxCell>
+        <mxCell id="eng_opt" parent="engine_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F0FFF4;strokeColor=#38A169;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Optimization Objective&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#22543D&quot;&gt;min &lt;i&gt;J&lt;/i&gt; = &lt;i&gt;α&lt;/i&gt; &lt;i&gt;N&lt;/i&gt;&lt;sub&gt;hitl&lt;/sub&gt; + &lt;i&gt;β&lt;/i&gt; &lt;i&gt;T&lt;/i&gt;&lt;sub&gt;tokens&lt;/sub&gt;&lt;br&gt;s.t. &lt;i&gt;D&lt;/i&gt;(&lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt;, QoT&lt;sub&gt;valid&lt;/sub&gt;) = approve&lt;/font&gt;" vertex="1">
+          <mxGeometry height="65" width="330" x="20" y="238" as="geometry" />
+        </mxCell>
+        <mxCell id="e_eng1" edge="1" parent="engine_group" source="eng_pddl" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#319795;strokeWidth=1.3;endArrow=block;endFill=1;" target="eng_solver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_eng2" edge="1" parent="engine_group" source="eng_solver" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#319795;strokeWidth=1.3;endArrow=block;endFill=1;" target="eng_qot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_eng3" edge="1" parent="engine_group" source="eng_qot" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#319795;strokeWidth=1.3;endArrow=block;endFill=1;" target="eng_opt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="action_group" parent="1" style="swimlane;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F7FAFC;strokeColor=#CBD5E0;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#2D3748;collapsible=0;" value="&lt;b&gt;Action Space &lt;i&gt;a&lt;/i&gt; ∈ &lt;i&gt;A&lt;/i&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="320" width="240" x="760" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="act_clarify" parent="action_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FEEBC8;strokeColor=#DD6B20;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Clarify Action (HITL)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#7B341E&quot;&gt;&lt;i&gt;a&lt;/i&gt; = clarify&lt;br&gt;Early semantic disambiguation&lt;br&gt;&lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; &gt; &lt;i&gt;τ&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; (Physics bypassed)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="210" x="15" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="act_replan" parent="action_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FED7D7;strokeColor=#E53E3E;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Suggest Replan Action&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#742A2A&quot;&gt;&lt;i&gt;a&lt;/i&gt; = replan&lt;br&gt;Physical risk feedback to operator&lt;br&gt;&lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; ≤ &lt;i&gt;τ&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; ∧ QoT&lt;sub&gt;valid&lt;/sub&gt; = 0&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="210" x="15" y="133" as="geometry" />
+        </mxCell>
+        <mxCell id="act_approve" parent="action_group" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#F0FFF4;strokeColor=#38A169;strokeWidth=1.5;fontFamily=Georgia, Times New Roman, serif;fontSize=12;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Auto-Approve Action&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#22543D&quot;&gt;&lt;i&gt;a&lt;/i&gt; = approve&lt;br&gt;Zero-risk automated provisioning&lt;br&gt;&lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; ≤ &lt;i&gt;τ&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; ∧ QoT&lt;sub&gt;valid&lt;/sub&gt; = 1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="75" width="210" x="15" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="e_in1" edge="1" parent="1" source="in_intent" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2D3748;strokeWidth=1.5;endArrow=block;endFill=1;" target="eng_pddl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_in2" edge="1" parent="1" source="in_network" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2D3748;strokeWidth=1.5;endArrow=block;endFill=1;" target="eng_solver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_act1" edge="1" parent="1" source="eng_opt" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#38A169;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#22543D;endArrow=block;endFill=1;labelBackgroundColor=#FFFFFF;" target="act_approve" value="&lt;b&gt;&lt;i&gt;D&lt;/i&gt; = approve&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_act2" edge="1" parent="1" source="eng_pddl" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#DD6B20;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#7B341E;endArrow=block;endFill=1;labelBackgroundColor=#FFFFFF;" target="act_clarify" value="&lt;b&gt;&lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; &gt; &lt;i&gt;τ&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt;&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="730" y="114" />
+              <mxPoint x="730" y="125.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_act3" edge="1" parent="1" source="eng_qot" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#E53E3E;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#742A2A;endArrow=block;endFill=1;labelBackgroundColor=#FFFFFF;" target="act_replan" value="&lt;b&gt;QoT&lt;sub&gt;valid&lt;/sub&gt; = 0&lt;/b&gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
