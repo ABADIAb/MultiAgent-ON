@@ -82,7 +82,15 @@ This session achieved full production readiness for all visual, architectural, a
 - **Anti-Redundancy & Diagram De-cluttering (`reverse_prompting_loop.drawio`):** Removed the redundant "Formal Invariants & Guarantees" side panel (eliminating poster syndrome and verbatim repetition of Section 3.5 text), centering the diagram strictly on closed-loop control and re-exporting vector `.pdf` and raster `.png`.
 - **Manual Model Correction (`neural_symbolic_subsystems.drawio`):** Re-exported production `.pdf` and 300 DPI `.png` following manual user adjustments.
 - **Delimiters Differentiation in RADG Plot (`radg_decision_space.py`):** Differentiated the Semantic Threshold ($\tau_{sem} = 0.30$, deep blue dashed line `#2B6CB0`) from the Physical Boundary ($\Delta\text{GSNR} = 0\text{ dB}$, crimson red dash-dot line `#C53030`), regenerating vector and raster deliverables.
-- **Skill Hardening (`thesis-coauthor`):** Enshrined the **Visual Purpose & Anti-Redundancy (No Poster Syndrome)** principle in `.agents/skills/thesis-coauthor/SKILL.md`.
+### 8. Overleaf Typography, Custom Environments & Layout Normalization (2026-09-07)
+- **Academic Box Environments (`academicbox`):** Replaced raw, unstyled `\begin{verbatim}` blocks across Chapter 3 with themed, bordered `tcolorbox` listings featuring title banners, proper monospaced fonts (`\ttfamily\small`), robust line wrapping, and formal listing labels (Listings 3.1 to 3.4).
+- **Formal Mathematical Specifications (`formalbox`):** Extracted the Context-Free Grammar (CFG) production rules $R$ from raw text into a dedicated `formalbox` environment (**Formal Specification 3.1**), giving production rules formal mathematical prominence.
+- **Float Barrier & Queuing Mitigation:** Resolved float queuing where large figures drifted across subsection boundaries, interleaving between headings and code listings. Added `\FloatBarrier` from `placeins` prior to key structural headings and adjusted figure placement specifiers to `[!htbp]`.
+- **Margin Overflow (`overfull \hbox`) Elimination:**
+  - Converted single-line mathematical sets ($V_N$ non-terminals and $\Sigma$ alphabet) in Section 3.3 into clean 2-line `align*` blocks.
+  - Replaced unconstrained `tabular{llll}` in Table 3.2 (RADG Operational Decision Matrix) with proportional wrapped columns (`tabular{@{} p{0.18\linewidth} p{0.16\linewidth} p{0.13\linewidth} p{0.48\linewidth} @{}}`), strictly respecting document margins.
+- **Preamble Centralization & Clean Chapter Initialization:** Confirmed all package declarations (`tcolorbox`, `placeins`, `listings`) and environment macros reside cleanly in Overleaf's `config.tex`, keeping `chapter_3_system_model.txt` starting cleanly on line 1 with `\chapter{...}`.
+- **Skill Standardization:** Created `.agents/skills/thesis-coauthor/references/overleaf-standards.md` and updated `.agents/skills/thesis-coauthor/SKILL.md` (Step 6) to formalize these Overleaf typography and box standards for all subsequent thesis chapters.
 
 ---
 
@@ -91,15 +99,17 @@ This session achieved full production readiness for all visual, architectural, a
 | Component | File Path | Status | Description |
 | :--- | :--- | :--- | :--- |
 | **GitIgnore** | `.gitignore` | MODIFIED | Added ignore rules for `.$*.drawio*` and `*.drawio.bkp` |
-| **Skill** | `.agents/skills/thesis-coauthor/SKILL.md` | MODIFIED | Added directory structure, semantic naming, and Visual Purpose / Anti-Redundancy rule |
+| **Skill** | `.agents/skills/thesis-coauthor/SKILL.md` | MODIFIED | Added directory structure, semantic naming, Visual Purpose / Anti-Redundancy rule, and Step 6 Overleaf standards |
 | **Skill Reference** | `.agents/skills/thesis-coauthor/references/figure-guidelines.md` | MODIFIED | Updated figure guidelines with directory layout and export standards |
+| **Skill Reference** | `.agents/skills/thesis-coauthor/references/overleaf-standards.md` | CREATED | Dedicated reference for Overleaf custom boxes, float barriers, and margin conventions |
 | **Section 3.1** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition.md` | MODIFIED | Dynamic LaTeX referencing (`\ref{chap:implementation}`) |
 | **Section 3.2** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_2_Conceptual_Framework.md` | MODIFIED | Placeholder for `conceptual_framework` |
-| **Section 3.3** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation.md` | MODIFIED | Consolidated to single core diagram `neural_symbolic_subsystems` |
-| **Section 3.4** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate.md` | MODIFIED | Placeholder for `radg_decision_space` |
-| **Section 3.5** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting.md` | MODIFIED | Consolidated to single core diagram `reverse_prompting_loop` |
-| **LaTeX Merged** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt` | MODIFIED | Cleaned compilation with 4 core figures and dynamic `\ref{chap:implementation}` |
-| **Figure Catalog** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/README.md` | MODIFIED | Updated catalog focusing on the 4 core figures |
+| **Section 3.3** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation.md` | MODIFIED | Added `academicbox` Listing 3.1, `formalbox` Spec 3.1, and 2-line math equations for $V_N$ and $\Sigma$ |
+| **Section 3.4** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate.md` | MODIFIED | Placeholder for `radg_decision_space` and proportional wrapped columns for Table 3.2 |
+| **Section 3.5** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting.md` | MODIFIED | Consolidated to single core diagram `reverse_prompting_loop` and `academicbox` Listings 3.2–3.4 |
+| **LaTeX Merged** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt` | MODIFIED | Consolidated LaTeX file with custom boxes, float barriers, margin overflow fixes, and clean chapter initialization |
+| **Figure Catalog** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/README.md` | MODIFIED | Updated catalog focusing on the 4 core figures and `academicbox`/`formalbox` code examples |
+| **Weekly Report** | `docs/LLM_Wiki/wiki/weekly_reports/Weekly_Report_20260908_Felipe_Abadia.md` | MODIFIED | Added Item 6 and updated Section 6 with Overleaf typography and layout normalization |
 | **Backlog** | `docs/LLM_Wiki/wiki/thesis_drafts/Drafting_Backlog.md` | MODIFIED | Logged `\label{chap:implementation}` dependency for Chapter 4 |
 | **Diagram 2** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/conceptual_framework.drawio` | RENAMED | Core Figure 1 (Pipeline architecture) |
 | **Diagram 3** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/neural_symbolic_subsystems.drawio` | MODIFIED | Core Figure 2 (Subsystem responsibilities & boundary) |

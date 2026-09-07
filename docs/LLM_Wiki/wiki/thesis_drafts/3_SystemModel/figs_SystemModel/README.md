@@ -54,23 +54,23 @@ Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf pro
 
 ```latex
 % 1. Conceptual Framework
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
+    \includegraphics[width=0.92\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
     \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
 
 % 2. Subsystem Architecture
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/neural_symbolic_subsystems.pdf}
+    \includegraphics[width=0.88\textwidth]{Figures/figs_SystemModel/neural_symbolic_subsystems.pdf}
     \caption{Neurosymbolic subsystem division of responsibilities: decoupling linguistic formalization within the Neural Subsystem from deterministic constraint satisfaction and physical simulation in the Symbolic Subsystem via typed PDDL predicates.}
     \label{fig:neural_symbolic_subsystems}
 \end{figure}
 
 % 3. RADG Decision Space
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.82\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
     \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
@@ -78,13 +78,12 @@ Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf pro
 \end{figure}
 
 % 4. Reverse Prompting Loop
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
+    \includegraphics[width=0.88\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
     \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
     \label{fig:reverse_prompting_loop}
 \end{figure}
-
 ```
 
 ---

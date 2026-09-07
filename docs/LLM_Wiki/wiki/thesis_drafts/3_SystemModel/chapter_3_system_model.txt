@@ -157,13 +157,14 @@ By decoupling and ordering these validation checks sequentially, the architectur
 
 The comprehensive 7-phase architecture and its two-gate validation hierarchy are illustrated in Figure~\ref{fig:conceptual_framework}.
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
+    \includegraphics[width=0.92\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
     \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
 
+\FloatBarrier
 \subsection{End-to-End Pipeline Overview}
 \label{subsec:pipeline_overview}
 
@@ -228,13 +229,14 @@ To reconcile this operational tension, the architecture enforces a strict bounda
 
 The functional decoupling between the neural generative components and deterministic symbolic tools is depicted in Figure~\ref{fig:neural_symbolic_subsystems}.
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/neural_symbolic_subsystems.pdf}
+    \includegraphics[width=0.88\textwidth]{Figures/figs_SystemModel/neural_symbolic_subsystems.pdf}
     \caption{Neurosymbolic subsystem division of responsibilities: decoupling linguistic formalization within the Neural Subsystem from deterministic constraint satisfaction and physical simulation in the Symbolic Subsystem via typed PDDL predicates.}
     \label{fig:neural_symbolic_subsystems}
 \end{figure}
 
+\FloatBarrier
 \subsection{PDDL Domain Formalization for Optical Routing}
 \label{subsec:pddl_domain_formalization}
 
@@ -242,7 +244,7 @@ To establish a standard formal intermediate representation, we define an optical
 
 \subsubsection{Formal Type Hierarchy}
 
-\begin{verbatim}
+\begin{academicbox}{Listing 3.1: Formal PDDL Domain Type Hierarchy}
 (define (domain optical-routing-v5)
   (:requirements :strips :typing :equality :conditional-effects)
   (:types
@@ -251,7 +253,7 @@ To establish a standard formal intermediate representation, we define an optical
     link - object
   )
 )
-\end{verbatim}
+\end{academicbox}
 
 \subsubsection{Predicate Definitions}
 
@@ -262,7 +264,7 @@ The state and intent constraints are expressed using a minimal, closed set of fi
 \textit{(Note: The implementation supports a broader set of syntactic aliases, such as \texttt{target-snr} or \texttt{routed}, which the parser normalizes to this formal set).}
 
 Formally declared in PDDL syntax:
-\begin{verbatim}
+\begin{academicbox}{Listing 3.2: Formal PDDL First-Order Predicates}
 (:predicates
   (connected ?u - node ?v - node)
   (route ?s - node ?d - node)
@@ -271,12 +273,12 @@ Formally declared in PDDL syntax:
   (max-hops ?h - object)
   (min-gsnr ?g - object)
 )
-\end{verbatim}
+\end{academicbox}
 
 \subsubsection{Intent Translation Mapping}
 
 When the operator submits an intent such as \textit{``Provision a lightpath from Hamburg to Leipzig with at least 15 dB GSNR, strictly avoiding Hannover''}, the neural translator produces the formal goal specification:
-\begin{verbatim}
+\begin{academicbox}{Listing 3.3: Generated PDDL Goal Specification}
 (:goal
   (and
     (route Hamburg Leipzig)
@@ -284,7 +286,7 @@ When the operator submits an intent such as \textit{``Provision a lightpath from
     (min-gsnr 15.0)
   )
 )
-\end{verbatim}
+\end{academicbox}
 
 \subsection{Context-Free Grammar (CFG) Structural Validation}
 \label{subsec:cfg_validation}
@@ -295,23 +297,37 @@ Let the grammar $\mathcal{G}_{\text{pddl}}$ be defined by the 4-tuple:
 \begin{equation}
 \mathcal{G}_{\text{pddl}} = (V_N, \Sigma, R, S_0)
 \end{equation}
-where:
+where the constituent formal language components are specified as:
 \begin{itemize}
-    \item $V_N = \{ S_0, \text{ProblemDef}, \text{DomainBlock}, \text{ObjectsBlock}, \text{InitBlock}, \text{GoalBlock}, \text{ExprList}, \text{Predicate}, \text{NodePair}, \text{SingleNode}, \text{NumericVal}, \text{IntVal} \}$ defines the non-terminal symbols.
-    \item $\Sigma = \{ \text{'(', ')', 'define', 'problem', ':domain', ':objects', ':init', ':goal', 'and', 'route', 'avoid-node', 'avoid-link', 'max-hops', 'min-gsnr', } \allowbreak \texttt{[A-Za-z0-9\_-]+} \}$ constitutes the terminal alphabet.
-    \item $R$ specifies the production rules mapping the problem envelope and nested goal logic:
-    \begin{align}
-    S_0 &\to \text{'('} \text{'define'} \text{'('} \text{'problem'} \; \text{SingleNode} \text{')'} \; \text{DomainBlock} \; \text{ObjectsBlock} \; \text{InitBlock} \; \text{GoalBlock} \text{')'} \nonumber \\
-    \text{GoalBlock} &\to \text{'('} \text{':goal'} \text{'('} \text{'and'} \; \text{ExprList} \; \text{')'} \text{')'} \mid \text{'('} \text{':goal'} \text{Predicate} \text{')'} \nonumber \\
-    \text{ExprList} &\to \text{Predicate} \; \text{ExprList} \mid \text{Predicate} \nonumber \\
-    \text{Predicate} &\to \text{'('} \text{'route'} \; \text{NodePair} \text{')'} \nonumber \\
-    &\mid \text{'('} \text{'avoid-node'} \; \text{SingleNode} \text{')'} \nonumber \\
-    &\mid \text{'('} \text{'avoid-link'} \; \text{NodePair} \text{')'} \nonumber \\
-    &\mid \text{'('} \text{'max-hops'} \; \text{IntVal} \text{')'} \nonumber \\
-    &\mid \text{'('} \text{'min-gsnr'} \; \text{NumericVal} \text{')'}
-    \end{align}
-    \item $S_0$ serves as the start symbol.
+    \item \textbf{Non-Terminal Alphabet ($V_N$):} The set of syntactic variables governing the hierarchical S-expression structure:
+    \begin{align*}
+    V_N = \{ & S_0, \text{ProblemDef}, \text{DomainBlock}, \text{ObjectsBlock}, \text{InitBlock}, \text{GoalBlock}, \\
+             & \text{ExprList}, \text{Predicate}, \text{NodePair}, \text{SingleNode}, \text{NumericVal}, \text{IntVal} \}
+    \end{align*}
+    \item \textbf{Terminal Alphabet ($\Sigma$):} The set of constant string literals, punctuation, and keyword symbols:
+    \begin{align*}
+    \Sigma = \{ & \texttt{(}, \texttt{)}, \texttt{define}, \texttt{problem}, \texttt{:domain}, \texttt{:objects}, \texttt{:init}, \\
+                & \texttt{:goal}, \texttt{and}, \texttt{route}, \texttt{avoid-node}, \texttt{avoid-link}, \texttt{max-hops}, \texttt{min-gsnr} \} \cup \Sigma_{\text{id}}
+    \end{align*}
+    where $\Sigma_{\text{id}}$ matches alphanumeric token identifiers defined by the regular expression \texttt{[A-Za-z0-9\_-]+}.
+    \item \textbf{Start Symbol ($S_0 \in V_N$):} The root non-terminal generating the complete PDDL problem envelope.
 \end{itemize}
+
+The production rules $R$ enforce permissible syntactic derivations for valid optical routing intents, formulated in Formal Specification~\ref{spec:cfg_production_rules}.
+
+\begin{formalbox}[label=spec:cfg_production_rules]{Formal Specification 3.1: Context-Free Grammar Production Rules ($R$)}
+\begin{align*}
+S_0 &\to \texttt{(define (problem } \text{SingleNode}\texttt{)} \\
+    &\quad\quad \text{DomainBlock} \; \text{ObjectsBlock} \; \text{InitBlock} \; \text{GoalBlock}\texttt{)} \\[4pt]
+\text{GoalBlock} &\to \texttt{(:goal (and } \text{ExprList}\texttt{))} \;\mid\; \texttt{(:goal } \text{Predicate}\texttt{)} \\[4pt]
+\text{ExprList} &\to \text{Predicate} \; \text{ExprList} \;\mid\; \text{Predicate} \\[4pt]
+\text{Predicate} &\to \texttt{(route } \text{NodePair}\texttt{)} \\
+    &\;\mid\; \texttt{(avoid-node } \text{SingleNode}\texttt{)} \\
+    &\;\mid\; \texttt{(avoid-link } \text{NodePair}\texttt{)} \\
+    &\;\mid\; \texttt{(max-hops } \text{IntVal}\texttt{)} \\
+    &\;\mid\; \texttt{(min-gsnr } \text{NumericVal}\texttt{)}
+\end{align*}
+\end{formalbox}
 
 The CFG validator parses the PDDL text into an Abstract Syntax Tree (AST) and computes the structural indicator $v_{\text{struct}} \in \{0, 1\}$:
 \begin{equation}
@@ -375,13 +391,14 @@ While conceptualized as a unified mathematical function, the software implementa
 
 The resulting two-dimensional operational state space is illustrated in Figure~\ref{fig:radg_decision_space}.
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.82\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
     \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
 \end{figure}
 
+\FloatBarrier
 \subsection{Two-Layer Semantic Uncertainty Quantification ($U_{\text{sem}}$)}
 \label{subsec:semantic_uncertainty_quantification}
 
@@ -466,25 +483,22 @@ The ultimate physical viability of a routed candidate path set $\mathcal{K}_{\te
 
 The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADG operational decision matrix (Table~\ref{tab:radg_decision_matrix}).
 
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering
+\small
 \caption{RADG Operational Decision Matrix and Human Engagement Policies.}
 \label{tab:radg_decision_matrix}
-\begin{tabular}{llll}
+\begin{tabular}{@{} p{0.18\linewidth} p{0.16\linewidth} p{0.13\linewidth} p{0.48\linewidth} @{}}
 \hline
 \textbf{$U_{\text{sem}}$ Evaluation} & \textbf{$\text{QoT}_{\text{valid}}$ Status} & \textbf{RADG Decision} & \textbf{Pipeline Action \& Human Engagement} \\
 \hline
-$U_{\text{sem}} > \tau_{\text{sem}}$ & \textit{Bypassed} & \texttt{clarify} & \textbf{Early HITL Clarification:} Halts execution prior to \\
- & & & topology extraction. Queries operator directly to \\
- & & & resolve ambiguities. \\
-$U_{\text{sem}} \le \tau_{\text{sem}}$ & $\text{QoT}_{\text{valid}} = 0$ & \texttt{replan} & \textbf{Physical Risk HITL:} Signals unfeasible physics state. \\
- & & & Halts execution, presents inadequate GSNR margins, \\
- & & & and requests permission to relax constraints. \\
-$U_{\text{sem}} \le \tau_{\text{sem}}$ & $\text{QoT}_{\text{valid}} = 1$ & \texttt{approve} & \textbf{Autonomous Auto-Approval:} Zero-friction validation. \\
- & & & Compiles verified routing report for provisioning. \\
+$U_{\text{sem}} > \tau_{\text{sem}}$ & \textit{Bypassed} & \texttt{clarify} & \textbf{Early HITL Clarification:} Halts execution prior to topology extraction; queries operator directly to resolve semantic ambiguities. \\[6pt]
+$U_{\text{sem}} \le \tau_{\text{sem}}$ & $\text{QoT}_{\text{valid}} = 0$ & \texttt{replan} & \textbf{Physical Risk HITL:} Signals unfeasible physical state; halts execution, presents GSNR margins, and requests permission to relax constraints. \\[6pt]
+$U_{\text{sem}} \le \tau_{\text{sem}}$ & $\text{QoT}_{\text{valid}} = 1$ & \texttt{approve} & \textbf{Autonomous Auto-Approval:} Zero-friction validation; generates verified routing report for automated controller provisioning. \\
 \hline
 \end{tabular}
 \end{table}
+\FloatBarrier
 
 \section{Formal Human-in-the-Loop (HITL) via Reverse Prompting}
 \label{sec:hitl_reverse_prompting}
@@ -507,9 +521,9 @@ To enforce formal semantic convergence, the architecture implements \textbf{Reve
 
 The closed-loop validation contract of Reverse Prompting is depicted in Figure~\ref{fig:reverse_prompting_loop}.
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
+    \includegraphics[width=0.88\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
     \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
     \label{fig:reverse_prompting_loop}
 \end{figure}
@@ -530,6 +544,7 @@ The validation protocol executes three deterministic phases:
     The architecture directly queries an evaluator LLM to compute the semantic divergence scalar $d_{\text{sem}} \in [0, 1]$ between $\mathcal{I}_{\text{NL}}$ and $\mathcal{I}_{\text{recon}}$, where $0$ indicates perfect semantic agreement and $1$ represents catastrophic constraint loss. If the divergence exceeds the acceptable threshold ($d_{\text{sem}} > \tau_{\text{sem}}$), the system presents $\mathcal{I}_{\text{recon}}$ to the operator alongside the explicit structural state. Presenting the natural language reconstruction allows network engineers to verify complex physical constraints without requiring advanced PDDL syntax expertise.
 \end{enumerate}
 
+\FloatBarrier
 \subsection{State-Preserving Execution Pausing via LangGraph Interrupts}
 \label{subsec:langgraph_interrupts}
 
@@ -537,7 +552,7 @@ Conventional asynchronous control-plane servers utilize stateless webhooks or po
 
 The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic Gate when $U_{\text{sem}} > \tau_{\text{sem}}$:
 
-\begin{verbatim}
+\begin{academicbox}{Listing 3.4: Formal LangGraph Stateful Interrupt Pattern}
 # Formal LangGraph Interrupt Pattern within the HITL Clarification Node
 response = interrupt({
     "status": "clarification_required",
@@ -551,7 +566,7 @@ response = interrupt({
         "Please review the system's understanding and provide refined instructions."
     )
 })
-\end{verbatim}
+\end{academicbox}
 
 \paragraph{Execution Lifecycle under Interruption:}
 \begin{enumerate}

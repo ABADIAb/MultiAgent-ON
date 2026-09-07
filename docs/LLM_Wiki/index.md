@@ -40,7 +40,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
-- [[weekly_reports/Weekly_Report_20260908_Felipe_Abadia]]: Weekly report September 08, 2026. Thesis Chapter 3 figures restructuring, Draw.io XML authoring, vector/raster batch export, plain-text diagram purging, and Overleaf LaTeX consolidation.
+- [[weekly_reports/Weekly_Report_20260908_Felipe_Abadia]]: Weekly report September 08, 2026. Thesis Chapter 3 figures restructuring, Draw.io XML authoring, vector/raster batch export, Overleaf LaTeX consolidation, custom academicbox/formalbox environments, float barriers, and margin overflow normalization.
 - [[weekly_reports/Weekly_Report_20260901_Felipe_Abadia]]: Weekly report September 01, 2026. Thesis Chapter 3 drafting & refinement (Sections 3.1–3.3), Reverse Prompting decoupling, full CFG AST PDDL parser, symbolic solver node exclusion (`avoid-node`), and 268 passing tests.
 - [[weekly_reports/Weekly_Report_20260811_Felipe_Abadia]]: Weekly report August 11, 2026. Sprint 3 completion, RADG integration, QoT physics, and Architecture V5 wiring.
 - [[weekly_reports/Weekly_Report_20260803_Felipe_Abadia]]: Weekly report August 03, 2026. RESTConf Testbed integration, Symbolic Solver, Codebase Reorganization, and Feature Documentation Hub.
@@ -131,12 +131,12 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gate (RADG) decision function and GN model physics integration.
 - [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]]: Chapter 3 Section 3.5 — Formal HITL Reverse Prompting, Reverse Translation Invariance, divergence metric alignment, state preservation, and convergence proofs.
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
-- [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog and Overleaf $\text{\LaTeX}$ snippet guide for all 7 Chapter 3 figures.
+- [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
-- [[session_summary/session_20260906_Thesis_Chapter3_Figures_and_LaTeX_Consolidation]]: Publication-ready restructuring of Chapter 3 figures into `figs/src/`, `figs/pdf/`, and `figs/png/`, semantic naming standard, authoring missing Draw.io models (neural/symbolic subsystems, reverse prompting closed-loop), purging all plain text diagrams, batch vector compilation via Draw.io CLI, and rebuilding Overleaf LaTeX source (`chapter_3_system_model.txt`).
+- [[session_summary/session_20260906_Thesis_Chapter3_Figures_and_LaTeX_Consolidation]]: Publication-ready restructuring of Chapter 3 figures, Draw.io vector exports, Overleaf LaTeX source (`chapter_3_system_model.txt`), academicbox listings, formalbox specifications, float barrier controls, and margin overflow normalization.
 - [[session_summary/session_20260905_Thesis_Section_3_5_HITL_Refinement_and_Bugfix]]: Mathematical refinement of Chapter 3 Section 3.5 (HITL Reverse Prompting), cross-section alignment of semantic divergence $d_{sem}$, resolution of BUG-008, Chapter 3 LaTeX Overleaf export (`chapter_3_system_model.txt`), vector figures and Draw.io XML workflow with HTML math subscripts, and unified `thesis-coauthor` skill authoring.
 - [[session_summary/session_20260904_Thesis_Section_3_4_RADG_Refinement]]: Mathematical refinement of Chapter 3 Section 3.4 (RADG), GN model GSNR accumulation equations, and formalization of theoretical vs. pipeline execution decoupling across Phase 3 and Phase 6.
 - [[session_summary/session_20260903_Architecture_Refactoring_CFG_Validation_and_Chapter3_Refinement]]: Decoupling Reverse Prompting & conditional HITL, full S-expression CFG AST PDDL validator, symbolic solver node exclusion (avoid-node), Kimi API dynamic parameters, and Thesis Chapter 3 (Sections 3.2 & 3.3) formal refinement.

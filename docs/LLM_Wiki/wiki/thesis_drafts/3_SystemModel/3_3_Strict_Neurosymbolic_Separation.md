@@ -82,21 +82,33 @@ Let the grammar $\mathcal{G}_{pddl}$ be defined by the 4-tuple:
 
 $$\mathcal{G}_{pddl} = (V_N, \Sigma, R, S_0)$$
 
-where:
-- $V_N = \{ S_0, \text{ProblemDef}, \text{DomainBlock}, \text{ObjectsBlock}, \text{InitBlock}, \text{GoalBlock}, \text{ExprList}, \text{Predicate}, \text{NodePair}, \text{SingleNode}, \text{NumericVal}, \text{IntVal} \}$ defines the non-terminal symbols.
-- $\Sigma = \{ \text{'(', ')', 'define', 'problem', ':domain', ':objects', ':init', ':goal', 'and', 'route', 'avoid-node', 'avoid-link', 'max-hops', 'min-gsnr', } \texttt{[A-Za-z0-9\_-]+} \}$ constitutes the terminal alphabet.
-- $R$ specifies the production rules mapping the problem envelope and nested goal logic:
+where the constituent formal language components are specified as:
+- **Non-Terminal Alphabet ($V_N$):** The set of syntactic variables governing the hierarchical S-expression structure:
   $$\begin{aligned}
-  S_0 &\to \text{'('} \text{'define'} \text{'('} \text{'problem'} \; \text{SingleNode} \text{')'} \; \text{DomainBlock} \; \text{ObjectsBlock} \; \text{InitBlock} \; \text{GoalBlock} \text{')'} \\
-  \text{GoalBlock} &\to \text{'('} \text{':goal'} \text{'('} \text{'and'} \; \text{ExprList} \; \text{')'} \text{')'} \mid \text{'('} \text{':goal'} \text{Predicate} \text{')'} \\
-  \text{ExprList} &\to \text{Predicate} \; \text{ExprList} \mid \text{Predicate} \\
-  \text{Predicate} &\to \text{'('} \text{'route'} \; \text{NodePair} \text{')'} \\
-  &\mid \text{'('} \text{'avoid-node'} \; \text{SingleNode} \text{')'} \\
-  &\mid \text{'('} \text{'avoid-link'} \; \text{NodePair} \text{')'} \\
-  &\mid \text{'('} \text{'max-hops'} \; \text{IntVal} \text{')'} \\
-  &\mid \text{'('} \text{'min-gsnr'} \; \text{NumericVal} \text{')'}
+  V_N = \{ & S_0, \text{ProblemDef}, \text{DomainBlock}, \text{ObjectsBlock}, \text{InitBlock}, \text{GoalBlock}, \\
+           & \text{ExprList}, \text{Predicate}, \text{NodePair}, \text{SingleNode}, \text{NumericVal}, \text{IntVal} \}
   \end{aligned}$$
-- $S_0$ serves as the start symbol.
+- **Terminal Alphabet ($\Sigma$):** The set of constant string literals, punctuation, and keyword symbols:
+  $$\begin{aligned}
+  \Sigma = \{ & \texttt{(}, \texttt{)}, \texttt{define}, \texttt{problem}, \texttt{:domain}, \texttt{:objects}, \texttt{:init}, \\
+              & \texttt{:goal}, \texttt{and}, \texttt{route}, \texttt{avoid-node}, \texttt{avoid-link}, \texttt{max-hops}, \texttt{min-gsnr} \} \cup \Sigma_{\text{id}}
+  \end{aligned}$$
+  where $\Sigma_{\text{id}}$ matches alphanumeric token identifiers defined by the regular expression `[A-Za-z0-9_-]+`.
+- **Start Symbol ($S_0 \in V_N$):** The root non-terminal generating the complete PDDL problem envelope.
+
+The production rules $R$ enforce permissible syntactic derivations for valid optical routing intents:
+
+$$\begin{aligned}
+S_0 &\to \texttt{(define (problem } \text{SingleNode}\texttt{)} \\
+    &\quad\quad \text{DomainBlock} \; \text{ObjectsBlock} \; \text{InitBlock} \; \text{GoalBlock}\texttt{)} \\[4pt]
+\text{GoalBlock} &\to \texttt{(:goal (and } \text{ExprList}\texttt{))} \;\mid\; \texttt{(:goal } \text{Predicate}\texttt{)} \\[4pt]
+\text{ExprList} &\to \text{Predicate} \; \text{ExprList} \;\mid\; \text{Predicate} \\[4pt]
+\text{Predicate} &\to \texttt{(route } \text{NodePair}\texttt{)} \\
+    &\;\mid\; \texttt{(avoid-node } \text{SingleNode}\texttt{)} \\
+    &\;\mid\; \texttt{(avoid-link } \text{NodePair}\texttt{)} \\
+    &\;\mid\; \texttt{(max-hops } \text{IntVal}\texttt{)} \\
+    &\;\mid\; \texttt{(min-gsnr } \text{NumericVal}\texttt{)}
+\end{aligned}$$
 
 The CFG validator parses the PDDL text into an Abstract Syntax Tree (AST) and computes the structural indicator $v_{struct} \in \{0, 1\}$:
 

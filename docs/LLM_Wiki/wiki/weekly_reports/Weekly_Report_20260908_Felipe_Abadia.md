@@ -64,6 +64,15 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 5. **Tooling & Environment Diagnostics:**
    - Diagnosed Draw.io autosave lock-file behavior (`.$*.drawio*`) and hardened `.gitignore` to maintain clean repository hygiene.
 
+6. **Overleaf LaTeX Typography, Box Environments & Margin Stabilization:**
+   - Diagnosed float queue deferral pushing unconstrained figures into adjacent text sections; deployed `\FloatBarrier` (`placeins`) and `[!htbp]` priority specifiers.
+   - Eliminated all raw `\begin{verbatim}` environments across Chapter 3, replacing them with a custom `academicbox` (`tcolorbox`) environment featuring monospace formatting, subtle borders (`0.6pt`), rounded corners (`1.2mm`), title headers, and `nobreak` multi-page split protection for Listings 3.1–3.4.
+   - Extracted Context-Free Grammar (CFG) production rules $R$ from an indented `itemize` bullet into a dedicated `formalbox` environment (**Formal Specification 3.1**), splitting the overlong $S_0$ rule across aligned lines to prevent horizontal overflow.
+   - Fixed margin overflows in Section 3.3 for the non-terminal $V_N$ and terminal $\Sigma$ sets by converting them to 2-line aligned math blocks.
+   - Fixed the RADG Operational Decision Matrix table (`tab:radg_decision_matrix`) margin overflow by replacing unconstrained `llll` tabular columns with fixed proportional wrapped columns (`p{0.18\linewidth}` to `p{0.48\linewidth}`) and trimmed outer whitespace (`@{} ... @{}`).
+   - Centralized all styling and package declarations into Overleaf's `config.tex`, purifying `chapter_3_system_model.txt` to start directly at line 1 with `\chapter{...}`.
+   - Documented the entire specification in `overleaf-standards.md` within the `thesis-coauthor` skill.
+
 ---
 
 ## 3. Issue List This Week
@@ -85,10 +94,10 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 ## 5. Do You Need Support?
 
-No immediate blockers. Visual artifacts and Chapter 3 LaTeX consolidation are 100% complete and ready for Overleaf review.
+No immediate blockers. Visual artifacts and Chapter 3 LaTeX consolidation are 100% complete, fully styled with academic boxes, and verified in Overleaf.
 
 ---
 
 ## 6. One-Sentence Summary
 
-I completed the publication-ready restructuring, Draw.io XML authoring, and vector compilation of all 7 Chapter 3 figures, purged all plain-text diagrams, and rebuilt the consolidated Overleaf LaTeX document with strict dynamic cross-referencing.
+I completed the publication-ready restructuring and vector compilation of Chapter 3 figures, standardized Overleaf with modern academic box environments, eliminated table and equation margin overflows, and centralized all styling in config.tex.
