@@ -29,17 +29,22 @@ figs_SystemModel/
 
 ---
 
-## 2. Complete Figure Catalog
+## 2. Active Figure Catalog (Core 4)
+
+To prevent cognitive overload and maintain a dense, purely mathematical focus on the system model, Chapter 3 concentrates on **4 core figures**:
 
 | Semantic Label | Source File | Deliverable Files | Pathway | Section | Key Visual Concept |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `fig:problem_formulation` | `src/diagrams/problem_formulation.drawio` | `pdf/problem_formulation.pdf`<br>`png/problem_formulation.png` | **Pathway A** (Draw.io) | **3.1.2** | High-level transformation: $(\mathcal{I}_{NL}, G(V, E), \mathbf{P}, \text{GSNR}_{th}) \to$ Pre-Deployment Engine $\to$ Decision Action $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$. |
 | `fig:conceptual_framework` | `src/diagrams/conceptual_framework.drawio` | `pdf/conceptual_framework.pdf`<br>`png/conceptual_framework.png` | **Pathway A** (Draw.io) | **3.2.1** | 7-Phase Fail-Fast Pipeline with Gate 1 (Semantic Uncertainty $U_{sem}$) and Gate 2 (Physical Risk Gate $\text{QoT}_{valid}$), including HITL clarify & replan loops. |
 | `fig:neural_symbolic_subsystems` | `src/diagrams/neural_symbolic_subsystems.drawio` | `pdf/neural_symbolic_subsystems.pdf`<br>`png/neural_symbolic_subsystems.png` | **Pathway A** (Draw.io) | **3.3.1** | Functional division: Neural Subsystem (linguistic reasoning) and Symbolic Subsystem (deterministic physics) bound by the typed PDDL predicates and CFG structural contract. |
-| `fig:neurosymbolic_comparison` | `src/diagrams/neurosymbolic_comparison.drawio` | `pdf/neurosymbolic_comparison.pdf`<br>`png/neurosymbolic_comparison.png` | **Pathway A** (Draw.io) | **3.3.4** | Architectural side-by-side comparison: Conventional End-to-End LLM baseline (attention degradation, hallucinated paths, reactive failure) vs. Proposed Neurosymbolic Framework. |
 | `fig:radg_decision_space` | `src/plots/radg_decision_space.py` | `pdf/radg_decision_space.pdf`<br>`png/radg_decision_space.png` | **Pathway B** (Python Plot) | **3.4.1** | 2D Operational State Space: $U_{sem} \in [0, 1]$ vs. $\Delta\text{GSNR}$ (dB) demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify). |
 | `fig:reverse_prompting_loop` | `src/diagrams/reverse_prompting_loop.drawio` | `pdf/reverse_prompting_loop.pdf`<br>`png/reverse_prompting_loop.png` | **Pathway A** (Draw.io) | **3.5.2** | Closed-loop validation cycle: Forward translation $\mathcal{M}_{forward} \to \mathcal{S}_{PDDL} \to$ Reverse reconstruction $\mathcal{M}_{reverse} \to \mathcal{I}_{recon} \to$ Semantic divergence $d_{sem} \to$ LangGraph `interrupt()`. |
-| `fig:hitl_sequence` | `src/diagrams/hitl_sequence.drawio` | `pdf/hitl_sequence.pdf`<br>`png/hitl_sequence.png` | **Pathway A** (Draw.io) | **3.5.3** | UML sequence diagram across Human Operator, Orchestrator Graph, LLM Engine, and State Checkpointer detailing state serialization and zero-token operator dwell time. |
+
+### Archived Figures (`figs_SystemModel/archive/`)
+The following diagrams were archived to avoid redundancy and keep the chapter compact:
+- `problem_formulation.drawio` (Black-box inputs/outputs, fully superseded by `conceptual_framework`).
+- `neurosymbolic_comparison.drawio` (Comparative baseline analysis; prioritized for Chapter 1 or Chapter 2).
+- `hitl_sequence.drawio` (Software-engineering UML sequence; logic is formally captured in `reverse_prompting_loop`).
 
 ---
 
@@ -48,15 +53,7 @@ figs_SystemModel/
 Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf project under `Figures/figs_SystemModel/`:
 
 ```latex
-% 1. Problem Formulation
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/problem_formulation.pdf}
-    \caption{High-level architectural problem formulation: transforming unstructured operator intent and optical network state into a verified lightpath and risk-bounded pre-deployment control action.}
-    \label{fig:problem_formulation}
-\end{figure}
-
-% 2. Conceptual Framework
+% 1. Conceptual Framework
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.98\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
@@ -64,7 +61,7 @@ Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf pro
     \label{fig:conceptual_framework}
 \end{figure}
 
-% 3. Subsystem Architecture
+% 2. Subsystem Architecture
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/neural_symbolic_subsystems.pdf}
@@ -72,15 +69,7 @@ Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf pro
     \label{fig:neural_symbolic_subsystems}
 \end{figure}
 
-% 4. Architectural Comparison
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/neurosymbolic_comparison.pdf}
-    \caption{Architectural comparison between a conventional black-box LLM baseline (prone to physical hallucination and high-latency deployment failure) and the proposed strict neurosymbolic separation framework.}
-    \label{fig:neurosymbolic_comparison}
-\end{figure}
-
-% 5. RADG Decision Space
+% 3. RADG Decision Space
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.82\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
@@ -88,7 +77,7 @@ Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf pro
     \label{fig:radg_decision_space}
 \end{figure}
 
-% 6. Reverse Prompting Loop
+% 4. Reverse Prompting Loop
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
@@ -96,13 +85,6 @@ Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf pro
     \label{fig:reverse_prompting_loop}
 \end{figure}
 
-% 7. HITL Sequence Diagram
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/hitl_sequence.pdf}
-    \caption{UML Sequence diagram illustrating the formal Human-in-the-Loop (HITL) Reverse Prompting lifecycle, showcasing atomic checkpoint state serialization via native LangGraph \texttt{interrupt()} and monotonic constraint recovery.}
-    \label{fig:hitl_sequence}
-\end{figure}
 ```
 
 ---

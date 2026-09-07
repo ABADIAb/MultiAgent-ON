@@ -35,8 +35,8 @@ def generate_figure_3_4():
     ax.axvspan(tau_sem, 1.0, ymin=0.0, ymax=1.0, color="#FEEBC8", alpha=0.65, label="Zone III: Early Clarify")
 
     # Delimiter Lines
-    ax.axvline(x=tau_sem, color="#C05621", linestyle="--", linewidth=2.0, label=r"Semantic Threshold $\tau_{sem} = 0.30$")
-    ax.axhline(y=0.0, color="#C53030", linestyle="--", linewidth=2.0, label=r"Physical Boundary $\Delta\text{GSNR} = 0\text{ dB}$")
+    ax.axvline(x=tau_sem, color="#2B6CB0", linestyle="--", linewidth=2.2, label=r"Semantic Threshold $\tau_{sem} = 0.30$")
+    ax.axhline(y=0.0, color="#C53030", linestyle="-.", linewidth=2.2, label=r"Physical Boundary $\Delta\text{GSNR} = 0\text{ dB}$")
 
     # Axis Limits and Labels
     ax.set_xlim(0.0, 1.0)

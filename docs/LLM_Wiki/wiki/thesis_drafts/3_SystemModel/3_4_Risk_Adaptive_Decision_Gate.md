@@ -100,7 +100,7 @@ $$
 P_{NLI, m} = \eta_0 L_{eff}^2 P_{ch}^3
 $$
 
-where $\gamma$ specifies the fiber non-linear coefficient, $\beta_2$ characterizes the group velocity dispersion parameter, $R_s$ is the transmitted symbol rate, $N_{ch}$ is the channel count, $\Delta f$ is the channel spacing, and $L_{eff} = \frac{1 - e^{-\alpha L_m}}{\alpha}$ represents the effective non-linear fiber length for linear attenuation $\alpha$. The associated non-linear signal-to-noise ratio contribution is thus formulated as:
+where $\gamma$ specifies the fiber non-linear coefficient, $\beta_2 = -\frac{\lambda^2}{2\pi c} D$ characterizes the group velocity dispersion parameter (directly linked to the topological chromatic dispersion $D$), $R_s$ is the transmitted symbol rate, $N_{ch}$ is the channel count, $\Delta f$ is the channel spacing, and $L_{eff} = \frac{1 - e^{-\alpha L_m}}{\alpha}$ represents the effective non-linear fiber length for linear attenuation $\alpha$. The associated non-linear signal-to-noise ratio contribution is thus formulated as:
 
 $$
 \text{SNR}_{NLI}^{-1}(e_{ij}) = \sum_{m=1}^M \frac{P_{NLI, m}}{P_{ch}}

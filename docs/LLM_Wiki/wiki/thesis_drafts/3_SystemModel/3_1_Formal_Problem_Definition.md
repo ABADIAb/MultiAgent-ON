@@ -110,18 +110,15 @@ $$\pi^* \in \mathcal{K}_{path}(G, \mathcal{S}_{PDDL})$$
 where:
 - $N_{hitl} \in \mathbb{N}_0$ denotes the number of operator interruptions triggered during the planning lifecycle.
 - $T_{tokens} \in \mathbb{N}^+$ represents the total cumulative LLM token consumption.
-- $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs. In this theoretical formulation, they act as operational policy parameters (OPEX) and normalization factors that project discrete human interaction events ($N_{hitl}$) and high-magnitude token consumption ($T_{tokens}$) into a unified evaluation scale. Exact empirical values for these parameters are defined by the specific testbed configuration during system evaluation.
+- $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs. In this theoretical formulation, they act as operational policy parameters (OPEX) and normalization factors that project discrete human interaction events ($N_{hitl}$) and high-magnitude token consumption ($T_{tokens}$) into a unified evaluation scale. Exact empirical values for these parameters are defined by the specific testbed configuration during system evaluation; these coefficients directly inform the boundary conditions for the baseline experiments evaluated in Chapter~\ref{chap:implementation} \textcolor{red}{[TODO: Define chap:implementation label]} (Always-HITL vs. No-HITL).
 - $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved.
-
-<!-- FIGURE_PLACEHOLDER: problem_formulation -->
-> **Figure: Problem Formulation Block Diagram** (`figs_SystemModel/pdf/problem_formulation.pdf`)
-> High-level transformation pipeline: unstructured operator intent $\mathcal{I}_{NL}$ and physical optical topology $G(V, E)$ mapped through the pre-deployment planning engine to yield admissible decision actions $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$.
 
 ---
 
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 3.1 Placement:** Place a high-level block diagram here illustrating the transformation flow: Unstructured Intent $\mathcal{I}_{NL}$ + Graph $G(V,E) \to$ Formal Formulation $\to$ Decision Action $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$.
+> **Figure Placement:** The high-level transformation flow of the problem formulation is directly mapped and visually detailed in the 7-Phase Conceptual Framework (`Figure~\ref{fig:conceptual_framework}`) in Section 3.2.
+
 > 
 > **Notation Consistency Check:** Ensure that $\text{GSNR}_{th}$, $U_{sem}$, and $\text{QoT}_{valid}$ symbols match identically across Chapter 3 and Chapter 5.

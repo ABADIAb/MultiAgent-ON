@@ -126,18 +126,13 @@ Upon validation by the CFG gate, the system translates the PDDL predicates into 
 
 Delegating path exploration to Yen's deterministic algorithm over the pruned topology $\widetilde{G}_{sub}$ mathematically precludes routing loops, traversal of non-existent links, or constraint violations prior to initiating the computationally intensive GN-model QoT evaluation.
 
-<!-- FIGURE_PLACEHOLDER: neurosymbolic_comparison -->
-> **Figure: Architectural Comparison (Conventional Baseline vs. Proposed Framework)** (`figs_SystemModel/pdf/neurosymbolic_comparison.pdf`)
-> Side-by-side comparison contrasting the unconstrained baseline (where direct LLM generation across full network telemetry triggers attention degradation, hallucinations, and reactive post-deployment errors) against our neurosymbolic separation (which guarantees zero physical risk through formal compilation, topological pruning, and deterministic GN-model physics).
-
 ---
 
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 3.3 Placement:** Include a side-by-side comparison diagram:
-> - *Left (Baseline):* Conventional End-to-End LLM approach (Input $\to$ LLM $\to$ Hallucinated Path $\to$ Deployment Failure).
-> - *Right (Ours):* Neurosymbolic Separation (Input $\to$ LLM Compiler $\to$ PDDL $\to$ CFG AST Check $\to$ Pruned Topological Solver $\to$ GN Model).
+> **Figure Placement:** The structural division of responsibilities is illustrated in `Figure~\ref{fig:neural_symbolic_subsystems}`. The comparative analysis against conventional end-to-end LLM architectures is documented in the literature gap analysis (Chapter 2).
 
 > [!TIP]
 > **Code Alignment Note:** To maintain full transparency regarding the implementation, the production rules defined for $\mathcal{G}_{pddl}$ mirror the AST parsing logic strictly located in `src/core/pddl_validator.py`. The vertex/edge pruning mathematics ($\widetilde{G}_{sub}$) directly correspond to the constraints filtered dynamically in `src/core/symbolic_solver.py`.
+

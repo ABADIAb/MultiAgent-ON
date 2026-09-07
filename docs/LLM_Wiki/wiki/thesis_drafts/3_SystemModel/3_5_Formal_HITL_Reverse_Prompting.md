@@ -67,10 +67,6 @@ response = interrupt({
 2. **Resource Deallocation:** The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
 3. **Resumption and State Injection:** Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. It injects the human feedback directly into the $\mathcal{S}_{state}$ dictionary under `error_context`, routing cleanly back to the parsing phase for targeted PDDL regeneration.
 
-<!-- FIGURE_PLACEHOLDER: hitl_sequence -->
-> **Figure: Stateful HITL Interruption and Resumption Sequence** (`figs_SystemModel/pdf/hitl_sequence.pdf`)
-> UML sequence diagram detailing the asynchronous interaction lifecycle across Human Operator, Orchestrator Graph, LLM Engine, and State Checkpointer. When semantic uncertainty exceeds the tolerance threshold, execution suspends with zero token consumption, serializing state atomically and awaiting operator clarification before resuming.
-
 ---
 
 ## 3.5.4 Monotonic Constraint Preservation and Convergence Guarantees
@@ -86,6 +82,7 @@ Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than uns
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 3.5 Placement:** Insert a Sequence Diagram detailing the interaction between the Operator, Orchestrator Graph, State Checkpointer, and LLM across a complete interruption and resumption cycle.
+> **Figure Placement:** The closed-loop validation contract, semantic agreement scoring, and interrupt-based state preservation cycle are formally illustrated in `Figure~\ref{fig:reverse_prompting_loop}`.
 > 
 > **Implementation Reference:** Note that this formal interrupt pattern undergoes rigorous validation within the end-to-end test suite (`tests/unit/test_e2e_pipeline_flow.py`), ensuring robust multi-turn checkpoint recovery.
+
