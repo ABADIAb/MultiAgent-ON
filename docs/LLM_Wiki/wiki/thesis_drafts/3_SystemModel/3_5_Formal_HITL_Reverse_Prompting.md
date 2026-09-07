@@ -22,7 +22,7 @@ When an operator modifies a requirement during iteration $t_k$, autoregressive l
 To enforce formal semantic convergence, the architecture implements **Reverse Prompting** as a closed-loop validation contract. Instead of preserving an unstructured dialogue history, the intent refinement mechanism operates exclusively over explicit, immutable symbolic state variables.
 
 <!-- FIGURE_PLACEHOLDER: reverse_prompting_loop -->
-> **Figure: Closed-Loop Reverse Prompting Validation Invariant** (`figs/pdf/reverse_prompting_loop.pdf`)
+> **Figure: Closed-Loop Reverse Prompting Validation Invariant** (`figs_SystemModel/pdf/reverse_prompting_loop.pdf`)
 > Closed-loop verification cycle enforcing semantic convergence: the operator's natural language intent $\mathcal{I}_{NL}$ is translated into formal PDDL predicates $\mathcal{S}_{PDDL}$, independently reconstructed back to natural language $\mathcal{I}_{recon}$, and evaluated for semantic divergence $d_{sem}$. If $d_{sem} > \tau_{sem}$, an execution interrupt is triggered for human refinement; otherwise, execution proceeds autonomously.
 
 The validation protocol executes three deterministic phases:
@@ -68,7 +68,7 @@ response = interrupt({
 3. **Resumption and State Injection:** Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. It injects the human feedback directly into the $\mathcal{S}_{state}$ dictionary under `error_context`, routing cleanly back to the parsing phase for targeted PDDL regeneration.
 
 <!-- FIGURE_PLACEHOLDER: hitl_sequence -->
-> **Figure: Stateful HITL Interruption and Resumption Sequence** (`figs/pdf/hitl_sequence.pdf`)
+> **Figure: Stateful HITL Interruption and Resumption Sequence** (`figs_SystemModel/pdf/hitl_sequence.pdf`)
 > UML sequence diagram detailing the asynchronous interaction lifecycle across Human Operator, Orchestrator Graph, LLM Engine, and State Checkpointer. When semantic uncertainty exceeds the tolerance threshold, execution suspends with zero token consumption, serializing state atomically and awaiting operator clarification before resuming.
 
 ---

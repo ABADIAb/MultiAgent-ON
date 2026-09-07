@@ -131,7 +131,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gate (RADG) decision function and GN model physics integration.
 - [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]]: Chapter 3 Section 3.5 — Formal HITL Reverse Prompting, Reverse Translation Invariance, divergence metric alignment, state preservation, and convergence proofs.
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
-- [[thesis_drafts/3_SystemModel/figs/README]]: Vector figures catalog and Overleaf $\text{\LaTeX}$ snippet guide for all 7 Chapter 3 figures.
+- [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog and Overleaf $\text{\LaTeX}$ snippet guide for all 7 Chapter 3 figures.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 

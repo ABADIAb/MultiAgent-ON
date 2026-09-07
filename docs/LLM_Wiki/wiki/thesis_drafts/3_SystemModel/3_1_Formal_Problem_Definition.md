@@ -114,7 +114,7 @@ where:
 - $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved.
 
 <!-- FIGURE_PLACEHOLDER: problem_formulation -->
-> **Figure: Problem Formulation Block Diagram** (`figs/pdf/problem_formulation.pdf`)
+> **Figure: Problem Formulation Block Diagram** (`figs_SystemModel/pdf/problem_formulation.pdf`)
 > High-level transformation pipeline: unstructured operator intent $\mathcal{I}_{NL}$ and physical optical topology $G(V, E)$ mapped through the pre-deployment planning engine to yield admissible decision actions $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$.
 
 ---

@@ -12,7 +12,7 @@ status: active
 ## Overview
 
 This session achieved full production readiness for all visual, architectural, and LaTeX deliverables of **Thesis Chapter 3 (System Model and Neurosymbolic Architecture)**:
-1. **Publication-Ready Directory Reorganization & Semantic Naming:** Established a robust hierarchy under `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/` separating source models (`src/diagrams/` and `src/plots/`) from compiled deliverables (`pdf/` and `png/`). Standardized on **semantic naming** without hardcoded figure numbers in filenames, eliminating fragile cascading renames.
+1. **Publication-Ready Directory Reorganization & Semantic Naming:** Established a robust hierarchy under `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/` separating source models (`src/diagrams/` and `src/plots/`) from compiled deliverables (`pdf/` and `png/`). Standardized on **semantic naming** without hardcoded figure numbers in filenames, eliminating fragile cascading renames.
 2. **Decoupled Multi-Figure Architectures (Sections 3.3 & 3.5):** Discovered and formalized that Section 3.3 and Section 3.5 each encompass two distinct diagrams. Authored two new native Draw.io XML models: `neural_symbolic_subsystems.drawio` (functional division of responsibilities and PDDL boundary) and `reverse_prompting_loop.drawio` (closed-loop validation invariant with semantic divergence).
 3. **Purge of ASCII-Art Plain Text Diagrams:** Removed all plain text diagrams across `3_2_Conceptual_Framework.md`, `3_3_Strict_Neurosymbolic_Separation.md`, and `3_5_Formal_HITL_Reverse_Prompting.md`, adding formal markdown placeholders for all **7 figures** across the 5 chapter sections.
 4. **Automated Vector & Raster Compilation:** Configured and executed batch export using the native `draw.io.exe --crop` CLI and `radg_decision_space.py`, producing 7 vector `.pdf` files for Overleaf and 7 high-resolution 300 DPI `.png` preview files.
@@ -26,7 +26,7 @@ This session achieved full production readiness for all visual, architectural, a
 ### 1. Reorganization & Standardization of Chapter 3 Figures
 - **Modular Directory Hierarchy:**
   ```text
-  figs/
+  figs_SystemModel/
   ├── src/
   │   ├── diagrams/       # Pathway A: Native Draw.io XML (.drawio)
   │   └── plots/          # Pathway B: Python generator scripts (.py)
@@ -69,9 +69,9 @@ This session achieved full production readiness for all visual, architectural, a
 - Exported all 6 Draw.io models to vector `.pdf` and 300 DPI `.png` using `draw.io.exe --crop`.
 - Re-executed `radg_decision_space.py` generating its vector PDF and raster PNG.
 - Recreated `chapter_3_system_model.txt` ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]) with:
-  - All 7 figures declared via `\begin{figure}[htbp] ... \includegraphics{figs/pdf/<name>.pdf} ... \caption{...} \label{fig:<name>} \end{figure}`.
+  - All 7 figures declared via `\begin{figure}[htbp] ... \includegraphics{Figures/figs_SystemModel/<name>.pdf} ... \caption{...} \label{fig:<name>} \end{figure}`.
   - In-text references matching labels 1:1 (`Figure~\ref{fig:problem_formulation}`, `Figure~\ref{fig:conceptual_framework}`, `Figure~\ref{fig:neural_symbolic_subsystems}`, `Figure~\ref{fig:neurosymbolic_comparison}`, `Figure~\ref{fig:radg_decision_space}`, `Figure~\ref{fig:reverse_prompting_loop}`, `Figure~\ref{fig:hitl_sequence}`).
-- Recreated [[thesis_drafts/3_SystemModel/figs/README]] with the 7-figure catalog and ready-to-copy Overleaf snippets.
+- Recreated [[thesis_drafts/3_SystemModel/figs_SystemModel/README]] with the 7-figure catalog and ready-to-copy Overleaf snippets.
 
 ### 6. Git Hygiene & Tooling Resolution
 - Addressed Draw.io desktop/VS Code lock-file behavior (`.$*.drawio*`, `*.drawio.bkp`), explaining crash-recovery mechanics and updating `.gitignore` to prevent repository pollution.
@@ -83,7 +83,7 @@ This session achieved full production readiness for all visual, architectural, a
 | Component | File Path | Status | Description |
 | :--- | :--- | :--- | :--- |
 | **GitIgnore** | `.gitignore` | MODIFIED | Added ignore rules for `.$*.drawio*` and `*.drawio.bkp` |
-| **Skill** | `.agents/skills/thesis-coauthor/SKILL.md` | MODIFIED | Added `figs/` directory structure, semantic naming, and LaTeX ref requirements |
+| **Skill** | `.agents/skills/thesis-coauthor/SKILL.md` | MODIFIED | Added `figs_<Chapter>/` directory structure, semantic naming, and `Figures/` LaTeX ref requirements |
 | **Skill Reference** | `.agents/skills/thesis-coauthor/references/figure-guidelines.md` | MODIFIED | Updated figure guidelines with directory layout and export standards |
 | **Section 3.1** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition.md` | MODIFIED | Added figure placeholder for `problem_formulation` |
 | **Section 3.2** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_2_Conceptual_Framework.md` | MODIFIED | Replaced ASCII art with placeholder for `conceptual_framework` |
@@ -91,16 +91,16 @@ This session achieved full production readiness for all visual, architectural, a
 | **Section 3.4** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate.md` | MODIFIED | Added figure placeholder for `radg_decision_space` |
 | **Section 3.5** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting.md` | MODIFIED | Replaced ASCII art with `reverse_prompting_loop` and added `hitl_sequence` |
 | **LaTeX Merged** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt` | MODIFIED | Recreated complete chapter compilation with 7 figures and in-text `\ref{fig:...}` |
-| **Figure Catalog** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/README.md` | MODIFIED | Updated catalog, directory layout, and Overleaf snippets |
-| **Diagram 1** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/diagrams/problem_formulation.drawio` | RENAMED | Moved and renamed to semantic filename |
-| **Diagram 2** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/diagrams/conceptual_framework.drawio` | RENAMED | Moved and renamed to semantic filename |
-| **Diagram 3** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/diagrams/neural_symbolic_subsystems.drawio` | NEW | Subsystems architecture & PDDL boundary |
-| **Diagram 4** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/diagrams/neurosymbolic_comparison.drawio` | RENAMED | Baseline vs. proposed framework comparison |
-| **Plot 5** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/plots/radg_decision_space.py` | MODIFIED | Updated output paths to `pdf/` and `png/` with semantic naming |
-| **Diagram 6** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/diagrams/reverse_prompting_loop.drawio` | NEW | Closed-loop Reverse Prompting validation cycle |
-| **Diagram 7** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/diagrams/hitl_sequence.drawio` | RENAMED | Stateful HITL sequence diagram |
-| **Deliverables** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/pdf/*.pdf` | NEW | 7 vector PDF deliverables for Overleaf |
-| **Deliverables** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/png/*.png` | NEW | 7 high-resolution 300 DPI PNG previews |
+| **Figure Catalog** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/README.md` | MODIFIED | Updated catalog, directory layout, and Overleaf snippets |
+| **Diagram 1** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/problem_formulation.drawio` | RENAMED | Moved and renamed to semantic filename |
+| **Diagram 2** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/conceptual_framework.drawio` | RENAMED | Moved and renamed to semantic filename |
+| **Diagram 3** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/neural_symbolic_subsystems.drawio` | NEW | Subsystems architecture & PDDL boundary |
+| **Diagram 4** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/neurosymbolic_comparison.drawio` | RENAMED | Baseline vs. proposed framework comparison |
+| **Plot 5** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/plots/radg_decision_space.py` | MODIFIED | Updated output paths to `pdf/` and `png/` with semantic naming |
+| **Diagram 6** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/reverse_prompting_loop.drawio` | NEW | Closed-loop Reverse Prompting validation cycle |
+| **Diagram 7** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/hitl_sequence.drawio` | RENAMED | Stateful HITL sequence diagram |
+| **Deliverables** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/pdf/*.pdf` | NEW | 7 vector PDF deliverables for Overleaf |
+| **Deliverables** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/png/*.png` | NEW | 7 high-resolution 300 DPI PNG previews |
 | **Session Summary** | `docs/LLM_Wiki/wiki/session_summary/session_20260906_Thesis_Chapter3_Figures_and_LaTeX_Consolidation.md` | NEW | Master session record |
 
 ---

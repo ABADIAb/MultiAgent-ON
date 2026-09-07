@@ -61,7 +61,7 @@ $$\text{subject to:} \quad D\left( U_{sem}, \text{QoT}_{valid}(\pi^*) \right) = 
 - **Output Action:** $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$.
 - **Objective:** Minimizes operational human friction and computational inference costs under non-negotiable physical safety.
 
-![Figure: Problem Formulation Block Diagram](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/png/problem_formulation.png)
+![Figure: Problem Formulation Block Diagram](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/png/problem_formulation.png)
 
 <!-- Speaker Notes: Figure 3.1 illustrates the high-level formulation. The system ingests natural language intent and optical graph state, compiling them into formal PDDL constraints before executing deterministic K-shortest paths and GN-model physics. -->
 
@@ -82,7 +82,7 @@ $$\text{subject to:} \quad D\left( U_{sem}, \text{QoT}_{valid}(\pi^*) \right) = 
 - **Phase 6:** **Gate 2: Physical Risk Gate ($\text{QoT}_{valid} = 1$)**.
 - **Phase 7:** Auditable Plan Synthesis & Provisioning.
 
-![Figure: Conceptual Framework](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/png/conceptual_framework.png)
+![Figure: Conceptual Framework](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/png/conceptual_framework.png)
 
 <!-- Speaker Notes: Figure 3.2 is the core architecture. Notice the two distinct gates: Gate 1 catches semantic misunderstandings early with zero physical simulation cost. Only semantically certified plans reach Gate 2, where deterministic GN-model calculations evaluate ASE and Kerr non-linear interference. -->
 
@@ -99,8 +99,8 @@ $$\text{subject to:} \quad D\left( U_{sem}, \text{QoT}_{valid}(\pi^*) \right) = 
 - **Formal Contract:** Typed PDDL predicates (`route`, `avoid-node`, `avoid-link`, `min-gsnr`) audited by a Context-Free Grammar ($v_{struct} \in \{0, 1\}$).
 - **Symbolic Subsystem:** Topological graph pruning, Yen's KSP loopless routing, coherent GN model, RADG decision logic.
 
-![Figure: Subsystems](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/png/neural_symbolic_subsystems.png)
-![Figure: Comparison](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/png/neurosymbolic_comparison.png)
+![Figure: Subsystems](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/png/neural_symbolic_subsystems.png)
+![Figure: Comparison](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/png/neurosymbolic_comparison.png)
 
 <!-- Speaker Notes: We decoupled Section 3.3 into two figures. The first shows the subsystem division across the PDDL boundary. The second compares our pipeline against an unconstrained LLM baseline, demonstrating how we eliminate physical hallucinations and post-deployment rollback costs. -->
 
@@ -123,7 +123,7 @@ $$D\left(U_{sem}, \text{QoT}_{valid}\right) = \begin{cases}
 - **Zone II (Suggest Replan):** Transmission infeasible $\implies$ targeted constraint relaxation.
 - **Zone III (Early Clarify):** High ambiguity or syntax violation $\implies$ physics engine strictly bypassed.
 
-![Figure: RADG 2D Operational Space](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/png/radg_decision_space.png)
+![Figure: RADG 2D Operational Space](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/png/radg_decision_space.png)
 
 <!-- Speaker Notes: Figure 3.5 shows the 2D operational state space of the RADG. The horizontal axis is semantic uncertainty, and the vertical axis is the GSNR margin. This cleanly visualizes our three operational regimes: auto-approval, physical replan, and early clarification. -->
 
@@ -140,8 +140,8 @@ $$D\left(U_{sem}, \text{QoT}_{valid}\right) = \begin{cases}
 - **Zero-Token Interruption:** When $U_{sem} > \tau_{sem}$, LangGraph `interrupt()` serializes state into checkpointer, releasing memory and compute threads during human dwell time.
 - **Convergence Guarantee:** Monotonic constraint preservation bounds clarification cycles to $N_{max} = 3$.
 
-![Figure: Reverse Prompting Loop](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/png/reverse_prompting_loop.png)
-![Figure: HITL Sequence](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/png/hitl_sequence.png)
+![Figure: Reverse Prompting Loop](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/png/reverse_prompting_loop.png)
+![Figure: HITL Sequence](docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/png/hitl_sequence.png)
 
 <!-- Speaker Notes: Section 3.5 also contains two figures. Figure 3.6 shows the closed-loop reverse prompting cycle. Figure 3.7 details the sequence diagram showing how LangGraph suspends execution without token consumption, awaiting operator clarification before resuming cleanly. -->
 
@@ -155,7 +155,7 @@ $$D\left(U_{sem}, \text{QoT}_{valid}\right) = \begin{cases}
 ### Completed Deliverables & Transition to Sprint 4
 
 - **Chapter 3 Ready for Overleaf:** All 5 sections drafted ([[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition|Section 3.1]]–[[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|3.5]]) and consolidated into `chapter_3_system_model.txt` ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]) with LaTeX cross-references.
-- **Visual Suite Complete:** 7 figures (6 Draw.io models, 1 Matplotlib plot documented in [[thesis_drafts/3_SystemModel/figs/README]]) exported to vector PDF and 300 DPI PNG.
+- **Visual Suite Complete:** 7 figures (6 Draw.io models, 1 Matplotlib plot documented in [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]) exported to vector PDF and 300 DPI PNG.
 - **Immediate Next Steps (Sprint 4):**
   1. Synthetic test corpus construction across 17-node [[session_summary/session_20260817_Nobel_Germany_Topology_Migration|Nobel-Germany optical topology]] (`test_corpus.json`).
   2. Benchmarking against non-adaptive baselines (No-HITL, Always-HITL) measuring token overhead and GSNR accuracy.

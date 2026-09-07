@@ -143,7 +143,7 @@ The overall pre-deployment planning pipeline and architectural problem formulati
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/pdf/problem_formulation.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/problem_formulation.pdf}
     \caption{High-level architectural problem formulation: transforming unstructured operator intent and optical network state into a verified lightpath and risk-bounded pre-deployment control action.}
     \label{fig:problem_formulation}
 \end{figure}
@@ -168,7 +168,7 @@ The comprehensive 7-phase architecture and its two-gate validation hierarchy are
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{figs/pdf/conceptual_framework.pdf}
+    \includegraphics[width=0.98\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
     \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
@@ -239,7 +239,7 @@ The functional decoupling between the neural generative components and determini
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/pdf/neural_symbolic_subsystems.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/neural_symbolic_subsystems.pdf}
     \caption{Neurosymbolic subsystem division of responsibilities: decoupling linguistic formalization within the Neural Subsystem from deterministic constraint satisfaction and physical simulation in the Symbolic Subsystem via typed PDDL predicates.}
     \label{fig:neural_symbolic_subsystems}
 \end{figure}
@@ -362,7 +362,7 @@ An architectural comparison between the conventional unconstrained LLM baseline 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/pdf/neurosymbolic_comparison.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/neurosymbolic_comparison.pdf}
     \caption{Architectural comparison between a conventional black-box LLM baseline (prone to physical hallucination and high-latency deployment failure) and the proposed strict neurosymbolic separation framework.}
     \label{fig:neurosymbolic_comparison}
 \end{figure}
@@ -395,7 +395,7 @@ The resulting two-dimensional operational state space is illustrated in Figure~\
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.82\textwidth]{figs/pdf/radg_decision_space.pdf}
+    \includegraphics[width=0.82\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
     \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
 \end{figure}
@@ -527,7 +527,7 @@ The closed-loop validation contract of Reverse Prompting is depicted in Figure~\
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/pdf/reverse_prompting_loop.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
     \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
     \label{fig:reverse_prompting_loop}
 \end{figure}
@@ -582,7 +582,7 @@ The complete asynchronous interaction lifecycle across the operator, orchestrato
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/pdf/hitl_sequence.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/hitl_sequence.pdf}
     \caption{UML Sequence diagram illustrating the formal Human-in-the-Loop (HITL) Reverse Prompting lifecycle, showcasing atomic checkpoint state serialization via native LangGraph \texttt{interrupt()} and monotonic constraint recovery.}
     \label{fig:hitl_sequence}
 \end{figure}

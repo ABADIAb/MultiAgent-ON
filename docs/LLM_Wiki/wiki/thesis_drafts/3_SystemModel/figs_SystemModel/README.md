@@ -16,7 +16,7 @@ This directory contains the visual artifacts for **Chapter 3: System Model and N
 To ensure clean separation between editable source models and compiled publication deliverables, files are organized into distinct subdirectories:
 
 ```text
-figs/
+figs_SystemModel/
 ├── src/
 │   ├── diagrams/       # Pathway A: Native Draw.io XML (.drawio) source models
 │   └── plots/          # Pathway B: Python Matplotlib generator scripts (.py)
@@ -45,13 +45,13 @@ figs/
 
 ## 3. Ready-to-Copy LaTeX Snippets for Overleaf
 
-Copy the vector files from `figs/pdf/` directly to your Overleaf project under `figs/`:
+Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf project under `Figures/figs_SystemModel/`:
 
 ```latex
 % 1. Problem Formulation
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/problem_formulation.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/problem_formulation.pdf}
     \caption{High-level architectural problem formulation: transforming unstructured operator intent and optical network state into a verified lightpath and risk-bounded pre-deployment control action.}
     \label{fig:problem_formulation}
 \end{figure}
@@ -59,7 +59,7 @@ Copy the vector files from `figs/pdf/` directly to your Overleaf project under `
 % 2. Conceptual Framework
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{figs/conceptual_framework.pdf}
+    \includegraphics[width=0.98\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
     \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
@@ -67,7 +67,7 @@ Copy the vector files from `figs/pdf/` directly to your Overleaf project under `
 % 3. Subsystem Architecture
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/neural_symbolic_subsystems.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/neural_symbolic_subsystems.pdf}
     \caption{Neurosymbolic subsystem division of responsibilities: decoupling linguistic formalization within the Neural Subsystem from deterministic constraint satisfaction and physical simulation in the Symbolic Subsystem via typed PDDL predicates.}
     \label{fig:neural_symbolic_subsystems}
 \end{figure}
@@ -75,7 +75,7 @@ Copy the vector files from `figs/pdf/` directly to your Overleaf project under `
 % 4. Architectural Comparison
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/neurosymbolic_comparison.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/neurosymbolic_comparison.pdf}
     \caption{Architectural comparison between a conventional black-box LLM baseline (prone to physical hallucination and high-latency deployment failure) and the proposed strict neurosymbolic separation framework.}
     \label{fig:neurosymbolic_comparison}
 \end{figure}
@@ -83,7 +83,7 @@ Copy the vector files from `figs/pdf/` directly to your Overleaf project under `
 % 5. RADG Decision Space
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.82\textwidth]{figs/radg_decision_space.pdf}
+    \includegraphics[width=0.82\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
     \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
 \end{figure}
@@ -91,7 +91,7 @@ Copy the vector files from `figs/pdf/` directly to your Overleaf project under `
 % 6. Reverse Prompting Loop
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/reverse_prompting_loop.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
     \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
     \label{fig:reverse_prompting_loop}
 \end{figure}
@@ -99,7 +99,7 @@ Copy the vector files from `figs/pdf/` directly to your Overleaf project under `
 % 7. HITL Sequence Diagram
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figs/hitl_sequence.pdf}
+    \includegraphics[width=0.95\textwidth]{Figures/figs_SystemModel/hitl_sequence.pdf}
     \caption{UML Sequence diagram illustrating the formal Human-in-the-Loop (HITL) Reverse Prompting lifecycle, showcasing atomic checkpoint state serialization via native LangGraph \texttt{interrupt()} and monotonic constraint recovery.}
     \label{fig:hitl_sequence}
 \end{figure}
@@ -115,5 +115,5 @@ Copy the vector files from `figs/pdf/` directly to your Overleaf project under `
   ```
 - **To re-generate the RADG scientific plot:**
   ```bash
-  uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs/src/plots/radg_decision_space.py
+  uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/plots/radg_decision_space.py
   ```

@@ -29,7 +29,7 @@ where the constant $\tau_{sem} \in (0, 1)$ represents the operational semantic t
 While conceptualized as a unified mathematical function, the software implementation decouples $D$ hierarchically to enforce a fail-fast execution paradigm. Semantic uncertainty ($U_{sem}$) is evaluated exclusively at Phase 3, halting execution prior to complex route computation if $\tau_{sem}$ is exceeded. The subsequent physical viability ($\text{QoT}_{valid}$) is assessed exclusively at Phase 6, ensuring that the computationally expensive GN-model calculations are reserved strictly for semantically verified intents.
 
 <!-- FIGURE_PLACEHOLDER: radg_decision_space -->
-> **Figure: Risk-Adaptive Decision Gate (RADG) 2D Operational State Space** (`figs/pdf/radg_decision_space.pdf`)
+> **Figure: Risk-Adaptive Decision Gate (RADG) 2D Operational State Space** (`figs_SystemModel/pdf/radg_decision_space.pdf`)
 > Visual representation of the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$. The horizontal axis denotes Semantic Uncertainty $U_{sem} \in [0, 1]$ with threshold delimiter $\tau_{sem} = 0.30$; the vertical axis represents the physical margin $\Delta\text{GSNR} = \text{GSNR}_{path} - \text{GSNR}_{th}$ (dB). The partitioned state space maps directly to three operational action zones: Zone I: Auto-Approve (top-left, safe), Zone II: Suggest Replan (bottom-left, infeasible physics), and Zone III: Early HITL Clarify (right, high ambiguity with physics simulation bypassed).
 
 ---

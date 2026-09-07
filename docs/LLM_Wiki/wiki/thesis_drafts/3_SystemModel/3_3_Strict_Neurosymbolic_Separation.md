@@ -19,7 +19,7 @@ Forcing an LLM to compute optical lightpath feasibility natively induces severe 
 To reconcile this operational tension, the architecture enforces a strict boundary: the LLM functions exclusively as a semantic compiler that translates linguistic intent into formal symbolic logic. The system delegates all topological search operations and physical QoT calculations to deterministic external engines.
 
 <!-- FIGURE_PLACEHOLDER: neural_symbolic_subsystems -->
-> **Figure: Neurosymbolic Subsystem Architecture & PDDL Interface** (`figs/pdf/neural_symbolic_subsystems.pdf`)
+> **Figure: Neurosymbolic Subsystem Architecture & PDDL Interface** (`figs_SystemModel/pdf/neural_symbolic_subsystems.pdf`)
 > Decoupling of functional responsibilities: the Neural Subsystem handles intent extraction and linguistic formalization, passing typed PDDL predicates through a Context-Free Grammar (CFG) validation boundary to the deterministic Symbolic Subsystem for constraint pruning and physical simulation.
 
 ## 3.3.2 PDDL Domain Formalization for Optical Routing
@@ -127,7 +127,7 @@ Upon validation by the CFG gate, the system translates the PDDL predicates into 
 Delegating path exploration to Yen's deterministic algorithm over the pruned topology $\widetilde{G}_{sub}$ mathematically precludes routing loops, traversal of non-existent links, or constraint violations prior to initiating the computationally intensive GN-model QoT evaluation.
 
 <!-- FIGURE_PLACEHOLDER: neurosymbolic_comparison -->
-> **Figure: Architectural Comparison (Conventional Baseline vs. Proposed Framework)** (`figs/pdf/neurosymbolic_comparison.pdf`)
+> **Figure: Architectural Comparison (Conventional Baseline vs. Proposed Framework)** (`figs_SystemModel/pdf/neurosymbolic_comparison.pdf`)
 > Side-by-side comparison contrasting the unconstrained baseline (where direct LLM generation across full network telemetry triggers attention degradation, hallucinations, and reactive post-deployment errors) against our neurosymbolic separation (which guarantees zero physical risk through formal compilation, topological pruning, and deterministic GN-model physics).
 
 ---

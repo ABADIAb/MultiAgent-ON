@@ -1,0 +1,67 @@
+<mxfile host="Electron" agent="5.0">
+  <diagram id="fig_neurosymbolic_subsystems" name="Subsystem Responsibilities and PDDL Interface">
+    <mxGraphModel dx="1030" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1050" pageHeight="720" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="c_neural" parent="1" style="swimlane;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F7FAFC;strokeColor=#3182CE;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#2B6CB0;collapsible=0;startSize=40;" value="&lt;b&gt;NEURAL SUBSYSTEM (Generative &amp; Semantic Reasoning)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#2B6CB0&quot;&gt;Probabilistic Natural Language Processing &amp; Linguistic Formalization (Zero Physics Calculations)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="210" width="940" x="50" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n1" parent="c_neural" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Natural Language Interpretation&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Ingests unstructured operator requests with variable phrasing, arbitrary syntax, and high-level routing intents.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="205" x="25" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n2" parent="c_neural" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Context Disambiguation via Optical RAG&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Extracts localized &lt;i&gt;k&lt;/i&gt;-hop subtopology &lt;i&gt;G&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt; and binds active ITU-T grid boundaries to scope LLM context.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="205" x="255" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n3" parent="c_neural" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Formal PDDL Translation&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Acts strictly as a semantic compiler translating linguistic intent into typed PDDL goal predicates &lt;i&gt;S&lt;/i&gt;&lt;sub&gt;PDDL&lt;/sub&gt;.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="205" x="485" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n4" parent="c_neural" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Semantic Agreement Judge&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Evaluates reconstructed intent &lt;i&gt;I&lt;/i&gt;&lt;sub&gt;recon&lt;/sub&gt; against original &lt;i&gt;I&lt;/i&gt;&lt;sub&gt;NL&lt;/sub&gt; to compute semantic divergence &lt;i&gt;d&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt;.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="205" x="715" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e_n1_n2" edge="1" parent="c_neural" source="n1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3182CE;strokeWidth=1.3;endArrow=block;endFill=1;" target="n2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_n2_n3" edge="1" parent="c_neural" source="n2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3182CE;strokeWidth=1.3;endArrow=block;endFill=1;" target="n3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_n3_n4" edge="1" parent="c_neural" source="n3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3182CE;strokeWidth=1.3;endArrow=block;endFill=1;" target="n4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="if_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=8;fillColor=#FAF5FF;strokeColor=#805AD5;strokeWidth=1.8;fontFamily=Georgia, Times New Roman, serif;fontSize=12.5;fontColor=#553C9A;align=center;verticalAlign=middle;" value="&lt;b&gt;FORMAL NEUROSYMBOLIC BOUNDARY CONTRACT&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#553C9A&quot;&gt;Strict Type Hierarchy &amp; Predicates (avoid-node, avoid-link, min-gsnr, max-hops)&lt;br&gt;Context-Free Grammar (CFG) Structural AST Audit: &lt;i&gt;v&lt;/i&gt;&lt;sub&gt;struct&lt;/sub&gt; ∈ {0, 1}&lt;/font&gt;" vertex="1">
+          <mxGeometry height="65" width="760" x="140" y="275" as="geometry" />
+        </mxCell>
+        <mxCell id="e_n_to_if" edge="1" parent="1" source="c_neural" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#805AD5;strokeWidth=1.6;endArrow=block;endFill=1;" target="if_box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c_symb" parent="1" style="swimlane;whiteSpace=wrap;html=1;arcSize=6;fillColor=#F7FAFC;strokeColor=#319795;strokeWidth=1.6;fontFamily=Georgia, Times New Roman, serif;fontSize=13;fontColor=#234E52;collapsible=0;startSize=45;" value="&lt;b&gt;SYMBOLIC SUBSYSTEM (Deterministic Solvers &amp; Physical Simulation)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#234E52&quot;&gt;Topological Pruning, Combinatorial Path Search &amp; Analytical Coherent GN-Model Physics (Zero Hallucination)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="210" width="940" x="50" y="365" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" parent="c_symb" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Topological Graph Pruning&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Filters &lt;i&gt;G&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt; by eliminating vertices and links designated by avoid-predicates: &lt;i&gt;G̃&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt; = (&lt;i&gt;Ṽ&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt;, &lt;i&gt;Ẽ&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt;).&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="205" x="25" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" parent="c_symb" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Yen&#39;s K-Shortest Paths&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Computes loopless candidate lightpaths over &lt;i&gt;G̃&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt;, enforcing max-hop cardinality bounds |&lt;i&gt;π&lt;/i&gt;| ≤ &lt;i&gt;h&lt;/i&gt;&lt;sub&gt;max&lt;/sub&gt;.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="205" x="255" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" parent="c_symb" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Coherent GN-Model Engine&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Calculates span ASE noise accumulation, Kerr Non-Linear Interference (NLI), GSNR, and received power &lt;i&gt;P&lt;/i&gt;&lt;sub&gt;rx&lt;/sub&gt;.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="205" x="485" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" parent="c_symb" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Risk-Adaptive Decision Gate&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Evaluates &lt;i&gt;D&lt;/i&gt;(&lt;i&gt;U&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt;, QoT&lt;sub&gt;valid&lt;/sub&gt;) to trigger autonomous auto-approval, physical replan, or early clarify.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="205" x="715" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s1_s2" edge="1" parent="c_symb" source="s1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#319795;strokeWidth=1.3;endArrow=block;endFill=1;" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_s3" edge="1" parent="c_symb" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#319795;strokeWidth=1.3;endArrow=block;endFill=1;" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s3_s4" edge="1" parent="c_symb" source="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#319795;strokeWidth=1.3;endArrow=block;endFill=1;" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_if_to_s" edge="1" parent="1" source="if_box" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#319795;strokeWidth=1.6;endArrow=block;endFill=1;" target="c_symb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

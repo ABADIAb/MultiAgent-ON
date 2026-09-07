@@ -17,7 +17,7 @@ Unlike reactive paradigms—which execute unverified configurations and rely on 
 
 By decoupling and ordering these validation checks sequentially, the architecture implements a **fail-fast operational hierarchy**: computationally cheap semantic verification is executed early to catch misunderstandings and missing parameters before invoking non-linear physical simulations or path-finding algorithms.
 <!-- FIGURE_PLACEHOLDER: conceptual_framework -->
-> **Figure: Conceptual Framework & 7-Phase Orchestration Pipeline** (`figs/pdf/conceptual_framework.pdf`)
+> **Figure: Conceptual Framework & 7-Phase Orchestration Pipeline** (`figs_SystemModel/pdf/conceptual_framework.pdf`)
 > End-to-end architecture of the Risk-Adaptive Neurosymbolic Intent Orchestrator, illustrating the two-gate validation hierarchy: Gate 1 (Semantic Uncertainty Gate $U_{sem} \le \tau_{sem}$) preventing semantic drift, and Gate 2 (Physical Risk Gate $\text{QoT}_{valid} = 1$) ensuring deterministic optical transmission feasibility prior to provisioning.
 
 ---
