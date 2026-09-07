@@ -70,6 +70,23 @@ class TestCreateKimiLLM:
         assert isinstance(llm.openai_api_key, SecretStr)
         assert llm.openai_api_key.get_secret_value() == "my-secret-key"
 
+    def test_create_kimi_llm_default_temperature(self):
+        """Default temperature is 1.0 when thinking is enabled, 0.6 when disabled."""
+        from src.core.llm import create_kimi_llm
+
+        llm_default = create_kimi_llm(api_key="test-key", base_url="https://test.example.com")
+        assert llm_default.temperature == 1.0
+
+        llm_disabled = create_kimi_llm(
+            api_key="test-key", base_url="https://test.example.com", thinking_disabled=True
+        )
+        assert llm_disabled.temperature == 0.6
+
+        llm_custom = create_kimi_llm(
+            api_key="test-key", base_url="https://test.example.com", temperature=0.7
+        )
+        assert llm_custom.temperature == 0.7
+
     def test_create_kimi_llm_default_model(self, monkeypatch):
         """Default model is kimi-for-coding-highspeed when env var is unset."""
         from src.core.llm import DEFAULT_KIMI_MODEL, create_kimi_llm

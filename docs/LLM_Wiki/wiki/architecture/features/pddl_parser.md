@@ -29,7 +29,8 @@ The system uses a simplified PDDL problem domain for optical routing:
   (:goal
     (and
       (route <source> <target>)
-      (min-gsnr <value>)      ; optional
+      (min-gsnr <value>)       ; optional
+      (avoid-node <node>)      ; optional
       (avoid-link <src> <dst>) ; optional
       (max-hops <n>)           ; optional
     )
@@ -41,7 +42,7 @@ The system uses a simplified PDDL problem domain for optical routing:
 1. Reads `enriched_intent` (which contains the dynamically injected `Topology Context:` from Phase 1 Optical RAG) from state. If `error_context` exists (refinement loop), appends operator feedback to the prompt.
 2. Calls Kimi LLM with `PDDL_SYSTEM_PROMPT` — instructs the model to use the topology provided dynamically in `enriched_intent` and output ONLY PDDL, no markdown.
 3. Strips markdown code fences if the LLM wraps the output (common LLM behavior).
-4. Validates via `validate_pddl_syntax()` — checks: balanced parentheses, `(define ...)` wrapper, and presence of `:domain`, `:objects`, `:init`, `:goal` sections.
+4. Validates via `validate_pddl_syntax()` — performs S-expression tokenization and AST parsing: checks balanced parentheses, `(define ...)` wrapper, presence of `:domain`, `:objects`, `:init`, `:goal` sections, and goal predicate production rules (arities and numeric types).
 5. Returns `pddl_valid=True/False` and `error_context` with any CFG error messages.
 
 ### Refinement Loop Support
@@ -49,12 +50,12 @@ When the Reverse Prompt node returns `action="refine"`, the operator's feedback 
 
 ## 5. CFG Validator Details (`src/core/pddl_validator.py`)
 - **Layer 1 (Structural)**: Feeds into $U_{sem}$ Layer 1 check
-- Checks performed:
-  1. Non-empty string
-  2. Balanced parentheses
-  3. `(define (problem <name>)...)` wrapper
-  4. All required sections: `:domain`, `:objects`, `:init`, `:goal`
-- Design: permissive on unknown sections (`:constraints`, `:metric`) for domain extensibility
+- Checks performed via AST tokenization:
+  1. Non-empty string and balanced parentheses depth
+  2. `(define (problem <name>)...)` outer wrapper
+  3. All required sections: `:domain`, `:objects`, `:init`, `:goal`
+  4. Predicate grammar rules: `(route <src> <dst>)`, `(avoid-node <node>)`, `(avoid-link ...)`, `(max-hops <int>)`, `(min-gsnr <num>)`
+- Design: permissive on unknown optional sections (`:constraints`, `:metric`) for domain extensibility
 
 ## 6. How to Test
 ```bash

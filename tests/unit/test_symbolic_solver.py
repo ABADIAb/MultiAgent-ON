@@ -467,3 +467,79 @@ class TestPDDLConstraintParsingVariations:
         assert _resolve_node_id(graph, "node_7") == "node_7"
         assert _resolve_node_id(graph, "NODE_16") == "node_16"
 
+    def test_parse_avoid_node_predicate(self) -> None:
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = "(:goal (and (route Berlin Munich) (avoid-node Hannover)))"
+        c = _parse_pddl_constraints(pddl)
+        assert c["source"] == "Berlin"
+        assert c["destination"] == "Munich"
+        assert c["avoid_nodes"] == ["Hannover"]
+
+    def test_parse_avoid_nodes_multiple(self) -> None:
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = "(:goal (and (route Berlin Munich) (avoid-nodes Hannover Kassel Leipzig)))"
+        c = _parse_pddl_constraints(pddl)
+        assert c["avoid_nodes"] == ["Hannover", "Kassel", "Leipzig"]
+
+
+class TestAvoidNodeConstraintFiltering:
+    """Test avoid-node path filtering and pruning behavior."""
+
+    def test_avoid_intermediate_node_in_mesh(self, mesh_topology: TopologySnapshot) -> None:
+        from src.core.symbolic_solver import symbolic_solver_node
+
+        # Mesh topology: Node-A to Node-C via Node-B (l1, l2: 40km) or directly (l3: 50km)
+        pddl = """
+        (define (problem avoid-node-mesh)
+          (:domain optical-network)
+          (:objects Node-A Node-B Node-C - node)
+          (:init (connected Node-A Node-B) (connected Node-B Node-C) (connected Node-A Node-C))
+          (:goal (and (route Node-A Node-C) (avoid-node Node-B)))
+        )
+        """
+        state = _make_state(mesh_topology, pddl)
+        result = symbolic_solver_node(state)
+
+        paths = result["candidate_paths"]
+        assert len(paths) == 1
+        assert paths[0]["nodes"] == ["Node-A", "Node-C"]
+        assert paths[0]["links"] == ["l3"]
+
+    def test_avoid_intermediate_node_in_linear_returns_empty(self, linear_topology: TopologySnapshot) -> None:
+        from src.core.symbolic_solver import symbolic_solver_node
+
+        # Linear topology A-B-C-D: avoiding Node-B leaves no viable route from A to D
+        pddl = """
+        (define (problem avoid-node-linear)
+          (:domain optical-network)
+          (:objects Node-A Node-B Node-C Node-D - node)
+          (:init (connected Node-A Node-B) (connected Node-B Node-C) (connected Node-C Node-D))
+          (:goal (and (route Node-A Node-D) (avoid-node Node-B)))
+        )
+        """
+        state = _make_state(linear_topology, pddl)
+        result = symbolic_solver_node(state)
+
+        assert result["candidate_paths"] == []
+        assert "no physical path found" in result["messages"][0].content
+
+    def test_avoid_endpoint_node_returns_error(self, mesh_topology: TopologySnapshot) -> None:
+        from src.core.symbolic_solver import symbolic_solver_node
+
+        pddl = """
+        (define (problem avoid-endpoint)
+          (:domain optical-network)
+          (:objects Node-A Node-B Node-C - node)
+          (:init (connected Node-A Node-C))
+          (:goal (and (route Node-A Node-C) (avoid-node Node-A)))
+        )
+        """
+        state = _make_state(mesh_topology, pddl)
+        result = symbolic_solver_node(state)
+
+        assert result["candidate_paths"] == []
+        assert "avoid-node constraints" in result["messages"][0].content
+
+

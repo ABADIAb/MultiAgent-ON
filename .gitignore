@@ -38,3 +38,7 @@ htmlcov/
 .agents/
 .atl/
 docs/LLM_Wiki/raw/
+
+# Draw.io temporary lock & backup files
+.\$*.drawio*
+*.drawio.bkp

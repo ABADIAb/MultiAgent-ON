@@ -1,0 +1,113 @@
+<mxfile host="Electron" agent="5.0">
+  <diagram id="fig_3_5" name="Figure 3.5 - Formal HITL Sequence">
+    <mxGraphModel dx="1030" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="act_op" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EBF8FF;strokeColor=#3182CE;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Human Operator&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#2B6CB0&quot;&gt;Network Engineer&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="60" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="line_op" edge="1" parent="1" source="act_op" style="edgeStyle=none;html=1;dashed=1;strokeColor=#CBD5E0;strokeWidth=1.5;endArrow=none;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="140" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="act_orch" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDFDFD;strokeColor=#319795;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Orchestrator Graph&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#234E52&quot;&gt;LangGraph State Machine&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="310" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="line_orch" edge="1" parent="1" source="act_orch" style="edgeStyle=none;html=1;dashed=1;strokeColor=#CBD5E0;strokeWidth=1.5;endArrow=none;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="act_llm" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FAF5FF;strokeColor=#805AD5;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;LLM Engine&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#553C9A&quot;&gt;Semantic Compiler &amp;amp; Judge&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="580" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="line_llm" edge="1" parent="1" source="act_llm" style="edgeStyle=none;html=1;dashed=1;strokeColor=#CBD5E0;strokeWidth=1.5;endArrow=none;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="670" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="act_check" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FEFCBF;strokeColor=#D69E2E;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=12.5;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;State Checkpointer&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#744210&quot;&gt;Persistent Storage&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="840" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="line_check" edge="1" parent="1" source="act_check" style="edgeStyle=none;html=1;dashed=1;strokeColor=#CBD5E0;strokeWidth=1.5;endArrow=none;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="920" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#2B6CB0;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#2B6CB0;labelBackgroundColor=#FFFFFF;" value="1. Submit Intent &lt;i&gt;I&lt;/i&gt;&lt;sub&gt;NL&lt;/sub&gt; (&quot;Route Hamburg to Leipzig...&quot;)">
+          <mxGeometry as="geometry">
+            <mxPoint y="-10" as="offset" />
+            <mxPoint x="140" y="130" as="sourcePoint" />
+            <mxPoint x="400" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#2D3748;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#2D3748;labelBackgroundColor=#FFFFFF;" value="2. Forward Translation Prompt (&lt;i&gt;I&lt;/i&gt;&lt;sub&gt;NL&lt;/sub&gt;, &lt;i&gt;G&lt;/i&gt;&lt;sub&gt;sub&lt;/sub&gt;)">
+          <mxGeometry x="400" y="165" as="geometry">
+            <mxPoint x="400" y="165" as="sourcePoint" />
+            <mxPoint x="670" y="165" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;strokeColor=#4A5568;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#4A5568;labelBackgroundColor=#FFFFFF;" value="3. Returns &lt;i&gt;S&lt;/i&gt;&lt;sub&gt;PDDL&lt;/sub&gt; (AST Audit &lt;i&gt;v&lt;/i&gt;&lt;sub&gt;struct&lt;/sub&gt; = 1)">
+          <mxGeometry x="670" y="210" as="geometry">
+            <mxPoint x="670" y="210" as="sourcePoint" />
+            <mxPoint x="400" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#805AD5;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#805AD5;labelBackgroundColor=#FFFFFF;" value="4. Reverse Reconstruction Query (&lt;i&gt;S&lt;/i&gt;&lt;sub&gt;PDDL&lt;/sub&gt;) [0 interrupts]">
+          <mxGeometry as="geometry">
+            <mxPoint x="-5" y="-5" as="offset" />
+            <mxPoint x="400" y="255" as="sourcePoint" />
+            <mxPoint x="670" y="255" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;strokeColor=#805AD5;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#805AD5;labelBackgroundColor=#FFFFFF;" value="5. Returns &lt;i&gt;I&lt;/i&gt;&lt;sub&gt;recon&lt;/sub&gt; + Computes Divergence &lt;i&gt;d&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt;">
+          <mxGeometry x="670" y="300" as="geometry">
+            <mxPoint x="670" y="300" as="sourcePoint" />
+            <mxPoint x="400" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="note_gate" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#FEEBC8;strokeColor=#DD6B20;strokeWidth=1.3;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#1A202C;align=center;verticalAlign=middle;" value="&lt;b&gt;Semantic Gate Evaluation:&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#7B341E&quot;&gt;&lt;i&gt;d&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; = 0.42 &gt; &lt;i&gt;τ&lt;/i&gt;&lt;sub&gt;sem&lt;/sub&gt; (0.30)&lt;br&gt;Trigger LangGraph interrupt()&lt;/font&gt;" vertex="1">
+          <mxGeometry height="50" width="260" x="270" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="m6" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#B7791F;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#744210;labelBackgroundColor=#FFFFFF;" value="6. Atomic State Serialization: &lt;i&gt;S&lt;/i&gt;&lt;sub&gt;state&lt;/sub&gt; (Thread ID Checkpoint)">
+          <mxGeometry x="400" y="415" as="geometry">
+            <mxPoint x="400" y="415" as="sourcePoint" />
+            <mxPoint x="920" y="415" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#DD6B20;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#7B341E;labelBackgroundColor=#FFFFFF;" value="7. Present &lt;i&gt;I&lt;/i&gt;&lt;sub&gt;recon&lt;/sub&gt; &amp;amp; Request Explicit Clarification">
+          <mxGeometry x="400" y="465" as="geometry">
+            <mxPoint x="400" y="465" as="sourcePoint" />
+            <mxPoint x="140" y="465" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="note_pause" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;fillColor=#EDF2F7;strokeColor=#A0AEC0;strokeWidth=1.2;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#2D3748;align=center;verticalAlign=middle;" value="&lt;b&gt;Execution Suspended (Zero Token Consumption)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10.5px;&quot; color=&quot;#4A5568&quot;&gt;Compute threads released; operator reviews NL reconstruction&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="220" x="40" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="m8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#276749;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#22543D;labelBackgroundColor=#FFFFFF;" value="8. Inject Feedback &lt;i&gt;F&lt;/i&gt; (&quot;Relax max hops to 4, keep Hannover excluded&quot;)">
+          <mxGeometry as="geometry">
+            <mxPoint y="-10" as="offset" />
+            <mxPoint x="140" y="590" as="sourcePoint" />
+            <mxPoint x="400" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#276749;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#22543D;labelBackgroundColor=#FFFFFF;" value="9. Resume Execution: Reload Checkpoint &amp;amp; Inject Feedback into error_context">
+          <mxGeometry as="geometry">
+            <mxPoint x="10" y="-5" as="offset" />
+            <mxPoint x="400" y="625" as="sourcePoint" />
+            <mxPoint x="920" y="625" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;strokeColor=#276749;strokeWidth=1.4;fontFamily=Georgia, Times New Roman, serif;fontSize=11;fontColor=#22543D;labelBackgroundColor=#FFFFFF;" value="10. Monotonic Update &lt;i&gt;C&lt;/i&gt;&lt;sub&gt;&lt;i&gt;k&lt;/i&gt;+1&lt;/sub&gt; &amp;amp; Reparse PDDL (Finite Convergence &lt;i&gt;N&lt;/i&gt;&lt;sub&gt;max&lt;/sub&gt; = 3)">
+          <mxGeometry as="geometry">
+            <mxPoint x="5" y="-10" as="offset" />
+            <mxPoint x="400" y="680" as="sourcePoint" />
+            <mxPoint x="670" y="680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

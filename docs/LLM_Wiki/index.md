@@ -40,7 +40,8 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
-- [[weekly_reports/Weekly_Report_20260824_Felipe_Abadia]]: Weekly report August 24, 2026. Nobel-Germany 17-node topology migration, EDFA physical calibration, BUG-006 solver parsing fix, and test suite expansion.
+- [[weekly_reports/Weekly_Report_20260908_Felipe_Abadia]]: Weekly report September 08, 2026. Thesis Chapter 3 figures restructuring, Draw.io XML authoring, vector/raster batch export, Overleaf LaTeX consolidation, custom academicbox/formalbox environments, float barriers, and margin overflow normalization.
+- [[weekly_reports/Weekly_Report_20260901_Felipe_Abadia]]: Weekly report September 01, 2026. Thesis Chapter 3 drafting & refinement (Sections 3.1–3.3), Reverse Prompting decoupling, full CFG AST PDDL parser, symbolic solver node exclusion (`avoid-node`), and 268 passing tests.
 - [[weekly_reports/Weekly_Report_20260811_Felipe_Abadia]]: Weekly report August 11, 2026. Sprint 3 completion, RADG integration, QoT physics, and Architecture V5 wiring.
 - [[weekly_reports/Weekly_Report_20260803_Felipe_Abadia]]: Weekly report August 03, 2026. RESTConf Testbed integration, Symbolic Solver, Codebase Reorganization, and Feature Documentation Hub.
 
@@ -65,6 +66,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
+- [[issues/Issue_Report_20260906_Felipe_Abadia]]: Solved Draw.io temporary lock/backup files cluttering workspace via permanent .gitignore rules; 0 pending issues.
 - [[issues/Issue_Report_20260824_Felipe_Abadia]]: Solved 3-node numerical evaluation limitation via Nobel-Germany 17-node topology; solved multi-hop power accumulation; solved BUG-006 solver endpoint parsing; pending testbed link provisioning; in progress Sprint 4 test corpus.
 - [[issues/Issue_Report_20260811_Felipe_Abadia]]: Sprint 3 blockers resolved (RADG, Pipeline); Pending unprovisioned testbed connections.
 - [[issues/Issue_Report_20260803_Felipe_Abadia]]: Solved RESTConf hook & codebase reorganization; pending physical link provisioning and LangGraph V5 RADG wiring.
@@ -79,6 +81,7 @@ Content-oriented catalog of everything in the wiki.
 - [[Issue_Report_20260430_Felipe_Abadia]]: Solved repo structure confusion; pending LangGraph prototyping and QoT tool.
 
 ## Presentations
+- [[presentations/presentation_chapter_3_system_model_figures]]: Advisor slide deck for Thesis Chapter 3 System Model, 7-phase architecture, two-gate fail-fast model, and complete 7-figure visual suite walkthrough.
 - [[presentations/Presentation_Proposal_20260729]]: Proposal deck on Testbed Integration, Symbolic Solver, and physical parameter questions.
 
 - [[presentations/Presentation_20260706_Neurosymbolic_MVP]]: Slide deck proposing the Neurosymbolic Intent Orchestration MVP roadmap.
@@ -110,6 +113,7 @@ Content-oriented catalog of everything in the wiki.
 - [[experiments/bugs/bug005_Schema_Duplication]]: BUG-005 — Schema unification between state.py and models.py.
 - [[experiments/bugs/bug006_Source_Target_Loss]]: BUG-006 — Source and Target endpoint parsing in Symbolic Solver.
 - [[experiments/bugs/bug007_Semantic_Gate_Refinement_Loop]]: BUG-007 — Semantic Gate refinement loopback infinite cycle and routing fix.
+- [[experiments/bugs/bug008_Inadmissible_HITL_Approval_on_Gate_Failure]]: BUG-008 — Inadmissible operator approval on Semantic Gate clarification failure in Phase 3b interrupt.
 
 ### Archived Experiment Documents
 - [[experiments/archive/Proposal_Orchestrator_Integration]]: (archived) Formal proposal for modernizing the ECOC 2024 orchestrator. Superseded by Architecture_v2.
@@ -118,11 +122,25 @@ Content-oriented catalog of everything in the wiki.
 
 
 ## Thesis Drafts
-- [[thesis_drafts/Writing_Roadmap_v1]]: Roadmap de escritura y estrategia de uso de NotebookLM/Antigravity.
+- [[thesis_drafts/Drafting_Backlog]]: Backlog of pending clarifications and assumptions to include in unwritten chapters.
+- [[thesis_drafts/Writing_Roadmap_v1]]: Writing roadmap and strategy for using NotebookLM/Antigravity.
 - [[thesis_drafts/Thesis_Outline_v4]]: Active V4 draft with problem formalization and mapped citations based on NotebookLM structural recommendations.
+- [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition]]: Chapter 3 Section 3.1 — Formal Problem Definition, architectural vulnerabilities, physical parameters, and optimization objective.
+- [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework]]: Chapter 3 Section 3.2 — Conceptual Framework, 7-phase fail-fast pipeline, and complexity bounds.
+- [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]: Chapter 3 Section 3.3 — Strict Neurosymbolic Separation, CFG validator, and token context bounds.
+- [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gate (RADG) decision function and GN model physics integration.
+- [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]]: Chapter 3 Section 3.5 — Formal HITL Reverse Prompting, Reverse Translation Invariance, divergence metric alignment, state preservation, and convergence proofs.
+- [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
+- [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
+
 ## Session Summaries
+- [[session_summary/session_20260906_Thesis_Chapter3_Figures_and_LaTeX_Consolidation]]: Publication-ready restructuring of Chapter 3 figures, Draw.io vector exports, Overleaf LaTeX source (`chapter_3_system_model.txt`), academicbox listings, formalbox specifications, float barrier controls, and margin overflow normalization.
+- [[session_summary/session_20260905_Thesis_Section_3_5_HITL_Refinement_and_Bugfix]]: Mathematical refinement of Chapter 3 Section 3.5 (HITL Reverse Prompting), cross-section alignment of semantic divergence $d_{sem}$, resolution of BUG-008, Chapter 3 LaTeX Overleaf export (`chapter_3_system_model.txt`), vector figures and Draw.io XML workflow with HTML math subscripts, and unified `thesis-coauthor` skill authoring.
+- [[session_summary/session_20260904_Thesis_Section_3_4_RADG_Refinement]]: Mathematical refinement of Chapter 3 Section 3.4 (RADG), GN model GSNR accumulation equations, and formalization of theoretical vs. pipeline execution decoupling across Phase 3 and Phase 6.
+- [[session_summary/session_20260903_Architecture_Refactoring_CFG_Validation_and_Chapter3_Refinement]]: Decoupling Reverse Prompting & conditional HITL, full S-expression CFG AST PDDL validator, symbolic solver node exclusion (avoid-node), Kimi API dynamic parameters, and Thesis Chapter 3 (Sections 3.2 & 3.3) formal refinement.
+- [[session_summary/session_20260826_Thesis_Chapter3_Drafting_and_Formal_Problem_Definition]]: Thesis Chapter 3 kick-off, drafting Sections 3.1-3.5, rigorous validation of Section 3.1 math vs codebase, and engineering assumptions formalization.
 - [[session_summary/session_20260821_QA_Pipeline_Verification_and_Bug007]]: Comprehensive QA flow validation across all 7 execution paths, BUG-007 resolution, avoid-link quote parsing fix, and test suite expansion to 255 tests.
 - [[session_summary/session_20260820_Kimi_LLM_Optimization_and_Benchmarking]]: Diagnostic of Kimi LLM latency bottleneck (~189s to 2-4s), factory upgrade with reasoning controls (think_effort, thinking_disabled), and multi-model benchmark suite.
 - [[session_summary/session_20260819_Bug006_Source_Target_Loss_and_Bug_Registry]]: Diagnostic and resolution of BUG-006 (symbolic solver source/target loss), Bug Registry modularization, and bug-debugger skill creation.

@@ -88,32 +88,23 @@ def semantic_gate_node(state: AgentState) -> dict:
         state: AgentState with pddl_valid, enriched_intent, hitl_reconstruction.
 
     Returns:
-        Partial state update with usem_score, usem_passed, and a summary message.
+        Partial state update with usem_score, usem_passed, error_context, and summary message.
     """
     v_struct: bool = state.get("pddl_valid") or False
     intent: str = state.get("enriched_intent") or ""
     reconstruction: str = state.get("hitl_reconstruction") or ""
-
-    hitl_approved: bool | None = state.get("hitl_approved")
 
     # Layer 2: only meaningful if Layer 1 passed and we have a reconstruction
     if v_struct and reconstruction:
         d_sem = _score_semantic_agreement(intent, reconstruction)
     elif not v_struct:
         # Structural failure — Layer 1 already sets U_sem = 1
-        d_sem = 0.0  # irrelevant; compute_usem will return 1.0
+        d_sem = 0.0  # compute_usem will return 1.0
     else:
-        # No reconstruction yet (first pass before reverse_prompt)
-        # Treat as low divergence — the reverse_prompt node will clarify
         d_sem = 0.0
 
     usem = compute_usem(v_struct=v_struct, d_sem=d_sem)
     passed = evaluate_semantic_gate(usem=usem, tau_sem=DEFAULT_TAU_SEM)
-
-    # If operator explicitly requested refinement, enforce gate failure
-    if hitl_approved is False:
-        passed = False
-        usem = max(usem, 1.0)
 
     gate_result = "PASS" if passed else "FAIL (clarify)"
     summary = (
@@ -123,9 +114,17 @@ def semantic_gate_node(state: AgentState) -> dict:
     )
     logger.info(summary)
 
+    err_ctx = state.get("error_context")
+    if not passed and not err_ctx:
+        if not v_struct:
+            err_ctx = "PDDL Context-Free Grammar (CFG) structural validation failed."
+        else:
+            err_ctx = f"High semantic divergence (d_sem={d_sem:.2f} > tau={DEFAULT_TAU_SEM})."
+
     return {
         "usem_score": usem,
         "usem_passed": passed,
+        "error_context": err_ctx if not passed else None,
         "messages": [AIMessage(content=summary, name="semantic_gate")],
     }
 
@@ -135,9 +134,9 @@ def semantic_gate_route(state: AgentState) -> str:
 
     Returns:
         - ``"symbolic_solver"`` if U_sem <= tau_sem (gate passes).
-        - ``"pddl_parser"`` if U_sem > tau_sem (clarify via refinement loop).
+        - ``"hitl_clarify"`` if U_sem > tau_sem (clarify via Phase 3b HITL loop).
     """
     if state.get("usem_passed"):
         return "symbolic_solver"
-    return "pddl_parser"
+    return "hitl_clarify"
 

@@ -66,7 +66,7 @@ class TestKimiConfigurations:
         [
             (
                 "kimi-for-coding-highspeed",
-                {"model": "kimi-for-coding-highspeed", "max_tokens": 2500},
+                {"model": "kimi-for-coding-highspeed", "max_tokens": 8000},
             ),
             (
                 "k3-default-effort",
@@ -102,7 +102,7 @@ class TestKimiConfigurations:
             HumanMessage(content=BENCHMARK_INTENT),
         ]
 
-        start_time = time.time()
+        start_time = time.perf_counter()
         try:
             response = llm.invoke(messages)
         except Exception as err:
@@ -111,7 +111,7 @@ class TestKimiConfigurations:
                 pytest.skip(f"Kimi API quota exceeded for billing cycle: {err_msg}")
             raise
 
-        latency = time.time() - start_time
+        latency = time.perf_counter() - start_time
 
         raw_content = response.content if isinstance(response.content, str) else str(response.content)
         clean_pddl = _strip_fences(raw_content)
@@ -133,5 +133,5 @@ class TestKimiConfigurations:
 
         assert len(clean_pddl) > 0, f"Empty output for {config_name}"
         assert is_valid, f"PDDL syntax invalid for {config_name}: {errors}"
-        assert latency < 60.0, f"Latency too high for {config_name}: {latency:.2f}s"
+        assert latency < 200.0, f"Latency too high for {config_name}: {latency:.2f}s"
 

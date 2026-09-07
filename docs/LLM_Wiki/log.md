@@ -374,7 +374,52 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Bug Resolution: Diagnosed, documented, and resolved BUG-007 (Semantic Gate routing loopback bypassed `pddl_parser` on refinement feedback) and fixed quote stripping in avoid-link constraint matching.
 - Testing & Verification: Full test suite expanded to 255 tests passing with 100% success (`uv run pytest`).
 
+## [2026-08-26] debrief | Chapter 3 System Model Drafting & Formal Problem Formulation
+- Wiki Deep Lint: Audited all newly created Chapter 3 draft files (`3_1_Formal_Problem_Definition.md` through `3_5_Formal_HITL_Reverse_Prompting.md`), `Writing_Roadmap_v1.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, and `session_20260826_Thesis_Chapter3_Drafting_and_Formal_Problem_Definition.md` for YAML frontmatter and `[[wikilinks]]`. Synchronized `index.md`.
+- Consistency Audit: Validated mathematical formulas in Section 3.1.2 against `src/core/` implementation. Formalized Assumption 1 (homogeneous fiber parameters) and Assumption 2 (zero equalization loss, filtered ROADM network). Aligned `ProblemStatement_v5.md` physical validity definition: $\text{QoT}_{valid} = \mathbb{I}(\text{GSNR} \ge \text{GSNR}_{th} \land P_{rx} \ge P_{rx, min})$.
+- Session focus: Formal kick-off of Master's thesis drafting (Chapter 3: System Model & Architecture). Validated mathematical problem formulation, resource bounds ($T_{max}$, $t_{exec}$, $K$-shortest paths), and composite objective function.
+- Testing & Verification: 255 unit tests passing with 100% success (`uv run pytest`).
 
+## [2026-09-03] debrief2 | Architecture Refactoring, CFG Validation & Chapter 3 Refinement
+- Wiki Deep Lint: Audited and verified `Weekly_Report_20260901_Felipe_Abadia.md`, `session_20260903_Architecture_Refactoring_CFG_Validation_and_Chapter3_Refinement.md`, `Drafting_Backlog.md`, `3_2_Conceptual_Framework.md`, `3_3_Strict_Neurosymbolic_Separation.md`, and all updated feature docs (`pddl_parser.md`, `symbolic_solver.md`, `reverse_prompt.md`, `semantic_gate.md`, `pipeline_graph.md`, `Architecture_v5.md`) for YAML frontmatter and `[[wikilinks]]`. Synchronized `index.md`.
+- Consistency Audit: Verified strict alignment between `src/core/` domain logic and thesis documentation. Confirmed full CFG AST PDDL validation in `pddl_validator.py`, deterministic `avoid-node` topological vertex pruning in `symbolic_solver.py`, decoupled Phase 3a/3b conditional HITL routing in `graph.py` and `reverse_prompt.py`, and dynamic Kimi LLM temperature configuration in `llm.py`.
+- Session focus: Consolidated 4 sessions into a single narrative: refactored Reverse Prompting to eliminate unnecessary human friction on unambiguous intents, implemented full Context-Free Grammar AST validator to block structural hallucinations, added node exclusion pruning to the symbolic solver, and rigorously refined Thesis Chapter 3 Sections 3.2 and 3.3.
+- Testing & Verification: Test suite expanded from 255 to 268 passing unit tests with 100% success (`uv run pytest`).
 
+## [2026-09-04] debrief2 | Thesis Section 3.4 RADG Mathematical Refinement
+- Wiki Deep Lint: Audited and verified `session_20260904_Thesis_Section_3_4_RADG_Refinement.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, `3_4_Risk_Adaptive_Decision_Gate.md`, and `index.md` for complete YAML frontmatter and `[[wikilinks]]`.
+- Consistency Audit: Verified strict alignment between `src/core/radg.py`, `src/nodes/radg_node.py`, `src/core/qot_calculator.py`, `Architecture_v5.md`, and Chapter 3 Section 3.4. Confirmed that the theoretical piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ is correctly documented as decoupled across Phase 3 (Semantic Gate) and Phase 6 (Physical Risk Gate) to preserve the fail-fast execution paradigm.
+- Session focus: Rigorous review, mathematical formalization, and academic refinement of Thesis Chapter 3 Section 3.4 (The Risk-Adaptive Decision Gate). Standardized GN-model GSNR formulas, verified single-sided receiver power sensitivity constraints, and formatted Figure 3.4 drafting blueprint.
+- Testing & Verification: Test suite remains 100% passing across 268 unit tests (`uv run pytest`).
+
+## [2026-09-05] debrief2 | Thesis Section 3.5 Refinement, Divergence Alignment & BUG-008 Resolution
+- Wiki Deep Lint: Audited and verified `session_20260905_Thesis_Section_3_5_HITL_Refinement_and_Bugfix.md`, `bug008_Inadmissible_HITL_Approval_on_Gate_Failure.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, `3_5_Formal_HITL_Reverse_Prompting.md`, `3_4_Risk_Adaptive_Decision_Gate.md`, and `index.md` for complete YAML frontmatter and `[[wikilinks]]`.
+- Consistency Audit: Verified mathematical alignment across Chapter 3 drafts and `src/core/semantic_gate.py`: standardized on $d_{sem} = \text{Score}_{divergence}$ as direct divergence rather than $1 - \text{Score}_{agreement}$. Audited Phase 3b execution in `src/nodes/reverse_prompt.py` and resolved BUG-008 by disallowing inadmissible operator approval on gate failure.
+- Session focus: Rigorous review, mathematical formalization, and academic refinement of Thesis Chapter 3 Section 3.5 (Formal HITL Reverse Prompting), proving Theorem 3.1 (Finite Convergence). Hardened Phase 3b interrupt payload and synchronized test suite.
+- Testing & Verification: Full test suite remains 100% passing across 268 unit tests (`uv run pytest`).
+
+## [2026-09-05] debrief2 | Chapter 3 LaTeX Consolidation, Figure Automation & Skill Creation
+- Wiki Deep Lint: Audited newly created Chapter 3 artifacts (`chapter_3_system_model.txt`, `figs/README.md`, `session_20260905_Thesis_Section_3_5_HITL_Refinement_and_Bugfix.md`) for complete metadata, wikilinks, and cross-references. Synchronized `index.md`.
+- Consistency Audit: Verified alignment between thesis figure generators (`figs/fig_3_*.py`) and the system model architecture. Validated that vector PDFs are generated with TrueType selectable fonts (`pdf.fonttype = 42`) and visual anti-collision text badges. Weekly reports left untouched per user instruction.
+- Session focus: Consolidated Chapter 3 into Overleaf-ready LaTeX (`chapter_3_system_model.txt`), implemented automated Python vector figure pipeline for all 5 figures in `figs/`, and updated the consolidated session summary.
+- Testing & Verification: Full test suite remains 100% passing across 268 unit tests (`uv run pytest`).
+
+## [2026-09-06] debrief2 | Unified thesis-coauthor Skill & Draw.io XML Workflow Adoption
+- Wiki Deep Lint: Audited and updated `session_20260905_Thesis_Section_3_5_HITL_Refinement_and_Bugfix.md`, `index.md`, and `fig_3_2_conceptual_framework.py` to retire `thesis-figure-designer` and establish `thesis-coauthor` as the single authoritative thesis drafting, consistency, and diagramming skill.
+- Consistency Audit: Verified alignment of the visual artifact strategy: architectural pipelines and state machines generate direct Draw.io XML (`.drawio`) with native HTML math subscripts (`<i>S</i><sub>PDDL</sub>`, `<i>U</i><sub>sem</sub>`, `<i>τ</i><sub>sem</sub>`) for interactive editing, while numerical simulation curves use Python matplotlib scripts (`figs/fig_3_*.py`). Confirmed weekly reports left untouched per user instruction.
+- Session focus: Refined session summary, consolidated skill instructions into `thesis-coauthor`, verified Draw.io XML compatibility and math rendering, and updated knowledge base index.
+- Testing & Verification: Full test suite verified and passing across 268 unit tests (`uv run pytest`).
+
+## [2026-09-06] debrief2 | Chapter 3 Figures Overhaul, Visual Pathways & LaTeX Consolidation
+- Wiki Deep Lint: Audited and verified all newly created and modified files (`session_20260906_Thesis_Chapter3_Figures_and_LaTeX_Consolidation.md`, `Weekly_Report_20260908_Felipe_Abadia.md`, `Issue_Report_20260906_Felipe_Abadia.md`, `presentation_chapter_3_system_model_figures.md`, `figs/README.md`, and all section drafts) for complete YAML frontmatter and `[[wikilinks]]`. Synchronized `index.md`.
+- Consistency Audit: Verified alignment across all 7 Chapter 3 figures, section drafts, and LaTeX consolidation (`chapter_3_system_model.txt`). Ensured complete elimination of ASCII plain-text diagrams and 1:1 correspondence between LaTeX labels (`Figure~\ref{fig:...}`) and figure filenames. Hardened `.gitignore` against Draw.io temporary lock/backup files.
+- Session focus: Overhauled Chapter 3 visual hierarchy (`figs/src/`, `figs/pdf/`, `figs/png/`), authored missing Draw.io models for Section 3.3 (subsystems) and Section 3.5 (reverse prompting loop), established semantic naming standard, batch-exported 7 vector PDFs and 300 DPI PNGs via Draw.io CLI, purged all plain-text diagrams, rebuilt Overleaf LaTeX compilation, and created weekly/issue/presentation reports.
+- Testing & Verification: Full test suite remains 100% passing across 268 unit tests (`uv run pytest`).
+
+## [2026-09-07] debrief2 | Thesis Chapter 3 Overleaf Typography, Boxes & Margin Normalization
+- Wiki Deep Lint: Audited and verified `Weekly_Report_20260908_Felipe_Abadia.md`, `session_20260906_Thesis_Chapter3_Figures_and_LaTeX_Consolidation.md`, `chapter_3_system_model.txt`, `3_3_Strict_Neurosymbolic_Separation.md`, and `figs_SystemModel/README.md` for complete YAML frontmatter and `[[wikilinks]]`. Synchronized `index.md`.
+- Consistency Audit: Verified alignment between thesis Overleaf layout configurations and drafting files. Replaced unstyled raw `verbatim` blocks with formal `academicbox` (`tcolorbox`) listings (Listings 3.1–3.4), wrapped CFG rules into `formalbox` (Formal Specification 3.1), fixed figure float queuing with `placeins` (`\FloatBarrier`), and eliminated margin overflows (`overfull \hbox`) across $V_N/\Sigma$ equations and Table 3.2 (RADG Operational Decision Matrix). Standardized Overleaf conventions in `.agents/skills/thesis-coauthor/references/overleaf-standards.md`.
+- Session focus: Solved Overleaf visual compilation defects (verbatim rendering, floating figures drifting into listings, math/table margin overflow), centralized styling in `config.tex`, and updated weekly reports and session records.
+- Testing & Verification: Full test suite remains 100% passing across 268 unit tests (`uv run pytest tests/ -q`).
 
 

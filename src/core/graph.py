@@ -28,7 +28,7 @@ from src.nodes.pddl_parser import pddl_parser_node
 from src.nodes.plan_synthesizer import plan_synthesizer_node
 from src.nodes.qot_validation import qot_validation_node
 from src.nodes.radg_node import radg_node, radg_route
-from src.nodes.reverse_prompt import reverse_prompt_node
+from src.nodes.reverse_prompt import hitl_clarify_node, reverse_prompt_node
 from src.nodes.semantic_gate_node import semantic_gate_node, semantic_gate_route
 
 
@@ -43,7 +43,7 @@ def build_graph() -> StateGraph:
           → (pass)    → symbolic_solver → qot_validation → radg
               → (approve) → plan_synthesizer → END
               → (replan)  → pddl_parser (HITL loop via interrupt in radg_node)
-          → (clarify) → pddl_parser (U_sem / refinement feedback loop)
+          → (clarify) → hitl_clarify (HITL interrupt in Phase 3b) → pddl_parser
     """
     builder = StateGraph(AgentState)  # type: ignore
 
@@ -54,27 +54,28 @@ def build_graph() -> StateGraph:
     builder.add_node("pddl_parser", pddl_parser_node)
     builder.add_node("reverse_prompt", reverse_prompt_node)
     builder.add_node("semantic_gate", semantic_gate_node)
+    builder.add_node("hitl_clarify", hitl_clarify_node)
     builder.add_node("symbolic_solver", symbolic_solver_node)
     builder.add_node("qot_validation", qot_validation_node)
     builder.add_node("radg", radg_node)
     builder.add_node("plan_synthesizer", plan_synthesizer_node)
 
     # -----------------------------------------------------------------------
-    # Linear pipeline: START → NL parsing → HITL reconstruction
+    # Linear pipeline: START → NL parsing → automated Reverse Prompt reconstruction
     # -----------------------------------------------------------------------
     builder.add_edge(START, "intent_ingest")
     builder.add_edge("intent_ingest", "pddl_parser")
     builder.add_edge("pddl_parser", "reverse_prompt")
+    builder.add_edge("reverse_prompt", "semantic_gate")
 
     # -----------------------------------------------------------------------
     # Semantic Gate conditional routing (Phase 3 → 3b / Phase 4)
-    # Replaces the old hitl_route from V4.
     # Routes:
-    #   semantic_gate_route → "symbolic_solver"  (U_sem <= tau, gate passes)
-    #   semantic_gate_route → "pddl_parser"      (U_sem > tau, clarify / refine)
+    #   semantic_gate_route → "symbolic_solver"  (U_sem <= tau, gate passes -> 0 interrupts)
+    #   semantic_gate_route → "hitl_clarify"     (U_sem > tau, triggers Phase 3b HITL)
     # -----------------------------------------------------------------------
-    builder.add_edge("reverse_prompt", "semantic_gate")
     builder.add_conditional_edges("semantic_gate", semantic_gate_route)
+    builder.add_edge("hitl_clarify", "pddl_parser")
 
     # -----------------------------------------------------------------------
     # Symbolic solver → QoT validation → RADG physical risk gate

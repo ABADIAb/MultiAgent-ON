@@ -234,108 +234,34 @@ class TestPddlParserNode:
 
 
 # ---------------------------------------------------------------------------
-# Exp 2.2: Reverse Prompt HITL Node
+# ---------------------------------------------------------------------------
+# Exp 2.2: Reverse Prompting & HITL Clarification Nodes
 # ---------------------------------------------------------------------------
 
 
 class TestReversePromptNode:
-    """Test the Reverse Prompting node with mocked LLM and interrupt."""
+    """Test the automated Reverse Prompting node with mocked LLM (Phase 3a)."""
 
-    @patch("src.nodes.reverse_prompt.interrupt")
     @patch("src.nodes.reverse_prompt.get_llm")
-    def test_reconstruction_uses_llm_output(self, mock_get_llm, mock_interrupt):
+    def test_reconstruction_uses_llm_output(self, mock_get_llm):
         from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
         mock_get_llm.return_value = mock_llm
-        mock_interrupt.return_value = {"action": "approve"}
 
         state = _make_state(pddl_constraints=VALID_PDDL_RESPONSE)
         result = reverse_prompt_node(state)
 
         assert result["hitl_reconstruction"] == REVERSE_PROMPT_RECONSTRUCTION
 
-    @patch("src.nodes.reverse_prompt.interrupt")
     @patch("src.nodes.reverse_prompt.get_llm")
-    def test_interrupt_called_with_reconstruction(self, mock_get_llm, mock_interrupt):
+    def test_pddl_constraints_included_in_prompt(self, mock_get_llm):
         from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
         mock_get_llm.return_value = mock_llm
-        mock_interrupt.return_value = {"action": "approve"}
-
-        state = _make_state(pddl_constraints=VALID_PDDL_RESPONSE)
-        reverse_prompt_node(state)
-
-        # interrupt() should be called with a payload containing the reconstruction
-        mock_interrupt.assert_called_once()
-        payload = mock_interrupt.call_args[0][0]
-        assert REVERSE_PROMPT_RECONSTRUCTION in payload["reconstruction"]
-
-    @patch("src.nodes.reverse_prompt.interrupt")
-    @patch("src.nodes.reverse_prompt.get_llm")
-    def test_approve_sets_hitl_approved_true(self, mock_get_llm, mock_interrupt):
-        from src.nodes.reverse_prompt import reverse_prompt_node
-
-        mock_llm = MagicMock()
-        mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
-        mock_get_llm.return_value = mock_llm
-        mock_interrupt.return_value = {"action": "approve"}
-
-        state = _make_state(pddl_constraints=VALID_PDDL_RESPONSE)
-        result = reverse_prompt_node(state)
-
-        assert result["hitl_approved"] is True
-
-    @patch("src.nodes.reverse_prompt.interrupt")
-    @patch("src.nodes.reverse_prompt.get_llm")
-    def test_unknown_action_sets_hitl_approved_true(self, mock_get_llm, mock_interrupt):
-        """V5: unknown/unexpected action from interrupt defaults to 'approve' behavior.
-
-        In V5, routing is owned by the Semantic Gate — the reverse_prompt node
-        does not need to handle 'reject'. Unknown actions fall through to approved=True
-        since the gate will evaluate intent clarity independently.
-        """
-        from src.nodes.reverse_prompt import reverse_prompt_node
-
-        mock_llm = MagicMock()
-        mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
-        mock_get_llm.return_value = mock_llm
-        mock_interrupt.return_value = {"action": "unknown_action"}
-
-        state = _make_state(pddl_constraints=VALID_PDDL_RESPONSE)
-        result = reverse_prompt_node(state)
-
-        # V5: default is approve (routing is delegated to Semantic Gate)
-        assert result["hitl_approved"] is False  # "unknown_action" != "approve"
-
-    @patch("src.nodes.reverse_prompt.interrupt")
-    @patch("src.nodes.reverse_prompt.get_llm")
-    def test_refine_sets_feedback_in_error_context(self, mock_get_llm, mock_interrupt):
-        from src.nodes.reverse_prompt import reverse_prompt_node
-
-        mock_llm = MagicMock()
-        mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
-        mock_get_llm.return_value = mock_llm
-        mock_interrupt.return_value = {"action": "refine", "feedback": "Add latency constraint"}
-
-        state = _make_state(pddl_constraints=VALID_PDDL_RESPONSE)
-        result = reverse_prompt_node(state)
-
-        assert result["hitl_approved"] is False
-        assert "latency" in result["error_context"].lower()
-
-    @patch("src.nodes.reverse_prompt.interrupt")
-    @patch("src.nodes.reverse_prompt.get_llm")
-    def test_pddl_constraints_included_in_prompt(self, mock_get_llm, mock_interrupt):
-        from src.nodes.reverse_prompt import reverse_prompt_node
-
-        mock_llm = MagicMock()
-        mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
-        mock_get_llm.return_value = mock_llm
-        mock_interrupt.return_value = {"action": "approve"}
 
         state = _make_state(pddl_constraints=VALID_PDDL_RESPONSE)
         reverse_prompt_node(state)
@@ -345,15 +271,13 @@ class TestReversePromptNode:
         message_contents = " ".join(msg.content for msg in call_args)
         assert "define" in message_contents
 
-    @patch("src.nodes.reverse_prompt.interrupt")
     @patch("src.nodes.reverse_prompt.get_llm")
-    def test_returns_ai_message(self, mock_get_llm, mock_interrupt):
+    def test_returns_ai_message(self, mock_get_llm):
         from src.nodes.reverse_prompt import reverse_prompt_node
 
         mock_llm = MagicMock()
         mock_llm.invoke.return_value = AIMessage(content=REVERSE_PROMPT_RECONSTRUCTION)
         mock_get_llm.return_value = mock_llm
-        mock_interrupt.return_value = {"action": "approve"}
 
         state = _make_state(pddl_constraints=VALID_PDDL_RESPONSE)
         result = reverse_prompt_node(state)
@@ -361,6 +285,67 @@ class TestReversePromptNode:
         assert len(result["messages"]) == 1
         assert isinstance(result["messages"][0], AIMessage)
         assert result["messages"][0].name == "reverse_prompt"
+
+
+class TestHitlClarifyNode:
+    """Test the Phase 3b HITL clarification node with mocked interrupt."""
+
+    @patch("src.nodes.reverse_prompt.interrupt")
+    def test_interrupt_called_with_clarification_payload(self, mock_interrupt):
+        from src.nodes.reverse_prompt import hitl_clarify_node
+
+        mock_interrupt.return_value = {"action": "approve"}
+
+        state = _make_state(
+            hitl_reconstruction=REVERSE_PROMPT_RECONSTRUCTION,
+            usem_score=0.75,
+            pddl_valid=True,
+            error_context="Ambiguous intent",
+        )
+        hitl_clarify_node(state)
+
+        mock_interrupt.assert_called_once()
+        payload = mock_interrupt.call_args[0][0]
+        assert payload["status"] == "clarification_required"
+        assert payload["reconstruction"] == REVERSE_PROMPT_RECONSTRUCTION
+        assert payload["usem_score"] == 0.75
+
+    @patch("src.nodes.reverse_prompt.interrupt")
+    def test_unsupported_action_sets_hitl_approved_false(self, mock_interrupt):
+        from src.nodes.reverse_prompt import hitl_clarify_node
+
+        # "approve" is no longer a supported action in V5 Phase 3b.
+        mock_interrupt.return_value = {"action": "approve"}
+
+        state = _make_state(hitl_reconstruction=REVERSE_PROMPT_RECONSTRUCTION)
+        result = hitl_clarify_node(state)
+
+        assert result["hitl_approved"] is False
+
+    @patch("src.nodes.reverse_prompt.interrupt")
+    def test_refine_sets_feedback_in_error_context(self, mock_interrupt):
+        from src.nodes.reverse_prompt import hitl_clarify_node
+
+        mock_interrupt.return_value = {"action": "refine", "feedback": "Add latency constraint"}
+
+        state = _make_state(hitl_reconstruction=REVERSE_PROMPT_RECONSTRUCTION)
+        result = hitl_clarify_node(state)
+
+        assert result["hitl_approved"] is False
+        assert "latency" in result["error_context"].lower()
+
+    @patch("src.nodes.reverse_prompt.interrupt")
+    def test_returns_ai_message(self, mock_interrupt):
+        from src.nodes.reverse_prompt import hitl_clarify_node
+
+        mock_interrupt.return_value = {"action": "refine", "feedback": "Fixed route"}
+
+        state = _make_state(hitl_reconstruction=REVERSE_PROMPT_RECONSTRUCTION)
+        result = hitl_clarify_node(state)
+
+        assert len(result["messages"]) == 1
+        assert isinstance(result["messages"][0], AIMessage)
+        assert result["messages"][0].name == "hitl_clarify"
 
 
 # ---------------------------------------------------------------------------

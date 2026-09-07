@@ -250,3 +250,97 @@ class TestExtractPddlSections:
         sections = extract_pddl_sections(valid_pddl)
         assert "problem_name" in sections
         assert sections["problem_name"] == "optical-route-001"
+
+
+# ---------------------------------------------------------------------------
+# Tests: CFG Grammar & AST Parsing (parse_pddl_ast & predicate validation)
+# ---------------------------------------------------------------------------
+
+
+class TestPddlCfgAstGrammar:
+    """Test full CFG grammar rules and AST extraction."""
+
+    def test_avoid_node_goal_valid(self):
+        from src.core.pddl_validator import validate_pddl_syntax
+
+        pddl = (
+            "(define (problem avoid-node-test)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Berlin Munich Hamburg - node)\n"
+            "  (:init (connected Berlin Munich))\n"
+            "  (:goal (and (route Berlin Munich) (avoid-node Hamburg) (min-gsnr 15.5)))\n"
+            ")"
+        )
+        is_valid, errors = validate_pddl_syntax(pddl)
+        assert is_valid is True
+        assert errors == []
+
+    def test_avoid_nodes_multiple_valid(self):
+        from src.core.pddl_validator import validate_pddl_syntax
+
+        pddl = (
+            "(define (problem avoid-nodes-test)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Berlin Munich Hamburg Leipzig - node)\n"
+            "  (:init (connected Berlin Munich))\n"
+            "  (:goal (and (route Berlin Munich) (avoid-nodes Hamburg Leipzig)))\n"
+            ")"
+        )
+        is_valid, errors = validate_pddl_syntax(pddl)
+        assert is_valid is True
+        assert errors == []
+
+    def test_route_missing_destination_fails(self):
+        from src.core.pddl_validator import validate_pddl_syntax
+
+        pddl = (
+            "(define (problem bad-route)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Berlin Munich - node)\n"
+            "  (:init (connected Berlin Munich))\n"
+            "  (:goal (and (route Berlin)))\n"
+            ")"
+        )
+        is_valid, errors = validate_pddl_syntax(pddl)
+        assert is_valid is False
+        assert any("requires exactly 2 arguments" in e for e in errors)
+
+    def test_max_hops_non_integer_fails(self):
+        from src.core.pddl_validator import validate_pddl_syntax
+
+        pddl = (
+            "(define (problem bad-hops)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Berlin Munich - node)\n"
+            "  (:init (connected Berlin Munich))\n"
+            "  (:goal (and (route Berlin Munich) (max-hops two)))\n"
+            ")"
+        )
+        is_valid, errors = validate_pddl_syntax(pddl)
+        assert is_valid is False
+        assert any("must be an integer" in e for e in errors)
+
+    def test_min_gsnr_non_numeric_fails(self):
+        from src.core.pddl_validator import validate_pddl_syntax
+
+        pddl = (
+            "(define (problem bad-gsnr)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Berlin Munich - node)\n"
+            "  (:init (connected Berlin Munich))\n"
+            "  (:goal (and (route Berlin Munich) (min-gsnr high)))\n"
+            ")"
+        )
+        is_valid, errors = validate_pddl_syntax(pddl)
+        assert is_valid is False
+        assert any("must be a number" in e for e in errors)
+
+    def test_parse_pddl_ast_success(self, valid_pddl: str):
+        from src.core.pddl_validator import parse_pddl_ast
+
+        ast, errors = parse_pddl_ast(valid_pddl)
+        assert errors == []
+        assert isinstance(ast, list)
+        assert len(ast) > 0
+        assert ast[0][0] == "define"
+
