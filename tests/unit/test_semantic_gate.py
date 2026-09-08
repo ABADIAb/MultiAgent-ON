@@ -83,3 +83,36 @@ class TestEvaluateSemanticGate:
     def test_returns_bool(self) -> None:
         result = evaluate_semantic_gate(usem=0.2)
         assert isinstance(result, bool)
+
+
+class TestSemanticGateNode:
+    """Validate semantic_gate_node behavior with refinement history and prompt instructions."""
+
+    def test_gate_evaluates_with_refinement_history_included(self) -> None:
+        """When refinement_history is present in state, it must be included in the evaluator prompt."""
+        from unittest.mock import MagicMock, patch
+        from langchain_core.messages import AIMessage
+        from src.nodes.semantic_gate_node import semantic_gate_node
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content="0.10")
+
+        state = {
+            "pddl_valid": True,
+            "enriched_intent": "Intent: Route Berlin to Frankfurt",
+            "hitl_reconstruction": "I understand you want to route from Berlin to Frankfurt avoiding Munich with 12 dB GSNR.",
+            "refinement_history": ["Avoid Munich", "Ensure min GSNR is 12 dB"],
+        }
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            result = semantic_gate_node(state)
+
+        assert result["usem_passed"] is True
+        assert result["usem_score"] == pytest.approx(0.10)
+
+        # Inspect the message sent to the evaluator LLM
+        mock_llm.invoke.assert_called_once()
+        call_messages = mock_llm.invoke.call_args[0][0]
+        human_msg_content = call_messages[1].content
+        assert "Avoid Munich" in human_msg_content
+        assert "Ensure min GSNR is 12 dB" in human_msg_content

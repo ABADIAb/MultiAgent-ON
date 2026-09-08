@@ -195,7 +195,7 @@ The framework operates through seven interconnected functional phases managed by
 
 The pipeline state $\mathcal{S}_{\text{state}}$ is managed as an immutable, append-only data structure within the orchestration runtime:
 \begin{equation}
-\mathcal{S}_{\text{state}} = \langle \mathcal{I}_{\text{enriched}}, G_{\text{sub}}, \mathcal{S}_{\text{PDDL}}, U_{\text{sem}}, \mathcal{K}_{\text{path}}, \mathbf{\Gamma}_{\text{QoT}}, \mathcal{D}_{\text{action}}, \mathcal{H}_{\text{trace}} \rangle
+\mathcal{S}_{\text{state}} = \langle \mathcal{I}_{\text{enriched}}, G_{\text{sub}}, \mathcal{S}_{\text{PDDL}}, U_{\text{sem}}, \mathcal{K}_{\text{path}}, \mathbf{\Gamma}_{\text{QoT}}, \mathcal{D}_{\text{action}}, \mathcal{H}_{\text{trace}}, \mathcal{H}_{\text{refine}}, \kappa_{\text{refine}} \rangle
 \end{equation}
 where:
 \begin{itemize}
@@ -207,9 +207,11 @@ where:
     \item $\mathbf{\Gamma}_{\text{QoT}} = \{ (\pi_k, \text{GSNR}_k, P_{\text{rx}, k}, \text{QoT}_{\text{valid}, k}) \}_{k=1}^K$ stores the computed physical metrics.
     \item $\mathcal{D}_{\text{action}} \in \{ \text{approve}, \text{replan} \}$ is the resolved decision outcome.
     \item $\mathcal{H}_{\text{trace}}$ is the append-only message list preserving the chronological execution trace.
+    \item $\mathcal{H}_{\text{refine}} = (\mathcal{F}_1, \dots, \mathcal{F}_k)$ is the chronological sequence of operator clarification and replan feedback.
+    \item $\kappa_{\text{refine}} \in \{0, \dots, N_{\max}\}$ is the active refinement counter bounded by $N_{\max} = 3$.
 \end{itemize}
 
-State transitions are governed by deterministic guard functions, ensuring that backward loopbacks (e.g., Phase 3b $\to$ Phase 2 or Phase 6 $\to$ Phase 2) preserve the audit history while resetting transient execution variables, preventing infinite recursion and memory leaks.
+State transitions are governed by deterministic guard functions, ensuring that backward loopbacks (e.g., Phase 3b $\to$ Phase 2 or Phase 6 $\to$ Phase 2) preserve the audit history $\mathcal{H}_{\text{trace}}$ and feedback trail $\mathcal{H}_{\text{refine}}$ while resetting transient execution variables, guaranteeing monotonic convergence without memory leaks.
 
 \section{Strict Neurosymbolic Separation}
 \label{sec:neurosymbolic_separation}
@@ -541,7 +543,7 @@ The validation protocol executes three deterministic phases:
     \end{equation}
     An independent generative execution translates the formalized PDDL syntax back into an unambiguous natural language paragraph. This mechanism exposes the exact constraints the system parsed.
     \item \textbf{Closed-Loop Agreement Verification:}
-    The architecture directly queries an evaluator LLM to compute the semantic divergence scalar $d_{\text{sem}} \in [0, 1]$ between $\mathcal{I}_{\text{NL}}$ and $\mathcal{I}_{\text{recon}}$, where $0$ indicates perfect semantic agreement and $1$ represents catastrophic constraint loss. If the divergence exceeds the acceptable threshold ($d_{\text{sem}} > \tau_{\text{sem}}$), the system presents $\mathcal{I}_{\text{recon}}$ to the operator alongside the explicit structural state. Presenting the natural language reconstruction allows network engineers to verify complex physical constraints without requiring advanced PDDL syntax expertise.
+    The architecture directly queries an evaluator LLM to compute the semantic divergence scalar $d_{\text{sem}} \in [0, 1]$ between the effective operator intent $\mathcal{I}_{\text{eff}}^{(k)}$ and the algorithmic reconstruction $\mathcal{I}_{\text{recon}}$, where $0$ indicates perfect semantic agreement and $1$ represents catastrophic constraint loss. At initialization ($k=0$), $\mathcal{I}_{\text{eff}}^{(0)} = \mathcal{I}_{\text{NL}}$. For multi-turn refinement iterations ($k \ge 1$), the effective intent is formed by binding the cumulative sequence of operator clarifications $\mathcal{I}_{\text{eff}}^{(k)} = \mathcal{I}_{\text{NL}} \oplus \mathcal{H}_{\text{refine}}$. This formulation guarantees that operator-instructed constraint adjustments (such as relaxing a GSNR threshold or avoiding intermediate nodes) are evaluated as faithful adherence ($d_{\text{sem}} \to 0$) rather than artificial divergence. If the divergence exceeds the acceptable threshold ($d_{\text{sem}} > \tau_{\text{sem}}$), the system presents $\mathcal{I}_{\text{recon}}$ to the operator alongside the explicit structural state. Presenting the natural language reconstruction allows network engineers to verify complex physical constraints without requiring advanced PDDL syntax expertise.
 \end{enumerate}
 
 \FloatBarrier
@@ -572,7 +574,8 @@ response = interrupt({
 \begin{enumerate}
     \item \textbf{Atomic Checkpoint Serialization:} Invoking the \texttt{interrupt()} function halts node execution and serializes the complete \texttt{AgentState} tuple $\mathcal{S}_{\text{state}}$ into a persistent storage checkpointer, keyed by a unique transaction thread identifier.
     \item \textbf{Resource Deallocation:} The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
-    \item \textbf{Resumption and State Injection:} Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it injects the human feedback directly into the $\mathcal{S}_{\text{state}}$ dictionary under \texttt{error\_context}, routing cleanly back to the parsing phase for targeted PDDL regeneration.
+    \item \textbf{Resumption and State Injection:} Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it appends the feedback $\mathcal{F}_k$ to the cumulative refinement history $\mathcal{H}_{\text{refine}}$, increments the refinement counter $\kappa_{\text{refine}}$, and injects the human instructions into \texttt{error\_context}, routing cleanly back to the parsing phase for targeted PDDL regeneration.
+    \item \textbf{Context Window Protection ($N_{\max} = 3$):} If the refinement counter reaches $\kappa_{\text{refine}} \ge N_{\max} = 3$, the system raises an explicit abort interrupt (\texttt{status="aborted"}). This deterministic ceiling prevents context window saturation, attention degradation (``lost-in-the-middle''), and token budget exhaustion, routing execution cleanly to the terminal state upon operator cancellation.
 \end{enumerate}
 
 \subsection{Monotonic Constraint Preservation and Convergence Guarantees}
@@ -583,4 +586,4 @@ To ensure multi-turn refinement strictly terminates, the architecture defines a 
 \mathcal{C}_{k+1} = \mathcal{C}_k \cup \text{ExtractConstraints}(\mathcal{F}_k) \setminus \text{ExplicitRevocations}(\mathcal{F}_k)
 \end{equation}
 
-Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{\max} = 3$. If an intent fails to achieve $U_{\text{sem}} \le \tau_{\text{sem}}$ after $N_{\max}$ iterations, the system rejects the transaction gracefully, preventing control-plane deadlocks.
+Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{\max} = 3$. If an intent fails to achieve $U_{\text{sem}} \le \tau_{\text{sem}}$ after $N_{\max}$ iterations, the system halts with the context-protection abort interrupt, preventing control-plane deadlocks.

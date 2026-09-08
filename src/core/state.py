@@ -70,6 +70,8 @@ class AgentState(TypedDict, total=False):
         usem_passed: Whether U_sem ≤ τ_sem (gate passed → proceed to solver).
         radg_decision: RADG physical gate outcome — "approve" | "replan".
         topology_context: Serialized k-hop topology subgraph text from Optical RAG.
+        refinement_history: Accumulated list of operator clarifications/refinements across turns.
+        refinement_count: Number of HITL refinement / replan iterations executed (bounded by N_max=3).
     """
 
     messages: Annotated[list, operator.add]
@@ -89,6 +91,8 @@ class AgentState(TypedDict, total=False):
     radg_decision: str | None
     topology_context: str | None
     subtopology_snapshot: TopologySnapshot | None
+    refinement_history: list[str] | None
+    refinement_count: int | None
 
 
 # Custom domain classes whitelisted for LangGraph msgpack/jsonplus state checkpointing

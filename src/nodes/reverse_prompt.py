@@ -74,6 +74,9 @@ def reverse_prompt_node(state: AgentState) -> dict:
     }
 
 
+MAX_REFINEMENTS: int = 3
+
+
 def hitl_clarify_node(state: AgentState) -> dict:
     """HITL Clarification node (Phase 3b: Ambiguity Disambiguation).
 
@@ -91,6 +94,33 @@ def hitl_clarify_node(state: AgentState) -> dict:
     usem_score = state.get("usem_score")
     error_context = state.get("error_context")
     pddl_valid = state.get("pddl_valid")
+    refinement_count = state.get("refinement_count") or 0
+    refinement_history = list(state.get("refinement_history") or [])
+
+    # Guard: Bounded loop (N_max = 3) to prevent context window saturation
+    if refinement_count >= MAX_REFINEMENTS:
+        abort_msg = (
+            f"Maximum refinement attempts (N_max={MAX_REFINEMENTS}) reached. "
+            "Execution suspended to protect against model context window saturation and token budget exhaustion."
+        )
+        interrupt({
+            "status": "aborted",
+            "reason": abort_msg,
+            "options": ["cancel"],
+            "reconstruction": reconstruction,
+            "refinement_history": refinement_history,
+            "message": abort_msg,
+        })
+        return {
+            "hitl_approved": False,
+            "error_context": f"Aborted: {abort_msg}",
+            "messages": [
+                AIMessage(
+                    content=f"HITL Clarification: Aborted — {abort_msg}",
+                    name="hitl_clarify",
+                )
+            ],
+        }
 
     options = ["approve", "refine", "cancel"] if pddl_valid else ["refine", "cancel"]
 
@@ -138,9 +168,15 @@ def hitl_clarify_node(state: AgentState) -> dict:
 
     resolved_feedback = feedback if feedback else (error_context or "Refinement requested by operator")
 
+    updated_history = list(refinement_history)
+    updated_history.append(resolved_feedback)
+    new_count = refinement_count + 1
+
     return {
         "hitl_approved": False,
         "error_context": resolved_feedback,
+        "refinement_history": updated_history,
+        "refinement_count": new_count,
         "messages": [
             AIMessage(
                 content=f"HITL Clarification: {action}" + (f" — {feedback}" if feedback else ""),
@@ -155,9 +191,13 @@ def hitl_clarify_route(state: AgentState) -> str:
 
     Returns:
         - "symbolic_solver" if operator approved the understanding (hitl_approved=True).
+        - "__end__" if aborted or cancelled.
         - "pddl_parser" if operator requested refinement (loop back).
     """
     if state.get("hitl_approved"):
         return "symbolic_solver"
+    err = state.get("error_context") or ""
+    if err.startswith("Aborted:") or err == "cancel":
+        return "__end__"
     return "pddl_parser"
 

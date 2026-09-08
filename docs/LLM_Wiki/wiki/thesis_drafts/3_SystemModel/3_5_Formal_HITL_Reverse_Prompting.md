@@ -36,7 +36,7 @@ The validation protocol executes three deterministic phases:
    An independent generative execution translates the formalized PDDL syntax back into an unambiguous natural language paragraph. This mechanism exposes the exact constraints the system parsed.
 
 3. **Closed-Loop Agreement Verification:**
-   The architecture directly queries an evaluator LLM to compute the semantic divergence scalar $d_{sem} \in [0, 1]$ between $\mathcal{I}_{NL}$ and $\mathcal{I}_{recon}$, where $0$ indicates perfect semantic agreement and $1$ represents catastrophic constraint loss. If the divergence exceeds the acceptable threshold ($d_{sem} > \tau_{sem}$), the system presents $\mathcal{I}_{recon}$ to the operator alongside the explicit structural state. Presenting the natural language reconstruction allows network engineers to verify complex physical constraints without requiring advanced PDDL syntax expertise.
+   The architecture directly queries an evaluator LLM to compute the semantic divergence scalar $d_{sem} \in [0, 1]$ between the effective operator intent $\mathcal{I}_{\text{eff}}^{(k)}$ and the reconstruction $\mathcal{I}_{recon}$, where $0$ indicates perfect semantic agreement and $1$ represents catastrophic constraint loss. At initialization ($k=0$), $\mathcal{I}_{\text{eff}}^{(0)} = \mathcal{I}_{NL}$. For multi-turn refinement iterations ($k \ge 1$), the effective intent is formed by binding the cumulative sequence of operator clarifications $\mathcal{I}_{\text{eff}}^{(k)} = \mathcal{I}_{NL} \oplus \mathcal{H}_{refine}$. This formulation guarantees that operator-instructed constraint adjustments (such as relaxing a GSNR threshold or avoiding intermediate nodes) are evaluated as faithful adherence ($d_{sem} \to 0$) rather than artificial divergence. If the divergence exceeds the acceptable threshold ($d_{sem} > \tau_{sem}$), the system presents $\mathcal{I}_{recon}$ to the operator alongside the explicit structural state. Presenting the natural language reconstruction allows network engineers to verify complex physical constraints without requiring advanced PDDL syntax expertise.
 
 ---
 
@@ -65,7 +65,8 @@ response = interrupt({
 **Execution Lifecycle under Interruption:**
 1. **Atomic Checkpoint Serialization:** Invoking the `interrupt()` function halts node execution and serializes the complete `AgentState` tuple $\mathcal{S}_{state}$ into a persistent storage checkpointer, keyed by a unique transaction thread identifier.
 2. **Resource Deallocation:** The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
-3. **Resumption and State Injection:** Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it injects the human feedback directly into the $\mathcal{S}_{state}$ dictionary under `error_context`, routing cleanly back to the parsing phase for targeted PDDL regeneration.
+3. **Resumption and State Injection:** Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it appends the feedback $\mathcal{F}_k$ to the cumulative refinement history $\mathcal{H}_{refine}$, increments the refinement counter $\kappa_{refine}$, and injects the human instructions into `error_context`, routing cleanly back to the parsing phase for targeted PDDL regeneration.
+4. **Context Window Protection ($N_{max} = 3$):** If the refinement counter reaches $\kappa_{refine} \ge N_{max} = 3$, the system raises an explicit abort interrupt (`status="aborted"`). This deterministic ceiling prevents context window saturation, attention degradation ("lost-in-the-middle"), and token budget exhaustion, routing execution cleanly to the terminal state upon operator cancellation.
 
 ---
 
@@ -75,7 +76,7 @@ To ensure multi-turn refinement strictly terminates, the architecture defines a 
 
 $$\mathcal{C}_{k+1} = \mathcal{C}_k \cup \text{ExtractConstraints}(\mathcal{F}_k) \setminus \text{ExplicitRevocations}(\mathcal{F}_k)$$
 
-Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{max} = 3$. If an intent fails to achieve $U_{sem} \le \tau_{sem}$ after $N_{max}$ iterations, the system rejects the transaction gracefully, preventing control-plane deadlocks.
+Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{max} = 3$. If an intent fails to achieve $U_{sem} \le \tau_{sem}$ after $N_{max}$ iterations, the system halts with the context-protection abort interrupt, preventing control-plane deadlocks.
 
 ---
 

@@ -29,16 +29,20 @@ _AGREEMENT_SYSTEM_PROMPT = """\
 You are a semantic similarity evaluator for an optical network intent orchestrator.
 
 You will be given:
-1. ORIGINAL INTENT: The operator's original natural language request.
+1. OPERATOR INTENT: The operator's natural language request, including any subsequent clarifications or refinements provided by the operator.
 2. RECONSTRUCTION: A system's reverse-prompting reconstruction of what it parsed.
 
-Your task: Rate how closely the reconstruction captures the ORIGINAL INTENT.
+Your task: Rate how faithfully the reconstruction captures the OPERATOR INTENT.
+
+Key evaluation rules:
+- If the operator provided clarifications, constraint adjustments, or relaxations (e.g., avoiding specific nodes/links, relaxing GSNR, or modifying endpoints), the reconstruction MUST reflect those adjustments. This is faithful adherence to operator instructions, NOT divergence (score near 0.0).
+- Penalize ONLY unprompted hallucinations (constraints neither in the base intent nor in the operator's refinements) or omitted constraints that were explicitly requested.
 
 Output ONLY a single decimal number between 0.0 and 1.0, where:
-  0.0 = The reconstruction perfectly matches the original intent (no divergence).
-  1.0 = The reconstruction is completely wrong or missing critical constraints.
-  0.3 = Minor paraphrasing differences but key constraints are intact.
-  0.6 = Some constraints are missing or changed.
+  0.0 = The reconstruction faithfully matches the operator's current intent and refinements.
+  1.0 = The reconstruction is completely wrong, contradicts operator feedback, or has severe hallucinated constraints.
+  0.2 = Minor paraphrasing differences but all active constraints match operator intent.
+  0.5 = Some requested constraints are missing or contradictory constraints were introduced.
 
 No explanation, no other text — just the number."""
 
@@ -47,7 +51,7 @@ def _score_semantic_agreement(intent: str, reconstruction: str) -> float:
     """Call the LLM to score semantic divergence between intent and reconstruction.
 
     Args:
-        intent: The enriched operator intent from Phase 1.
+        intent: The effective operator intent (base + clarifications/refinements).
         reconstruction: The LLM reverse-prompt reconstruction from Phase 3.
 
     Returns:
@@ -58,7 +62,7 @@ def _score_semantic_agreement(intent: str, reconstruction: str) -> float:
         SystemMessage(content=_AGREEMENT_SYSTEM_PROMPT),
         HumanMessage(
             content=(
-                f"ORIGINAL INTENT:\n{intent}\n\n"
+                f"OPERATOR INTENT (with clarifications):\n{intent}\n\n"
                 f"RECONSTRUCTION:\n{reconstruction}"
             )
         ),
@@ -82,10 +86,12 @@ def semantic_gate_node(state: AgentState) -> dict:
     """Evaluate Semantic Uncertainty U_sem and decide gate outcome.
 
     Reads pddl_valid (Layer 1) and calls the LLM to score agreement
-    between enriched_intent and hitl_reconstruction (Layer 2).
+    between effective operator intent (base enriched_intent + refinement_history)
+    and hitl_reconstruction (Layer 2).
 
     Args:
-        state: AgentState with pddl_valid, enriched_intent, hitl_reconstruction.
+        state: AgentState with pddl_valid, enriched_intent, hitl_reconstruction,
+            and optional refinement_history.
 
     Returns:
         Partial state update with usem_score, usem_passed, error_context, and summary message.
@@ -93,10 +99,19 @@ def semantic_gate_node(state: AgentState) -> dict:
     v_struct: bool = state.get("pddl_valid") or False
     intent: str = state.get("enriched_intent") or ""
     reconstruction: str = state.get("hitl_reconstruction") or ""
+    refinement_history: list[str] = state.get("refinement_history") or []
 
     # Layer 2: only meaningful if Layer 1 passed and we have a reconstruction
     if v_struct and reconstruction:
-        d_sem = _score_semantic_agreement(intent, reconstruction)
+        if refinement_history:
+            refinements_block = "\n".join(f"- {r}" for r in refinement_history)
+            effective_intent = (
+                f"{intent}\n\n"
+                f"Operator Clarifications & Refinements:\n{refinements_block}"
+            )
+        else:
+            effective_intent = intent
+        d_sem = _score_semantic_agreement(effective_intent, reconstruction)
     elif not v_struct:
         # Structural failure — Layer 1 already sets U_sem = 1
         d_sem = 0.0  # compute_usem will return 1.0

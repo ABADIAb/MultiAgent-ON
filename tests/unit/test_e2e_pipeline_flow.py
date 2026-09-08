@@ -344,6 +344,57 @@ class TestSemanticGateLoops:
         assert final_result["pddl_valid"] is True
         assert final_result["usem_passed"] is True
         assert final_result["radg_decision"] == "approve"
+        assert final_result.get("refinement_history") == ["Please avoid the Cologne to Frankfurt link"]
+        assert final_result.get("refinement_count") == 1
+
+    def test_hitl_clarify_max_refinements_aborts_loop(
+        self, mock_topology, checkpointer
+    ):
+        """When refinement attempts reach N_max=3, pipeline halts with abort interrupt to prevent context window saturation."""
+        from src.nodes.reverse_prompt import MAX_REFINEMENTS
+
+        pddl_v1 = (
+            "(define (problem route-koln-berlin)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Cologne Berlin - node)\n"
+            "  (:init (connected Cologne Berlin))\n"
+            "  (:goal (and (route Cologne Berlin) (min-gsnr 10.0)))\n"
+            ")"
+        )
+
+        mock_llm = _create_mock_llm(
+            intent_summary=IntentSummary(
+                summary="Route from Cologne to Berlin",
+                source_node="Cologne",
+                target_node="Berlin",
+            ),
+            pddl_handler=pddl_v1,
+            reconstruction_handler="Route from Cologne to Berlin",
+            agreement_score=0.60,  # Always diverges to force clarification
+        )
+        set_llm(mock_llm)
+
+        graph = compile_graph(checkpointer=checkpointer)
+        config = {"configurable": {"thread_id": "test-max-refinements-abort"}}
+
+        initial_state = _make_initial_state("Route from Cologne to Berlin", mock_topology)
+        initial_state["refinement_count"] = MAX_REFINEMENTS
+        initial_state["refinement_history"] = ["Refinement 1", "Refinement 2", "Refinement 3"]
+
+        # Run pipeline — should hit semantic gate fail and then hitl_clarify abort
+        graph.invoke(initial_state, config=config)
+
+        state_paused = graph.get_state(config)
+        assert state_paused.next == ("hitl_clarify",)
+        assert len(state_paused.tasks[0].interrupts) > 0
+        interrupt_val = state_paused.tasks[0].interrupts[0].value
+        assert interrupt_val["status"] == "aborted"
+        assert "context window" in interrupt_val["reason"].lower()
+
+        # Resuming with cancel terminates execution at __end__
+        resumed_state = graph.invoke(Command(resume={"action": "cancel"}), config=config)
+        assert resumed_state.get("hitl_approved") is False
+        assert "aborted" in resumed_state.get("error_context", "").lower()
 
 
 # ---------------------------------------------------------------------------

@@ -24,7 +24,7 @@ The logic is implemented as a piecewise mathematical formula in `src/core/semant
 - If `v_struct == False` (structural failure), $U_{sem} = 1.0$.
 - If `v_struct == True`, $U_{sem} = d_{sem}$ (where $d_{sem}$ is the semantic divergence score in $[0.0, 1.0]$).
 
-The LangGraph node `semantic_gate_node.py` manages the LLM call to compute $d_{sem}$. It provides the original intent and the automated reverse-prompt reconstruction to a judge LLM, asking for a divergence score between 0.0 (perfect agreement) and 1.0 (complete divergence). 
+The LangGraph node `semantic_gate_node.py` manages the LLM call to compute $d_{sem}$. It provides the effective operator intent (combining the base `enriched_intent` with cumulative `refinement_history` from operator clarifications/replans) and the automated reverse-prompt reconstruction to a judge LLM. The judge rates divergence between 0.0 (perfect agreement with effective intent and refinements) and 1.0 (complete divergence or contradictory constraints). Reflecting operator-requested refinements is treated as faithful agreement ($d_{sem} \to 0.0$), resolving [[experiments/bugs/bug009_Semantic_Gate_Refinement_Drift|BUG-009]].
 
 *Conditional Routing (`semantic_gate_route`)*:
 - `usem_passed is True` $\implies$ `"symbolic_solver"` (Phase 4)
@@ -36,7 +36,7 @@ The LangGraph node `semantic_gate_node.py` manages the LLM call to compute $d_{s
 - **Tests**: [tests/unit/test_semantic_gate.py](file:///home/felipeab/MultiAgentON/tests/unit/test_semantic_gate.py), [tests/unit/test_graph_v5.py](file:///home/felipeab/MultiAgentON/tests/unit/test_graph_v5.py)
 
 ## 5. Inputs / Outputs
-- **Input (State)**: `pddl_valid` (bool), `enriched_intent` (str), `hitl_reconstruction` (str).
+- **Input (State)**: `pddl_valid` (bool), `enriched_intent` (str), `hitl_reconstruction` (str), `refinement_history` (list[str] | None).
 - **Output (State)**: `usem_score` (float), `usem_passed` (bool), `messages` (AIMessage with trace).
 
 ## 6. How to Test

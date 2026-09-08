@@ -49,7 +49,7 @@ The framework operates through seven interconnected functional phases managed by
 
 The pipeline state $\mathcal{S}_{state}$ is managed as an immutable, append-only data structure within the orchestration runtime:
 
-$$\mathcal{S}_{state} = \langle \mathcal{I}_{enriched}, G_{sub}, \mathcal{S}_{PDDL}, U_{sem}, \mathcal{K}_{path}, \mathbf{\Gamma}_{QoT}, \mathcal{D}_{action}, \mathcal{H}_{trace} \rangle$$
+$$\mathcal{S}_{state} = \langle \mathcal{I}_{enriched}, G_{sub}, \mathcal{S}_{PDDL}, U_{sem}, \mathcal{K}_{path}, \mathbf{\Gamma}_{QoT}, \mathcal{D}_{action}, \mathcal{H}_{trace}, \mathcal{H}_{refine}, \kappa_{refine} \rangle$$
 
 where:
 - $\mathcal{I}_{enriched}$ is the operator intent after contextual enrichment.
@@ -60,8 +60,10 @@ where:
 - $\mathbf{\Gamma}_{QoT} = \{ (\pi_k, \text{GSNR}_k, P_{rx, k}, \text{QoT}_{valid, k}) \}_{k=1}^K$ stores the computed physical metrics.
 - $\mathcal{D}_{action} \in \{ \text{approve}, \text{replan} \}$ is the resolved decision outcome.
 - $\mathcal{H}_{trace}$ is the append-only message list preserving the chronological execution trace.
+- $\mathcal{H}_{refine} = (\mathcal{F}_1, \dots, \mathcal{F}_k)$ is the chronological sequence of operator clarification and replan feedback.
+- $\kappa_{refine} \in \{0, \dots, N_{\max}\}$ is the active refinement counter bounded by $N_{\max} = 3$.
 
-State transitions are governed by deterministic guard functions, ensuring that backward loopbacks (e.g., Phase 3b $\to$ Phase 2 or Phase 6 $\to$ Phase 2) preserve the audit history while resetting transient execution variables, preventing infinite recursion and memory leaks.
+State transitions are governed by deterministic guard functions, ensuring that backward loopbacks (e.g., Phase 3b $\to$ Phase 2 or Phase 6 $\to$ Phase 2) preserve the audit history $\mathcal{H}_{trace}$ and feedback trail $\mathcal{H}_{refine}$ while resetting transient execution variables, guaranteeing monotonic convergence without memory leaks.
 
 ---
 

@@ -79,9 +79,16 @@ def radg_node(state: AgentState) -> dict:
             elif "action" in response and response["action"] not in ("refine", "replan", "approve", "reject"):
                 feedback = str(response["action"]).strip()
 
+        resolved_fb = feedback if feedback else summary
+        refinement_history = list(state.get("refinement_history") or [])
+        refinement_history.append(resolved_fb)
+        refinement_count = (state.get("refinement_count") or 0) + 1
+
         return {
             "radg_decision": decision,
-            "error_context": feedback if feedback else summary,
+            "error_context": resolved_fb,
+            "refinement_history": refinement_history,
+            "refinement_count": refinement_count,
             "messages": [AIMessage(content=summary, name="radg")],
         }
 
