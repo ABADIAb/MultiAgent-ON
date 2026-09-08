@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-import pytest
 from langchain_core.messages import AIMessage, HumanMessage
 
 from src.core.state import AgentState
@@ -375,6 +374,46 @@ class TestHitlClarifyNode:
 
         unapproved_state = _make_state(hitl_approved=False)
         assert hitl_clarify_route(unapproved_state) == "pddl_parser"
+
+    @patch("src.nodes.reverse_prompt.interrupt")
+    def test_refine_accumulates_refinement_history_and_increments_count(self, mock_interrupt):
+        """Refinement feedback must append to refinement_history and increment refinement_count."""
+        from src.nodes.reverse_prompt import hitl_clarify_node
+
+        mock_interrupt.return_value = {"action": "refine", "feedback": "Avoid Munich"}
+
+        state = _make_state(
+            hitl_reconstruction=REVERSE_PROMPT_RECONSTRUCTION,
+            refinement_history=["Initial tweak"],
+            refinement_count=1,
+        )
+        result = hitl_clarify_node(state)
+
+        assert result["refinement_count"] == 2
+        assert result["refinement_history"] == ["Initial tweak", "Avoid Munich"]
+        assert result["hitl_approved"] is False
+
+    @patch("src.nodes.reverse_prompt.interrupt")
+    def test_max_refinements_triggers_cancellation_interrupt(self, mock_interrupt):
+        """When refinement_count >= 3, hitl_clarify raises an abort interrupt to prevent context window saturation."""
+        from src.nodes.reverse_prompt import hitl_clarify_node
+
+        mock_interrupt.return_value = {"action": "cancel"}
+
+        state = _make_state(
+            hitl_reconstruction=REVERSE_PROMPT_RECONSTRUCTION,
+            refinement_count=3,
+            refinement_history=["Refine 1", "Refine 2", "Refine 3"],
+        )
+        result = hitl_clarify_node(state)
+
+        mock_interrupt.assert_called_once()
+        payload = mock_interrupt.call_args[0][0]
+        assert payload["status"] == "aborted"
+        assert payload["options"] == ["cancel"]
+        assert "context window" in payload["reason"].lower() or "context window" in payload["message"].lower()
+        assert result["hitl_approved"] is False
+        assert "aborted" in result["error_context"].lower()
 
 
 

@@ -83,13 +83,19 @@ def pddl_parser_node(state: AgentState) -> dict:
     enriched = state.get("enriched_intent") or "No intent provided"
     previous_pddl = state.get("pddl_constraints")
     feedback = state.get("error_context")
+    refinement_history = state.get("refinement_history") or []
 
     if previous_pddl and feedback:
+        history_text = (
+            "\n".join(f"- {r}" for r in refinement_history)
+            if refinement_history
+            else f"- {feedback}"
+        )
         user_content = (
             f"Original Intent: {enriched}\n\n"
             f"Previous PDDL constraints:\n{previous_pddl}\n\n"
-            f"Operator refinement feedback: {feedback}\n\n"
-            "Please generate the updated and corrected PDDL constraints incorporating the operator's feedback."
+            f"Operator refinement feedback:\n{history_text}\n\n"
+            "Please generate the updated and corrected PDDL constraints incorporating all operator feedback."
         )
     else:
         user_content = enriched

@@ -29,10 +29,11 @@ Implements the formal closed-loop validation contract that prevents **semantic d
    - If $U_{sem} > \tau_{sem}$: routes to `hitl_clarify` (Phase 3b).
 3. **Phase 3b (`hitl_clarify_node`):**
    - Pauses execution via `interrupt()` presenting the reconstructed intent, uncertainty score, PDDL validity, and error context.
+   - **Context Window Protection ($N_{max} = 3$):** If `refinement_count >= 3`, halts with an abort interrupt (`status="aborted"`), preventing infinite conversational loops, attention degradation, and context window saturation as formalized in [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|Thesis Section 3.5.4]].
    - Resumes with operator decision handled by `hitl_clarify_route`:
      - `approve` (available when `pddl_valid is True`): Operator confirms the system's understanding despite borderline uncertainty. Sets `hitl_approved=True`, `usem_passed=True`, and clears `error_context`. `hitl_clarify_route` routes **directly to `symbolic_solver` (Phase 4)**, avoiding redundant re-parsing.
-     - `refine` / textual feedback: Operator clarifies intent or provides corrections. Sets `hitl_approved=False`, stores instructions in `error_context`. `hitl_clarify_route` loops back to `pddl_parser` (Phase 2).
-     - `cancel`: Operator aborts execution (handled by runner/CLI).
+     - `refine` / textual feedback: Operator clarifies intent or provides corrections. Appends feedback to `refinement_history`, increments `refinement_count`, sets `hitl_approved=False`, and stores instructions in `error_context`. `hitl_clarify_route` loops back to `pddl_parser` (Phase 2).
+     - `cancel`: Operator aborts execution (routed to `"__end__"`).
 
 ## 4. HITL Strategy Evolution
 | Version | Phase 3 HITL Trigger |

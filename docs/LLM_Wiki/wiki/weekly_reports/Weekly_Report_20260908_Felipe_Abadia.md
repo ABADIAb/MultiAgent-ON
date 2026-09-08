@@ -84,6 +84,12 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - **Conceptual Framework Visual Refinement:** Injected the fast-track decision branch into `conceptual_framework.drawio`, adjusted element layouts, and re-exported production vector PDF and 300 DPI PNG previews.
    - **Diagram Exporter Script Integration:** Implemented and registered `scripts/export_diagram.py` into the `thesis-coauthor` skill, creating a cross-platform (Linux/WSL) automated compilation toolchain for Draw.io diagrams.
 
+9. **Monotonic Refinement Semantic Drift Resolution & Bounded HITL Cycle Guards (BUG-009):**
+   - **Root Cause Diagnosis:** Identified a critical semantic drift feedback loop where repeated operator clarifications caused $U_{sem}$ to monotonically increase, trapping the orchestrator in infinite clarification interrupts. Diagnosed three contributing factors: (1) state isolation leaving downstream Semantic Gate without operator clarifications, (2) evaluator prompt penalizing intentional operator relaxations as hallucinations, and (3) missing loop upper bounds.
+   - **Effective Intent Formulation ($\mathcal{I}_{\text{eff}}^{(k)}$):** Enhanced `AgentState` with `refinement_history` and `refinement_count`, constructing effective intent $\mathcal{I}_{\text{eff}}^{(k)} = \mathcal{I}_{NL} \oplus \mathcal{H}_{refine}$ for semantic agreement evaluation.
+   - **Bounded Refinement & Context Protection:** Enforced maximum refinement bound $N_{max}=3$ in `hitl_clarify_node` and RADG replan, raising an explicit cancellation `interrupt(status="aborted")` on budget exhaustion to protect context windows and token budgets.
+   - **Thesis Chapter 3 Synchronization:** Formally documented $\mathcal{H}_{refine}$, $\kappa_{refine}$, $\mathcal{I}_{\text{eff}}^{(k)}$, and the bounded refinement convergence condition in Section 3.2.3, Section 3.5, and `chapter_3_system_model.txt`.
+
 ---
 
 ## 3. Issue List This Week
@@ -98,6 +104,11 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 - **What has already been tried:** Audited LangGraph serializer mechanics (`JsonPlusSerializer` / `msgpack`). Verified how Pydantic and custom domain classes are registered in LangGraph checkpointing.
 - **Result:** SOLVED. Created `ALLOWED_MSGPACK_MODULES = [("src.core.state", "TopologySnapshot")]` in `src/core/state.py` and initialized `InMemorySaver(serde=JsonPlusSerializer(allowed_msgpack_modules=ALLOWED_MSGPACK_MODULES))` in `src/main.py`, cleanly whitelisting the domain model without suppressing valid runtime diagnostics.
 
+### Issue 3 (SOLVED)
+- **Issue:** Multi-turn operator clarifications triggered infinite clarification loops because Semantic Gate compared reconstructed intent against the initial static natural language intent, penalizing operator adjustments as semantic divergence (BUG-009).
+- **What has already been tried:** Investigated state evolution in `pddl_parser_node` and `semantic_gate_node`. Verified that `enriched_intent` remained static and prompt instructions penalized constraint alterations.
+- **Result:** SOLVED ([[experiments/bugs/bug009_Semantic_Gate_Refinement_Drift|BUG-009]]). Implemented state-accumulated `refinement_history`, updated Semantic Gate to evaluate adherence against effective intent $\mathcal{I}_{\text{eff}}^{(k)}$, calibrated prompt to recognize operator adjustments as faithful alignment, and established $N_{max}=3$ safety termination.
+
 ---
 
 ## 4. What do I plan to accomplish next week?
@@ -110,10 +121,10 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 ## 5. Do You Need Support?
 
-No immediate blockers. Visual artifacts and Chapter 3 LaTeX consolidation are 100% complete, fully styled with academic boxes, and verified in Overleaf. Interactive CLI and pipeline routing are production-ready.
+No immediate blockers. Visual artifacts and Chapter 3 LaTeX consolidation are 100% complete, fully styled with academic boxes, and verified in Overleaf. Interactive CLI, pipeline routing, and refinement convergence guards are production-ready.
 
 ---
 
 ## 6. One-Sentence Summary
 
-I modernized the orchestrator CLI with interactive Rich/Questionary controls and ghost placeholders, enabled Phase 3b fast-track approval directly to the symbolic solver, resolved LangGraph MsgPack checkpoint deserialization warnings, and finalized Chapter 3 LaTeX consolidation.
+I modernized the orchestrator CLI with interactive Rich/Questionary controls, enabled Phase 3b fast-track approval, resolved BUG-009 (monotonic refinement semantic drift) with bounded HITL cycles and effective intent evaluation, and synchronized Thesis Chapter 3 drafts and Overleaf LaTeX.
