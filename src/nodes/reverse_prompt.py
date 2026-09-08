@@ -92,13 +92,15 @@ def hitl_clarify_node(state: AgentState) -> dict:
     error_context = state.get("error_context")
     pddl_valid = state.get("pddl_valid")
 
+    options = ["approve", "refine", "cancel"] if pddl_valid else ["refine", "cancel"]
+
     response = interrupt({
         "status": "clarification_required",
         "reconstruction": reconstruction,
         "usem_score": usem_score,
         "pddl_valid": pddl_valid,
         "error_context": error_context,
-        "options": ["clarify", "refine", "cancel"],
+        "options": options,
         "message": (
             "Semantic uncertainty is high or intent requires clarification. "
             "Please review the system's understanding and provide refined instructions."
@@ -106,16 +108,33 @@ def hitl_clarify_node(state: AgentState) -> dict:
     })
 
     feedback = ""
+    action = "refine"
     if isinstance(response, str):
         feedback = response.strip()
     elif isinstance(response, dict):
+        action = response.get("action", "refine")
         fb = response.get("feedback") or response.get("refinement")
         if fb:
             feedback = str(fb).strip()
-        elif "action" in response and response["action"] not in ("refine", "cancel", "clarify"):
-            feedback = str(response["action"]).strip()
+        elif action not in ("refine", "cancel", "clarify", "approve"):
+            feedback = str(action).strip()
 
-    action = response.get("action", "refine") if isinstance(response, dict) else "refine"
+    # Operator explicitly approved the current understanding
+    if action == "approve" and pddl_valid:
+        return {
+            "hitl_approved": True,
+            "usem_passed": True,
+            "error_context": None,
+            "messages": [
+                AIMessage(
+                    content=(
+                        f"HITL Clarification: Operator approved understanding — "
+                        f"proceeding to solver: {reconstruction}"
+                    ),
+                    name="hitl_clarify",
+                )
+            ],
+        }
 
     resolved_feedback = feedback if feedback else (error_context or "Refinement requested by operator")
 
@@ -129,3 +148,16 @@ def hitl_clarify_node(state: AgentState) -> dict:
             )
         ],
     }
+
+
+def hitl_clarify_route(state: AgentState) -> str:
+    """Conditional edge: route based on operator clarification decision.
+
+    Returns:
+        - "symbolic_solver" if operator approved the understanding (hitl_approved=True).
+        - "pddl_parser" if operator requested refinement (loop back).
+    """
+    if state.get("hitl_approved"):
+        return "symbolic_solver"
+    return "pddl_parser"
+

@@ -54,7 +54,7 @@ response = interrupt({
     "usem_score": usem_score,
     "pddl_valid": pddl_valid,
     "error_context": error_context,
-    "options": ["clarify", "refine", "cancel"],
+    "options": ["approve", "refine", "cancel"] if pddl_valid else ["refine", "cancel"],
     "message": (
         "Semantic uncertainty is high or intent requires clarification. "
         "Please review the system's understanding and provide refined instructions."
@@ -65,7 +65,7 @@ response = interrupt({
 **Execution Lifecycle under Interruption:**
 1. **Atomic Checkpoint Serialization:** Invoking the `interrupt()` function halts node execution and serializes the complete `AgentState` tuple $\mathcal{S}_{state}$ into a persistent storage checkpointer, keyed by a unique transaction thread identifier.
 2. **Resource Deallocation:** The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
-3. **Resumption and State Injection:** Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. It injects the human feedback directly into the $\mathcal{S}_{state}$ dictionary under `error_context`, routing cleanly back to the parsing phase for targeted PDDL regeneration.
+3. **Resumption and State Injection:** Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it injects the human feedback directly into the $\mathcal{S}_{state}$ dictionary under `error_context`, routing cleanly back to the parsing phase for targeted PDDL regeneration.
 
 ---
 

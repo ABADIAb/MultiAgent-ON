@@ -28,7 +28,7 @@ from src.nodes.pddl_parser import pddl_parser_node
 from src.nodes.plan_synthesizer import plan_synthesizer_node
 from src.nodes.qot_validation import qot_validation_node
 from src.nodes.radg_node import radg_node, radg_route
-from src.nodes.reverse_prompt import hitl_clarify_node, reverse_prompt_node
+from src.nodes.reverse_prompt import hitl_clarify_node, hitl_clarify_route, reverse_prompt_node
 from src.nodes.semantic_gate_node import semantic_gate_node, semantic_gate_route
 
 
@@ -75,7 +75,7 @@ def build_graph() -> StateGraph:
     #   semantic_gate_route → "hitl_clarify"     (U_sem > tau, triggers Phase 3b HITL)
     # -----------------------------------------------------------------------
     builder.add_conditional_edges("semantic_gate", semantic_gate_route)
-    builder.add_edge("hitl_clarify", "pddl_parser")
+    builder.add_conditional_edges("hitl_clarify", hitl_clarify_route)
 
     # -----------------------------------------------------------------------
     # Symbolic solver → QoT validation → RADG physical risk gate

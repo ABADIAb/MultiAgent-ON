@@ -347,6 +347,36 @@ class TestHitlClarifyNode:
         assert isinstance(result["messages"][0], AIMessage)
         assert result["messages"][0].name == "hitl_clarify"
 
+    @patch("src.nodes.reverse_prompt.interrupt")
+    def test_approve_action_with_pddl_valid_sets_hitl_approved_true(self, mock_interrupt):
+        """When operator chooses 'Continúa con lo que entendiste' and PDDL is valid, approve passes."""
+        from src.nodes.reverse_prompt import hitl_clarify_node
+
+        mock_interrupt.return_value = {"action": "approve"}
+
+        state = _make_state(
+            hitl_reconstruction=REVERSE_PROMPT_RECONSTRUCTION,
+            pddl_valid=True,
+            usem_score=0.4,
+        )
+        result = hitl_clarify_node(state)
+
+        assert result["hitl_approved"] is True
+        assert result["usem_passed"] is True
+        assert result["error_context"] is None
+        assert "Operator approved understanding" in result["messages"][0].content
+
+    def test_hitl_clarify_route_branching(self):
+        """Route to symbolic_solver when approved, loop to pddl_parser when not approved."""
+        from src.nodes.reverse_prompt import hitl_clarify_route
+
+        approved_state = _make_state(hitl_approved=True)
+        assert hitl_clarify_route(approved_state) == "symbolic_solver"
+
+        unapproved_state = _make_state(hitl_approved=False)
+        assert hitl_clarify_route(unapproved_state) == "pddl_parser"
+
+
 
 # ---------------------------------------------------------------------------
 # Symbolic Solver (real implementation — Exp 2.3)

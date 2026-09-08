@@ -73,6 +73,17 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - Centralized all styling and package declarations into Overleaf's `config.tex`, purifying `chapter_3_system_model.txt` to start directly at line 1 with `\chapter{...}`.
    - Documented the entire specification in `overleaf-standards.md` within the `thesis-coauthor` skill.
 
+7. **Interactive CLI Modernization, HITL Disambiguation Fast-Track & Serialization Stabilization:**
+   - **Modern Interactive CLI (`src/main.py`):** Upgraded the orchestrator runner with `rich` panels, progress spinners, live stage status tracking, and `questionary` arrow-driven menu selection. Integrated ghost placeholder support for operator intents (`Route 100G optical circuit from Berlin to Frankfurt with at least 15 dB GSNR`) and set `kimi-for-coding-highspeed` (8000 max tokens, temp 1.0) as the high-throughput default.
+   - **Dual-Option Phase 3b HITL Fast-Track:** Extended `src/nodes/reverse_prompt.py` and `src/core/graph.py` with `hitl_clarify_route`. When an operator is prompted with a borderline intent ($U_{sem} > 0.3$) whose structural PDDL is nevertheless valid ($v_{struct}=1$), the operator can explicitly approve the understanding (`action="approve"`), routing directly to `symbolic_solver` (Phase 4) and bypassing redundant LLM re-parsing loops.
+   - **LangGraph Checkpoint Serialization Hygiene:** Resolved LangGraph MsgPack deserialization warnings by declaring `ALLOWED_MSGPACK_MODULES = [("src.core.state", "TopologySnapshot")]` in `src/core/state.py` and configuring `InMemorySaver(serde=JsonPlusSerializer(...))` in `src/main.py`.
+   - **Codebase Artifact Language Consistency:** Enforced 100% English UI copy and action labels across all CLI prompts and tables.
+
+8. **Thesis Chapter 3 Synchronization, Diagram Architecture Refinement & Draw.io Export Tooling:**
+   - **Ripple-Effect Thesis Alignment:** Synchronized Section 3.2 ([[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|Conceptual Framework]]), Section 3.5 ([[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|Formal HITL Reverse Prompting]]), and the merged Overleaf LaTeX document ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt|chapter_3_system_model.txt]]) with the Phase 3b fast-track operator approval edge ($v_{struct}=1 \implies$ Phase 4 direct bypass).
+   - **Conceptual Framework Visual Refinement:** Injected the fast-track decision branch into `conceptual_framework.drawio`, adjusted element layouts, and re-exported production vector PDF and 300 DPI PNG previews.
+   - **Diagram Exporter Script Integration:** Implemented and registered `scripts/export_diagram.py` into the `thesis-coauthor` skill, creating a cross-platform (Linux/WSL) automated compilation toolchain for Draw.io diagrams.
+
 ---
 
 ## 3. Issue List This Week
@@ -81,6 +92,11 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 - **Issue:** Draw.io desktop and VS Code extension create hidden temporary lock and backup files (`.$*.drawio*`, `*.drawio.bkp`) that persist in the workspace after closing.
 - **What has already been tried:** Investigated the Electron crash-recovery mechanism, verified that `.drawio` files were cleanly saved, and audited repository status.
 - **Result:** SOLVED. Configured `.gitignore` to permanently ignore `.$*.drawio*` and `*.drawio.bkp` and purged orphaned temporary files.
+
+### Issue 2 (SOLVED)
+- **Issue:** LangGraph checkpoint deserialization emitted a future-deprecation runtime warning upon reaching Phase 3: `Deserializing unregistered type src.core.state.TopologySnapshot from checkpoint. This will be blocked in a future version.`
+- **What has already been tried:** Audited LangGraph serializer mechanics (`JsonPlusSerializer` / `msgpack`). Verified how Pydantic and custom domain classes are registered in LangGraph checkpointing.
+- **Result:** SOLVED. Created `ALLOWED_MSGPACK_MODULES = [("src.core.state", "TopologySnapshot")]` in `src/core/state.py` and initialized `InMemorySaver(serde=JsonPlusSerializer(allowed_msgpack_modules=ALLOWED_MSGPACK_MODULES))` in `src/main.py`, cleanly whitelisting the domain model without suppressing valid runtime diagnostics.
 
 ---
 
@@ -94,10 +110,10 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 ## 5. Do You Need Support?
 
-No immediate blockers. Visual artifacts and Chapter 3 LaTeX consolidation are 100% complete, fully styled with academic boxes, and verified in Overleaf.
+No immediate blockers. Visual artifacts and Chapter 3 LaTeX consolidation are 100% complete, fully styled with academic boxes, and verified in Overleaf. Interactive CLI and pipeline routing are production-ready.
 
 ---
 
 ## 6. One-Sentence Summary
 
-I completed the publication-ready restructuring and vector compilation of Chapter 3 figures, standardized Overleaf with modern academic box environments, eliminated table and equation margin overflows, and centralized all styling in config.tex.
+I modernized the orchestrator CLI with interactive Rich/Questionary controls and ghost placeholders, enabled Phase 3b fast-track approval directly to the symbolic solver, resolved LangGraph MsgPack checkpoint deserialization warnings, and finalized Chapter 3 LaTeX consolidation.

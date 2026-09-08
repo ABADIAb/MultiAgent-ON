@@ -130,8 +130,8 @@ def intent_ingest_node(state: AgentState) -> dict:
         sub_node_ids = set(subgraph.nodes)
         sub_nodes = [n for n in topology_snapshot.nodes if n.node_id in sub_node_ids]
         sub_links = [
-            l for l in topology_snapshot.links
-            if l.source_node in sub_node_ids and l.target_node in sub_node_ids
+            link for link in topology_snapshot.links
+            if link.source_node in sub_node_ids and link.target_node in sub_node_ids
         ]
         subtopology_snapshot = TopologySnapshot(
             nodes=sub_nodes,

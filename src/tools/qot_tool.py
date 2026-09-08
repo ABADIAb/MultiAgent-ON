@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from langchain_core.tools import tool
 
-from src.core.models import Amplifier, FiberLink
+from src.core.models import FiberLink
 from src.core.qot_calculator import assess_qot
 
 

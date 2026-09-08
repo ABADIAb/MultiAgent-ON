@@ -43,7 +43,7 @@ def create_kimi_llm(
     base_url: str | None = None,
     model: str | None = None,
     temperature: float | None = None,
-    max_tokens: int = 2500,
+    max_tokens: int | None = None,
     think_effort: str | None = None,
     thinking_disabled: bool = False,
     extra_body: dict[str, Any] | None = None,
@@ -55,7 +55,7 @@ def create_kimi_llm(
         base_url: Custom base URL (required for Kimi).
         model: Model identifier (defaults to KIMI_MODEL env or 'kimi-for-coding-highspeed').
         temperature: Sampling temperature. Defaults to 0.6 if thinking is disabled, 1.0 otherwise.
-        max_tokens: Maximum tokens for completion (including reasoning tokens).
+        max_tokens: Maximum tokens for completion (including reasoning tokens). Defaults to 8000 for highspeed.
         think_effort: Optional reasoning effort ('low', 'high', 'max') for K3 models.
         thinking_disabled: Whether to disable reasoning/thinking entirely.
         extra_body: Additional raw payload attributes.
@@ -65,6 +65,11 @@ def create_kimi_llm(
     """
     resolved_model = model or os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL)
     resolved_temp = (0.6 if thinking_disabled else 1.0) if temperature is None else temperature
+    resolved_max_tokens = (
+        max_tokens
+        if max_tokens is not None
+        else (8000 if resolved_model == DEFAULT_KIMI_MODEL else 2500)
+    )
 
     body_params: dict[str, Any] = dict(extra_body) if extra_body else {}
     if thinking_disabled:
@@ -76,7 +81,7 @@ def create_kimi_llm(
         "model": resolved_model,
         "api_key": api_key,
         "temperature": resolved_temp,
-        "max_tokens": max_tokens,
+        "max_tokens": resolved_max_tokens,
     }
     if base_url:
         kwargs["base_url"] = base_url
