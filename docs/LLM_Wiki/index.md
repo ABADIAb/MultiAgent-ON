@@ -40,6 +40,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
+- [[weekly_reports/Weekly_Report_20260915_Felipe_Abadia]]: Weekly report September 15, 2026. Authoring of the presentation-coauthor skill, headless Windows PowerPoint COM export pipeline (PDF/PNG) without file locking, and the 16-slide Master's thesis defense deck following Prof. Tornatore's 15 Golden Rules.
 - [[weekly_reports/Weekly_Report_20260908_Felipe_Abadia]]: Weekly report September 08, 2026. Thesis Chapter 3 figures restructuring, Draw.io XML authoring, vector/raster batch export, Overleaf LaTeX consolidation, custom academicbox/formalbox environments, float barriers, resolution of BUG-009 & BUG-010, Planning Report visual redesign, and presentation rehearsal scheduling.
 - [[weekly_reports/Weekly_Report_20260901_Felipe_Abadia]]: Weekly report September 01, 2026. Thesis Chapter 3 drafting & refinement (Sections 3.1–3.3), Reverse Prompting decoupling, full CFG AST PDDL parser, symbolic solver node exclusion (`avoid-node`), and 268 passing tests.
 - [[weekly_reports/Weekly_Report_20260811_Felipe_Abadia]]: Weekly report August 11, 2026. Sprint 3 completion, RADG integration, QoT physics, and Architecture V5 wiring.
@@ -66,6 +67,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
+- [[issues/Issue_Report_20260915_Felipe_Abadia]]: Solved Windows PowerPoint file-locking constraint via PowerShell COM automation, solved multi-stage pipeline banner height overflow, and replaced deprecated presentation-designer with presentation-coauthor; 0 pending issues.
 - [[issues/Issue_Report_20260908_Felipe_Abadia]]: Solved BUG-009 (Monotonic Refinement Semantic Drift) and BUG-010 (Planning Report Stale Intent & Raw Subtopology Dump); 0 pending issues.
 - [[issues/Issue_Report_20260906_Felipe_Abadia]]: Solved Draw.io temporary lock/backup files cluttering workspace via permanent .gitignore rules; 0 pending issues.
 - [[issues/Issue_Report_20260824_Felipe_Abadia]]: Solved 3-node numerical evaluation limitation via Nobel-Germany 17-node topology; solved multi-hop power accumulation; solved BUG-006 solver endpoint parsing; pending testbed link provisioning; in progress Sprint 4 test corpus.
@@ -139,6 +141,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260909_Presentation_CoAuthor_Skill_and_Thesis_Defense_Deck]]: Creation of presentation-coauthor skill, headless Windows PowerPoint COM export automation (vector PDF and 1080p PNG previews), and complete 16-slide Master's thesis defense deck adhering strictly to Prof. Tornatore's 15 Golden Rules.
 - [[session_summary/session_20260908_BUG009_Semantic_Gate_Refinement_Drift_and_Thesis_Alignment]]: Diagnosis and resolution of BUG-009 (monotonic refinement semantic drift) and BUG-010 (stale intent in planning report with horizontal lightpath graph redesign), Thesis Chapter 3 drafts / Overleaf LaTeX synchronization, and presentation rehearsal scheduling.
 - [[session_summary/session_20260907_CLI_Modernization_HITL_Bypass_and_Serialization]]: Interactive CLI modernization (Rich/Questionary), ghost placeholder styling, Phase 3b fast-track approval routing to symbolic solver, LangGraph MsgPack deserialization whitelist, Thesis Chapter 3 synchronization, Draw.io diagram updates, and automated export tooling.
 - [[session_summary/session_20260906_Thesis_Chapter3_Figures_and_LaTeX_Consolidation]]: Publication-ready restructuring of Chapter 3 figures, Draw.io vector exports, Overleaf LaTeX source (`chapter_3_system_model.txt`), academicbox listings, formalbox specifications, float barrier controls, and margin overflow normalization.

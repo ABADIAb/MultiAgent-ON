@@ -28,14 +28,7 @@ The translation of high-level operator intent into physical optical network conf
 
 5. **Suboptimal HITL Engagement.** Current systems offer only two extremes: **always-on HITL** (every intent requires human review, creating bottlenecks and operator fatigue) or **no HITL** (fully autonomous, risking unsafe approvals). There is no mechanism to engage the human operator **proportionally to the assessed risk** of a given intent.
 
-## 3. Prior Art and Its Limitations
-
-| System | HITL Strategy | When Applied | Key Limitation |
-|--------|--------------|--------------|----------------|
-| **Reactive-Retry Baseline** | Heuristic retry after controller deployment failure | Post-deployment | Reactive; deploys unsafe configs first, then retries up to N times |
-| **Confucius** (Meta, SIGCOMM 2025) | Collector primitive for structured Q&A | Pre-execution | No optical physical-layer awareness; no QoT |
-| **AutoLight** (SJTU, ECOC 2025) | None — pre-defined task sequences | Pre-execution | No operator validation; no risk assessment |
-| **IntentLLM** | None — single-pass chatbot | N/A | No multi-agent coordination; no QoT |
+## 3. The Fundamental Gap
 
 **The fundamental gap:** No existing system combines **semantic uncertainty assessment** (did the LLM correctly understand the intent?) with **physical-layer QoT risk evaluation** (is the proposed lightpath physically feasible?) into a **fail-fast, sequential pre-deployment decision** that adaptively determines the appropriate corrective action without wasting computation.
 

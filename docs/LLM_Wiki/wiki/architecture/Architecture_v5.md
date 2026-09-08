@@ -123,18 +123,7 @@ The Orchestrator summarizes the feasible, approved paths into a Planning Report 
 | **Semantic Gate** | **Mathematical Gate + Judge** | **`src/core/semantic_gate.py`** + **`src/nodes/semantic_gate_node.py`** |
 | Testbed NBI | SSH / RESTConf | `src/services/testbed_client.py` |
 
-## 6. What Changed from V4 to V5
-
-| Aspect | V4 | V5 |
-|--------|----|-----|
-| **Core Novelty** | Reverse Prompting convergence | Fail-fast, sequential Semantic ($U_{sem}$) and Physical ($\text{QoT}_{valid}$) risk assessment |
-| **HITL Strategy** | Always-on (every intent) | Risk-adaptive (early trigger only when semantic uncertainty is high: $U_{sem} > \tau_{sem}$) |
-| **Pre-deployment Safety** | Implicit via pipeline stages | Explicit via two-stage Decision Gates |
-| **Decision Outcomes** | Approve / Refine / Reject (binary) | Auto-Approve / Clarify / Suggest Replan (3 outcomes, looping to Phase 2) |
-| **Evaluation** | Ad-hoc demo | Formal baselines + metrics (UAR, HIC, QFR, E2EL, TC) |
-| **Prior Art Positioning** | Against Confucius, AutoLight | + Reactive-Retry Baseline |
-
-## 7. `src/` Folder Convention
+## 6. `src/` Folder Convention
 
 All source code follows the placement methodology defined in `.agents/rules/src-methodology.md`:
 
@@ -145,7 +134,7 @@ All source code follows the placement methodology defined in `.agents/rules/src-
 | `src/tools/` | LangChain `@tool` wrappers | ❌ Never |
 | `src/services/` | External I/O adapters (testbed, SSH) | ❌ Never |
 
-## 8. Feature Documentation Map
+## 7. Feature Documentation Map
 
 Each pipeline phase has a dedicated feature doc in `docs/LLM_Wiki/wiki/architecture/features/`:
 
@@ -162,9 +151,9 @@ Each pipeline phase has a dedicated feature doc in `docs/LLM_Wiki/wiki/architect
 | **Testbed NBI** | `src/services/testbed_client.py` | [[architecture/features/testbed_client]] |
 | **Pipeline Wiring** | `src/core/graph.py` + `src/core/state.py` | [[architecture/features/pipeline_graph]] |
 
-## 9. Cross-References
+## 8. Cross-References
 
 - [[Scope_Pivot_20260706]] — Complete architectural evolution from V2 through V5.
 - [[ProblemStatement_v5]] — Thesis problem definition with evaluation framework.
 - [[experiments/MVP_Roadmap]] — Sprint plan including RADG implementation and baseline evaluation.
-- [[literature/sota_gap_analysis]] — Gap analysis positioning against SOTA including PoliMi/CNSM 2025.
+- [[literature/sota_gap_analysis]] — Gap analysis positioning against SOTA.
