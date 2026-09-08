@@ -63,20 +63,32 @@ START → intent_ingest → pddl_parser → reverse_prompt → semantic_gate
   → (usem_passed == True)  → symbolic_solver → qot_validation → radg
       → (approve) → plan_synthesizer → END
       → (replan)  → [HITL interrupt in radg] → pddl_parser (loop)
-  → (usem_passed == False) → hitl_clarify [HITL interrupt] → pddl_parser (clarification loop)
+  → (usem_passed == False) → hitl_clarify [Phase 3b HITL interrupt]
+      → (approve & pddl_valid) → symbolic_solver (direct bypass to Phase 4)
+      → (refine / feedback)   → pddl_parser (clarification loop)
 ```
 
 Key V5 components in `src/core/graph.py`:
 - `reverse_prompt_node` — Phase 3a automated PDDL $\to$ NL reconstruction (zero interrupts).
 - `semantic_gate_node` + `semantic_gate_route` — Phase 3 mathematical evaluation of $U_{sem} = f(v_{struct}, d_{sem})$. Routes to `symbolic_solver` (pass) or `hitl_clarify` (fail).
-- `hitl_clarify_node` — Phase 3b human clarification via `interrupt()`, looping back to `pddl_parser`.
+- `hitl_clarify_node` + `hitl_clarify_route` — Phase 3b human clarification via `interrupt()`. Conditionally routes directly to `symbolic_solver` if operator approves an already valid PDDL constraint set, or loops back to `pddl_parser` with `error_context`.
 - `radg_node` + `radg_route` — Phase 6 physical risk gate, evaluating $\text{QoT}_{valid}$ and executing auto-approve or replan `interrupt()`.
 
-## 5. Checkpointer & HITL Pattern
-`compile_graph(checkpointer=InMemorySaver())` is required for `interrupt()` to work. Without a checkpointer, `interrupt()` will raise a `RuntimeError`.
+## 5. Checkpointer & Serialization
+`compile_graph(checkpointer=...)` is required for `interrupt()` to work. Without a checkpointer, `interrupt()` will raise a `RuntimeError`.
+
+To support complex domain models (such as `TopologySnapshot`) across checkpoints without triggering LangGraph msgpack serialization warnings, `ALLOWED_MSGPACK_MODULES` is defined in `src/core/state.py` and passed to `JsonPlusSerializer`:
 
 ```python
-graph = compile_graph(checkpointer=InMemorySaver())
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+from src.core.state import ALLOWED_MSGPACK_MODULES
+
+checkpointer = InMemorySaver(
+    serde=JsonPlusSerializer(allowed_msgpack_modules=ALLOWED_MSGPACK_MODULES)
+)
+graph = compile_graph(checkpointer=checkpointer)
+
 # Happy path with clear intent runs from START to END with 0 interrupts!
 final_result = graph.invoke(initial_state, config={"configurable": {"thread_id": "session-1"}})
 ```

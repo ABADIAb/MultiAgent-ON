@@ -90,3 +90,15 @@ class AgentState(TypedDict, total=False):
     topology_context: str | None
     subtopology_snapshot: TopologySnapshot | None
 
+
+# Custom domain classes whitelisted for LangGraph msgpack/jsonplus state checkpointing
+ALLOWED_MSGPACK_MODULES: list[tuple[str, str]] = [
+    ("src.core.state", "TopologySnapshot"),
+    ("src.core.state", "NetworkNode"),
+    ("src.core.state", "FiberLink"),
+    ("src.core.models", "Amplifier"),
+    ("src.core.models", "FiberLink"),
+    ("src.core.models", "QoTResult"),
+]
+
+

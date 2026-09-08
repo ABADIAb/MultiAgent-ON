@@ -178,7 +178,7 @@ The framework operates through seven interconnected functional phases managed by
     \begin{itemize}
         \item \textbf{Phase 3a (Automated Reverse Prompting):} The LLM reconstructs the PDDL specification back into natural language $\mathcal{I}_{\text{recon}}$ autonomously without pausing execution.
         \item \textbf{Semantic Gate:} The gate computes the composite semantic uncertainty metric $U_{\text{sem}} = f(v_{\text{struct}}, d_{\text{sem}})$, measuring syntactic integrity and semantic divergence against the original intent. If $U_{\text{sem}} \le \tau_{\text{sem}}$, the pipeline proceeds autonomously to Phase 4 with \textbf{zero human intervention}.
-        \item \textbf{Phase 3b (HITL Clarification):} If $U_{\text{sem}} > \tau_{\text{sem}}$ (due to syntax invalidity or high ambiguity), execution interrupts, prompting the human operator for explicit clarification and looping back to Phase 2 with operator guidance.
+        \item \textbf{Phase 3b (HITL Clarification):} If $U_{\text{sem}} > \tau_{\text{sem}}$ (due to syntax invalidity or high ambiguity), execution interrupts, prompting the human operator for explicit clarification. If the operator provides new instructions, the system loops back to Phase 2. However, if the intent is structurally valid ($v_{\text{struct}}=1$) and the operator explicitly approves the system's reconstructed understanding, execution bypasses re-parsing and proceeds directly to Phase 4.
     \end{itemize}
     \item \textbf{Phase 4: Deterministic Symbolic Solver:}
     Once semantic clarity is established ($U_{\text{sem}} \le \tau_{\text{sem}}$), the validated PDDL constraints are passed to a non-neural symbolic graph engine. The solver executes Yen's $K$-Shortest Paths algorithm over $G_{\text{sub}}$, pruning paths that violate topological constraints (e.g., node/link exclusions, maximum hop bounds).
@@ -560,7 +560,7 @@ response = interrupt({
     "usem_score": usem_score,
     "pddl_valid": pddl_valid,
     "error_context": error_context,
-    "options": ["clarify", "refine", "cancel"],
+    "options": ["approve", "refine", "cancel"] if pddl_valid else ["refine", "cancel"],
     "message": (
         "Semantic uncertainty is high or intent requires clarification. "
         "Please review the system's understanding and provide refined instructions."
@@ -572,7 +572,7 @@ response = interrupt({
 \begin{enumerate}
     \item \textbf{Atomic Checkpoint Serialization:} Invoking the \texttt{interrupt()} function halts node execution and serializes the complete \texttt{AgentState} tuple $\mathcal{S}_{\text{state}}$ into a persistent storage checkpointer, keyed by a unique transaction thread identifier.
     \item \textbf{Resource Deallocation:} The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
-    \item \textbf{Resumption and State Injection:} Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. It injects the human feedback directly into the $\mathcal{S}_{\text{state}}$ dictionary under \texttt{error\_context}, routing cleanly back to the parsing phase for targeted PDDL regeneration.
+    \item \textbf{Resumption and State Injection:} Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it injects the human feedback directly into the $\mathcal{S}_{\text{state}}$ dictionary under \texttt{error\_context}, routing cleanly back to the parsing phase for targeted PDDL regeneration.
 \end{enumerate}
 
 \subsection{Monotonic Constraint Preservation and Convergence Guarantees}

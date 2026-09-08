@@ -163,3 +163,16 @@ class TestCreateKimiLLM:
         llm = create_kimi_llm(api_key="test-key")
         assert isinstance(llm, BaseChatModel)
 
+    def test_create_kimi_llm_max_tokens_default(self):
+        """Default max_tokens is 8000 for highspeed model and 2500 for other models."""
+        from src.core.llm import create_kimi_llm
+
+        llm_highspeed = create_kimi_llm(api_key="test-key", model="kimi-for-coding-highspeed")
+        assert llm_highspeed.max_tokens == 8000
+
+        llm_k3 = create_kimi_llm(api_key="test-key", model="k3")
+        assert llm_k3.max_tokens == 2500
+
+        llm_custom = create_kimi_llm(api_key="test-key", model="kimi-for-coding-highspeed", max_tokens=4000)
+        assert llm_custom.max_tokens == 4000
+

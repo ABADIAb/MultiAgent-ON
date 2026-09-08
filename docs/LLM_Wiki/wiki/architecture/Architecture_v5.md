@@ -58,7 +58,8 @@ flowchart TD
     Phase2 --> Phase3a
     Phase3a --> Phase3
     Phase3 -->|"U_sem > τ_sem<br/>(Clarify)"| Phase3b
-    Phase3b -.->|"Refined Intent"| Phase2
+    Phase3b -.->|"Refine / Feedback"| Phase2
+    Phase3b -->|"Operator Approve<br/>(v_struct = 1)"| Phase4
     Phase3 -->|"U_sem ≤ τ_sem<br/>(Auto-Pass)"| Phase4
     Phase4 --> Phase5
     Phase5 --> Phase6
@@ -88,7 +89,7 @@ Implementing a **fail-fast** principle, the system assesses Semantic Uncertainty
 - **Layer 2 (Semantic)**: Does the Reverse Prompting reconstruction match the original operator intent ($d_{sem}$)?
 - **Gate Evaluation**: $U_{sem} = 1.0$ if $v_{struct}=0$, else $U_{sem} = d_{sem}$.
 - **Autonomous Pass**: If $U_{sem} \le \tau_{sem}$ (default 0.3), the pipeline proceeds directly to Phase 4 with **0 human interruptions**.
-- **Phase 3b (HITL Clarification)**: If $U_{sem} > \tau_{sem}$, execution pauses via `interrupt()`, presenting $\mathcal{I}_{recon}$ and ambiguity metrics to the operator, whose feedback loops back to Phase 2.
+- **Phase 3b (HITL Clarification)**: If $U_{sem} > \tau_{sem}$, execution pauses via `interrupt()`, presenting $\mathcal{I}_{recon}$ and ambiguity metrics to the operator. If the operator decides to refine, feedback loops back to Phase 2. If the operator explicitly approves the current understanding (allowed when $v_{struct}=1$), execution bypasses re-parsing and proceeds directly to Phase 4 (Symbolic Solver).
 
 ### Phase 4: Symbolic Solver
 The validated PDDL constraints are sent to a Python-based symbolic solver. The solver mathematically calculates 3–5 candidate paths that satisfy the topological rules.
