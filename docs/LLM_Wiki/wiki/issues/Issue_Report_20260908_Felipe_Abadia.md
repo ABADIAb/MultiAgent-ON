@@ -49,9 +49,21 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 ---
 
+#### Solved Issue 3: Stale Initial Intent and Raw Subtopology Context Dump in Planning Report ([[experiments/bugs/bug010_Planning_Report_Intent_and_Topology|BUG-010]])
+
+- **Original issue:** The final Planning Report synthesized in Phase 7 (`plan_synthesizer_node`) printed the static initial intent from $k=0$, ignoring operator clarifications and constraint relaxations submitted during HITL interrupts. Additionally, it printed the duplicate prefix `"Intent: Intent:"`, dumped the raw $k$-hop subtopology JSON text into the report body, and lacked visual topological representation of the lightpath.
+- **What was tried:** Traced state transformations in `src/nodes/plan_synthesizer.py`. Diagnosed that `plan_synthesizer_node` extracted the intent solely from `enriched_intent` without stripping topology context and never read `refinement_history` or `refinement_count`.
+- **Resolution / outcome:**
+  1. Implemented `_extract_clean_base_intent` to prioritize clean human messages and strip `\nTopology Context:` and redundant `"Intent: "` prefixes.
+  2. Integrated `refinement_history` and `refinement_count` into the report, enumerating applied refinements turn-by-turn and presenting the synthesized **Active Operational Intent**.
+  3. Implemented `_format_horizontal_path` to correlate the selected lightpath with `candidate_paths` and render a horizontal ASCII/Unicode path graph with span distances (km), inline EDFA counts, cumulative metrics, and hop-by-hop link breakdowns.
+  4. Structured the report into 5 executive Markdown sections and added 3 regression tests in `TestPlanSynthesizerNode` ([`tests/unit/test_pipeline_nodes.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_pipeline_nodes.py)).
+
+---
+
 ### Pending Issues
 
-> None. All detected pipeline edge cases, convergence bounds, and thesis draft synchronizations are verified and passing tests.
+> None. All detected pipeline edge cases, convergence bounds, auditable report outputs, and thesis draft synchronizations are verified and passing tests.
 
 ---
 

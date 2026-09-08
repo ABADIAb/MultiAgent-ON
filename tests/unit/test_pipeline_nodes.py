@@ -596,3 +596,84 @@ class TestPlanSynthesizerNode:
         state = _make_state(qot_results=[])
         result = plan_synthesizer_node(state)
         assert isinstance(result["messages"][0], AIMessage)
+
+    def test_report_reflects_refinement_history_and_updated_intent(self):
+        from src.nodes.plan_synthesizer import plan_synthesizer_node
+
+        state = _make_state(
+            enriched_intent="Intent: Route 100G from Berlin to Munich with 18 dB GSNR | Source: Berlin | Target: Munich",
+            refinement_history=["Relax minimum GSNR to 14.0 dB and avoid Leipzig"],
+            refinement_count=1,
+            qot_results=[{"path": ["Berlin", "Nuremberg", "Munich"], "feasible": True, "snr_dB": 15.2, "power_dBm": -8.0}],
+        )
+        result = plan_synthesizer_node(state)
+        report = result["planning_report"]
+
+        # Must explicitly mention the refinement feedback
+        assert "Relax minimum GSNR to 14.0 dB and avoid Leipzig" in report
+        # Must indicate the intent was refined / active operational intent
+        assert "Refinement" in report or "Refined" in report
+
+    def test_report_eliminates_repeated_intent_and_topology_dump(self):
+        from src.nodes.plan_synthesizer import plan_synthesizer_node
+
+        state = _make_state(
+            enriched_intent=(
+                "Intent: Route 100G from Berlin to Frankfurt | Source: Berlin | Target: Frankfurt\n"
+                "Topology Context:\n"
+                "Sub-topology (17 nodes, 26 links):\n"
+                "Nodes: Berlin, Frankfurt, Munich...\n"
+                "Links: Berlin-Frankfurt (600 km)..."
+            ),
+            qot_results=[{"path": ["Berlin", "Frankfurt"], "feasible": True, "snr_dB": 16.0, "power_dBm": -8.0}],
+        )
+        result = plan_synthesizer_node(state)
+        report = result["planning_report"]
+
+        # Must not have repeated "Intent      : Intent:"
+        assert "Intent      : Intent:" not in report
+        # Must not dump raw topology context
+        assert "Topology Context:" not in report
+        assert "Sub-topology (17 nodes" not in report
+
+    def test_report_renders_horizontal_optical_path_with_links_and_edfas(self):
+        from src.nodes.plan_synthesizer import plan_synthesizer_node
+
+        candidate = {
+            "nodes": ["Berlin", "Leipzig", "Frankfurt"],
+            "total_length_km": 530.0,
+            "hops": 2,
+            "link_physics": [
+                {
+                    "link_id": "Berlin-Leipzig",
+                    "length_km": 180.0,
+                    "amplifiers": [{"amp_id": "amp_1"}, {"amp_id": "amp_2"}],
+                },
+                {
+                    "link_id": "Leipzig-Frankfurt",
+                    "length_km": 350.0,
+                    "amplifiers": [{"amp_id": "amp_3"}, {"amp_id": "amp_4"}, {"amp_id": "amp_5"}, {"amp_id": "amp_6"}],
+                },
+            ],
+        }
+        state = _make_state(
+            enriched_intent="Intent: Route 100G from Berlin to Frankfurt",
+            candidate_paths=[candidate],
+            qot_results=[{
+                "path": ["Berlin", "Leipzig", "Frankfurt"],
+                "feasible": True,
+                "snr_dB": 17.5,
+                "power_dBm": -8.0,
+                "snr_threshold_dB": 15.0,
+            }],
+        )
+        result = plan_synthesizer_node(state)
+        report = result["planning_report"]
+
+        # Must render horizontal lightpath graph with distances and EDFAs
+        assert "Berlin" in report and "Leipzig" in report and "Frankfurt" in report
+        assert "180.0 km" in report or "180 km" in report
+        assert "2 EDFAs" in report or "2 EDFA" in report
+        assert "350.0 km" in report or "350 km" in report
+        assert "4 EDFAs" in report or "4 EDFA" in report
+

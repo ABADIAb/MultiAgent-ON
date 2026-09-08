@@ -90,6 +90,12 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - **Bounded Refinement & Context Protection:** Enforced maximum refinement bound $N_{max}=3$ in `hitl_clarify_node` and RADG replan, raising an explicit cancellation `interrupt(status="aborted")` on budget exhaustion to protect context windows and token budgets.
    - **Thesis Chapter 3 Synchronization:** Formally documented $\mathcal{H}_{refine}$, $\kappa_{refine}$, $\mathcal{I}_{\text{eff}}^{(k)}$, and the bounded refinement convergence condition in Section 3.2.3, Section 3.5, and `chapter_3_system_model.txt`.
 
+10. **Planning Report Stale Intent Resolution & Horizontal Lightpath Graph Redesign (BUG-010):**
+   - **Operational Clarity & Auditability Fix:** Diagnosed an operational defect where the Planning Report printed the static initial intent from $k=0$ ignoring operator HITL feedback, repeated `"Intent: Intent:"`, dumped raw $k$-hop subtopology JSON text, and lacked a visual topological representation of the lightpath.
+   - **Refinement Traceability:** Sanitized base intent extraction and integrated `refinement_history` to explicitly display Initial Intent, turn-by-turn Applied Refinements, and the synthesized Active Operational Intent.
+   - **Horizontal Optical Lightpath Graph:** Redesigned the report in executive Markdown featuring a horizontal ASCII/Unicode path diagram with physical link distances and inline EDFA counts (`[ Berlin ] ────( 250.0 km | 2 EDFAs )────► [ Hannover ] ...`), cumulative span metrics, and hop-by-hop physical link breakdowns.
+   - **Validation & Test Suite:** Added 3 regression tests in `TestPlanSynthesizerNode` ([`tests/unit/test_pipeline_nodes.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_pipeline_nodes.py)), bringing the full test suite to 278 passing tests with zero lint errors.
+
 ---
 
 ## 3. Issue List This Week
@@ -109,22 +115,29 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 - **What has already been tried:** Investigated state evolution in `pddl_parser_node` and `semantic_gate_node`. Verified that `enriched_intent` remained static and prompt instructions penalized constraint alterations.
 - **Result:** SOLVED ([[experiments/bugs/bug009_Semantic_Gate_Refinement_Drift|BUG-009]]). Implemented state-accumulated `refinement_history`, updated Semantic Gate to evaluate adherence against effective intent $\mathcal{I}_{\text{eff}}^{(k)}$, calibrated prompt to recognize operator adjustments as faithful alignment, and established $N_{max}=3$ safety termination.
 
+### Issue 4 (SOLVED)
+- **Issue:** Planning Report displayed stale initial intent ignoring operator HITL refinements, printed repeated `"Intent: Intent:"` prefix, dumped raw subtopology text, and lacked visual lightpath representation (BUG-010).
+- **What has already been tried:** Traced `plan_synthesizer_node` input state. Verified `enriched_intent` was static and contained raw topology context, while `refinement_history` was ignored.
+- **Result:** SOLVED ([[experiments/bugs/bug010_Planning_Report_Intent_and_Topology|BUG-010]]). Implemented clean intent extraction, full refinement history display, active operational intent synthesis, and horizontal ASCII path graph with span distances and EDFA counts.
+
 ---
 
 ## 4. What do I plan to accomplish next week?
 
-1. **Sprint 4 Synthetic Test Corpus (`tests/evaluation/test_corpus.json`):** Construct the 20–30 intent dataset across the 17-node Nobel-Germany optical backbone, covering Safe, Ambiguous (semantic risk), and Infeasible (QoT/physical risk) profiles.
-2. **Execute Offline Baseline Benchmarks (Exp 4.0 & Exp 4.1):** Benchmark the Risk-Adaptive HITL pipeline against non-adaptive baselines (No-HITL, Always-HITL) measuring token consumption, human interrupt frequency, and intent delivery accuracy.
-3. **Chapter 4 Drafting (Implementation & System Integration):** Begin formal drafting of Section 4.1 (*LangGraph Orchestration Engine*) and Section 4.2 (*Deterministic GN-Model Physics Engine*), leveraging the `thesis-coauthor` skill.
+1. **Thesis Presentation Rehearsal with Professor:** Prepare, structure, and rehearse the thesis presentation deck covering the Chapter 3 System Model, 7-phase architecture, fail-fast gates, and experimental baseline comparisons as requested by my advisor, before formally launching Sprint 4 experiments.
+2. **Sprint 4 Synthetic Test Corpus (`tests/evaluation/test_corpus.json`):** Construct the 20–30 intent dataset across the 17-node Nobel-Germany optical backbone, covering Safe, Ambiguous (semantic risk), and Infeasible (QoT/physical risk) profiles.
+3. **Execute Offline Baseline Benchmarks (Exp 4.0 & Exp 4.1):** Benchmark the Risk-Adaptive HITL pipeline against non-adaptive baselines (No-HITL, Always-HITL) measuring token consumption, human interrupt frequency, and intent delivery accuracy.
+4. **Chapter 4 Drafting (Implementation & System Integration):** Begin formal drafting of Section 4.1 (*LangGraph Orchestration Engine*) and Section 4.2 (*Deterministic GN-Model Physics Engine*), leveraging the `thesis-coauthor` skill.
 
 ---
 
 ## 5. Do You Need Support?
 
-No immediate blockers. Visual artifacts and Chapter 3 LaTeX consolidation are 100% complete, fully styled with academic boxes, and verified in Overleaf. Interactive CLI, pipeline routing, and refinement convergence guards are production-ready.
+No immediate blockers. Visual artifacts and Chapter 3 LaTeX consolidation are 100% complete, fully styled with academic boxes, and verified in Overleaf. Interactive CLI, pipeline routing, refinement convergence guards, and auditable planning reports are production-ready.
 
 ---
 
 ## 6. One-Sentence Summary
 
-I modernized the orchestrator CLI with interactive Rich/Questionary controls, enabled Phase 3b fast-track approval, resolved BUG-009 (monotonic refinement semantic drift) with bounded HITL cycles and effective intent evaluation, and synchronized Thesis Chapter 3 drafts and Overleaf LaTeX.
+I modernized the orchestrator CLI with Rich/Questionary controls, enabled Phase 3b fast-track approval, resolved BUG-009 (semantic drift) and BUG-010 (stale intent in planning report with horizontal graph redesign), synchronized Thesis Chapter 3 drafts and Overleaf LaTeX, and scheduled the thesis presentation rehearsal with the professor.
+
