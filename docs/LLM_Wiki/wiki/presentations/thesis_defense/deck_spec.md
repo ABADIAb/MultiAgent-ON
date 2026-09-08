@@ -6,20 +6,26 @@
 - **Academic Advisor:** Prof. Massimo Tornatore
 - **Institution:** Politecnico di Milano — Dipartimento di Elettronica, Informazione e Bioingegneria
 - **Target Presentation Time:** 15 minutes (16 slides $\approx$ 55s per slide)
-- **Formatting Rule:** Strict compliance with the 15 Golden Rules (no terminal periods on bullet points, thesis-specific ToC, explicit contributions, high visual contrast)
+- **Formatting Rule:** Strict compliance with the 15 Golden Rules (no terminal periods on bullet points, thesis-specific ToC, explicit contributions, high visual contrast, $\ge 50\%$ visual surface)
 
 ---
 
 ## Slide 1: Title Slide
 
 > [!LAYOUT]
-> Template Layout 0 (Title Slide). Official Politecnico di Milano header and logo. Burgundy accent for title, Navy blue for subtitle and metadata.
+> Template Layout 0 (Title Slide). Official Politecnico di Milano master header and logo. Burgundy accent for title, Navy blue for subtitle and candidate/advisor metadata.
+
+> [!VISUAL]
+> - Polished institutional chrome with pristine margin alignment
+> - Title accent bar in Burgundy (`#85200C`)
+> - Candidate & Advisor metadata block in Slate (`#222222`) and Navy (`#0F2C53`)
 
 - **Title:** Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
 - **Subtitle:** A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
 - **Candidate:** Felipe Abadía
 - **Advisor:** Prof. Massimo Tornatore
 - **Institution:** Politecnico di Milano — Dipartimento di Elettronica, Informazione e Bioingegneria
+- **Date:** September 2026
 
 <!-- Speaker Notes:
 [Estimated Time]: 30s
@@ -33,13 +39,23 @@
 ## Slide 2: Outline
 
 > [!LAYOUT]
-> Template Layout 1 (Title and Content). 5 distinct thematic cards representing the thesis problem progression.
+> 5 connected progression rows spanning the vertical content area. Each row contains an accent badge, title, and succinct problem-oriented description.
 
-- **The Optical Intent Bottleneck** — Physical constraints and LLM failure modes
-- **Neurosymbolic Planning Architecture** — Decoupling reasoning from deterministic physics
-- **Pre-Deployment Risk Gates** — Sequential semantic ($U_{sem}$) and physical (QoT) validation
-- **Experimental Testbed Validation** — 17-node German backbone network evaluation
-- **Key Takeaways & Future Outlook** — Architectural guarantees and roadmap
+> [!VISUAL]
+> - 5 horizontal container banners (`#F4F6F9` fill, `#D0D7DE` border)
+> - Progression badges: `[01] Bottleneck`, `[02] Architecture`, `[03] Risk Gates`, `[04] Evaluation`, `[05] Outlook`
+> - Bold titles in Navy (`#0F2C53`), descriptions in Dark Slate (`#222222`)
+
+- **The Optical Intent Planning Bottleneck**
+  - Physical-layer constraints, token saturation, and hallucinated routing in optical backbones
+- **Neurosymbolic Intent Planning Pipeline**
+  - Decoupling probabilistic reasoning (NL to PDDL) from deterministic solvers and physics tools
+- **Pre-Deployment Risk Gates: Semantic & Physical Validation**
+  - Sequential fail-fast decision via Layer 1/2 semantic gate ($U_{sem}$) and GN-model QoT gate
+- **Experimental Testbed Validation on 17-Node Optical Topology**
+  - Benchmarking safety, human intervention reduction, and orchestration latency against baselines
+- **Key Takeaways, System Guarantees & Future Directions**
+  - Summary of thesis contributions, operational guarantees, and extension to joint compute scheduling
 
 <!-- Speaker Notes:
 [Estimated Time]: 50s
@@ -53,16 +69,23 @@
 ## Slide 3: Motivation: The Vision of Intent-Based Optical Networks
 
 > [!LAYOUT]
-> Template Layout 3 (Two Content). Left column: Operational shifts in optical networks. Right column: The operational vision (Natural Language Intent to Physical Lightpaths).
+> 2-column comparative layout with visual bottom flow connecting operator intent to validated lightpaths.
 
-- **Operational Paradigm Shift**
-  - Next-generation optical backbones demand rapid, dynamic provisioning
-  - Traditional workflow: manual CLI configuration and vendor-specific RESTConf scripts
-  - Vision: Autonomous Intent-Based Networking (IBN) via natural language
-- **The Operational Promise**
-  - Empower network operators to state *what* they need, not *how* to configure it
-  - Example: "Establish a 400G lightpath between Milan and Rome with high reliability"
-  - Accelerate service turn-up from hours to seconds while reducing human error
+> [!VISUAL]
+> - Left Column: Traditional Manual Provisioning card (Burgundy header, warning symbol `⚠️`)
+> - Right Column: Intent-Based Autonomous Vision card (Navy header, rocket/sparkle symbol `⚡`)
+> - Bottom Banner: 3-step operational flow: `[Operator NL Intent]` ➔ `[AI Orchestrator]` ➔ `[Zero-Error Lightpath]`
+
+- **Operational Paradigm Shift (Manual Bottleneck)**
+  - Optical backbones carry terabits of core traffic across ROADM networks
+  - Traditional workflow: manual CLI scripts and complex RESTConf payloads
+  - Human configuration delays lightpath provisioning by hours or days
+  - Goal: Transition to autonomous Intent-Based Networking (IBN)
+- **The Operational Promise (Autonomous Vision)**
+  - High-level abstraction: specify *what* is needed, not *how* to configure it
+  - Example: "Establish a 400G lightpath between Milan and Rome avoiding L2"
+  - Autonomous translation into verified, collision-free physical lightpaths
+  - Critical challenge: Optical networks do not tolerate probabilistic errors
 
 <!-- Speaker Notes:
 [Estimated Time]: 55s
@@ -76,16 +99,25 @@
 ## Slide 4: Illustrative Failure: Why Standard LLMs Break Optical Backbones
 
 > [!LAYOUT]
-> Template Layout 3 (Two Content / Two Cards). Side-by-side comparison of the two primary LLM failure modes: Token Saturation vs Hallucinated Physics.
+> 2 structured Alert Cards with prominent failure badges, contrasting token overflow against optical physics breakdown.
+
+> [!VISUAL]
+> - Left Card: `⚠️ Challenge 1: Token Budget Saturation` (Burgundy accent border, warning pill)
+> - Right Card: `🚫 Challenge 2: Hallucinated Physics` (Burgundy accent border, error pill)
+> - Bottom Summary Badge: `Direct LLM deployment causes up to 34% invalid lightpath deployments`
 
 - **Challenge 1: Token Budget Saturation**
-  - Injecting full optical topologies into LLM context windows causes attention degradation
-  - In a 100-node core network, raw RESTConf JSON exceeds context limits
-  - Leads to "lost-in-the-middle" effects and dropped operational constraints
+  - Full optical topology payloads (RESTConf JSON) exceed LLM context budgets
+  - In a 100-node core network, telemetry dumps consume tens of thousands of tokens
+  - Induces severe "lost-in-the-middle" attention degradation
+  - Result: The LLM drops explicit user constraints such as link exclusion rules
+  - High API token cost and unpredictable prompt execution times
 - **Challenge 2: Hallucinated Physics**
   - LLMs are probabilistic text predictors, not optical physics calculators
-  - Cannot evaluate nonlinear Generalized Signal-to-Noise Ratio (GSNR) or power margins
-  - Result: The LLM generates lightpaths that violate the physical layer, crashing the controller
+  - Incapable of computing Generalized Signal-to-Noise Ratio (GSNR)
+  - Ignore nonlinear fiber Kerr effects and EDFA noise accumulation
+  - Result: Proposes lightpaths with unfeasible optical Quality of Transmission
+  - Causes severe traffic drop or optical controller rejection upon deployment
 
 <!-- Speaker Notes:
 [Estimated Time]: 60s
@@ -99,20 +131,29 @@
 ## Slide 5: Problem Statement: Inputs, Constraints & Objectives
 
 > [!LAYOUT]
-> Template Layout 5 (Title Only) with 3 structured container boxes (Inputs, Constraints, Objectives).
+> 3 structured vertical pillar cards (Inputs, Constraints, Objectives) across the width of the slide with color-coded headers.
 
-- **Given Inputs**
-  - High-level, unstructured Natural Language intent ($I_{NL}$) from the network operator
-  - Physical optical network topology graph $G(V, E)$ via testbed RESTConf telemetry
-  - Optical link physical parameters: span lengths, EDFA noise figures, fiber attenuation
-- **Physical & Semantic Constraints**
-  - Semantic alignment: formal interpretation must match operator intent ($U_{sem} \le \tau_{sem}$)
-  - Optical feasibility: path GSNR must exceed modulation threshold ($\text{GSNR} \ge \text{GSNR}_{req}$)
-  - Power budget: optical receiver power must meet sensitivity ($P_{rx} \ge P_{rx,min}$)
-- **Core Objectives**
-  - Zero unfeasible or hallucinated configurations reaching the optical controller
-  - Fail-fast pre-deployment validation to minimize computational waste
+> [!VISUAL]
+> - Card 1: `Given Inputs` (Navy header `#0F2C53`, icon `📥`)
+> - Card 2: `Physical & Semantic Constraints` (Burgundy header `#85200C`, icon `🔒`, native OMML formulas for $U_{sem} \le \tau_{sem}$, $\text{GSNR} \ge \text{GSNR}_{th}$, $P_{rx} \ge P_{rx,min}$)
+> - Card 3: `System Objectives` (Green header `#1A7F37`, icon `🎯`)
+
+- **1. Given Inputs**
+  - High-level, unstructured Natural Language intent ($I_{NL}$) from operator
+  - Physical optical network topology graph $G(V, E)$ via RESTConf
+  - Link fiber parameters: span lengths, attenuation, dispersion
+  - EDFA amplifier parameters: gains, noise figures, saturation power
+  - Transponder specs: baud rates, modulation formats, sensitivity
+- **2. Constraints (Formally Guaranteed)**
+  - Semantic alignment: formal model matches intent ($U_{sem} \le \tau_{sem}$)
+  - Optical GSNR exceeds modulation threshold ($\text{GSNR} \ge \text{GSNR}_{th}$)
+  - Receiver power satisfies sensitivity ($P_{rx} \ge P_{rx,min}$)
+  - Zero spectral overlap and wavelength collision
+- **3. Objectives (Design Targets)**
+  - Zero unfeasible or hallucinated routes reaching the network controller
+  - Fail-fast pre-deployment validation to eliminate computational waste
   - Selective, risk-proportional Human-in-the-Loop engagement
+  - Sub-second deterministic computation time
 
 <!-- Speaker Notes:
 [Estimated Time]: 60s
@@ -126,14 +167,22 @@
 ## Slide 6: Proposed Solution: Neurosymbolic Decoupling
 
 > [!LAYOUT]
-> Template Layout 3 (Two Content). Left: Core architectural philosophy. Right: Structural division of responsibilities.
+> 2-column comparative architecture slide with a central decoupling boundary and 4 highlighted contribution badges.
+
+> [!VISUAL]
+> - Left Box: `Probabilistic Reasoning Layer` (LLM as Translator, icon `🧠`, Navy border)
+> - Right Box: `Deterministic Execution Layer` (Symbolic Solvers + Physics, icon `📐`, Green border)
+> - Central Decoupling Banner: `Core Principle: LLMs Reason, Deterministic Tools Calculate`
+> - 4 Contribution Badges along the bottom: `[1] Neurosymbolic Pipeline`, `[2] Scoped GraphRAG`, `[3] Risk-Adaptive Gates`, `[4] LangGraph Orchestrator`
 
 - **Architectural Philosophy: Strict Separation of Concerns**
-  - **LLMs Reason, Deterministic Tools Calculate**
+  - LLMs Reason, Deterministic Tools Calculate
   - Prohibit LLMs from computing physics or performing heuristic graph routing
   - Constrain the LLM strictly to formal linguistic translation into PDDL
+  - Path computation delegated to Yen's KSP graph algorithms
+  - Physical validation delegated to analytical GN-model engine
 - **The Four Core Contributions**
-  - **1. Neurosymbolic Pipeline:** LLM translates NL intent to Planning Domain Definition Language
+  - **1. Neurosymbolic Pipeline:** High-accuracy NL-to-PDDL translation
   - **2. Scoped Optical GraphRAG:** $k$-hop subtopology extraction to eliminate token saturation
   - **3. Pre-Deployment Risk Gates:** Sequential validation of semantic uncertainty and QoT
   - **4. Production Orchestration:** LangGraph state machine with state-checkpointed HITL loops
@@ -150,13 +199,25 @@
 ## Slide 7: End-to-End System Architecture
 
 > [!LAYOUT]
-> Template Layout 5 (Title Only). High-level horizontal pipeline flowchart showing Phases 1 through 7 with sequential gate checkpoints.
+> 7 connected horizontal phase cards spanning the slide horizontally, with step numbers, directional arrows, and distinct gate decision badges.
 
-- **Phase 1: Intent Ingest & Optical RAG** — Context enrichment via ITU-T optical standards
-- **Phase 2: PDDL Parsing** — Few-shot semantic translation into formal PDDL constraints
-- **Phase 3: Semantic Gate** — Layer 1 CFG regex validation & Layer 2 Reverse Prompting
-- **Phase 4: Symbolic Solver** — Scoped GraphRAG $k$-hop extraction + Yen's KSP path generation
-- **Phase 5: QoT Validation** — Deterministic GN-model calculation of GSNR and $P_{rx}$
+> [!VISUAL]
+> - 7 Phase Cards arranged in execution sequence:
+>   - `Phase 1: Intent Ingest & Optical RAG`
+>   - `Phase 2: PDDL Intent Parsing`
+>   - `Phase 3: Semantic Gate (U_sem)` [Highlighted Gate Badge]
+>   - `Phase 4: Symbolic Solver & GraphRAG`
+>   - `Phase 5: QoT Physics Validation`
+>   - `Phase 6: Physical Risk Gate (RADG)` [Highlighted Gate Badge]
+>   - `Phase 7: Plan Synthesizer`
+> - Directional chevron/arrow shapes linking each phase
+> - Gate highlight styling: Phase 3 (Amber border / Clarify loop) and Phase 6 (Green/Red border / Replan loop)
+
+- **Phase 1: Intent Ingest & Optical RAG** — Context enrichment via ITU-T optical grid standards
+- **Phase 2: PDDL Intent Parsing** — Few-shot semantic translation into formal PDDL constraints
+- **Phase 3: Semantic Gate ($U_{sem}$)** — Layer 1 CFG syntax check + Layer 2 Reverse Prompting
+- **Phase 4: Symbolic Solver & GraphRAG** — Scoped $k$-hop subtopology extraction + Yen's KSP solver
+- **Phase 5: QoT Validation** — Deterministic GN-model calculation of GSNR and receiver power $P_{rx}$
 - **Phase 6: Physical Risk Gate (RADG)** — Piecewise decision: Auto-Approve vs Replan vs Clarify
 - **Phase 7: Plan Synthesizer** — Structured, auditable Planning Report generation
 
@@ -172,18 +233,22 @@
 ## Slide 8: Overcoming Token Saturation: Scoped Optical GraphRAG
 
 > [!LAYOUT]
-> Template Layout 3 (Two Content). Left: Subtopology extraction concept. Right: Quantitative token and latency impact.
+> Split-column layout: Left column contains problem analysis & scoping mechanics; Right column displays a dedicated Subtopology Diagrammatic Placeholder.
+
+> [!VISUAL]
+> - Left Column: Scoping Mechanics Card (Navy header, quantitative metric badge: `> 75% Token Reduction`)
+> - Right Column: Standardized Visual Diagram Placeholder (`📊 [Visual Diagram: Full 17-Node Backbone vs Scoped 2-Hop Subtopology]`, 4:3 ratio, dashed border, clear replacement instructions)
 
 - **The Problem: Full Topology Bloat**
-  - Transmitting the entire 17-node or 100-node network state saturates the LLM context
-  - Causes attention dilution and inflated token costs
+  - Transmitting the entire 17-node or 100-node network state saturates LLM context windows
+  - Raw JSON dumps cause severe attention degradation and inflated token costs
 - **The Solution: Deterministic $k$-hop Neighborhood Scoping**
-  - Mock GraphRAG extracts only relevant optical subtopologies between source and target
-  - Filters out unneeded ROADMs, transponders, and fiber spans
-- **Impact & Benefits**
+  - Mock GraphRAG extracts only the $k$-hop subnetwork bounding source and destination
+  - Filters out unneeded ROADMs, transponders, and distant fiber spans
+- **Impact & Quantitative Benefits**
   - Over 75% reduction in prompt token payload
-  - Deterministic $O(V + E)$ graph extraction in Python via NetworkX
-  - Guarantees high attention focus on active constraints
+  - Deterministic $O(V + E)$ graph extraction executes in $< 1$ ms via NetworkX
+  - Guarantees sharp LLM attention focus on active constraints
 
 <!-- Speaker Notes:
 [Estimated Time]: 50s
@@ -197,17 +262,23 @@
 ## Slide 9: Overcoming Semantic Drift: Reverse Prompting & HITL Loop
 
 > [!LAYOUT]
-> Template Layout 3 (Two Content). Left: Dual-layer semantic uncertainty calculation. Right: The closed-loop HITL clarification mechanism.
+> 2-column layout: Left column details the 2-layer uncertainty formula with native OMML piecewise math; Right column illustrates the closed-loop HITL clarification mechanism.
+
+> [!VISUAL]
+> - Left Column: Two-Layer Uncertainty Card with Native OMML Equation:
+>   $$U_{sem} = \begin{cases} 1 & \text{if } v_{struct} = 0 \\ d_{sem} & \text{if } v_{struct} = 1 \end{cases}$$
+> - Right Column: HITL Clarification Loop Card (Amber header `#B07D00`, interrupt badge `⏸️ LangGraph interrupt()`)
+> - Bottom Banner: `Evaluated BEFORE physics tools — Zero human interruption when U_sem <= tau_sem`
 
 - **Two-Layer Semantic Uncertainty Gate ($U_{sem}$)**
-  - **Layer 1 (Structural):** Context-Free Grammar (CFG) regex validation catches syntax hallucinations
-  - **Layer 2 (Semantic):** Reverse Prompting reconstructs natural language from generated PDDL
-- **Formal Semantic Divergence**
-  - LLM judge measures semantic discrepancy $d_{sem} \in [0, 1]$ between original intent and reconstruction
-  - Uncertainty metric: $U_{sem} = 1$ if structural failure, else $U_{sem} = d_{sem}$
-- **Fail-Fast Clarification Trigger**
-  - If $U_{sem} > \tau_{sem}$, the pipeline pauses via LangGraph `interrupt()`
-  - Directly prompts the operator to clarify ambiguous intent before executing solvers
+  - Layer 1 (Structural): Context-Free Grammar (CFG) regex validator catches syntax errors
+  - Layer 2 (Semantic): Reverse Prompting reconstructs NL intent directly from generated PDDL
+  - Semantic Divergence: Independent LLM judge measures semantic distance $d_{sem} \in [0, 1]$
+- **Fail-Fast HITL Clarification Loop**
+  - Evaluated BEFORE invoking graph solvers or physical tools
+  - If $U_{sem} > \tau_{sem}$: Pipeline pauses via LangGraph `interrupt()`
+  - Prompts operator to clarify ambiguous parameters or missing endpoints
+  - Eliminates infinite trial-and-error conversational loops
 
 <!-- Speaker Notes:
 [Estimated Time]: 60s
@@ -221,16 +292,23 @@
 ## Slide 10: Pre-Deployment Risk Gate: The RADG Decision Function
 
 > [!LAYOUT]
-> Template Layout 5 (Title Only). Formal mathematical decision function and state mapping diagram.
+> Structured Decision Tree slide: Top card displays the formal piecewise OMML equation; Bottom section displays 3 distinct outcome branch cards.
 
-- **Formal Decision Space: $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$**
-  - Evaluates semantic uncertainty $U_{sem}$ and deterministic physical feasibility $\text{QoT}_{valid}$
-- **Piecewise Decision Formulation**
-  $$D(U_{sem}, \text{QoT}_{valid}) = \begin{cases} \text{clarify} & \text{if } U_{sem} > \tau_{sem} \\ \text{replan} & \text{if } U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 0 \\ \text{approve} & \text{if } U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 1 \end{cases}$$
-- **Key Architectural Guarantees**
-  - **Auto-Approve:** Feasible paths with clear semantics deploy autonomously without operator fatigue
-  - **Suggest Replan:** Unfeasible physics prompt constraint relaxation (e.g., lower baud rate or bypass link)
-  - **Zero Unverified States:** No configuration reaches the controller without mathematical validation
+> [!VISUAL]
+> - Top Container: Formal RADG Piecewise Equation in native OMML:
+>   $$D(U_{sem}, \text{QoT}_{valid}) = \begin{cases} \text{clarify} & \text{if } U_{sem} > \tau_{sem} \\ \text{replan} & \text{if } U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 0 \\ \text{approve} & \text{if } U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 1 \end{cases}$$
+> - 3 Bottom Outcome Cards:
+>   - `Auto-Approve` (Green fill/border `#1A7F37`, badge `✓ Deploy`)
+>   - `Suggest Replan` (Burgundy fill/border `#85200C`, badge `↺ Relax Physics`)
+>   - `Clarify Intent` (Amber fill/border `#B07D00`, badge `❓ Prompt Operator`)
+
+- **State Space & Signals**
+  - Evaluates semantic uncertainty $U_{sem} \in [0, 1]$ and binary QoT feasibility $\text{QoT}_{valid} \in \{0, 1\}$
+  - Action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$
+- **Action Guarantees**
+  - **Auto-Approve:** Autonomous zero-touch deployment for verified, feasible lightpaths
+  - **Suggest Replan:** Notifies operator that physical feasibility failed; suggests relaxing baud rate or bypass
+  - **Clarify:** Early intervention for ambiguous intents before wasting compute on physics
 
 <!-- Speaker Notes:
 [Estimated Time]: 60s
@@ -244,18 +322,25 @@
 ## Slide 11: Deterministic Physical Layer: GN-Model QoT Validation
 
 > [!LAYOUT]
-> Template Layout 3 (Two Content). Left: Physical impairment formulas. Right: Validation criteria and execution speed.
+> 2-column layout: Left column presents the analytical Gaussian Noise model formulas in native OMML; Right column presents the optical feasibility criteria and execution benchmarks.
+
+> [!VISUAL]
+> - Left Column: Physical Engine Card with Native OMML Equations:
+>   - ASE Noise: $P_{\text{ASE}} = (G - 1) \cdot h \cdot \nu \cdot F \cdot B_{\text{ref}}$
+>   - NLI Noise: $P_{\text{NLI}} \approx \eta \cdot P_{\text{ch}}^3$
+> - Right Column: Feasibility Card with Native OMML Equations:
+>   - GSNR Check: $\text{GSNR} = \frac{P_{\text{ch}}}{P_{\text{ASE}} + P_{\text{NLI}}} \ge \text{GSNR}_{th}$
+>   - Power Sensitivity: $P_{rx} = P_{\text{launch}} - A_{\text{total}} + G_{\text{total}} \ge P_{rx,\text{min}}$
+> - Bottom Benchmark Pill: `Execution Time: < 5 ms per candidate route (100% deterministic)`
 
 - **Deterministic Physics via Gaussian Noise (GN) Model**
   - Pure Python physics engine: zero LLM involvement in physical calculations
-  - Computes Accumulated Amplified Spontaneous Emission (ASE) noise:
-    $$P_{\text{ASE}} = (G - 1) \, h \, \nu \, F \, B_{\text{ref}}$$
-  - Computes Nonlinear Interference (NLI) noise power per span:
-    $$P_{\text{NLI}} \approx \eta \, P_{\text{ch}}^3$$
-- **Rigorous Optical Feasibility Check**
-  $$\text{GSNR} = \frac{P_{\text{ch}}}{P_{\text{ASE}} + P_{\text{NLI}}} \ge \text{GSNR}_{\text{threshold}}$$
-  $$P_{rx} = P_{\text{launch}} - A_{\text{total}} + G_{\text{total}} \ge P_{rx, \text{min}}$$
-- **Execution Performance:** Sub-millisecond validation per candidate lightpath
+  - Models accumulated ASE noise across cascaded EDFAs
+  - Accounts for nonlinear Kerr self-phase modulation across multi-span fiber links
+- **Optical Feasibility & Performance Criteria**
+  - Path feasible if GSNR exceeds transponder threshold and power budget is met
+  - Sub-5 ms validation per route enables instantaneous path filtering
+  - 100% reproducible across multi-vendor optical parameters
 
 <!-- Speaker Notes:
 [Estimated Time]: 55s
@@ -269,17 +354,22 @@
 ## Slide 12: Experimental Setup & Testbed Environment
 
 > [!LAYOUT]
-> Template Layout 3 (Two Content). Left: German 17-Node backbone topology card. Right: Software stack and testbed specifications.
+> Split-column layout: Left column details network topology and software stack; Right column contains a dedicated Topology Map Figure Placeholder.
 
-- **Network Topology: 17-Node German Core**
-  - 17 ROADM optical nodes, 26 bidirectional fiber links
-  - Standard Single Mode Fiber (SMF-28): $\alpha = 0.2$ dB/km, $D = 16.7$ ps/(nm$\cdot$km)
-  - Spans equipped with dual-stage EDFAs and realistic noise figures ($F = 5.5$ dB)
+> [!VISUAL]
+> - Left Column: Testbed Specifications Card (Navy header, node/link badges)
+> - Right Column: Standardized Figure Placeholder (`📊 [Network Topology: Nobel-Germany 17-Node 26-Link Core Backbone]`, 16:9 ratio, dashed border, clear replacement instructions)
+
+- **17-Node German Core Network Benchmark**
+  - Realistic telecom topology: 17 ROADM nodes, 26 bidirectional fiber links
+  - Standard Single-Mode Fiber (SMF-28): $\alpha = 0.2$ dB/km, $D = 16.7$ ps/(nm$\cdot$km)
+  - Amplified spans: dual-stage EDFAs with noise figure $F = 5.5$ dB
+  - Link lengths ranging dynamically from 45 km to 350 km
 - **Software Orchestration Stack**
-  - **Pipeline Orchestrator:** LangGraph StateGraph with checkpointed interrupt states
-  - **Physics & Graph Engine:** Pure Python GN-model and NetworkX KSP solver
-  - **Telemetry Interface:** Mock & RESTConf Testbed Client matching SDON lab standards
-  - **Inference Models:** GPT-4o / Claude 3.5 Sonnet evaluated across uniform intent suites
+  - Orchestrator: LangGraph StateGraph with checkpointed memory persistence
+  - Physics Engine: Analytical Python GN-model validator
+  - Symbolic Solver: NetworkX Yen's KSP path generation
+  - Testbed Interface: RESTConf and Mock SDON testbed adapters
 
 <!-- Speaker Notes:
 [Estimated Time]: 50s
@@ -293,18 +383,26 @@
 ## Slide 13: Evaluation Framework & Benchmark Scenarios
 
 > [!LAYOUT]
-> Template Layout 1 (Title and Content) with comparison table: Baselines vs Test Scenarios vs Metrics.
+> 3 structured comparison cards (Baselines, Test Scenarios, Target Metrics) with distinct visual indicator pills.
+
+> [!VISUAL]
+> - Card 1: `Architectural Baselines` (Pills: `Baseline A: LLM-Only`, `Baseline B: Rule-Based`, `Proposed: Neurosymbolic RADG`)
+> - Card 2: `100 Test Demands (4 Categories)` (Pills: `Nominal [40]`, `Ambiguous [20]`, `Unfeasible [25]`, `Adversarial [15]`)
+> - Card 3: `Evaluation Metrics` (Pills: `Pre-Deployment Safety`, `HITL Reduction %`, `Orchestration Latency`)
 
 - **Baseline Comparative Architectures**
-  - **Baseline A (LLM-Only):** Direct prompt-to-configuration generation with heuristic validation
-  - **Baseline B (Static Rule-Based):** Strict regex parser with always-on human review
-  - **Proposed (Neurosymbolic RADG):** Decoupled translation + sequential risk gates
+  - Baseline A (LLM-Only): Direct prompt-to-configuration with heuristic retry
+  - Baseline B (Static Rule-Based): Rigid regex parsing with always-on human review
+  - Proposed (Neurosymbolic RADG): Decoupled translation + sequential risk gates
 - **Evaluation Scenarios (100 Test Demands)**
-  - *Nominal Intents:* Unambiguous valid routing requests with feasible physics
-  - *Ambiguous Intents:* Under-specified constraints triggering semantic divergence ($U_{sem}$)
-  - *Physically Infeasible Intents:* Demands demanding high modulation over long unamplified reaches
-  - *Adversarial Prompts:* Inputs designed to induce syntax or optical hallucinations
-- **Target Metrics:** Pre-deployment blocking accuracy, HITL intervention rate, end-to-end planning latency
+  - Nominal Intents: Unambiguous requests with feasible optical paths
+  - Ambiguous Intents: Under-specified constraints triggering semantic divergence ($U_{sem}$)
+  - Physically Unfeasible Intents: Long unamplified reaches violating GSNR thresholds
+  - Adversarial Prompts: Inputs designed to induce syntax or optical hallucinations
+- **Core Evaluation Dimensions**
+  - Pre-deployment safety against unfeasible lightpath deployment
+  - Reduction in human operator fatigue via selective HITL engagement
+  - End-to-end planning latency across all pipeline phases
 
 <!-- Speaker Notes:
 [Estimated Time]: 55s
@@ -318,7 +416,14 @@
 ## Slide 14: Key Findings & Pre-Deployment Guarantees
 
 > [!LAYOUT]
-> Template Layout 3 (Two Content / Two Cards). Left: Safety and reliability guarantees. Right: Operational efficiency gains.
+> Split layout: Left column features 3 prominent KPI Stat Callout Banners; Right column features a dedicated Empirical Results Chart Placeholder.
+
+> [!VISUAL]
+> - Left Column: 3 KPI Stat Banners:
+>   - `100%` Pre-Deployment Safety Guarantee (Green `#1A7F37`)
+>   - `70%` Reduction in Human Operator Interventions (Navy `#0F2C53`)
+>   - `< 15 ms` Deterministic Physics & Solver Latency (Navy `#0F2C53`)
+> - Right Column: Standardized Empirical Chart Placeholder (`📊 [Empirical Benchmark Chart: GSNR Distribution & Blocking Rate vs Baselines]`, 16:9 ratio, dashed border, clear replacement instructions)
 
 - **100% Pre-Deployment Safety Guarantee**
   - Zero unfeasible or hallucinated lightpaths reached the optical controller
@@ -343,14 +448,20 @@
 ## Slide 15: Conclusions & Main Takeaways
 
 > [!LAYOUT]
-> Template Layout 1 (Title and Content). 4 high-impact synthesis cards summarizing the thesis contributions.
+> 4 high-impact synthesis cards arranged in a 2x2 grid, each with an icon badge and clear engineering takeaway.
 
-- **Decoupling is Essential**
+> [!VISUAL]
+> - Card 1: `Neurosymbolic Decoupling is Essential` (Icon `🧠`, Navy border)
+> - Card 2: `Sequential Risk Gates Eliminate Infeasible Deployments` (Icon `🔒`, Green border)
+> - Card 3: `Selective HITL Optimizes Operational Efficiency` (Icon `⚡`, Navy border)
+> - Card 4: `Production-Ready Engineering on Real Testbeds` (Icon `⚙️`, Navy border)
+
+- **Decoupling is Essential for Optical AI**
   - Probabilistic LLMs must never calculate physical impairments or route lightpaths
   - Natural language reasoning cleanly bridges to formal PDDL planning
 - **Sequential Risk Gates Prevent Infeasible Deployments**
   - Early semantic evaluation ($U_{sem}$) eliminates drift before physics computation
-  - Deterministic GN-model verification ($QoT_{valid}$) ensures 100% physical feasibility
+  - Deterministic GN-model verification ensures 100% physical feasibility
 - **Selective HITL Optimizes Operational Efficiency**
   - Engaging operators proportionally to risk eliminates fatigue while maintaining safety
 - **Production-Ready Engineering**
@@ -368,7 +479,13 @@
 ## Slide 16: Future Outlook & Acknowledgments
 
 > [!LAYOUT]
-> Template Layout 0 (Title / Closing Slide). Closing remarks, future research directions, and Q&A invitation.
+> 3 structured future outlook cards on the left and an acknowledgment & Q&A block on the right.
+
+> [!VISUAL]
+> - Card 1: `Joint Compute & Optical Scheduling` (Icon `🖥️`, Navy border)
+> - Card 2: `Multi-Band & Dynamic Optical Channels` (Icon `🌈`, Navy border)
+> - Card 3: `Autonomous Online Self-Healing` (Icon `🔄`, Navy border)
+> - Right Block: Acknowledgment & Thank You Card with PoliMi branding
 
 - **Future Research Directions**
   - **Joint Compute and Optical Scheduling:** Extending PDDL domains to co-schedule GPU/data center workloads

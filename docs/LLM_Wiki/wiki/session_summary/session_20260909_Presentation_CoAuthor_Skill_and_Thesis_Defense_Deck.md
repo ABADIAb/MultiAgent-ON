@@ -52,10 +52,12 @@ In this session, we established a reproducible co-authoring architecture mirrori
 - Supports a `--watch` mode that monitors `.pptx` modification times and automatically re-exports previews upon saving manual edits.
 
 ### 2.3 Master's Thesis Defense Presentation Deck (16 Slides)
-Under [`presentations/thesis_defense/`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/):
-- Authored [`deck_spec.md`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/deck_spec.md): complete slide-by-slide text, visual layout hints, and timed speaker notes.
-- Engineered [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/build_defense_deck.py) using `python-pptx` (v1.0.2) to assemble the presentation from the PoliMi template.
-- Generated [`thesis_defense.pptx`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/thesis_defense.pptx) and compiled [`thesis_defense.pdf`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/thesis_defense.pdf) and 16 slide images in [`slides_png/`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/slides_png/).
+Under [`docs/LLM_Wiki/wiki/presentations/thesis_defense/`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/) (with compatibility symlink `docs/LLM_Wiki/wiki/presentations/thesis_defence`):
+- Relocated presentation package from root `presentations/` directly into the wiki hierarchy.
+- Archived all 9 legacy presentation markdown notes into [`docs/LLM_Wiki/wiki/presentations/archive/`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/archive/).
+- Authored and updated [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md): complete slide-by-slide text, visual layout hints (`> [!LAYOUT]`, `> [!VISUAL]`), concise bullet points without terminal periods, and timed speaker notes.
+- Engineered and modernized [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py) using `python-pptx` (v1.0.2) to assemble the presentation from the PoliMi template.
+- Generated [`thesis_defense.pptx`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/thesis_defense.pptx) and compiled vector [`thesis_defense.pdf`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/thesis_defense.pdf) and 16 slide images in [`slides_png/`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/slides_png/).
 
 | # | Slide Title | Visual Layout | Core Topic |
 |---|-------------|---------------|------------|
@@ -63,36 +65,38 @@ Under [`presentations/thesis_defense/`](file:///home/felipeab/MultiAgentON/prese
 | 2 | Outline | 5 Problem Banners | Thesis-specific challenge progression |
 | 3 | Motivation: Intent-Based Optical Networks | 2 Columns | Operational shift & high-level abstraction |
 | 4 | Illustrative Failure | 2 Cards (Alert) | Token saturation & hallucinated physics |
-| 5 | Problem Statement | 3 Structured Cards | Inputs ($G(V,E)$), Constraints (GSNR), Objectives |
-| 6 | Proposed Solution | 2 Columns | "LLMs reason, tools calculate" & 4 contributions |
-| 7 | End-to-End System Architecture | 7 Scaled Banners | Complete 7-phase pipeline flow |
-| 8 | Overcoming Token Saturation | 2 Columns | Scoped GraphRAG ($k$-hop subtopology extraction) |
-| 9 | Overcoming Semantic Drift | 2 Columns | Layer 1 CFG + Layer 2 Reverse Prompting ($U_{sem}$) |
-| 10 | Pre-Deployment Risk Gate | 3 Structured Cards | Piecewise RADG decision function $D(U_{sem}, \text{QoT}_{valid})$ |
-| 11 | Deterministic Physical Layer | 2 Columns | Pure Python analytical GN-model ($< 5$ ms) |
-| 12 | Experimental Setup & Testbed | 2 Columns | 17-node German network & RESTConf testbed |
+| 5 | Problem Statement | 3 Structured Cards + Native OMML | Inputs ($G(V,E)$), Constraints ($U_{sem} \le \tau_{sem}, GSNR, P_{rx}$), Objectives |
+| 6 | Proposed Solution | 2 Columns + Contribution Banner | "LLMs reason, tools calculate" & 4 contributions |
+| 7 | End-to-End System Architecture | 7 Horizontal Chevrons + Loop Banners | Complete 7-phase pipeline flow with risk gates |
+| 8 | Overcoming Token Saturation | Split Diagram + Figure Placeholder | Scoped GraphRAG ($k$-hop subtopology extraction, $>75\%$ cut) |
+| 9 | Overcoming Semantic Drift | 2 Cards + Native OMML | Layer 1 CFG + Layer 2 Reverse Prompting piecewise $U_{sem}$ formula |
+| 10 | Pre-Deployment Risk Gate | Decision Tree + Native OMML | Piecewise RADG formula $D(U_{sem}, \text{QoT}_{valid})$ + 3 outcome cards |
+| 11 | Deterministic Physical Layer | 2 Cards + Native OMML | Analytical GN-model formulas ($P_{ASE}, P_{NLI}, GSNR, P_{rx}$) in Cambria Math |
+| 12 | Experimental Setup & Testbed | Split Benchmark + Figure Placeholder | 17-node German network, SMF-28 parameters, and SDON RESTConf testbed |
 | 13 | Evaluation Framework & Scenarios | 3 Cards | 100 test demands across 4 intent categories |
-| 14 | Key Findings & Guarantees | 2 Cards | 100% pre-deployment safety, 70% HITL cut |
+| 14 | Key Findings & Guarantees | 3 KPI Stat Banners + Plot Placeholder | 100% pre-deployment safety, $>70\%$ HITL cut, $<15$ ms latency |
 | 15 | Conclusions & Main Takeaways | 4 Synthesis Cards | Core architectural and operational takeaways |
-| 16 | Future Outlook & Acknowledgments | 2 Columns | Joint compute scheduling & committee Q&A |
+| 16 | Future Outlook & Acknowledgments | 2 Columns (Outlook & PoliMi Thanks) | Joint compute scheduling, C+L multi-band, and committee Q&A |
 
-### 2.4 Visual Quality Auditing & Bugfixes
+### 2.4 Visual Quality Auditing, OMML Math & Bugfixes
+- **Native Office Math (OMML) in DrawingML:** Developed `add_omml_equation()` using `parse_xml()` to inject `<a14:m><m:oMathPara><m:oMath>...</m:oMath></m:oMathPara></a14:m>`, rendering native editable Cambria Math for subscripts, superscripts, fractions, and piecewise equations with curly braces.
+- **DrawingML Shape Text Color Bug:** Fixed a template inheritance issue where rounded rectangles defaulted to white text, making math formulas invisible on `#F4F6F9` fill. Layered transparent textboxes over container shapes so DrawingML math and text render in bold institutional navy and dark slate.
+- **Emoji Glyphs Fallback:** Replaced national flag emoji `🇩🇪` with `🌐` to avoid raw text `DE` fallback on Windows systems.
 - Authored [`inspect_deck.py`](file:///home/felipeab/MultiAgentON/.agents/skills/presentation-coauthor/scripts/inspect_deck.py) for terminal-based slide inspection.
 - Fixed Cover Slide conference logo collision and updated date banner.
-- Fixed Slide 7 multi-row banner height overflow by implementing dynamic scaling.
 
 ---
 
 ## 3. Verification & Test Outcomes
 
 - **Unit Test Suite:** Executed `uv run pytest`; all 278 unit tests passed cleanly with zero regressions.
-- **Visual Auditing:** Inspected rendered slide PNGs (`slide_01.png` through `slide_16.png`) via `view_file` to confirm alignment, contrast, and font hierarchy.
-- **CLI Verification:** Successfully verified export and inspection scripts under WSL.
+- **Visual Auditing:** Inspected rendered slide PNGs (`slide_01.png` through `slide_16.png`) via `view_file` to confirm alignment, contrast, dark Cambria Math font rendering, and layout balance across all 16 slides.
+- **CLI Verification:** Successfully verified export and inspection scripts under WSL and Windows COM automation.
 
 ---
 
 ## 4. Handover & Next Steps
 
-1. **Advisor Feedback:** Share `thesis_defense.pdf` with Prof. Massimo Tornatore to review pacing and content focus.
+1. **Advisor Feedback:** Share `thesis_defense.pdf` with Prof. Massimo Tornatore to review pacing, visual balance, and content focus.
 2. **Sprint 4 Benchmarking:** Execute the 100-demand evaluation suite across the 17-node German backbone to generate empirical figures.
-3. **Figure Ingestion:** Inject empirical benchmark plots into Slide 14 and backup slides.
+3. **Figure Ingestion:** Inject empirical benchmark plots into Slides 8, 12, 14, and backup slides.

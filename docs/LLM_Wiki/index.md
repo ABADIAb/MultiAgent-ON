@@ -67,7 +67,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
-- [[issues/Issue_Report_20260915_Felipe_Abadia]]: Solved Windows PowerPoint file-locking constraint via PowerShell COM automation, solved multi-stage pipeline banner height overflow, and replaced deprecated presentation-designer with presentation-coauthor; 0 pending issues.
+- [[issues/Issue_Report_20260915_Felipe_Abadia]]: Solved Windows PowerPoint file-locking constraint, slide banner height overflow, DrawingML shape text inversion on light cards, and text-heavy slide walls via native OMML math and rich visual layouts; 0 pending issues.
 - [[issues/Issue_Report_20260908_Felipe_Abadia]]: Solved BUG-009 (Monotonic Refinement Semantic Drift) and BUG-010 (Planning Report Stale Intent & Raw Subtopology Dump); 0 pending issues.
 - [[issues/Issue_Report_20260906_Felipe_Abadia]]: Solved Draw.io temporary lock/backup files cluttering workspace via permanent .gitignore rules; 0 pending issues.
 - [[issues/Issue_Report_20260824_Felipe_Abadia]]: Solved 3-node numerical evaluation limitation via Nobel-Germany 17-node topology; solved multi-hop power accumulation; solved BUG-006 solver endpoint parsing; pending testbed link provisioning; in progress Sprint 4 test corpus.
@@ -84,17 +84,19 @@ Content-oriented catalog of everything in the wiki.
 - [[Issue_Report_20260430_Felipe_Abadia]]: Solved repo structure confusion; pending LangGraph prototyping and QoT tool.
 
 ## Presentations
-- [[presentations/presentation_chapter_3_system_model_figures]]: Advisor slide deck for Thesis Chapter 3 System Model, 7-phase architecture, two-gate fail-fast model, and complete 7-figure visual suite walkthrough.
-- [[presentations/Presentation_Proposal_20260729]]: Proposal deck on Testbed Integration, Symbolic Solver, and physical parameter questions.
+- [[presentations/thesis_defense/deck_spec]]: **Active** — Master's Thesis Defense Slide Deck (16 slides, PoliMi template, Prof. Tornatore's 15 Golden Rules, native OMML equations, visual diagrams, and empirical placeholders).
 
-- [[presentations/Presentation_20260706_Neurosymbolic_MVP]]: Slide deck proposing the Neurosymbolic Intent Orchestration MVP roadmap.
-- [[Presentation_20260621_Scope_Pivot]]: Slide deck presenting the SOTA-driven scope pivot from full MAS to Intent Planning Loop for Prof. Zhang.
-- [[Presentation_20260604_SOTA_Analysis]]: Slide deck summarizing the Agentic AI for IBON SOTA comparison (pre-pivot).
-- [[Presentation_20260519_QoT_&_Orchestrator_Integration]]: Unified slide deck combining Orchestrator V2 architecture and QoT physics port for professor review.
-- [[Presentation_20260519_Orchestrator_Architecture]]: V2 LangGraph Orchestrator architecture slide deck for professor review.
-- [[Presentation_20260511_QoT_Integration]]: Technical analysis of the C++ QoT simulator and the Pure Python Port integration proposal.
-- [[Presentation_Hybrid_Memory_MAS]]: Presentation outline proposing the Hybrid Memory Architecture to the professor.
-- [[Presentation_20260430_DevEnvironment]]: Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
+### Archived Presentations (`docs/LLM_Wiki/wiki/presentations/archive/`)
+- [[presentations/archive/presentation_chapter_3_system_model_figures]]: (archived) Advisor slide deck for Thesis Chapter 3 System Model, 7-phase architecture, two-gate fail-fast model, and 7-figure visual suite.
+- [[presentations/archive/Presentation_Proposal_20260729]]: (archived) Proposal deck on Testbed Integration, Symbolic Solver, and physical parameter questions.
+- [[presentations/archive/Presentation_20260706_Neurosymbolic_MVP]]: (archived) Slide deck proposing the Neurosymbolic Intent Orchestration MVP roadmap.
+- [[presentations/archive/Presentation_20260621_Scope_Pivot]]: (archived) Slide deck presenting the SOTA-driven scope pivot from full MAS to Intent Planning Loop for Prof. Zhang.
+- [[presentations/archive/Presentation_20260604_SOTA_Analysis]]: (archived) Slide deck summarizing the Agentic AI for IBON SOTA comparison (pre-pivot).
+- [[presentations/archive/Presentation_20260519_QoT_&_Orchestrator_Integration]]: (archived) Unified slide deck combining Orchestrator V2 architecture and QoT physics port for professor review.
+- [[presentations/archive/Presentation_20260519_Orchestrator_Architecture]]: (archived) V2 LangGraph Orchestrator architecture slide deck for professor review.
+- [[presentations/archive/Presentation_20260511_QoT_Integration]]: (archived) Technical analysis of the C++ QoT simulator and the Pure Python Port integration proposal.
+- [[presentations/archive/Presentation_Hybrid_Memory_Architecture_and_Implementation]]: (archived) Presentation outline proposing the Hybrid Memory Architecture to the professor.
+- [[presentations/archive/Presentation_20260430_DevEnvironment]]: (archived) Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
 
 ## Transcriptions
 - [[transcriptions/Transcript_20260811_ThesisOutline_MockTopology]]: Meeting with team on thesis outline feedback (introduction, baseline integration, October defense timeline) and shifting from physical testbed RESTConf topology to mock topologies (17-node German / 14-node Japan).

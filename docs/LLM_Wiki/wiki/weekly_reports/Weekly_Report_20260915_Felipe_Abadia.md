@@ -48,13 +48,16 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 3. **Programmatic Thesis Defense Deck Assembly (`build_defense_deck.py`):**
    - Added `python-pptx` (v1.0.2) to project dependencies via `uv`.
-   - Engineered [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/build_defense_deck.py) to programmatically assemble the complete defense presentation from `docs/LLM_Wiki/raw/ACP_MinPowCons_v5.pptx`.
+   - Engineered [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py) to programmatically assemble the complete defense presentation from `docs/LLM_Wiki/raw/ACP_MinPowCons_v5.pptx`.
    - Preserved PoliMi master slide chrome (official header, logo, underline separator, footer text, and dynamic slide numbers) while clearing previous conference content.
-   - Implemented modular slide builder methods:
+   - Implemented rich visual taxonomies:
      - `create_cover_slide`: Burgundy accent title, candidate/advisor metadata, and updated date.
-     - `create_row_list_slide`: Dynamic height and padding scaling to fit 5 to 7 structural banners cleanly without overflowing into the footer.
-     - `create_card_slide`: 3-card and 4-card layouts for problem decomposition and synthesis takeaways.
-     - `create_two_column_slide`: Side-by-side comparative cards with bold headers and colored borders.
+     - `create_row_list_slide`: Dynamic height and padding scaling for 5 to 7 structural progression banners.
+     - `create_pipeline_flow_slide`: Horizontal 7-phase connected chevron cards with amber/burgundy risk gate borders and bottom HITL loop banners (`interrupt()` clarification and replan loops).
+     - `create_decision_tree_slide`: Pre-deployment RADG decision gate featuring native piecewise formulation $D(U_{sem}, \text{QoT}_{valid})$ and 3 outcome cards (*Clarify*, *Replan*, *Auto-Approve*).
+     - `create_card_slide`: 3-card and 4-card layouts with formulation blocks.
+     - `create_split_diagram_slide`: Left-column structured cards paired with right-column standardized dashed figure placeholders.
+     - `create_kpi_and_placeholder_slide`: 3 giant-number KPI banners paired with empirical plot placeholders.
    - Injected structured speaker notes with estimated delivery seconds into every slide.
 
 4. **Authored 16-Slide Thesis Defense Master Deck:**
@@ -62,22 +65,24 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - **Slide 2:** Outline (Thesis-specific problem progression, zero generic ToC clichés).
    - **Slide 3:** Motivation: The Vision of Intent-Based Optical Networks (Operational paradigm shift and high-level intent promise).
    - **Slide 4:** Illustrative Failure: Why Standard LLMs Break Optical Backbones (Side-by-side comparison of Token Budget Saturation vs. Hallucinated Physics).
-   - **Slide 5:** Problem Statement: Inputs, Constraints & Objectives (3 structured cards detailing $G(V,E)$, GSNR thresholds, and pre-deployment safety).
+   - **Slide 5:** Problem Statement: Inputs, Constraints & Objectives (3 structured cards with native OMML equations: $U_{sem} \le \tau_{sem}$, $GSNR \ge GSNR_{th}$, $P_{rx} \ge P_{rx,min}$).
    - **Slide 6:** Proposed Solution: Neurosymbolic Decoupling (The core philosophy: "LLMs reason, deterministic tools calculate", and the 4 core contributions).
-   - **Slide 7:** End-to-End System Architecture & Pipeline Flow (7-phase sequential execution from NL Ingest to Plan Synthesizer).
-   - **Slide 8:** Overcoming Token Saturation: Scoped Optical GraphRAG ($k$-hop subtopology scoping yielding $> 75\%$ prompt reduction).
-   - **Slide 9:** Overcoming Semantic Drift: Reverse Prompting & HITL Loop (Layer 1 CFG regex check + Layer 2 Reverse Prompting divergence $U_{sem}$).
-   - **Slide 10:** Pre-Deployment Risk Gate: The RADG Decision Function (Piecewise formulation $D(U_{sem}, \text{QoT}_{valid})$: Auto-Approve vs. Replan vs. Clarify).
-   - **Slide 11:** Deterministic Physical Layer: GN-Model QoT Validation (Python analytical engine for GSNR and receiver power $P_{rx}$).
-   - **Slide 12:** Experimental Setup & Testbed Environment (17-node German backbone network, SMF-28 parameters, and SDON RESTConf testbed).
+   - **Slide 7:** End-to-End System Architecture & Pipeline Flow (7-phase horizontal pipeline flow with directional arrows and sequential fail-fast risk gates).
+   - **Slide 8:** Overcoming Token Saturation: Scoped Optical GraphRAG ($k$-hop subtopology scoping yielding $> 75\%$ prompt reduction + topology scoping placeholder).
+   - **Slide 9:** Overcoming Semantic Drift: Reverse Prompting & HITL Loop (Layer 1 CFG regex check + Layer 2 Reverse Prompting piecewise $U_{sem}$ formula in Cambria Math).
+   - **Slide 10:** Pre-Deployment Risk Gate: The RADG Decision Function (Piecewise formulation $D(U_{sem}, \text{QoT}_{valid})$ in Cambria Math with 3 outcome cards).
+   - **Slide 11:** Deterministic Physical Layer: GN-Model QoT Validation (Native OMML formulas for $P_{ASE}$, $P_{NLI}$, $GSNR$, and $P_{rx}$ + execution speed banner).
+   - **Slide 12:** Experimental Setup & Testbed Environment (17-node German backbone network, SMF-28 parameters, and SDON RESTConf testbed + 16:9 topology placeholder).
    - **Slide 13:** Evaluation Framework & Benchmark Scenarios (100 test demands across nominal, ambiguous, unfeasible, and adversarial categories).
-   - **Slide 14:** Key Findings & Pre-Deployment Guarantees (100% pre-deployment safety guarantee, $> 70\%$ reduction in operator fatigue, $< 15$ ms physics validation).
+   - **Slide 14:** Key Findings & Pre-Deployment Guarantees (3 KPI stat banners: 100% safety, $> 70\%$ HITL cut, $< 15$ ms latency + empirical benchmark placeholder).
    - **Slide 15:** Conclusions & Main Takeaways (4 high-impact synthesis cards summarizing thesis achievements).
-   - **Slide 16:** Future Outlook & Acknowledgments (Extension to joint compute scheduling, C+L band modeling, and committee Q&A).
+   - **Slide 16:** Future Outlook & Acknowledgments (Extension to joint compute scheduling, C+L multi-band, and committee Q&A).
 
-5. **Visual Audit & Inspection Tooling:**
-   - Authored [`inspect_deck.py`](file:///home/felipeab/MultiAgentON/.agents/skills/presentation-coauthor/scripts/inspect_deck.py) to audit slide counts, titles, text elements, and speaker notes directly from the CLI.
-   - Visually inspected rendered PNGs, caught and resolved cover slide logo collision and Slide 7 banner height overflow.
+5. **Native PowerPoint Office Math (OMML) & Visual Auditing:**
+   - Implemented `add_omml_equation()` using DrawingML `<a14:m><m:oMathPara>` XML injection, eliminating external rasterization and rendering native, scalable Cambria Math equations in PowerPoint.
+   - Solved DrawingML shape text color inheritance bug by layering transparent textboxes over card containers, ensuring equations and body text render in dark navy/slate.
+   - Relocated presentation package to `docs/LLM_Wiki/wiki/presentations/thesis_defense/` with symlink `thesis_defence`, and archived legacy presentation files to `archive/`.
+   - Visually inspected all 16 rendered PNGs via `view_file` to confirm layout harmony, contrast, and mathematical sharpness. Zero test regressions across 278 unit tests.
 
 ---
 

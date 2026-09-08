@@ -50,10 +50,10 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 - **What has already been tried:** Inspected the rendered `slides_png/slide_07.png` using visual audit tooling. Confirmed visual truncation of text runs and footer collision.
 - **Result:** Slide 7 was illegible and failed academic presentation standards.
 - **Estimated possible solution / Resolution:**
-  1. Updated `create_row_list_slide` in [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/build_defense_deck.py) to dynamically calculate row height, vertical gap, font sizes, and text frame margins based on the number of rows:
+  1. Updated `create_row_list_slide` in [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py) to dynamically calculate row height, vertical gap, font sizes, and text frame margins based on the number of rows:
      $$\text{row\_height} = \frac{\text{avail\_height} - (N - 1) \times \text{gap}}{N}$$
   2. For $N > 5$, adjusted banner height to $0.73''$, gap to $0.10''$, margins to $0.06''$, title font to 14 pt, and description font to 12 pt.
-  3. Recompiled and visually verified that all 7 pipeline phases render cleanly with uniform padding above the footer.
+  3. Subsequently evolved Slide 7 into a horizontal 7-phase chevron pipeline (`create_pipeline_flow_slide`), providing ample horizontal space for directional chevrons and bottom HITL loop callout banners.
 
 ---
 
@@ -70,6 +70,36 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 ---
 
+#### Solved Issue 4: DrawingML Shape Text Inversion on Light Fill Containers
+
+- **Issue:** In the official PoliMi template, shapes created with `s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE)` default to white text (`#FFFFFF`) from master layout styles. When paragraphs or native OMML math equations were added directly to `card.text_frame` on light card containers (`#F4F6F9`), the equations and bullets rendered as invisible white-on-white text (affecting Slides 9, 10, and 11).
+- **What has already been tried:** Checked run font properties inside DrawingML equations; DrawingML equation runs inherit shape text properties rather than slide theme defaults.
+- **Result:** Piecewise $U_{sem}$, RADG decision function $D$, and analytical GN-model formulas ($P_{ASE}, P_{NLI}, GSNR, P_{rx}$) were washed out and invisible against light backgrounds.
+- **Estimated possible solution / Resolution:**
+  1. Decoupled visual background containers from text frames: left the rounded rectangle purely as a styled background card.
+  2. Layered a transparent `slide.shapes.add_textbox(...)` on top of each card container.
+  3. Because textboxes default to dark font colors, both regular text runs and native OMML math formulas automatically render in bold institutional navy and dark slate.
+  4. Verified across high-resolution PNG previews (`slide_09.png`, `slide_10.png`, `slide_11.png`).
+
+---
+
+#### Solved Issue 5: Text-Heavy Slide Walls Lacking Visual Support and Mathematical Rigor
+
+- **Issue:** The initial slide deck relied heavily on standard bullet points without diagrams, process chevrons, decision trees, or formal mathematical formulations, failing Prof. Massimo Tornatore's strict presentation standard requiring $\ge 50\%$ visual surface per slide.
+- **What has already been tried:** External diagram tools require manual re-export and rasterization, degrading math typography into low-resolution bitmap images.
+- **Result:** Slides lacked visual dynamism and failed to showcase the mathematical rigor of the thesis.
+- **Estimated possible solution / Resolution:**
+  1. Implemented `add_omml_equation()` using native DrawingML `<a14:m><m:oMathPara><m:oMath>...</m:oMath></m:oMathPara></a14:m>` XML injection, producing native, scalable, editable Cambria Math equations for Slides 5, 9, 10, and 11.
+  2. Built modular visual layouts in `build_defense_deck.py`:
+     - Horizontal 7-phase connected chevron flow with directional chevrons and HITL loop banners (Slide 7).
+     - Split comparative cards with standardized dashed figure placeholders (Slides 8, 12).
+     - Decision tree slide with piecewise formulation and 3 outcome cards (Slide 10).
+     - 3 giant-number KPI stat banners paired with empirical plot placeholders (Slide 14).
+  3. Replaced Windows fallback emoji `🇩🇪` on Slide 12 with universal icon `🌐`.
+  4. Recompiled and verified that all slides have $\ge 50\%$ visual surface and zero terminal periods.
+
+---
+
 ### Pending Issues
 
 > None. The presentation authoring pipeline, automated headless export, visual inspection tooling, and initial 16-slide thesis defense deck are complete, verified, and passing all unit tests.
@@ -79,8 +109,9 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 ### Additional Notes
 
 The complete presentation artifacts are tracked under:
-- Master PowerPoint Deck: [`presentations/thesis_defense/thesis_defense.pptx`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/thesis_defense.pptx)
-- Vector PDF Preview: [`presentations/thesis_defense/thesis_defense.pdf`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/thesis_defense.pdf)
-- High-Resolution Slide Previews: [`presentations/thesis_defense/slides_png/`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/slides_png/)
-- Slide Markdown Specification & Speaker Notes: [`presentations/thesis_defense/deck_spec.md`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/deck_spec.md)
-- Programmatic Python Builder: [`presentations/thesis_defense/build_defense_deck.py`](file:///home/felipeab/MultiAgentON/presentations/thesis_defense/build_defense_deck.py)
+- Master PowerPoint Deck: [`docs/LLM_Wiki/wiki/presentations/thesis_defense/thesis_defense.pptx`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/thesis_defense.pptx)
+- Vector PDF Preview: [`docs/LLM_Wiki/wiki/presentations/thesis_defense/thesis_defense.pdf`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/thesis_defense.pdf)
+- High-Resolution Slide Previews: [`docs/LLM_Wiki/wiki/presentations/thesis_defense/slides_png/`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/slides_png/)
+- Slide Markdown Specification & Speaker Notes: [`docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md)
+- Programmatic Python Builder: [`docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py)
+
