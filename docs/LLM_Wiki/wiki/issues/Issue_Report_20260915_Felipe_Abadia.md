@@ -100,9 +100,22 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 ---
 
+#### Solved Issue 6: Iterative Presentation Layout Optimization & Subsystem Architecture Alignment
+
+- **Issue:** Aligning the presentation's conceptual structure and visual layout with Chapter 3 system model formalisms while adhering to the 15 Golden Rules (such as eliminating text walls, enforcing formal problem formulation sequences, and representing multi-level subsystem architectures without visual clutter). Additionally, redundant filesystem symlinks caused duplicate folder entries in IDEs across WSL.
+- **What has already been tried:** Initial presentation iterations relied on standard text-heavy bullet cards and generic column structures that lacked visual hierarchy, failed to emphasize mathematical formulation sequences, and obscured the core architectural separation.
+- **Result:** Visual density was suboptimal, mathematical variables were unformatted, and architectural contributions were overshadowed by implementation frameworks.
+- **Estimated possible solution / Resolution:**
+  1. Developed modular layout primitives in [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py) (horizontal failure mode banners, 2-tier problem formulation matrices, decoupled subsystem cards, and highlighted core contribution blocks).
+  2. Integrated native DrawingML subscript and superscript formatting for rigorous formula presentation.
+  3. Cleaned up redundant Linux symlinks, standardizing the presentation repository structure under `docs/LLM_Wiki/wiki/presentations/thesis_defense/`.
+  4. Recompiled the presentation headlessly, inspected high-resolution PNGs, and verified that all 278 unit tests pass without regressions.
+
+---
+
 ### Pending Issues
 
-> None. The presentation authoring pipeline, automated headless export, visual inspection tooling, and initial 16-slide thesis defense deck are complete, verified, and passing all unit tests.
+> None. The presentation authoring pipeline, automated headless export, visual inspection tooling, and refined 16-slide thesis defense deck are complete, verified, and passing all unit tests.
 
 ---
 

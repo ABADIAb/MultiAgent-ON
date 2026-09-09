@@ -52,7 +52,7 @@ In this session, we established a reproducible co-authoring architecture mirrori
 - Supports a `--watch` mode that monitors `.pptx` modification times and automatically re-exports previews upon saving manual edits.
 
 ### 2.3 Master's Thesis Defense Presentation Deck (16 Slides)
-Under [`docs/LLM_Wiki/wiki/presentations/thesis_defense/`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/) (with compatibility symlink `docs/LLM_Wiki/wiki/presentations/thesis_defence`):
+Under [`docs/LLM_Wiki/wiki/presentations/thesis_defense/`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/):
 - Relocated presentation package from root `presentations/` directly into the wiki hierarchy.
 - Archived all 9 legacy presentation markdown notes into [`docs/LLM_Wiki/wiki/presentations/archive/`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/archive/).
 - Authored and updated [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md): complete slide-by-slide text, visual layout hints (`> [!LAYOUT]`, `> [!VISUAL]`), concise bullet points without terminal periods, and timed speaker notes.
@@ -63,9 +63,9 @@ Under [`docs/LLM_Wiki/wiki/presentations/thesis_defense/`](file:///home/felipeab
 |---|-------------|---------------|------------|
 | 1 | Title Slide | Layout 0 (PoliMi Cover) | Title, Candidate, Advisor, September 2026 |
 | 2 | Outline | 5 Problem Banners | Thesis-specific challenge progression |
-| 3 | Motivation: Intent-Based Optical Networks | 2 Columns | Operational shift & high-level abstraction |
-| 4 | Illustrative Failure | 2 Cards (Alert) | Token saturation & hallucinated physics |
-| 5 | Problem Statement | 3 Structured Cards + Native OMML | Inputs ($G(V,E)$), Constraints ($U_{sem} \le \tau_{sem}, GSNR, P_{rx}$), Objectives |
+| 3 | Motivation: Intent-Based Optical Networks | 2 Columns + Callouts | Operational shift & high-level abstraction |
+| 4 | Illustrative Failure Modes | 5 Horizontal Cards + Alert Banner | 5 formal failure modes from [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition\|Section 3.1.1]] |
+| 5 | Problem Statement: Inputs, Constraints & Objectives | 2x2 Quadrant Matrix | Given, Decide, Objective, Constraints (Resource vs Physical/Semantic Boundary) |
 | 6 | Proposed Solution | 2 Columns + Contribution Banner | "LLMs reason, tools calculate" & 4 contributions |
 | 7 | End-to-End System Architecture | 7 Horizontal Chevrons + Loop Banners | Complete 7-phase pipeline flow with risk gates |
 | 8 | Overcoming Token Saturation | Split Diagram + Figure Placeholder | Scoped GraphRAG ($k$-hop subtopology extraction, $>75\%$ cut) |
@@ -85,12 +85,47 @@ Under [`docs/LLM_Wiki/wiki/presentations/thesis_defense/`](file:///home/felipeab
 - Authored [`inspect_deck.py`](file:///home/felipeab/MultiAgentON/.agents/skills/presentation-coauthor/scripts/inspect_deck.py) for terminal-based slide inspection.
 - Fixed Cover Slide conference logo collision and updated date banner.
 
+### 2.5 Slide 3–4 Refinements & Failure Modes Mapping
+- **Symlink Cleanup:** Removed legacy Linux symlink `docs/LLM_Wiki/wiki/presentations/thesis_defence` that caused confusing duplicate folder entries in IDEs and a 1KB stub in Windows/WSL Explorer, standardizing entirely on `thesis_defense/`.
+- **Slide 3 (Motivation) Callouts:** Extracted `🎯 Goal` and `⚠️ Critical Challenge` from standard bullet lists into dedicated, high-contrast callout blocks at the base of each column. Clarified the physical rationale for why optical backbones cannot tolerate probabilistic errors: hard forward error correction (FEC) cliff-edge behavior (BER explodes if GSNR drops 0.3–0.5 dB below threshold, causing transponder DSP carrier loss and total link blackout), multi-terabit blast radius, and Kerr nonlinearities (XPM/FWM) in shared EDFAs. Refined the natural language intent example to a realistic carrier operation: `"Establish a 400G lightpath between Milan and Rome avoiding link L2"`.
+- **Slide 4 (Illustrative Failure Modes):** Overhauled layout from 2 cards into 5 distinct horizontal cards via `create_five_challenges_slide()`, mapping 1-to-1 to the 5 formal failure modes in [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition#311-failure-modes-of-pure-llm-orchestration|Section 3.1.1]]:
+  1. Token Budget Saturation (LLM context exhausted by raw JSON/YANG topology snapshots).
+  2. Hallucinated Physical Constraints (LLM invents non-existent fiber paths or miscalculates nonlinear interference).
+  3. Semantic Drift (Operator intent distorted during natural-to-formal translation).
+  4. Reactive Post-Deployment Latency (Discovering infeasibility at provisioning triggers multi-minute replanning).
+  5. Suboptimal HITL Friction (Frequent operator interrupts cause operational fatigue).
+  Moved detailed explanatory lists to speaker notes to maintain clean, punchy slide density, and updated the bottom empirical risk banner.
+
+### 2.6 Slide 5 & 6 Structural Overhaul: 2-Tier Problem Formulation & Neurosymbolic Synergies
+- **Slide 5 Restructuring (2-Tier Split):**
+  - Evolved the problem formulation layout from a 2x2 quadrant into a clean 2-tier horizontal split via `create_problem_statement_slide()`.
+  - **Upper half (3 columns):** Given ($G(V, E, W)$, $d = (s, t, b)$, $\Omega$), Decide ($P_{sd} \subseteq \Pi$, $\Lambda_p \subseteq W$), and Objective ($\min \sum \text{cost}$ / load friction).
+  - **Lower half (2 columns):** Constraints spanning the full bottom half, separated into Resource Constraints ($T_{prompt} \le 8192$, $t_{exec} \le 5\text{ s}$, $K\text{-SP}$) on the left and Physical & Semantic Boundary Constraints ($U_{sem} \le \tau_{sem}$, $\text{SNIR}(p) \ge \gamma_{th}$, EDFA saturation) on the right.
+  - **Mathematical Formula Typography:** Developed `render_math_to_runs()` and `render_math_expression()` with native DrawingML subscript (`baseline: -25000`) and superscript formatting in Cambria Math, eliminating plain-text variable artifacts.
+- **Slide 6 Restructuring (Neurosymbolic Decoupling & Contribution Protagonism):**
+  - Synthesized the conceptual foundation between Section 3.2.1 of [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|Chapter 3 Section 3.2]] (Fail-Fast Pre-Deployment Hierarchy, early semantic vs. late optical physical gate) and Section 3.3.1 of [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation|Chapter 3 Section 3.3]] ("LLMs Reason, Tools Calculate", linguistic compilation vs. deterministic symbolic/physics solvers).
+  - **Upper half (Decoupled Subsystems):**
+    - **Neural Subsystem (Semantic Domain):** Intent compilation to PDDL AST, Scoped GraphRAG $k$-hop subtopology, and early semantic gate ($U_{sem} \le \tau_{sem}$).
+    - **Symbolic Subsystem (Optical Domain):** Deterministic Yen's KSP path search, GN-model physical layer feasibility ($P_{ase} + P_{nli}$), and late optical physical gate ($U_{opt} \le \tau_{opt}$).
+  - **Lower half (Core Contributions Protagonism):** Restructured into 3 highlighted, prominent visual cards:
+    1. *Strict Neurosymbolic Compilation* (linguistic compilation decoupled from physical computation).
+    2. *Scoped Optical GraphRAG* (subtopology pruning preventing context exhaustion).
+    3. *Fail-Fast Risk Gates (RADG)* (hierarchical gating eliminating hallucination risk prior to deployment).
+  - **LangGraph Demotion:** Removed LangGraph Orchestrator from core thesis contributions, documenting it as an implementation framework / runtime vehicle in speaker notes.
+  - **Visual Density & Speaker Notes:** Minimized slide text (Golden Rules 9 & 15, zero terminal periods) and expanded complete defense narrative into 60-second structured speaker notes in [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md).
+
+### 2.7 Consistency Audit & Ellipsoid Scope Pivot
+- Conducted a deep consistency verification between the presentation deck, the `src/` codebase, and the Chapter 3 System Model thesis drafts.
+- **k-hop vs. Ellipsoid Subtopology:** Explored the theoretical risk of connectivity loss in static $k$-hop neighborhoods on highly elongated optical topologies. Proposed a dynamic "ellipsoid" path extraction strategy as a solution.
+- **Fidelity Enforcement:** Since the `src/core/mock_graphrag.py` implementation currently relies strictly on $k$-hop subgraphs, reversed an overzealous update that prematurely documented the "ellipsoid" approach as active.
+- Documented the ellipsoid approach as a robust future direction in [`Drafting_Backlog.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/Drafting_Backlog.md) and added explanatory footnotes in the thesis drafts acknowledging the current $k$-hop limitation.
+
 ---
 
 ## 3. Verification & Test Outcomes
 
 - **Unit Test Suite:** Executed `uv run pytest`; all 278 unit tests passed cleanly with zero regressions.
-- **Visual Auditing:** Inspected rendered slide PNGs (`slide_01.png` through `slide_16.png`) via `view_file` to confirm alignment, contrast, dark Cambria Math font rendering, and layout balance across all 16 slides.
+- **Visual Auditing:** Inspected rendered slide PNGs (`slide_01.png` through `slide_16.png`, with specific re-inspection of `slide_03.png`, `slide_04.png`, `slide_05.png`, and `slide_06.png`) via `view_file` to confirm alignment, contrast, dark Cambria Math font rendering, and layout balance across all 16 slides.
 - **CLI Verification:** Successfully verified export and inspection scripts under WSL and Windows COM automation.
 
 ---
