@@ -38,4 +38,6 @@ addopts = "-m 'not integration'"
 
 [tool.pyright]
 extraPaths = ["."]
+venvPath = "."
+venv = ".venv"
 

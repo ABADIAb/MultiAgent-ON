@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# type: ignore
+# pyright: reportArgumentType=false, reportAttributeAccessIssue=false
 """
 Master's Thesis Defense Slide Deck Builder.
 Generates a 16-slide publication-quality presentation in PowerPoint (.pptx)
@@ -7,8 +9,6 @@ Prof. Massimo Tornatore's 15 Golden Rules, with native OMML equations,
 rich DrawingML diagram flows, visual cards, and standardized figure placeholders.
 """
 
-import sys
-import copy
 from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt
@@ -317,7 +317,7 @@ class DeckBuilder:
         left_data: dict,
         right_data: dict,
         notes: str,
-        bottom_banner: str = None,
+        bottom_banner: str | None = None,
     ):
         """Creates a side-by-side comparative card slide with optional bottom flow banner."""
         blank_layout = self.prs.slide_layouts[6]
@@ -402,7 +402,7 @@ class DeckBuilder:
         return s
 
     def create_card_slide(
-        self, title: str, slide_num: int, cards: list[dict], notes: str, formulas: dict = None
+        self, title: str, slide_num: int, cards: list[dict], notes: str, formulas: dict | None = None
     ):
         """Creates a multi-pillar card slide (3 or 4 cards) with optional native OMML formulas."""
         blank_layout = self.prs.slide_layouts[6]
@@ -472,7 +472,7 @@ class DeckBuilder:
             if formulas and i in formulas:
                 f_info = formulas[i]
                 p_f_lbl = tf_b.add_paragraph()
-                p_f_lbl.text = f"Formulation:"
+                p_f_lbl.text = "Formulation:"
                 p_f_lbl.font.name = FONT_TITLE
                 p_f_lbl.font.size = Pt(11)
                 p_f_lbl.font.bold = True
