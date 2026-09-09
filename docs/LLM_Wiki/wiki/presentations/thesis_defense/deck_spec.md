@@ -223,46 +223,45 @@ On the right, Boundary Constraints enforce zero semantic drift tolerance (U_sem 
 ## Slide 6: Proposed Solution: Neurosymbolic Decoupling
 
 > [!LAYOUT]
-> 2-tier comparative architecture slide: Upper tier features two decoupled subsystem cards (Neural Subsystem: Semantic Domain vs. Symbolic Subsystem: Optical Domain) mapping Sections 3.2.1 and 3.3.1; Lower tier gives prominent visual protagonism to the 3 Core Thesis Contributions across 3 high-contrast cards.
+> 2-column comparative architecture slide: Left column features two vertically stacked subsystem cards (Neural Subsystem: Semantic Domain on top, and Symbolic Subsystem: Optical Domain on bottom); Right column features a prominent "Core Thesis Contributions (Architectural Novelties)" container with 3 vertically stacked highlight blocks one below the other.
 
 > [!VISUAL]
-> - Top Tier (Decoupled Subsystems - Sections 3.2.1 & 3.3.1):
->   - Left Card: `🧠 Neural Subsystem (Semantic Domain)` (Navy header `#0F2C53`, linguistic compiler, early fail-fast gate)
->   - Right Card: `📐 Symbolic Subsystem (Optical Domain)` (Green header `#1A7F37`, deterministic solvers, late physical risk gate)
-> - Bottom Tier (Prominent Core Contributions - Full Width):
->   - Container Header: `🎯 Core Thesis Contributions (Architectural Novelties)` (Navy bar `#0F2C53`)
->   - 3 Side-by-Side Highlight Cards (`#FFFFFF` fill, colored borders):
->     - `[🧩 1. Strict Neurosymbolic Compilation]` ➔ Translates NL intent to formal PDDL ($\mathcal{I}_{NL} \to \mathcal{S}_{PDDL}$) with CFG AST validation
->     - `[🌐 2. Scoped Optical GraphRAG]` ➔ Dynamic $k$-hop subtopologies ($G_{sub} \subseteq G$), cutting prompt token overhead by > 75%
->     - `[🛡️ 3. Fail-Fast Risk-Adaptive Gates]` ➔ Orthogonal sequential gates ($U_{sem}$ and $\text{QoT}_{valid}$) guaranteeing 100% pre-deployment safety
+> - Left Column (Vertically Stacked Subsystems - $w=5.7''$, $x=0.75''$):
+>   - Top Card: `🧠 Neural Subsystem (Semantic Domain)` (Navy header `#0F2C53`, linguistic compiler, early fail-fast gate)
+>   - Bottom Card: `📐 Symbolic Subsystem (Optical Domain)` (Green header `#1A7F37`, deterministic solvers, late physical risk gate)
+> - Right Column (Core Thesis Contributions - $w=5.75''$, $x=6.8''$):
+>   - Container Header Bar: `🎯 Core Thesis Contributions (Architectural Novelties)` (Navy bar `#0F2C53`)
+>   - 3 Vertically Stacked Highlight Blocks (Cards with colored borders):
+>     - Block 1: `1. Neurosymbolic Decoupling & Scoped GraphRAG` (Navy border `#0F2C53`)
+>     - Block 2: `2. Dual-Layer Semantic Uncertainty Gate ($U_{sem}$)` (Amber border `#B07D00`)
+>     - Block 3: `3. Risk-Adaptive Decision Gate (RADG) & QoT` (Green border `#1A7F37`)
 
-- **Neural Subsystem (Semantic Domain)** (`🧠`)
-  - **Linguistic Compiler:** Translates operator intent to formal PDDL ($\mathcal{I}_{NL} \to \mathcal{S}_{PDDL}$)
-  - **Strict Separation:** Prohibited from arithmetic, graph routing, or physics calculation
-  - **Early Fail-Fast Gate:** Audits semantic uncertainty ($U_{sem} \le \tau_{sem}$) before physics simulation
-  - **Hallucination Suppression:** CFG grammar validator ($v_{struct}$) eliminates syntax errors
-- **Symbolic Subsystem (Optical Domain)** (`📐`)
-  - **Deterministic Routing:** Yen's $K$-SP explores topologically valid paths over $G_{sub}$
-  - **Analytical Physics Engine:** Coherent GN model computes non-linear GSNR and $P_{rx}$
-  - **Late Physical Risk Gate:** Validates transmission feasibility ($\text{QoT}_{valid} = 1$)
-  - **Zero Unfeasible Deployments:** Guarantees 100% physical safety before provisioning
-- **The Three Core Contributions:**
-  - **1. Strict Neurosymbolic Compilation:** High-accuracy NL-to-PDDL translation with CFG structural verification
-  - **2. Scoped Optical GraphRAG:** Localized $k$-hop subtopology extraction eliminating token saturation
-  - **3. Fail-Fast Risk Gates (RADG):** Sequential pre-deployment gates guaranteeing 100% optical safety and cutting HITL by $> 70\%$
+- **Left Column: Decoupled Subsystems**
+  - **Neural Subsystem (Semantic Domain)** (`🧠`)
+    - Translates unstructured natural language $\mathcal{I}_{NL}$ into formal PDDL $\mathcal{S}_{PDDL}$
+    - Zero routing arithmetic or physical SNR calculations performed by LLM
+    - Reverse prompting reconstructs intent $\mathcal{I}_{recon}$ for validation
+    - Interpretable intermediate representation prevents hallucinated configurations
+  - **Symbolic Subsystem (Optical Domain)** (`📐`)
+    - Subtopology extraction via scoped Mock GraphRAG ($k\text{-hop}$ neighborhood)
+    - Deterministic routing via Yen's $K\text{-SP}$ constrained graph algorithm
+    - Physical QoT validation via pure Python analytical GN-model engine
+    - Evaluates $\text{GSNR} \ge \text{GSNR}_{th}$ and $P_{rx} \ge P_{rx,min}$ with zero hallucination
+- **Right Column: Core Thesis Contributions (3 Stacked Blocks)**
+  - **1. Neurosymbolic Decoupling & Scoped GraphRAG**
+    - Strict separation: probabilistic semantic translation vs deterministic physics
+    - Subtopology scoping reduces prompt tokens by >75%, eliminating attention loss
+  - **2. Dual-Layer Semantic Uncertainty Gate ($U_{sem}$)**
+    - Layer 1 syntax check ($v_{struct} \in \{0, 1\}$) + Layer 2 semantic discrepancy ($d_{sem}$)
+    - Pauses via LangGraph `interrupt()` when $U_{sem} > \tau_{sem}$ to clarify ambiguity
+  - **3. Risk-Adaptive Decision Gate (RADG) & QoT**
+    - Piecewise decision $D(U_{sem}, \text{QoT}_{valid})$: clarify, replan, or auto-approve
+    - Guarantees $\text{UAR} = 100\%$ physical safety with <5 ms calculation latency
 
 <!-- Speaker Notes:
-[Estimated Time]: 60s
-[Key Message]: Ground the solution architecture in the deep synergy between Section 3.2.1 (Fail-Fast Pre-Deployment Hierarchy) and Section 3.3.1 ("LLMs Reason, Tools Calculate"), presenting the three core thesis contributions.
-[Spoken Script]: To solve this constrained optimization problem, we introduce our neurosymbolic architecture, directly bridging Section 3.2.1 and Section 3.3.1 of the thesis.
-Our foundational design philosophy is: 'LLMs reason, deterministic tools calculate'. We enforce a strict separation of concerns between two complementary subsystems:
-In the upper left, the Neural Subsystem operates exclusively within the Semantic Domain. Grounded in Section 3.3.1, the generative LLM acts purely as a linguistic compiler, translating unstructured intent into formal PDDL goal predicates. It is strictly prohibited from performing arithmetic or graph traversal. Grounded in Section 3.2.1, this subsystem implements an early fail-fast semantic gate: evaluating semantic uncertainty U_sem <= tau_sem via automated Reverse Prompting and suppressing syntax hallucinations with Context-Free Grammar validation before any physical simulations are invoked.
-In the upper right, the Symbolic Subsystem operates within the Optical Domain. Non-neural symbolic algorithms—specifically Yen's K-Shortest Paths over the scoped subgraph—explore candidate routes, while an analytical coherent Gaussian Noise model deterministically evaluates optical transmission feasibility. Grounded in Section 3.2.1, this enforces the late physical risk gate: ensuring QoT_valid = 1 prior to provisioning and guaranteeing 100% pre-deployment safety.
-In the lower tier, this architectural decoupling yields the three core contributions of this thesis:
-First, a Strict Neurosymbolic Intent Compiler that translates natural language to formal PDDL with mathematical grammar guarantees.
-Second, a Scoped Optical GraphRAG mechanism that extracts localized k-hop subtopologies, eliminating token context saturation with over 75% prompt reduction.
-And third, a Fail-Fast Risk-Adaptive Decision Gate (RADG) that sequentially evaluates semantic and physical risks, eliminating live deployment failures while slashing human operator fatigue by over 70%.
-Note that while we implement this pipeline using a stateful LangGraph runtime with checkpointed interrupt() primitives, the novel research contributions lie in the neurosymbolic separation, topological scoping, and risk-adaptive decision theory.
+[Estimated Time]: 55s
+[Key Message]: State the thesis contributions explicitly: decoupling probabilistic reasoning from deterministic calculations.
+[Spoken Script]: Our core architectural principle is: 'LLMs reason, deterministic tools calculate'. We forbid the LLM from performing math or path exploration. Instead, the LLM acts solely as a semantic translator, converting natural language into formal Planning Domain Definition Language, or PDDL. This enables our four key contributions: a neurosymbolic pipeline, a scoped Optical GraphRAG mechanism, sequential pre-deployment risk gates, and an auditable LangGraph state machine.
 [Bridge to Next Slide]: Let us trace the execution of this pipeline from end to end across all seven phases.
 -->
 
@@ -305,11 +304,14 @@ Note that while we implement this pipeline using a stateful LangGraph runtime wi
 ## Slide 8: Overcoming Token Saturation: Scoped Optical GraphRAG
 
 > [!LAYOUT]
-> Split-column layout: Left column contains problem analysis & scoping mechanics; Right column displays a dedicated Subtopology Diagrammatic Placeholder.
+> Split-column layout: Left column contains problem analysis & scoping mechanics; Right column displays an animated 17-node German network topology container with 2-step subnetwork scoping.
 
 > [!VISUAL]
 > - Left Column: Scoping Mechanics Card (Navy header, quantitative metric badge: `> 75% Token Reduction`)
-> - Right Column: Standardized Visual Diagram Placeholder (`📊 [Visual Diagram: Full 17-Node Backbone vs Scoped 2-Hop Subtopology]`, 4:3 ratio, dashed border, clear replacement instructions)
+> - Right Column: 17-Node German Core Network Scoping Card with Entrance Click Animation:
+>   - Step 1 (Base State): Full 17-node German backbone topology (`assets/germany_17nodes.png`)
+>   - Step 2 (On Advance / Click): Scoped subtopology overlay (`assets/germany_17nodes_opaco.jpg`) with opacified northern nodes, highlighting localized Frankfurt–Munich subnetwork
+>   - Bottom Callout: `⚡ Frankfurt ➔ Munich demand: Northern nodes pruned from LLM prompt`
 
 - **The Problem: Full Topology Bloat**
   - Transmitting the entire 17-node or 100-node network state saturates LLM context windows
@@ -325,7 +327,7 @@ Note that while we implement this pipeline using a stateful LangGraph runtime wi
 <!-- Speaker Notes:
 [Estimated Time]: 50s
 [Key Message]: Scoped GraphRAG extracts only relevant k-hop subtopologies, eliminating attention degradation.
-[Spoken Script]: To solve token budget saturation, we implement Scoped Optical GraphRAG. Instead of flooding the LLM context with hundreds of network nodes and links, our deterministic graph engine extracts only the k-hop neighborhood bounding the source and destination. This reduces the prompt token footprint by over 75 percent, completely eliminating lost-in-the-middle phenomena while keeping the graph search computationally light.
+[Spoken Script]: To solve token budget saturation, we implement Scoped Optical GraphRAG. Instead of flooding the LLM context with the entire 17-node topology, our deterministic graph engine extracts only the k-hop neighborhood bounding the source and destination. For instance, [Click / Advance] if an operator requests a lightpath between Frankfurt and Munich, there is no need to load northern nodes like Hamburg, Bremen, or Berlin into the LLM context. We prune distant nodes and links, reducing the prompt token footprint by over 75 percent, eliminating the lost-in-the-middle phenomenon while keeping the graph search computationally instantaneous.
 [Bridge to Next Slide]: Now let us examine how we eliminate semantic drift before any physics calculations occur.
 -->
 
@@ -430,7 +432,7 @@ Note that while we implement this pipeline using a stateful LangGraph runtime wi
 
 > [!VISUAL]
 > - Left Column: Testbed Specifications Card (Navy header, node/link badges)
-> - Right Column: Standardized Figure Placeholder (`📊 [Network Topology: Nobel-Germany 17-Node 26-Link Core Backbone]`, 16:9 ratio, dashed border, clear replacement instructions)
+> - Right Column: 17-Node Nobel-Germany Core Network Topology Map (`germany_17nodes.png`, container card with Navy header bar and caption callout)
 
 - **17-Node German Core Network Benchmark**
   - Realistic telecom topology: 17 ROADM nodes, 26 bidirectional fiber links

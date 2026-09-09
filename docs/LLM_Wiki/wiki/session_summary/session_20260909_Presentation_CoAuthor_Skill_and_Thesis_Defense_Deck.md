@@ -65,14 +65,14 @@ Under [`docs/LLM_Wiki/wiki/presentations/thesis_defense/`](file:///home/felipeab
 | 2 | Outline | 5 Problem Banners | Thesis-specific challenge progression |
 | 3 | Motivation: Intent-Based Optical Networks | 2 Columns + Callouts | Operational shift & high-level abstraction |
 | 4 | Illustrative Failure Modes | 5 Horizontal Cards + Alert Banner | 5 formal failure modes from [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition\|Section 3.1.1]] |
-| 5 | Problem Statement: Inputs, Constraints & Objectives | 2x2 Quadrant Matrix | Given, Decide, Objective, Constraints (Resource vs Physical/Semantic Boundary) |
+| 5 | Problem Statement: Given, Decide, Objective & Constraints | 2-Tier Split (3 Cards + Constraints Container) | Given, Decide, Objective, Constraints (Resource vs Boundary) |
 | 6 | Proposed Solution | 2 Columns + Contribution Banner | "LLMs reason, tools calculate" & 4 contributions |
 | 7 | End-to-End System Architecture | 7 Horizontal Chevrons + Loop Banners | Complete 7-phase pipeline flow with risk gates |
-| 8 | Overcoming Token Saturation | Split Diagram + Figure Placeholder | Scoped GraphRAG ($k$-hop subtopology extraction, $>75\%$ cut) |
+| 8 | Overcoming Token Saturation | Split Diagram + Animated Topology Overlay | Scoped GraphRAG ($k$-hop subtopology, Frankfurt ➔ Munich example) |
 | 9 | Overcoming Semantic Drift | 2 Cards + Native OMML | Layer 1 CFG + Layer 2 Reverse Prompting piecewise $U_{sem}$ formula |
 | 10 | Pre-Deployment Risk Gate | Decision Tree + Native OMML | Piecewise RADG formula $D(U_{sem}, \text{QoT}_{valid})$ + 3 outcome cards |
 | 11 | Deterministic Physical Layer | 2 Cards + Native OMML | Analytical GN-model formulas ($P_{ASE}, P_{NLI}, GSNR, P_{rx}$) in Cambria Math |
-| 12 | Experimental Setup & Testbed | Split Benchmark + Figure Placeholder | 17-node German network, SMF-28 parameters, and SDON RESTConf testbed |
+| 12 | Experimental Setup & Testbed | Split Benchmark + Embedded Topology Map | 17-node German core backbone ($|V|=17, |E|=26$), SMF-28 parameters, and SDON RESTConf testbed |
 | 13 | Evaluation Framework & Scenarios | 3 Cards | 100 test demands across 4 intent categories |
 | 14 | Key Findings & Guarantees | 3 KPI Stat Banners + Plot Placeholder | 100% pre-deployment safety, $>70\%$ HITL cut, $<15$ ms latency |
 | 15 | Conclusions & Main Takeaways | 4 Synthesis Cards | Core architectural and operational takeaways |
@@ -120,12 +120,28 @@ Under [`docs/LLM_Wiki/wiki/presentations/thesis_defense/`](file:///home/felipeab
 - **Fidelity Enforcement:** Since the `src/core/mock_graphrag.py` implementation currently relies strictly on $k$-hop subgraphs, reversed an overzealous update that prematurely documented the "ellipsoid" approach as active.
 - Documented the ellipsoid approach as a robust future direction in [`Drafting_Backlog.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/Drafting_Backlog.md) and added explanatory footnotes in the thesis drafts acknowledging the current $k$-hop limitation.
 
+### 2.8 Slide 6 Layout Reorganization, Subtopology Alignment & OMML Math Typography Scaling
+- **Slide 6 Layout Reorganization:** Migrated from horizontal halves to a balanced 2-column layout:
+  - *Left column:* Vertically stacked subsystem cards for Neural Subsystem (Semantic Domain, navy) and Symbolic Subsystem (Optical Domain, green).
+  - *Right column:* Prominent container with 3 vertically stacked contribution blocks (Neurosymbolic Decoupling, Dual-Layer Semantic Gate, RADG & QoT).
+- **Subtopology Scope Alignment:** Removed all mentions of "ellipsoid" subtopology across slides and `deck_spec.md`, adhering strictly to the active $k$-hop subtopology implementation in `src/core/mock_graphrag.py` and Section 3.2.2 Phase 1 of [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|Chapter 3]].
+- **Native PowerPoint Formula Formatting & Font Scaling:**
+  - Estandardized all variables and math expressions ($U_{sem}$, $\tau_{sem}$, $\mathcal{I}_{NL}$, $\mathcal{S}_{PDDL}$, $k\text{-hop}$, $K\text{-SP}$, $\text{GSNR}$, $P_{rx}$, etc.) to native Office Math (`Cambria Math`).
+  - Configured DrawingML `<a:defRPr sz="...">` on paragraph `<a:pPr>` in `add_math_runs_to_paragraph()` and `add_omml_equation()`, scaling formulas down from PowerPoint's 18pt default to match surrounding normal text (10–12pt) with exact color and weight inheritance.
+
+### 2.9 Slide 3–5 Full Implementation, Slide 8 Click Animation & Slide 12 Topology Embedding
+- **Code & Spec Synchronization:** Reconciled implementation discrepancies between `deck_spec.md` and `build_defense_deck.py`. Fully coded the refined Slide 3 (callouts for `🎯 Goal` and `⚠️ Critical Challenge`), Slide 4 (5 distinct horizontal cards for the failure modes in Section 3.1.1 + empirical risk banner), and Slide 5 (formal 2-tier formulation with `[2] Decide (Variables & Actions)`).
+- **Comprehensive OMML Math Mapping:** Expanded `OMML_MAP` in `build_defense_deck.py` with native DrawingML equations for all mathematical variables in Slide 5 ($\min \mathcal{J} = \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}$, $\pi^* \in \mathcal{K}_{path}$, $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$, $c^*$, $\text{GSNR}_{th} = \text{SNR}_{min} + \text{Margin}$, $T_{prompt} \le T_{max} \ll T_{full}$, $t_{exec} \le t_{max\_budget}$, etc.), eliminating raw LaTeX escapes.
+- **Slide 8 Scoped GraphRAG Animation:** Converted the raw 17-node German topology from WebP to PNG (`docs/LLM_Wiki/wiki/presentations/thesis_defense/assets/germany_17nodes.png`) and integrated the opaque pruned overlay (`assets/germany_17nodes_opaco.jpg`) with an OpenXML `<p:timing>` entrance click animation, demonstrating Frankfurt ➔ Munich subnetwork scoping.
+- **Slide 12 Experimental Setup Map Embedding:** Integrated the original 17-node German backbone map (`germany_17nodes.png`) into the right column of Slide 12 with container styling, header bar, and telemetry callout caption.
+- **Automated Re-compilation & Vector Export:** Regenerated `thesis_defense.pptx`, vector `thesis_defense.pdf`, and 1080p `slides_png/` previews, verifying visual layout, contrast, and Cambria Math alignment across all 16 slides.
+
 ---
 
 ## 3. Verification & Test Outcomes
 
 - **Unit Test Suite:** Executed `uv run pytest`; all 278 unit tests passed cleanly with zero regressions.
-- **Visual Auditing:** Inspected rendered slide PNGs (`slide_01.png` through `slide_16.png`, with specific re-inspection of `slide_03.png`, `slide_04.png`, `slide_05.png`, and `slide_06.png`) via `view_file` to confirm alignment, contrast, dark Cambria Math font rendering, and layout balance across all 16 slides.
+- **Visual Auditing:** Recompiled and re-exported all 16 slide PNGs (`slide_01.png` through `slide_16.png`), confirming through visual inspection that all math formulas and variables render at the exact point size and color of normal text with high contrast and zero clipping.
 - **CLI Verification:** Successfully verified export and inspection scripts under WSL and Windows COM automation.
 
 ---

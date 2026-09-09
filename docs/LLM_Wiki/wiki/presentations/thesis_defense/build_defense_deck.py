@@ -10,6 +10,7 @@ rich DrawingML diagram flows, visual cards, and standardized figure placeholders
 """
 
 from pathlib import Path
+import re
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -34,12 +35,197 @@ FONT_TITLE = "Titillium Web SemiBold"
 FONT_BODY = "Arial"
 
 
-def add_omml_equation(paragraph, omml_xml: str):
+# --- Comprehensive Office Math (OMML) Dictionary ---
+OMML_MAP = {
+    # Semantic Gate & Uncertainty
+    r"U_{sem}": '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>',
+    r"\tau_{sem}": '<m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>',
+    r"U_{sem} \le \tau_{sem}": '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>',
+    r"U_{sem} > \tau_{sem}": '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> &gt; </m:t></m:r><m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>',
+    r"d_{sem}": '<m:sSub><m:e><m:r><m:t>d</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>',
+    r"d_{sem} \in [0, 1]": '<m:sSub><m:e><m:r><m:t>d</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> ∈ [0, 1]</m:t></m:r>',
+    r"v_{struct}": '<m:sSub><m:e><m:r><m:t>v</m:t></m:r></m:e><m:sub><m:r><m:t>struct</m:t></m:r></m:sub></m:sSub>',
+    r"v_{struct} \in \{0, 1\}": '<m:sSub><m:e><m:r><m:t>v</m:t></m:r></m:e><m:sub><m:r><m:t>struct</m:t></m:r></m:sub></m:sSub><m:r><m:t> ∈ {0, 1}</m:t></m:r>',
+    r"v_{struct} = 1": '<m:sSub><m:e><m:r><m:t>v</m:t></m:r></m:e><m:sub><m:r><m:t>struct</m:t></m:r></m:sub></m:sSub><m:r><m:t> = 1</m:t></m:r>',
+    r"v_{struct} = 0": '<m:sSub><m:e><m:r><m:t>v</m:t></m:r></m:e><m:sub><m:r><m:t>struct</m:t></m:r></m:sub></m:sSub><m:r><m:t> = 0</m:t></m:r>',
+    r"U_{sem} = f(v_{struct}, d_{sem})": '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> = f(</m:t></m:r><m:sSub><m:e><m:r><m:t>v</m:t></m:r></m:e><m:sub><m:r><m:t>struct</m:t></m:r></m:sub></m:sSub><m:r><m:t>, </m:t></m:r><m:sSub><m:e><m:r><m:t>d</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t>)</m:t></m:r>',
+    r"\mathcal{I}_{NL}": '<m:sSub><m:e><m:r><m:t>ℐ</m:t></m:r></m:e><m:sub><m:r><m:t>NL</m:t></m:r></m:sub></m:sSub>',
+    r"\mathcal{S}_{PDDL}": '<m:sSub><m:e><m:r><m:t>𝒮</m:t></m:r></m:e><m:sub><m:r><m:t>PDDL</m:t></m:r></m:sub></m:sSub>',
+    r"\mathcal{I}_{NL} \to \mathcal{S}_{PDDL}": '<m:sSub><m:e><m:r><m:t>ℐ</m:t></m:r></m:e><m:sub><m:r><m:t>NL</m:t></m:r></m:sub></m:sSub><m:r><m:t> → </m:t></m:r><m:sSub><m:e><m:r><m:t>𝒮</m:t></m:r></m:e><m:sub><m:r><m:t>PDDL</m:t></m:r></m:sub></m:sSub>',
+    r"\mathcal{I}_{recon}": '<m:sSub><m:e><m:r><m:t>ℐ</m:t></m:r></m:e><m:sub><m:r><m:t>recon</m:t></m:r></m:sub></m:sSub>',
+
+    # Physical Risk Gate & QoT
+    r"\text{QoT}_{valid}": '<m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub>',
+    r"\text{QoT}_{valid} = 1": '<m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub><m:r><m:t> = 1</m:t></m:r>',
+    r"\text{QoT}_{valid} = 0": '<m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub><m:r><m:t> = 0</m:t></m:r>',
+    r"U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 0": '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> ∧ </m:t></m:r><m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub><m:r><m:t> = 0</m:t></m:r>',
+    r"U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 1": '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> ∧ </m:t></m:r><m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub><m:r><m:t> = 1</m:t></m:r>',
+    r"D(U_{sem}, \text{QoT}_{valid})": '<m:r><m:t>D(</m:t></m:r><m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t>, </m:t></m:r><m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub><m:r><m:t>)</m:t></m:r>',
+    r"D(U_{sem}, \text{QoT})": '<m:r><m:t>D(</m:t></m:r><m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t>, QoT)</m:t></m:r>',
+
+    # Topology & Graph Scoping
+    r"G(V, E)": '<m:r><m:t>G(V, E)</m:t></m:r>',
+    r"G = (V, E)": '<m:r><m:t>G = (V, E)</m:t></m:r>',
+    r"G_{sub}": '<m:sSub><m:e><m:r><m:t>G</m:t></m:r></m:e><m:sub><m:r><m:t>sub</m:t></m:r></m:sub></m:sSub>',
+    r"G_{sub} \subseteq G": '<m:sSub><m:e><m:r><m:t>G</m:t></m:r></m:e><m:sub><m:r><m:t>sub</m:t></m:r></m:sub></m:sSub><m:r><m:t> ⊆ G</m:t></m:r>',
+    r"G_{sub} = (V_{sub}, E_{sub}) \subseteq G": '<m:sSub><m:e><m:r><m:t>G</m:t></m:r></m:e><m:sub><m:r><m:t>sub</m:t></m:r></m:sub></m:sSub><m:r><m:t> = (</m:t></m:r><m:sSub><m:e><m:r><m:t>V</m:t></m:r></m:e><m:sub><m:r><m:t>sub</m:t></m:r></m:sub></m:sSub><m:r><m:t>, </m:t></m:r><m:sSub><m:e><m:r><m:t>E</m:t></m:r></m:e><m:sub><m:r><m:t>sub</m:t></m:r></m:sub></m:sSub><m:r><m:t>) ⊆ G</m:t></m:r>',
+    r"|V| = 17, |E| = 26": '<m:r><m:t>|V| = 17, |E| = 26</m:t></m:r>',
+    r"k": '<m:r><m:t>k</m:t></m:r>',
+    r"k\text{-hop}": '<m:r><m:t>k</m:t></m:r><m:r><m:t>-hop</m:t></m:r>',
+    r"K\text{-SP}": '<m:r><m:t>K</m:t></m:r><m:r><m:t>-SP</m:t></m:r>',
+    r"\mathcal{O}(|V| + |E|)": '<m:r><m:t>𝒪(|V| + |E|)</m:t></m:r>',
+    r"T_{prompt}(G_{sub}) \ll T_{prompt}(G)": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>prompt</m:t></m:r></m:sub></m:sSub><m:r><m:t>(</m:t></m:r><m:sSub><m:e><m:r><m:t>G</m:t></m:r></m:e><m:sub><m:r><m:t>sub</m:t></m:r></m:sub></m:sSub><m:r><m:t>) ≪ </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>prompt</m:t></m:r></m:sub></m:sSub><m:r><m:t>(G)</m:t></m:r>',
+
+    # Optical Physics & QoT Metrics
+    r"\text{GSNR}": '<m:r><m:t>GSNR</m:t></m:r>',
+    r"\text{GSNR}_{th}": '<m:sSub><m:e><m:r><m:t>GSNR</m:t></m:r></m:e><m:sub><m:r><m:t>th</m:t></m:r></m:sub></m:sSub>',
+    r"\text{GSNR} \ge \text{GSNR}_{th}": '<m:r><m:t>GSNR ≥ </m:t></m:r><m:sSub><m:e><m:r><m:t>GSNR</m:t></m:r></m:e><m:sub><m:r><m:t>th</m:t></m:r></m:sub></m:sSub>',
+    r"P_{rx}": '<m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx</m:t></m:r></m:sub></m:sSub>',
+    r"P_{rx,min}": '<m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx,min</m:t></m:r></m:sub></m:sSub>',
+    r"P_{rx} \ge P_{rx,min}": '<m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≥ </m:t></m:r><m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx,min</m:t></m:r></m:sub></m:sSub>',
+    r"\text{GSNR} \ge \text{GSNR}_{th} \land P_{rx} \ge P_{rx,min}": '<m:r><m:t>GSNR ≥ </m:t></m:r><m:sSub><m:e><m:r><m:t>GSNR</m:t></m:r></m:e><m:sub><m:r><m:t>th</m:t></m:r></m:sub></m:sSub><m:r><m:t> ∧ </m:t></m:r><m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≥ </m:t></m:r><m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx,min</m:t></m:r></m:sub></m:sSub>',
+    r"P_{ASE}": '<m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>ASE</m:t></m:r></m:sub></m:sSub>',
+    r"P_{NLI}": '<m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>NLI</m:t></m:r></m:sub></m:sSub>',
+    r"P_{ch}": '<m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>ch</m:t></m:r></m:sub></m:sSub>',
+    r"\alpha": '<m:r><m:t>α</m:t></m:r>',
+    r"\alpha = 0.2\text{ dB/km}": '<m:r><m:t>α = 0.2 dB/km</m:t></m:r>',
+    r"D": '<m:r><m:t>D</m:t></m:r>',
+    r"D = 16.7\text{ ps/(nm}\cdot\text{km})": '<m:r><m:t>D = 16.7 ps/(nm·km)</m:t></m:r>',
+    r"\gamma": '<m:r><m:t>γ</m:t></m:r>',
+    r"\gamma = 1.2\text{ W}^{-1}\text{km}^{-1}": '<m:r><m:t>γ = 1.2 </m:t></m:r><m:sSup><m:e><m:r><m:t>W</m:t></m:r></m:e><m:sup><m:r><m:t>-1</m:t></m:r></m:sup></m:sSup><m:sSup><m:e><m:r><m:t>km</m:t></m:r></m:e><m:sup><m:r><m:t>-1</m:t></m:r></m:sup></m:sSup>',
+    r"NF": '<m:r><m:t>NF</m:t></m:r>',
+    r"NF = 5.5\text{ dB}": '<m:r><m:t>NF = 5.5 dB</m:t></m:r>',
+    r"G_m": '<m:sSub><m:e><m:r><m:t>G</m:t></m:r></m:e><m:sub><m:r><m:t>m</m:t></m:r></m:sub></m:sSub>',
+    r"NF_m": '<m:sSub><m:e><m:r><m:t>NF</m:t></m:r></m:e><m:sub><m:r><m:t>m</m:t></m:r></m:sub></m:sSub>',
+    r"R_s": '<m:sSub><m:e><m:r><m:t>R</m:t></m:r></m:e><m:sub><m:r><m:t>s</m:t></m:r></m:sub></m:sSub>',
+    r"L \in [45, 350]\text{ km}": '<m:r><m:t>L ∈ [45, 350] km</m:t></m:r>',
+
+    # Evaluation Metrics
+    r"\text{UAR} = 100\%": '<m:r><m:t>UAR = 100%</m:t></m:r>',
+    r"\text{UAR}": '<m:r><m:t>UAR</m:t></m:r>',
+    r"\text{HIC}": '<m:r><m:t>HIC</m:t></m:r>',
+    r"T_{E2E}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>E2E</m:t></m:r></m:sub></m:sSub>',
+    r"T_{prompt}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>prompt</m:t></m:r></m:sub></m:sSub>',
+    r"T_{phys} < 15\text{ ms}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>phys</m:t></m:r></m:sub></m:sSub><m:r><m:t> &lt; 15 ms</m:t></m:r>',
+    r"T_{phys} < 5\text{ ms}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>phys</m:t></m:r></m:sub></m:sSub><m:r><m:t> &lt; 5 ms</m:t></m:r>',
+    r"T_{solver} < 10\text{ ms}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>solver</m:t></m:r></m:sub></m:sSub><m:r><m:t> &lt; 10 ms</m:t></m:r>',
+    r"\text{QoT}": '<m:r><m:t>QoT</m:t></m:r>',
+    r"G": '<m:r><m:t>G</m:t></m:r>',
+    r"V": '<m:r><m:t>V</m:t></m:r>',
+    r"E": '<m:r><m:t>E</m:t></m:r>',
+    r"K": '<m:r><m:t>K</m:t></m:r>',
+    r"T_{phys}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>phys</m:t></m:r></m:sub></m:sSub>',
+    r"T_{solver}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>solver</m:t></m:r></m:sub></m:sSub>',
+
+    # Slide 5 Formal Problem Formulation Math
+    r"L": '<m:r><m:t>L</m:t></m:r>',
+    r"\text{GSNR}_{th} = \text{SNR}_{min} + \text{Margin}": '<m:sSub><m:e><m:r><m:t>GSNR</m:t></m:r></m:e><m:sub><m:r><m:t>th</m:t></m:r></m:sub></m:sSub><m:r><m:t> = </m:t></m:r><m:sSub><m:e><m:r><m:t>SNR</m:t></m:r></m:e><m:sub><m:r><m:t>min</m:t></m:r></m:sub></m:sSub><m:r><m:t> + Margin</m:t></m:r>',
+    r"\pi^* \in \mathcal{K}_{path}": '<m:sSup><m:e><m:r><m:t>π</m:t></m:r></m:e><m:sup><m:r><m:t>*</m:t></m:r></m:sup></m:sSup><m:r><m:t> ∈ </m:t></m:r><m:sSub><m:e><m:r><m:t>𝒦</m:t></m:r></m:e><m:sub><m:r><m:t>path</m:t></m:r></m:sub></m:sSub>',
+    r"a \in \{\text{approve}, \text{clarify}, \text{replan}\}": '<m:r><m:t>a ∈ {approve, clarify, replan}</m:t></m:r>',
+    r"c^*": '<m:sSup><m:e><m:r><m:t>c</m:t></m:r></m:e><m:sup><m:r><m:t>*</m:t></m:r></m:sup></m:sSup>',
+    r"\min \mathcal{J} = \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}": '<m:r><m:t>min 𝒥 = α · </m:t></m:r><m:sSub><m:e><m:r><m:t>N</m:t></m:r></m:e><m:sub><m:r><m:t>hitl</m:t></m:r></m:sub></m:sSub><m:r><m:t> + β · </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>tokens</m:t></m:r></m:sub></m:sSub>',
+    r"\min N_{hitl}": '<m:r><m:t>min </m:t></m:r><m:sSub><m:e><m:r><m:t>N</m:t></m:r></m:e><m:sub><m:r><m:t>hitl</m:t></m:r></m:sub></m:sSub>',
+    r"\min T_{tokens}": '<m:r><m:t>min </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>tokens</m:t></m:r></m:sub></m:sSub>',
+    r"\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}": '<m:r><m:t>𝒟(</m:t></m:r><m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t>, </m:t></m:r><m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub><m:r><m:t>) = approve</m:t></m:r>',
+    r"T_{prompt} \le T_{max} \ll T_{full}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>prompt</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>max</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≪ </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>full</m:t></m:r></m:sub></m:sSub>',
+    r"t_{exec} \le t_{max\_budget}": '<m:sSub><m:e><m:r><m:t>t</m:t></m:r></m:e><m:sub><m:r><m:t>exec</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>t</m:t></m:r></m:e><m:sub><m:r><m:t>max_budget</m:t></m:r></m:sub></m:sSub>',
+    r"K \in [3, 5]": '<m:r><m:t>K ∈ [3, 5]</m:t></m:r>',
+    r"\text{GSNR}(\pi^*) \ge \text{GSNR}_{th} \land P_{rx}(\pi^*) \ge P_{rx,min}": '<m:r><m:t>GSNR(</m:t></m:r><m:sSup><m:e><m:r><m:t>π</m:t></m:r></m:e><m:sup><m:r><m:t>*</m:t></m:r></m:sup></m:sSup><m:r><m:t>) ≥ </m:t></m:r><m:sSub><m:e><m:r><m:t>GSNR</m:t></m:r></m:e><m:sub><m:r><m:t>th</m:t></m:r></m:sub></m:sSub><m:r><m:t> ∧ </m:t></m:r><m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx</m:t></m:r></m:sub></m:sSub><m:r><m:t>(</m:t></m:r><m:sSup><m:e><m:r><m:t>π</m:t></m:r></m:e><m:sup><m:r><m:t>*</m:t></m:r></m:sup></m:sSup><m:r><m:t>) ≥ </m:t></m:r><m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx,min</m:t></m:r></m:sub></m:sSub>',
+    r"\text{QoT}_{valid} \in \{0, 1\}": '<m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub><m:r><m:t> ∈ {0, 1}</m:t></m:r>',
+}
+
+
+def add_math_runs_to_paragraph(paragraph, text: str, font_size=Pt(12), color=COLOR_DARK_SLATE, font_name=FONT_BODY, bold=False):
+    """
+    Parses a string that may contain LaTeX math tokens delimited by $...$
+    and appends normal DrawingML runs (<a:r>) and native Office Math (<a14:m><m:oMath>).
+    Configures <a:defRPr> on the paragraph so math formulas match the text size and color.
+    """
+    sz_val = int(font_size.pt * 100)
+    p_pr = paragraph._p.get_or_add_pPr()
+    
+    if isinstance(color, (tuple, RGBColor)):
+        color_hex = f"{color[0]:02X}{color[1]:02X}{color[2]:02X}"
+    else:
+        color_hex = str(color).replace('#', '')
+        
+    b_attr = ' b="1"' if bold else ''
+    
+    existing_def = p_pr.find('{http://schemas.openxmlformats.org/drawingml/2006/main}defRPr')
+    if existing_def is not None:
+        p_pr.remove(existing_def)
+        
+    def_xml = (
+        f'<a:defRPr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" sz="{sz_val}"{b_attr}>'
+        f'<a:solidFill><a:srgbClr val="{color_hex}"/></a:solidFill>'
+        f'</a:defRPr>'
+    )
+    p_pr.append(parse_xml(def_xml))
+
+    parts = re.split(r'(\$[^\$]+\$)', text)
+    for part in parts:
+        if not part:
+            continue
+        if part.startswith('$') and part.endswith('$'):
+            latex = part[1:-1].strip()
+            xml = OMML_MAP.get(latex, f'<m:r><m:t>{latex}</m:t></m:r>')
+            full_xml = (
+                f'<a14:m xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" '
+                f'xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" '
+                f'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+                f'<m:oMath>{xml}</m:oMath></a14:m>'
+            )
+            paragraph._p.append(parse_xml(full_xml))
+        else:
+            r = paragraph.add_run()
+            r.text = part
+            r.font.name = font_name
+            r.font.size = font_size
+            r.font.bold = bold
+            r.font.color.rgb = color
+
+
+def add_bullet_with_math(text_frame, text: str, font_size=Pt(12), color=COLOR_DARK_SLATE, space_after=Pt(6), space_before=Pt(0)):
+    """
+    Adds a bullet point to a TextFrame, supporting embedded $math$ expressions.
+    Reuses the first paragraph if it is currently empty.
+    """
+    if len(text_frame.paragraphs) == 1 and len(text_frame.paragraphs[0].text) == 0 and len(text_frame.paragraphs[0].runs) == 0:
+        p = text_frame.paragraphs[0]
+    else:
+        p = text_frame.add_paragraph()
+    p.space_after = space_after
+    p.space_before = space_before
+    add_math_runs_to_paragraph(p, text, font_size=font_size, color=color, font_name=FONT_BODY)
+    return p
+
+
+def add_omml_equation(paragraph, omml_xml: str, font_size=Pt(12), color=COLOR_DARK_SLATE):
     """
     Injects native Office Math (OMML) XML into a DrawingML paragraph.
     PowerPoint renders this natively in Cambria Math with fractions,
     subscripts, superscripts, and piecewise curly braces.
+    Configures <a:defRPr> so the equation renders with proportional font size and color.
     """
+    sz_val = int(font_size.pt * 100)
+    p_pr = paragraph._p.get_or_add_pPr()
+    
+    if isinstance(color, (tuple, RGBColor)):
+        color_hex = f"{color[0]:02X}{color[1]:02X}{color[2]:02X}"
+    else:
+        color_hex = str(color).replace('#', '')
+        
+    existing_def = p_pr.find('{http://schemas.openxmlformats.org/drawingml/2006/main}defRPr')
+    if existing_def is not None:
+        p_pr.remove(existing_def)
+        
+    def_xml = (
+        f'<a:defRPr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" sz="{sz_val}">'
+        f'<a:solidFill><a:srgbClr val="{color_hex}"/></a:solidFill>'
+        f'</a:defRPr>'
+    )
+    p_pr.append(parse_xml(def_xml))
+
     full_xml = (
         f'<a14:m xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" '
         f'xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" '
@@ -160,6 +346,93 @@ class DeckBuilder:
         p_sub.font.color.rgb = COLOR_COOL_GRAY
         p_sub.alignment = PP_ALIGN.CENTER
         return ph
+
+    def add_entrance_click_animation(self, slide, shape_id: int):
+        """
+        Injects PresentationML timing XML so that the target shape appears
+        on mouse click or keyboard arrow advancement during the slideshow.
+        """
+        timing_xml = f'''<p:timing xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:tnLst>
+    <p:par>
+      <p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot">
+        <p:childTnLst>
+          <p:seq concurrent="1" nextAc="seek">
+            <p:cTn id="2" dur="indefinite" nodeType="mainSeq">
+              <p:childTnLst>
+                <p:par>
+                  <p:cTn id="3" fill="hold">
+                    <p:stCondLst>
+                      <p:cond delay="indefinite"/>
+                    </p:stCondLst>
+                    <p:childTnLst>
+                      <p:par>
+                        <p:cTn id="4" fill="hold">
+                          <p:stCondLst>
+                            <p:cond delay="0"/>
+                          </p:stCondLst>
+                          <p:childTnLst>
+                            <p:par>
+                              <p:cTn id="5" presetID="1" presetClass="entr" presetSubtype="0" fill="hold" nodeType="clickEffect">
+                                <p:stCondLst>
+                                  <p:cond delay="0"/>
+                                </p:stCondLst>
+                                <p:childTnLst>
+                                  <p:set>
+                                    <p:cBhvr>
+                                      <p:cTn id="6" dur="1" fill="hold">
+                                        <p:stCondLst>
+                                          <p:cond delay="0"/>
+                                        </p:stCondLst>
+                                      </p:cTn>
+                                      <p:tgtEl>
+                                        <p:spTgt spid="{shape_id}"/>
+                                      </p:tgtEl>
+                                      <p:attrNameLst>
+                                        <p:attrName>style.visibility</p:attrName>
+                                      </p:attrNameLst>
+                                    </p:cBhvr>
+                                    <p:to>
+                                      <p:strVal val="visible"/>
+                                    </p:to>
+                                  </p:set>
+                                </p:childTnLst>
+                              </p:cTn>
+                            </p:par>
+                          </p:childTnLst>
+                        </p:cTn>
+                      </p:par>
+                    </p:childTnLst>
+                  </p:cTn>
+                </p:par>
+              </p:childTnLst>
+            </p:cTn>
+            <p:prevCondLst>
+              <p:cond evt="onPrev" delay="0">
+                <p:tgtEl>
+                  <p:sldTgt/>
+                </p:tgtEl>
+              </p:cond>
+            </p:prevCondLst>
+            <p:nextCondLst>
+              <p:cond evt="onNext" delay="0">
+                <p:tgtEl>
+                  <p:sldTgt/>
+                </p:tgtEl>
+              </p:cond>
+            </p:nextCondLst>
+          </p:seq>
+        </p:childTnLst>
+      </p:cTn>
+    </p:par>
+  </p:tnLst>
+</p:timing>'''
+        timing_elem = parse_xml(timing_xml)
+        ext_lst = slide.element.xpath('./p:extLst')
+        if ext_lst:
+            ext_lst[0].addprevious(timing_elem)
+        else:
+            slide.element.append(timing_elem)
 
     def create_cover_slide(self):
         """Customizes Slide 1 as the Cover Slide."""
@@ -295,17 +568,10 @@ class DeckBuilder:
             tf.margin_bottom = Inches(0.05)
 
             p_title = tf.paragraphs[0]
-            p_title.text = row["title"]
-            p_title.font.name = FONT_TITLE
-            p_title.font.size = Pt(15)
-            p_title.font.bold = True
-            p_title.font.color.rgb = COLOR_NAVY
+            add_math_runs_to_paragraph(p_title, row["title"], font_size=Pt(15), color=COLOR_NAVY, font_name=FONT_TITLE, bold=True)
 
             p_desc = tf.add_paragraph()
-            p_desc.text = row["desc"]
-            p_desc.font.name = FONT_BODY
-            p_desc.font.size = Pt(12)
-            p_desc.font.color.rgb = COLOR_DARK_SLATE
+            add_math_runs_to_paragraph(p_desc, row["desc"], font_size=Pt(12), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
 
         self.set_speaker_notes(s, notes)
         return s
@@ -360,12 +626,15 @@ class DeckBuilder:
             p_h.font.color.rgb = COLOR_WHITE
             p_h.alignment = PP_ALIGN.CENTER
 
+            callout = data.get("callout")
+            body_h = (col_height - header_height - Inches(1.2)) if callout else (col_height - header_height - Inches(0.3))
+
             # Body Bullets
             body_box = s.shapes.add_textbox(
                 col_left + Inches(0.2),
-                top_pos + header_height + Inches(0.15),
+                top_pos + header_height + Inches(0.12),
                 col_width - Inches(0.4),
-                col_height - header_height - Inches(0.3),
+                body_h,
             )
             tf_b = body_box.text_frame
             tf_b.word_wrap = True
@@ -373,12 +642,31 @@ class DeckBuilder:
 
             bullets = data.get("bullets", [])
             for j, b_text in enumerate(bullets):
-                p = tf_b.paragraphs[0] if j == 0 else tf_b.add_paragraph()
-                p.text = f"•  {b_text}"
-                p.font.name = FONT_BODY
-                p.font.size = Pt(13)
-                p.font.color.rgb = COLOR_DARK_SLATE
-                p.space_after = Pt(8)
+                add_bullet_with_math(tf_b, f"•  {b_text}", font_size=Pt(11.5), color=COLOR_DARK_SLATE, space_after=Pt(4))
+
+            # Bottom Callout Block if provided
+            if callout:
+                callout_y = top_pos + col_height - Inches(0.95)
+                callout_box = s.shapes.add_shape(
+                    MSO_SHAPE.ROUNDED_RECTANGLE,
+                    col_left + Inches(0.2),
+                    callout_y,
+                    col_width - Inches(0.4),
+                    Inches(0.80),
+                )
+                callout_box.fill.solid()
+                callout_box.fill.fore_color.rgb = COLOR_WHITE
+                callout_box.line.color.rgb = border_color
+                callout_box.line.width = Pt(1.5)
+
+                tf_c = callout_box.text_frame
+                tf_c.word_wrap = True
+                tf_c.margin_top = Inches(0.08)
+                tf_c.margin_left = Inches(0.12)
+                tf_c.margin_right = Inches(0.12)
+                p_c = tf_c.paragraphs[0]
+                add_math_runs_to_paragraph(p_c, callout["text"], font_size=Pt(11), color=border_color, font_name=FONT_TITLE, bold=True)
+                p_c.alignment = PP_ALIGN.CENTER
 
         if bottom_banner:
             banner_box = s.shapes.add_shape(
@@ -391,12 +679,354 @@ class DeckBuilder:
 
             tf_bb = banner_box.text_frame
             p_bb = tf_bb.paragraphs[0]
-            p_bb.text = bottom_banner
-            p_bb.font.name = FONT_TITLE
-            p_bb.font.size = Pt(13)
-            p_bb.font.bold = True
-            p_bb.font.color.rgb = COLOR_NAVY
+            add_math_runs_to_paragraph(p_bb, bottom_banner, font_size=Pt(12), color=COLOR_NAVY, font_name=FONT_TITLE, bold=True)
             p_bb.alignment = PP_ALIGN.CENTER
+
+        self.set_speaker_notes(s, notes)
+        return s
+
+    def create_five_challenges_slide(
+        self,
+        title: str,
+        slide_num: int,
+        challenges: list[dict],
+        bottom_banner: str,
+        notes: str,
+    ):
+        """Creates Slide 4: 5 horizontal cards mapping the 5 failure modes of Section 3.1.1."""
+        blank_layout = self.prs.slide_layouts[6]
+        s = self.prs.slides.add_slide(blank_layout)
+        self.add_chrome(s, title, slide_num)
+
+        top_start = Inches(1.30)
+        card_w = Inches(11.75)
+        card_h = Inches(0.82)
+        gap = Inches(0.14)
+
+        for i, item in enumerate(challenges):
+            cur_top = top_start + i * (card_h + gap)
+
+            # Container card
+            card = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), cur_top, card_w, card_h
+            )
+            card.fill.solid()
+            card.fill.fore_color.rgb = COLOR_CARD_BG
+            card.line.color.rgb = COLOR_CARD_BORDER
+            card.line.width = Pt(1)
+
+            # Left Badge
+            badge_w = Inches(3.65)
+            badge = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), cur_top, badge_w, card_h
+            )
+            badge.fill.solid()
+            badge.fill.fore_color.rgb = item.get("badge_color", COLOR_BURGUNDY)
+            badge.line.fill.background()
+
+            tf_b = badge.text_frame
+            tf_b.word_wrap = True
+            tf_b.margin_top = Inches(0.12)
+            p_b = tf_b.paragraphs[0]
+            p_b.text = item["badge_text"]
+            p_b.font.name = FONT_TITLE
+            p_b.font.size = Pt(11.5)
+            p_b.font.bold = True
+            p_b.font.color.rgb = COLOR_WHITE
+            p_b.alignment = PP_ALIGN.CENTER
+
+            # Right Description Text
+            desc_box = s.shapes.add_textbox(
+                Inches(4.55), cur_top, Inches(7.8), card_h
+            )
+            tf_d = desc_box.text_frame
+            tf_d.word_wrap = True
+            tf_d.margin_top = Inches(0.14)
+            p_d = tf_d.paragraphs[0]
+            add_math_runs_to_paragraph(p_d, item["desc"], font_size=Pt(11.5), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
+
+        # Bottom Empirical Risk Banner
+        banner_box = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(6.20), card_w, Inches(0.65)
+        )
+        banner_box.fill.solid()
+        banner_box.fill.fore_color.rgb = COLOR_CARD_BG
+        banner_box.line.color.rgb = COLOR_BURGUNDY
+        banner_box.line.width = Pt(1.5)
+
+        tf_bb = banner_box.text_frame
+        p_bb = tf_bb.paragraphs[0]
+        add_math_runs_to_paragraph(p_bb, bottom_banner, font_size=Pt(11.5), color=COLOR_BURGUNDY, font_name=FONT_TITLE, bold=True)
+        p_bb.alignment = PP_ALIGN.CENTER
+
+        self.set_speaker_notes(s, notes)
+        return s
+
+    def create_problem_statement_slide(
+        self,
+        title: str,
+        slide_num: int,
+        upper_cards: list[dict],
+        lower_constraints: dict,
+        notes: str,
+    ):
+        """Creates Slide 5: 2-tier problem statement (Upper: Given, Decide, Objective; Lower: Constraints)."""
+        blank_layout = self.prs.slide_layouts[6]
+        s = self.prs.slides.add_slide(blank_layout)
+        self.add_chrome(s, title, slide_num)
+
+        # === UPPER TIER: 3 Cards Side-by-Side ===
+        top_u = Inches(1.30)
+        h_u = Inches(2.65)
+        w_u = Inches(3.75)
+        gap_u = Inches(0.25)
+
+        for i, card_data in enumerate(upper_cards):
+            left_c = Inches(0.75) + i * (w_u + gap_u)
+
+            # Container
+            card = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left_c, top_u, w_u, h_u)
+            card.fill.solid()
+            card.fill.fore_color.rgb = COLOR_CARD_BG
+            border_c = card_data.get("border_color", COLOR_NAVY)
+            card.line.color.rgb = border_c
+            card.line.width = Pt(1.5)
+
+            # Header
+            hdr_h = Inches(0.50)
+            hdr = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left_c, top_u, w_u, hdr_h)
+            hdr.fill.solid()
+            hdr.fill.fore_color.rgb = card_data.get("title_color", COLOR_NAVY)
+            hdr.line.fill.background()
+
+            p_h = hdr.text_frame.paragraphs[0]
+            icon = card_data.get("icon", "")
+            p_h.text = f"{icon} {card_data['title']}".strip()
+            p_h.font.name = FONT_TITLE
+            p_h.font.size = Pt(13)
+            p_h.font.bold = True
+            p_h.font.color.rgb = COLOR_WHITE
+            p_h.alignment = PP_ALIGN.CENTER
+
+            # Body Bullets
+            body = s.shapes.add_textbox(left_c + Inches(0.12), top_u + hdr_h + Inches(0.08), w_u - Inches(0.24), h_u - hdr_h - Inches(0.15))
+            tf_b = body.text_frame
+            tf_b.word_wrap = True
+            tf_b.margin_top = Inches(0.02)
+            tf_b.margin_left = Inches(0.05)
+            tf_b.margin_right = Inches(0.05)
+
+            for b_text in card_data.get("bullets", []):
+                add_bullet_with_math(tf_b, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(3))
+
+        # === LOWER TIER: Full-Width Constraints Container with 2 Columns ===
+        top_l = Inches(4.10)
+        h_l = Inches(2.75)
+        w_l = Inches(11.75)
+        left_l = Inches(0.75)
+
+        card_lower = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left_l, top_l, w_l, h_l)
+        card_lower.fill.solid()
+        card_lower.fill.fore_color.rgb = COLOR_CARD_BG
+        card_lower.line.color.rgb = COLOR_BURGUNDY
+        card_lower.line.width = Pt(1.5)
+
+        # Header
+        hdr_lh = Inches(0.48)
+        hdr_l = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left_l, top_l, w_l, hdr_lh)
+        hdr_l.fill.solid()
+        hdr_l.fill.fore_color.rgb = COLOR_BURGUNDY
+        hdr_l.line.fill.background()
+
+        p_hl = hdr_l.text_frame.paragraphs[0]
+        p_hl.text = lower_constraints.get("title", "🔒 [4] Constraints: Resource Limits vs. Physical & Semantic Boundaries")
+        p_hl.font.name = FONT_TITLE
+        p_hl.font.size = Pt(13)
+        p_hl.font.bold = True
+        p_hl.font.color.rgb = COLOR_WHITE
+        p_hl.alignment = PP_ALIGN.CENTER
+
+        # Left Sub-Panel: Resource Constraints
+        sub_w = Inches(5.6)
+        sub_h = h_l - hdr_lh - Inches(0.20)
+        sub_y = top_l + hdr_lh + Inches(0.10)
+
+        box_rc = s.shapes.add_textbox(left_l + Inches(0.2), sub_y, sub_w, sub_h)
+        tf_rc = box_rc.text_frame
+        tf_rc.word_wrap = True
+        p_rc_title = tf_rc.paragraphs[0]
+        p_rc_title.text = lower_constraints.get("left_title", "Resource Constraints (System & Solver Limits):")
+        p_rc_title.font.name = FONT_TITLE
+        p_rc_title.font.size = Pt(11)
+        p_rc_title.font.bold = True
+        p_rc_title.font.color.rgb = COLOR_NAVY
+        p_rc_title.space_after = Pt(3)
+
+        for b_text in lower_constraints.get("left_bullets", []):
+            add_bullet_with_math(tf_rc, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(3))
+
+        # Right Sub-Panel: Boundary Constraints
+        box_bc = s.shapes.add_textbox(left_l + Inches(5.95), sub_y, sub_w, sub_h)
+        tf_bc = box_bc.text_frame
+        tf_bc.word_wrap = True
+        p_bc_title = tf_bc.paragraphs[0]
+        p_bc_title.text = lower_constraints.get("right_title", "Boundary Constraints (Physical & Semantic Feasibility):")
+        p_bc_title.font.name = FONT_TITLE
+        p_bc_title.font.size = Pt(11)
+        p_bc_title.font.bold = True
+        p_bc_title.font.color.rgb = COLOR_BURGUNDY
+        p_bc_title.space_after = Pt(3)
+
+        for b_text in lower_constraints.get("right_bullets", []):
+            add_bullet_with_math(tf_bc, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(3))
+
+        self.set_speaker_notes(s, notes)
+        return s
+
+    def create_proposed_solution_slide(
+        self,
+        title: str,
+        slide_num: int,
+        neural_data: dict,
+        symbolic_data: dict,
+        contributions_header: str,
+        contributions: list[dict],
+        notes: str,
+    ):
+        """
+        Creates Slide 6: Proposed Solution & Core Contributions.
+        Left Column: 2 vertically stacked cards (Neural Subsystem: Semantic Domain on top,
+                     Symbolic Subsystem: Optical Domain on bottom).
+        Right Column: Core Thesis Contributions header with 3 stacked highlight blocks.
+        """
+        blank_layout = self.prs.slide_layouts[6]
+        s = self.prs.slides.add_slide(blank_layout)
+        self.add_chrome(s, title, slide_num)
+
+        # === LEFT COLUMN: Two Vertically Stacked Subsystems ===
+        left_col_x = Inches(0.75)
+        left_col_w = Inches(5.7)
+
+        # 1. Top Card: Neural Subsystem (Semantic Domain)
+        top_y = Inches(1.30)
+        card_h = Inches(2.72)
+        card_l1 = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, left_col_x, top_y, left_col_w, card_h
+        )
+        card_l1.fill.solid()
+        card_l1.fill.fore_color.rgb = COLOR_CARD_BG
+        card_l1.line.color.rgb = COLOR_NAVY
+        card_l1.line.width = Pt(1.5)
+
+        hdr_l1 = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, left_col_x, top_y, left_col_w, Inches(0.55)
+        )
+        hdr_l1.fill.solid()
+        hdr_l1.fill.fore_color.rgb = COLOR_NAVY
+        hdr_l1.line.fill.background()
+        p_hl1 = hdr_l1.text_frame.paragraphs[0]
+        p_hl1.text = neural_data["title"]
+        p_hl1.font.name = FONT_TITLE
+        p_hl1.font.size = Pt(14)
+        p_hl1.font.bold = True
+        p_hl1.font.color.rgb = COLOR_WHITE
+        p_hl1.alignment = PP_ALIGN.CENTER
+
+        body_l1 = s.shapes.add_textbox(
+            left_col_x + Inches(0.15), top_y + Inches(0.58), left_col_w - Inches(0.3), card_h - Inches(0.62)
+        )
+        tf_l1 = body_l1.text_frame
+        tf_l1.word_wrap = True
+        tf_l1.margin_top = Inches(0.02)
+        tf_l1.margin_bottom = Inches(0.02)
+        for b_text in neural_data.get("bullets", []):
+            add_bullet_with_math(tf_l1, f"•  {b_text}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(3))
+
+        # 2. Bottom Card: Symbolic Subsystem (Optical Domain)
+        bottom_y = Inches(4.18)
+        card_l2 = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, left_col_x, bottom_y, left_col_w, card_h
+        )
+        card_l2.fill.solid()
+        card_l2.fill.fore_color.rgb = COLOR_CARD_BG
+        card_l2.line.color.rgb = COLOR_GREEN
+        card_l2.line.width = Pt(1.5)
+
+        hdr_l2 = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, left_col_x, bottom_y, left_col_w, Inches(0.55)
+        )
+        hdr_l2.fill.solid()
+        hdr_l2.fill.fore_color.rgb = COLOR_GREEN
+        hdr_l2.line.fill.background()
+        p_hl2 = hdr_l2.text_frame.paragraphs[0]
+        p_hl2.text = symbolic_data["title"]
+        p_hl2.font.name = FONT_TITLE
+        p_hl2.font.size = Pt(14)
+        p_hl2.font.bold = True
+        p_hl2.font.color.rgb = COLOR_WHITE
+        p_hl2.alignment = PP_ALIGN.CENTER
+
+        body_l2 = s.shapes.add_textbox(
+            left_col_x + Inches(0.15), bottom_y + Inches(0.58), left_col_w - Inches(0.3), card_h - Inches(0.62)
+        )
+        tf_l2 = body_l2.text_frame
+        tf_l2.word_wrap = True
+        tf_l2.margin_top = Inches(0.02)
+        tf_l2.margin_bottom = Inches(0.02)
+        for b_text in symbolic_data.get("bullets", []):
+            add_bullet_with_math(tf_l2, f"•  {b_text}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(3))
+
+        # === RIGHT COLUMN: Core Thesis Contributions (3 Stacked Blocks) ===
+        right_col_x = Inches(6.8)
+        right_col_w = Inches(5.75)
+
+        # Header Bar across right column
+        hdr_r = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, right_col_x, Inches(1.30), right_col_w, Inches(0.55)
+        )
+        hdr_r.fill.solid()
+        hdr_r.fill.fore_color.rgb = COLOR_NAVY
+        hdr_r.line.fill.background()
+        p_hr = hdr_r.text_frame.paragraphs[0]
+        p_hr.text = contributions_header
+        p_hr.font.name = FONT_TITLE
+        p_hr.font.size = Pt(13)
+        p_hr.font.bold = True
+        p_hr.font.color.rgb = COLOR_WHITE
+        p_hr.alignment = PP_ALIGN.CENTER
+
+        # 3 Stacked Contribution Blocks
+        num_contribs = len(contributions)
+        r_top_start = Inches(1.95)
+        r_total_h = Inches(4.95)
+        r_gap = Inches(0.12)
+        block_h = (r_total_h - (num_contribs - 1) * r_gap) / num_contribs
+
+        for i, contrib in enumerate(contributions):
+            cur_top = r_top_start + i * (block_h + r_gap)
+            c_card = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, right_col_x, cur_top, right_col_w, block_h
+            )
+            c_card.fill.solid()
+            c_card.fill.fore_color.rgb = COLOR_CARD_BG
+            b_color = contrib.get("border_color", COLOR_NAVY)
+            c_card.line.color.rgb = b_color
+            c_card.line.width = Pt(1.5)
+
+            tb_c = s.shapes.add_textbox(
+                right_col_x + Inches(0.15), cur_top + Inches(0.08), right_col_w - Inches(0.3), block_h - Inches(0.16)
+            )
+            tf_c = tb_c.text_frame
+            tf_c.word_wrap = True
+            tf_c.margin_top = Inches(0.02)
+            tf_c.margin_bottom = Inches(0.02)
+
+            p_ctitle = tf_c.paragraphs[0]
+            add_math_runs_to_paragraph(p_ctitle, contrib["title"], font_size=Pt(12), color=b_color, font_name=FONT_TITLE, bold=True)
+            p_ctitle.space_after = Pt(2)
+
+            for b_text in contrib.get("bullets", []):
+                add_bullet_with_math(tf_c, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(2))
 
         self.set_speaker_notes(s, notes)
         return s
@@ -461,12 +1091,7 @@ class DeckBuilder:
             tf_b.margin_top = Inches(0.05)
 
             for j, b_text in enumerate(card_data.get("bullets", [])):
-                p = tf_b.paragraphs[0] if j == 0 else tf_b.add_paragraph()
-                p.text = f"•  {b_text}"
-                p.font.name = FONT_BODY
-                p.font.size = Pt(12)
-                p.font.color.rgb = COLOR_DARK_SLATE
-                p.space_after = Pt(6)
+                add_bullet_with_math(tf_b, f"•  {b_text}", font_size=Pt(12), color=COLOR_DARK_SLATE, space_after=Pt(6))
 
             # Inject OMML formula if card requests one
             if formulas and i in formulas:
@@ -480,7 +1105,7 @@ class DeckBuilder:
 
                 for f_xml in f_info.get("omml_list", []):
                     p_eq = tf_b.add_paragraph()
-                    add_omml_equation(p_eq, f_xml)
+                    add_omml_equation(p_eq, f_xml, font_size=Pt(11), color=border_col)
 
         self.set_speaker_notes(s, notes)
         return s
@@ -534,12 +1159,18 @@ class DeckBuilder:
             p_b.font.color.rgb = COLOR_WHITE
             p_b.alignment = PP_ALIGN.CENTER
 
-            # Body Text inside phase card
-            tf_body = card.text_frame
+            # Body Text inside transparent textbox over phase card
+            tb_body = s.shapes.add_textbox(
+                cur_left + Inches(0.04),
+                top_pos + badge_h + Inches(0.04),
+                phase_width - Inches(0.08),
+                phase_height - badge_h - Inches(0.08),
+            )
+            tf_body = tb_body.text_frame
             tf_body.word_wrap = True
-            tf_body.margin_top = Inches(0.65)
-            tf_body.margin_left = Inches(0.08)
-            tf_body.margin_right = Inches(0.08)
+            tf_body.margin_top = Inches(0.06)
+            tf_body.margin_left = Inches(0.04)
+            tf_body.margin_right = Inches(0.04)
 
             p_t = tf_body.paragraphs[0]
             p_t.text = phase["title"]
@@ -559,12 +1190,9 @@ class DeckBuilder:
                 p_gate_tag.alignment = PP_ALIGN.CENTER
 
             p_d = tf_body.add_paragraph()
-            p_d.text = phase["desc"]
-            p_d.font.name = FONT_BODY
-            p_d.font.size = Pt(10)
-            p_d.font.color.rgb = COLOR_DARK_SLATE
-            p_d.alignment = PP_ALIGN.LEFT
             p_d.space_before = Pt(4)
+            p_d.alignment = PP_ALIGN.LEFT
+            add_math_runs_to_paragraph(p_d, phase["desc"], font_size=Pt(9.5), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
 
             # Connector Arrow
             if i < num_phases - 1:
@@ -584,8 +1212,11 @@ class DeckBuilder:
         loop1.fill.fore_color.rgb = COLOR_CARD_BG
         loop1.line.color.rgb = COLOR_AMBER
         loop1.line.width = Pt(1.5)
-        tf_l1 = loop1.text_frame
+
+        tb_l1 = s.shapes.add_textbox(Inches(0.75), Inches(5.88), Inches(5.6), Inches(0.88))
+        tf_l1 = tb_l1.text_frame
         tf_l1.word_wrap = True
+        tf_l1.margin_top = Inches(0.04)
         p_l1 = tf_l1.paragraphs[0]
         p_l1.text = "⏸️ Phase 3b: Clarify Loop (LangGraph interrupt())"
         p_l1.font.name = FONT_TITLE
@@ -593,10 +1224,7 @@ class DeckBuilder:
         p_l1.font.bold = True
         p_l1.font.color.rgb = COLOR_AMBER
         p_l1_sub = tf_l1.add_paragraph()
-        p_l1_sub.text = "If U_sem > tau_sem: Pauses execution and prompts operator for intent disambiguation"
-        p_l1_sub.font.name = FONT_BODY
-        p_l1_sub.font.size = Pt(10)
-        p_l1_sub.font.color.rgb = COLOR_DARK_SLATE
+        add_math_runs_to_paragraph(p_l1_sub, "If $U_{sem} > \\tau_{sem}$: Pauses execution and prompts operator for intent disambiguation", font_size=Pt(10), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
 
         loop2 = s.shapes.add_shape(
             MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(5.85), Inches(5.7), Inches(0.95)
@@ -605,8 +1233,11 @@ class DeckBuilder:
         loop2.fill.fore_color.rgb = COLOR_CARD_BG
         loop2.line.color.rgb = COLOR_BURGUNDY
         loop2.line.width = Pt(1.5)
-        tf_l2 = loop2.text_frame
+
+        tb_l2 = s.shapes.add_textbox(Inches(6.85), Inches(5.88), Inches(5.6), Inches(0.88))
+        tf_l2 = tb_l2.text_frame
         tf_l2.word_wrap = True
+        tf_l2.margin_top = Inches(0.04)
         p_l2 = tf_l2.paragraphs[0]
         p_l2.text = "↺ Phase 6: Suggest Replan Loop (Physics Unfeasible)"
         p_l2.font.name = FONT_TITLE
@@ -614,10 +1245,7 @@ class DeckBuilder:
         p_l2.font.bold = True
         p_l2.font.color.rgb = COLOR_BURGUNDY
         p_l2_sub = tf_l2.add_paragraph()
-        p_l2_sub.text = "If QoT_valid = 0: Suggests operator to relax constraints (lower baud rate, alternate link)"
-        p_l2_sub.font.name = FONT_BODY
-        p_l2_sub.font.size = Pt(10)
-        p_l2_sub.font.color.rgb = COLOR_DARK_SLATE
+        add_math_runs_to_paragraph(p_l2_sub, "If $\\text{QoT}_{valid} = 0$: Suggests operator to relax constraints (lower baud rate, alternate link)", font_size=Pt(10), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
 
         self.set_speaker_notes(s, notes)
         return s
@@ -646,16 +1274,12 @@ class DeckBuilder:
         tf_top.word_wrap = True
 
         p_hdr = tf_top.paragraphs[0]
-        p_hdr.text = "Piecewise Decision Formulation D(U_sem, QoT_valid):"
-        p_hdr.font.name = FONT_TITLE
-        p_hdr.font.size = Pt(14)
-        p_hdr.font.bold = True
-        p_hdr.font.color.rgb = COLOR_NAVY
+        add_math_runs_to_paragraph(p_hdr, "Piecewise Decision Formulation $D(U_{sem}, \\text{QoT}_{valid})$:", font_size=Pt(14), color=COLOR_NAVY, font_name=FONT_TITLE, bold=True)
 
         # Inject piecewise equation
         p_eq = tf_top.add_paragraph()
         p_eq.alignment = PP_ALIGN.CENTER
-        add_omml_equation(p_eq, formula_xml)
+        add_omml_equation(p_eq, formula_xml, font_size=Pt(13), color=COLOR_NAVY)
 
         # Bottom Section: 3 Outcome Branch Cards
         num_branches = len(branches)
@@ -705,20 +1329,11 @@ class DeckBuilder:
             tf_bbody.word_wrap = True
 
             p_cond = tf_bbody.paragraphs[0]
-            p_cond.text = f"Condition: {branch['condition']}"
-            p_cond.font.name = FONT_TITLE
-            p_cond.font.size = Pt(12)
-            p_cond.font.bold = True
-            p_cond.font.color.rgb = b_color
             p_cond.space_after = Pt(6)
+            add_math_runs_to_paragraph(p_cond, f"Condition: {branch['condition']}", font_size=Pt(12), color=b_color, font_name=FONT_TITLE, bold=True)
 
             for item in branch.get("bullets", []):
-                p_it = tf_bbody.add_paragraph()
-                p_it.text = f"•  {item}"
-                p_it.font.name = FONT_BODY
-                p_it.font.size = Pt(11)
-                p_it.font.color.rgb = COLOR_DARK_SLATE
-                p_it.space_after = Pt(4)
+                add_bullet_with_math(tf_bbody, f"•  {item}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(4))
 
         self.set_speaker_notes(s, notes)
         return s
@@ -754,10 +1369,13 @@ class DeckBuilder:
             card.line.color.rgb = kpi.get("border_color", COLOR_CARD_BORDER)
             card.line.width = Pt(1.5)
 
-            tf = card.text_frame
+            tb = s.shapes.add_textbox(
+                left_pos + Inches(0.15), cur_top + Inches(0.08), left_width - Inches(0.3), kpi_height - Inches(0.16)
+            )
+            tf = tb.text_frame
             tf.word_wrap = True
-            tf.margin_left = Inches(0.2)
-            tf.margin_top = Inches(0.15)
+            tf.margin_left = Inches(0.05)
+            tf.margin_top = Inches(0.05)
 
             p_val = tf.paragraphs[0]
             p_val.text = kpi["value"]
@@ -774,10 +1392,7 @@ class DeckBuilder:
             p_lbl.font.color.rgb = COLOR_NAVY
 
             p_sub = tf.add_paragraph()
-            p_sub.text = kpi["subtitle"]
-            p_sub.font.name = FONT_BODY
-            p_sub.font.size = Pt(10)
-            p_sub.font.color.rgb = COLOR_DARK_SLATE
+            add_math_runs_to_paragraph(p_sub, kpi["subtitle"], font_size=Pt(10), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
 
         # Right Column: Empirical Figure Placeholder
         right_pos = Inches(6.3)
@@ -802,10 +1417,13 @@ class DeckBuilder:
         title: str,
         slide_num: int,
         content_data: dict,
-        placeholder_info: dict,
-        notes: str,
+        placeholder_info: dict | None = None,
+        notes: str = "",
+        formulas: list[str] | None = None,
+        animated_image_pair: dict | None = None,
+        image_info: dict | None = None,
     ):
-        """Creates a split slide with structured text cards on the left and a diagram/figure placeholder on the right."""
+        """Creates a split slide with structured text cards on the left and a diagram/figure placeholder or animated image pair on the right."""
         blank_layout = self.prs.slide_layouts[6]
         s = self.prs.slides.add_slide(blank_layout)
         self.add_chrome(s, title, slide_num)
@@ -835,7 +1453,8 @@ class DeckBuilder:
 
         tf_h = header_bar.text_frame
         p_h = tf_h.paragraphs[0]
-        p_h.text = f"{content_data.get('icon', '')} {content_data['title']}".strip()
+        icon = content_data.get("icon", "")
+        p_h.text = f"{icon} {content_data['title']}".strip()
         p_h.font.name = FONT_TITLE
         p_h.font.size = Pt(15)
         p_h.font.bold = True
@@ -853,26 +1472,177 @@ class DeckBuilder:
         tf_b.word_wrap = True
 
         for j, b_text in enumerate(content_data.get("bullets", [])):
-            p = tf_b.paragraphs[0] if j == 0 else tf_b.add_paragraph()
-            p.text = f"•  {b_text}"
-            p.font.name = FONT_BODY
-            p.font.size = Pt(12)
-            p.font.color.rgb = COLOR_DARK_SLATE
-            p.space_after = Pt(8)
+            add_bullet_with_math(tf_b, f"•  {b_text}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(5))
 
-        # Right Column Placeholder
+        if formulas:
+            p_f_lbl = tf_b.add_paragraph()
+            p_f_lbl.text = "Mathematical Scoping Bound:"
+            p_f_lbl.font.name = FONT_TITLE
+            p_f_lbl.font.size = Pt(11)
+            p_f_lbl.font.bold = True
+            p_f_lbl.font.color.rgb = content_data.get("title_color", COLOR_NAVY)
+            p_f_lbl.space_before = Pt(4)
+
+            for f_xml in formulas:
+                p_eq = tf_b.add_paragraph()
+                p_eq.alignment = PP_ALIGN.CENTER
+                add_omml_equation(p_eq, f_xml, font_size=Pt(12), color=content_data.get("title_color", COLOR_NAVY))
+
+        # Right Column: Animated Image Pair or Placeholder Box
         right_pos = Inches(6.65)
         right_width = Inches(5.9)
 
-        self.create_placeholder_box(
-            s,
-            right_pos,
-            top_pos,
-            right_width,
-            content_height,
-            placeholder_info["title"],
-            placeholder_info["subtitle"],
-        )
+        if animated_image_pair:
+            # 1. Container Card
+            card_r = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, right_pos, top_pos, right_width, content_height
+            )
+            card_r.fill.solid()
+            card_r.fill.fore_color.rgb = COLOR_CARD_BG
+            card_r.line.color.rgb = content_data.get("border_color", COLOR_NAVY)
+            card_r.line.width = Pt(1.5)
+
+            # 2. Header Bar
+            header_rh = Inches(0.55)
+            header_r = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, right_pos, top_pos, right_width, header_rh
+            )
+            header_r.fill.solid()
+            header_r.fill.fore_color.rgb = content_data.get("title_color", COLOR_NAVY)
+            header_r.line.fill.background()
+
+            tf_rh = header_r.text_frame
+            p_rh = tf_rh.paragraphs[0]
+            card_title = animated_image_pair.get("title", "🗺️ 17-Node German Core: Scoped Subnetwork")
+            p_rh.text = card_title
+            p_rh.font.name = FONT_TITLE
+            p_rh.font.size = Pt(14)
+            p_rh.font.bold = True
+            p_rh.font.color.rgb = COLOR_WHITE
+            p_rh.alignment = PP_ALIGN.CENTER
+
+            # 3. Bottom Banner / Caption Callout
+            caption_text = animated_image_pair.get("caption")
+            banner_h = Inches(0.48) if caption_text else Inches(0)
+            if caption_text:
+                banner_top = top_pos + content_height - banner_h - Inches(0.12)
+                banner_left = right_pos + Inches(0.2)
+                banner_w = right_width - Inches(0.4)
+                banner = s.shapes.add_shape(
+                    MSO_SHAPE.ROUNDED_RECTANGLE, banner_left, banner_top, banner_w, banner_h
+                )
+                banner.fill.solid()
+                banner.fill.fore_color.rgb = COLOR_WHITE
+                banner.line.color.rgb = COLOR_CARD_BORDER
+                banner.line.width = Pt(1)
+
+                tf_bn = banner.text_frame
+                tf_bn.word_wrap = True
+                p_bn = tf_bn.paragraphs[0]
+                p_bn.text = caption_text
+                p_bn.font.name = FONT_TITLE
+                p_bn.font.size = Pt(10.5)
+                p_bn.font.bold = True
+                p_bn.font.color.rgb = COLOR_NAVY
+                p_bn.alignment = PP_ALIGN.CENTER
+
+            # 4. Images: Base (full topology) & Overlay (scoped subnetwork)
+            img_w = Inches(5.5)
+            img_h = Inches(3.67)
+            img_left = right_pos + (right_width - img_w) / 2
+            avail_h = content_height - header_rh - banner_h - Inches(0.2)
+            img_top = top_pos + header_rh + (avail_h - img_h) / 2
+
+            base_img_path = str(animated_image_pair["base_image"])
+            overlay_img_path = str(animated_image_pair["overlay_image"])
+
+            pic_base = s.shapes.add_picture(base_img_path, img_left, img_top, width=img_w, height=img_h)
+            pic_base.line.color.rgb = COLOR_CARD_BORDER
+            pic_base.line.width = Pt(1)
+
+            pic_overlay = s.shapes.add_picture(overlay_img_path, img_left, img_top, width=img_w, height=img_h)
+            pic_overlay.line.color.rgb = COLOR_CARD_BORDER
+            pic_overlay.line.width = Pt(1)
+
+            # 5. Entrance Animation on Click/Advance for Overlay Image
+            self.add_entrance_click_animation(s, pic_overlay.shape_id)
+
+        elif image_info:
+            # 1. Container Card
+            card_r = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, right_pos, top_pos, right_width, content_height
+            )
+            card_r.fill.solid()
+            card_r.fill.fore_color.rgb = COLOR_CARD_BG
+            card_r.line.color.rgb = content_data.get("border_color", COLOR_NAVY)
+            card_r.line.width = Pt(1.5)
+
+            # 2. Header Bar
+            header_rh = Inches(0.55)
+            header_r = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, right_pos, top_pos, right_width, header_rh
+            )
+            header_r.fill.solid()
+            header_r.fill.fore_color.rgb = content_data.get("title_color", COLOR_NAVY)
+            header_r.line.fill.background()
+
+            tf_rh = header_r.text_frame
+            p_rh = tf_rh.paragraphs[0]
+            card_title = image_info.get("title", "🗺️ Network Topology Map")
+            p_rh.text = card_title
+            p_rh.font.name = FONT_TITLE
+            p_rh.font.size = Pt(14)
+            p_rh.font.bold = True
+            p_rh.font.color.rgb = COLOR_WHITE
+            p_rh.alignment = PP_ALIGN.CENTER
+
+            # 3. Bottom Banner / Caption Callout
+            caption_text = image_info.get("caption")
+            banner_h = Inches(0.48) if caption_text else Inches(0)
+            if caption_text:
+                banner_top = top_pos + content_height - banner_h - Inches(0.12)
+                banner_left = right_pos + Inches(0.2)
+                banner_w = right_width - Inches(0.4)
+                banner = s.shapes.add_shape(
+                    MSO_SHAPE.ROUNDED_RECTANGLE, banner_left, banner_top, banner_w, banner_h
+                )
+                banner.fill.solid()
+                banner.fill.fore_color.rgb = COLOR_WHITE
+                banner.line.color.rgb = COLOR_CARD_BORDER
+                banner.line.width = Pt(1)
+
+                tf_bn = banner.text_frame
+                tf_bn.word_wrap = True
+                p_bn = tf_bn.paragraphs[0]
+                p_bn.text = caption_text
+                p_bn.font.name = FONT_TITLE
+                p_bn.font.size = Pt(10.5)
+                p_bn.font.bold = True
+                p_bn.font.color.rgb = COLOR_NAVY
+                p_bn.alignment = PP_ALIGN.CENTER
+
+            # 4. Single Picture
+            img_w = Inches(5.5)
+            img_h = Inches(3.67)
+            img_left = right_pos + (right_width - img_w) / 2
+            avail_h = content_height - header_rh - banner_h - Inches(0.2)
+            img_top = top_pos + header_rh + (avail_h - img_h) / 2
+
+            img_path = str(image_info["image_path"])
+            pic = s.shapes.add_picture(img_path, img_left, img_top, width=img_w, height=img_h)
+            pic.line.color.rgb = COLOR_CARD_BORDER
+            pic.line.width = Pt(1)
+
+        elif placeholder_info:
+            self.create_placeholder_box(
+                s,
+                right_pos,
+                top_pos,
+                right_width,
+                content_height,
+                placeholder_info["title"],
+                placeholder_info["subtitle"],
+            )
 
         self.set_speaker_notes(s, notes)
         return s
@@ -909,17 +1679,17 @@ def build_thesis_defense_deck():
             {
                 "prefix": "[02] Architecture",
                 "title": "Neurosymbolic Intent Planning Pipeline",
-                "desc": "Decoupling probabilistic reasoning (NL to PDDL) from deterministic solvers and physics tools",
+                "desc": "Decoupling probabilistic reasoning ($\\mathcal{I}_{NL} \\to \\mathcal{S}_{PDDL}$) from deterministic solvers and physics tools",
             },
             {
                 "prefix": "[03] Risk Gates",
                 "title": "Pre-Deployment Risk Gates: Semantic & Physical Validation",
-                "desc": "Sequential fail-fast decision via Layer 1/2 semantic gate (U_sem) and GN-model QoT gate",
+                "desc": "Sequential fail-fast decision via Layer 1/2 semantic gate ($U_{sem}$) and GN-model QoT gate ($\\text{QoT}_{valid}$)",
             },
             {
                 "prefix": "[04] Evaluation",
                 "title": "Experimental Testbed Validation on 17-Node Optical Topology",
-                "desc": "Benchmarking safety, human intervention reduction, and orchestration latency against baselines",
+                "desc": "Benchmarking safety ($\\text{UAR} = 100\\%$), human intervention reduction, and orchestration latency against baselines",
             },
             {
                 "prefix": "[05] Outlook",
@@ -933,7 +1703,7 @@ def build_thesis_defense_deck():
 [Bridge to Next Slide]: Let us examine the motivation behind Intent-Based Networking in optical infrastructures.""",
     )
 
-    # 3. Slide 3: Motivation
+    # 3. Slide 3: Motivation (with Highlight Callouts)
     print("Building Slide 03: Motivation...")
     builder.create_two_column_slide(
         title="Motivation: The Vision of Intent-Based Optical Networks",
@@ -947,9 +1717,11 @@ def build_thesis_defense_deck():
                 "Optical backbones carry terabits of core traffic across ROADM networks",
                 "Traditional workflow: manual CLI scripts and complex RESTConf payloads",
                 "Human configuration delays lightpath provisioning by hours or days",
-                "Prone to fatal human operator errors across multi-vendor optical links",
-                "Goal: Transition to autonomous Intent-Based Networking (IBN)",
+                "High cognitive load and misconfiguration risk across multi-vendor links",
             ],
+            "callout": {
+                "text": "🎯 Goal: Transition to autonomous Intent-Based Networking (IBN)",
+            },
         },
         right_data={
             "icon": "⚡",
@@ -957,147 +1729,175 @@ def build_thesis_defense_deck():
             "title_color": COLOR_NAVY,
             "border_color": COLOR_NAVY,
             "bullets": [
-                "High-level abstraction: specify WHAT is needed, not HOW to configure it",
-                "Example: 'Establish a 400G lightpath between Milan and Rome avoiding L2'",
-                "Autonomous translation into validated physical lightpaths in seconds",
-                "Reduces human configuration error across multi-vendor optical links",
-                "Critical challenge: Optical networks do not tolerate probabilistic errors",
+                "High-level abstraction: specify what is needed, not how to configure it",
+                "Realistic carrier intent: 'Establish a 400G lightpath between Milan and Rome avoiding link L2'",
+                "Autonomous translation into verified, collision-free physical lightpaths",
+                "Rapid sub-second provisioning reducing operational delays by orders of magnitude",
             ],
+            "callout": {
+                "text": "⚠️ Critical Challenge: Optical networks do not tolerate probabilistic errors",
+            },
         },
         bottom_banner="Operational Flow:  [Operator NL Intent]  ➔  [AI Intent Orchestrator]  ➔  [Zero-Error Physical Lightpath]",
         notes="""[Estimated Time]: 55s
-[Key Message]: The promise of autonomous IBN is compelling, but optical networks impose strict physical constraints.
-[Spoken Script]: Optical networks form the backbone of modern telecommunications, carrying terabits of traffic across core routes. Traditionally, provisioning lightpaths requires expert network operators to manually write vendor-specific RESTConf payloads or CLI scripts. Intent-Based Networking promises to revolutionize this by allowing operators to express high-level operational goals in natural language. While this vision is promising, direct deployment of Large Language Models to optical control planes exposes critical vulnerabilities.
-[Bridge to Next Slide]: Let us look at a concrete illustrative failure example to see why.""",
+[Key Message]: Autonomous IBN promises agile multi-terabit provisioning, but the physical optical layer strictly demands deterministic zero-error execution.
+[Spoken Script]: Optical transport networks form the fundamental backbone of modern telecommunications, carrying tens of terabits per second across meshed ROADM topologies. In traditional carrier operations, establishing a single lightpath is a heavily bottlenecked manual process: engineers must spend hours or days drafting vendor-specific CLI scripts and intricate RESTConf payloads, incurring severe human error risks. Intent-Based Networking promises to revolutionize this paradigm by allowing operators to express declarative high-level intents in natural language—for example, asking to provision a 400G lightpath between Milan and Rome avoiding a specific maintenance link. However, while generative AI can interpret human language, optical transport networks operate under rigid physical constraints where even minor probabilistic errors lead to catastrophic link failures.
+[Bridge to Next Slide]: To see why general-purpose AI cannot simply be connected to an optical control plane, let us examine the five architectural failure modes that occur.""",
     )
 
-    # 4. Slide 4: Illustrative Failure
-    print("Building Slide 04: Illustrative Failure...")
-    builder.create_two_column_slide(
+    # 4. Slide 4: Illustrative Failure Modes (5 Horizontal Failure Cards)
+    print("Building Slide 04: Illustrative Failure Modes...")
+    builder.create_five_challenges_slide(
         title="Illustrative Failure: Why Standard LLMs Break Optical Backbones",
         slide_num=4,
-        left_data={
-            "icon": "⚠️",
-            "title": "Challenge 1: Token Budget Saturation",
-            "title_color": COLOR_BURGUNDY,
-            "border_color": COLOR_BURGUNDY,
-            "bullets": [
-                "Full optical topology payloads (RESTConf JSON) exceed LLM context budgets",
-                "In a 100-node core network, telemetry dumps consume tens of thousands of tokens",
-                "Induces severe 'lost-in-the-middle' attention degradation",
-                "Result: The LLM drops explicit user constraints such as link exclusion rules",
-                "High API token cost and unpredictable prompt execution times",
-            ],
-        },
-        right_data={
-            "icon": "🚫",
-            "title": "Challenge 2: Hallucinated Physics",
-            "title_color": COLOR_BURGUNDY,
-            "border_color": COLOR_BURGUNDY,
-            "bullets": [
-                "LLMs are probabilistic text predictors, not optical physics calculators",
-                "Incapable of computing Generalized Signal-to-Noise Ratio (GSNR)",
-                "Ignore nonlinear fiber Kerr effects and EDFA noise accumulation",
-                "Result: Proposes lightpaths with unfeasible optical Quality of Transmission",
-                "Causes severe traffic drop or optical controller rejection upon deployment",
-            ],
-        },
-        bottom_banner="Empirical Risk: Unconstrained LLMs allow up to 34% physically unfeasible routes to reach the optical controller",
-        notes="""[Estimated Time]: 60s
-[Key Message]: Standard LLMs cannot calculate optical physics and choke on massive topology payloads.
-[Spoken Script]: Consider what happens if an operator asks a standard LLM to provision a 400G demand. First, we face Token Budget Saturation: dumping full topology states with hundreds of ROADMs and EDFA amplifier parameters degrades the LLM's attention, causing it to drop explicit constraints like link exclusions. Second, and more dangerously, LLMs suffer from Hallucinated Physics. Because they predict text probabilities rather than calculating nonlinear optical impairments, they will confidently propose routes that drop light below the required GSNR threshold, leading to service disruption.
-[Bridge to Next Slide]: This fundamental gap defines our formal problem statement.""",
+        challenges=[
+            {
+                "badge_text": "⚠️ 1. Token Budget Saturation",
+                "badge_color": COLOR_BURGUNDY,
+                "desc": "Telemetry dumps trigger attention degradation, dropping critical route exclusions",
+            },
+            {
+                "badge_text": "🚫 2. Hallucinated Physics",
+                "badge_color": COLOR_BURGUNDY,
+                "desc": "Probabilistic predictors lack wave propagation engines, violating non-linear $\\text{GSNR}$ margins",
+            },
+            {
+                "badge_text": "🔄 3. Semantic Drift",
+                "badge_color": COLOR_BURGUNDY,
+                "desc": "Unconstrained multi-turn conversational loops mutate or drop initial boundary constraints",
+            },
+            {
+                "badge_text": "⏱️ 4. Reactive Deployment Latency",
+                "badge_color": COLOR_BURGUNDY,
+                "desc": "Trial-and-error configuration risks live outages and introduces high control-plane recovery latency",
+            },
+            {
+                "badge_text": "👥 5. Suboptimal HITL Friction",
+                "badge_color": COLOR_BURGUNDY,
+                "desc": "Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early",
+            },
+        ],
+        bottom_banner="Empirical Risk: Unconstrained LLMs allow up to 34% unfeasible deployments, semantic drift loops, and critical control-plane latency",
+        notes="""[Estimated Time]: 65s
+[Key Message]: Connecting standard generative LLMs directly to optical control planes exposes five fundamental architectural failure modes.
+[Spoken Script]: When we evaluate standard generative LLMs for optical network control, we observe five interconnected failure modes that compromise operational integrity: First, Token Budget Saturation: injecting complete network states exhausts token budgets and triggers attention degradation, causing link exclusions to be dropped. Second, Hallucinated Physical Feasibility: autoregressive token predictors cannot solve wave propagation equations, computing invalid lightpaths that cause transponder loss of lock. Third, Semantic Drift: multi-turn chat loops mutate initial constraints without convergence guarantees. Fourth, Reactive Failure Latency: detecting faults after hardware rejection risks live link disruptions. Fifth, Suboptimal HITL: binary all-or-nothing review causes operator fatigue.
+[Bridge to Next Slide]: To overcome these five failure modes, we must formally structure the optical intent problem with hard physical constraints.""",
     )
 
-    # 5. Slide 5: Problem Statement (3 Cards with Native OMML Equations)
+    # 5. Slide 5: Problem Statement (2-Tier Given, Decide, Objective & Constraints)
     print("Building Slide 05: Problem Statement...")
-    builder.create_card_slide(
-        title="Problem Statement: Inputs, Constraints & Objectives",
+    builder.create_problem_statement_slide(
+        title="Problem Statement: Given, Decide, Objective & Constraints",
         slide_num=5,
-        cards=[
+        upper_cards=[
             {
                 "icon": "📥",
-                "title": "1. Given Inputs",
+                "title": "[1] Given (System Inputs)",
                 "title_color": COLOR_NAVY,
+                "border_color": COLOR_NAVY,
                 "bullets": [
-                    "Unstructured Natural Language intent from operator",
-                    "Physical topology graph G(V, E) via RESTConf",
-                    "Link parameters: span lengths, attenuation, dispersion",
-                    "EDFA amplifier gains and noise figures",
-                    "Transponder specs: baud rates, modulation formats",
+                    r"Unstructured operator intent: $\mathcal{I}_{NL}$",
+                    r"Active optical topology graph: $G(V, E)$ via RESTConf",
+                    r"Physical parameters: span length $L$, attenuation $\alpha$, gain $G_m$",
+                    r"Feasibility threshold: $\text{GSNR}_{th} = \text{SNR}_{min} + \text{Margin}$",
                 ],
             },
             {
-                "icon": "🔒",
-                "title": "2. Constraints",
-                "title_color": COLOR_BURGUNDY,
+                "icon": "⚙️",
+                "title": "[2] Decide (Variables & Actions)",
+                "title_color": COLOR_NAVY,
+                "border_color": COLOR_NAVY,
                 "bullets": [
-                    "Semantic alignment: formal model matches intent",
-                    "Optical GSNR exceeds transponder threshold",
-                    "Receiver power satisfies sensitivity bounds",
-                    "Zero spectral overlap and wavelength collision",
+                    r"Formal symbolic specification: $\mathcal{S}_{PDDL}$ compiled from intent",
+                    r"Optimal physical lightpath route: $\pi^* \in \mathcal{K}_{path}$ from candidate paths",
+                    r"Pre-deployment control action: $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$",
+                    r"Provisioning routing configuration: $c^*$ dispatched to controller",
                 ],
             },
             {
                 "icon": "🎯",
-                "title": "3. Objectives",
+                "title": "[3] Objective (Optimization)",
                 "title_color": COLOR_GREEN,
+                "border_color": COLOR_GREEN,
                 "bullets": [
-                    "Zero unfeasible routes reaching network controller",
-                    "Fail-fast pre-deployment validation pipeline",
-                    "Selective, risk-proportional HITL engagement",
-                    "Sub-second deterministic computation time",
-                    "Auditable planning report for network engineers",
+                    r"Minimize operational friction: $\min \mathcal{J} = \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}$",
+                    r"Cut operator cognitive fatigue: $\min N_{hitl}$ (minimize human interruptions)",
+                    r"Bound compute cost and latency: $\min T_{tokens}$ (minimize prompt tokens)",
+                    r"Hard pre-deployment safety guarantee: $\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}$",
                 ],
             },
         ],
-        formulas={
-            1: {
-                "omml_list": [
-                    '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>',
-                    '<m:r><m:t>GSNR ≥ </m:t></m:r><m:sSub><m:e><m:r><m:t>GSNR</m:t></m:r></m:e><m:sub><m:r><m:t>th</m:t></m:r></m:sub></m:sSub>',
-                    '<m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≥ </m:t></m:r><m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx,min</m:t></m:r></m:sub></m:sSub>',
-                ]
-            }
+        lower_constraints={
+            "title": "🔒 [4] Constraints: Resource Limits vs. Physical & Semantic Boundaries",
+            "left_title": "Resource Constraints (System & Solver Limits):",
+            "left_bullets": [
+                r"Localized prompt context window bound: $T_{prompt} \le T_{max} \ll T_{full}$ (via $G_{sub}$)",
+                r"Strict end-to-end execution latency budget: $t_{exec} \le t_{max\_budget}$",
+                r"Bounded path search complexity: $K\text{-SP}$ with $K \in [3, 5]$",
+            ],
+            "right_title": "Boundary Constraints (Physical & Semantic Feasibility):",
+            "right_bullets": [
+                r"Zero semantic drift tolerance bound: $U_{sem} \le \tau_{sem}$",
+                r"Deterministic optical QoT feasibility: $\text{GSNR}(\pi^*) \ge \text{GSNR}_{th} \land P_{rx}(\pi^*) \ge P_{rx,min}$",
+                r"Pre-deployment physical validity state: $\text{QoT}_{valid} \in \{0, 1\}$",
+            ],
         },
         notes="""[Estimated Time]: 60s
-[Key Message]: Formally state the problem across three distinct pillars: inputs, constraints, and objectives.
-[Spoken Script]: To tackle this challenge rigorously, we formalize the problem into three concrete pillars. Our system receives an unstructured operator intent, the physical topology graph G(V, E), and optical layer parameters. It must satisfy two orthogonal constraint classes: semantic consistency to prevent intent drift, and deterministic optical physics, specifically GSNR and receiver power thresholds. Our core objective is simple yet strict: ensure zero physically unfeasible configurations ever reach the network controller, while engaging the operator only when genuine ambiguity exists.
-[Bridge to Next Slide]: To achieve this, we introduce our core neurosymbolic architectural philosophy.""",
+[Key Message]: Formally formulate the problem across four structured dimensions: Given inputs, Decision variables, Objective function, and Constraints (Resource vs Boundary).
+[Spoken Script]: Following classical telecommunications optimization methodology, we formulate our intent planning problem across four precise dimensions: Given, Decide, Objective, and Constraints. In the upper row, first, Given: the orchestrator ingests the natural language intent, queries the network graph via RESTConf, and loads physical parameters. Second, Decide: the system determines the PDDL specification, selects the optimal lightpath route pi*, resolves the risk decision action in {approve, clarify, replan}, and generates the final configuration c*. Third, Objective: we formulate a multi-objective cost function minimizing human interruptions and prompt tokens under the hard invariant that no lightpath is deployed without approval. In the lower half, Constraints decouple into Resource Constraints on the left and Boundary Constraints on the right.
+[Bridge to Next Slide]: To solve this constrained optimization problem, we introduce our neurosymbolic architectural philosophy.""",
     )
 
     # 6. Slide 6: Proposed Solution & Contributions
     print("Building Slide 06: Proposed Solution...")
-    builder.create_two_column_slide(
+    builder.create_proposed_solution_slide(
         title="Proposed Solution: Neurosymbolic Decoupling",
         slide_num=6,
-        left_data={
-            "icon": "🧠",
-            "title": "Probabilistic Reasoning Layer",
-            "title_color": COLOR_NAVY,
-            "border_color": COLOR_NAVY,
+        neural_data={
+            "title": "🧠 Neural Subsystem (Semantic Domain)",
             "bullets": [
-                "LLMs Reason, Deterministic Tools Calculate",
-                "Prohibit LLMs from performing graph routing or arithmetic",
-                "Constrain the LLM strictly to formal linguistic translation",
-                "Natural Language is parsed into formal PDDL constraints",
-                "Zero hallucination of routing decisions or optical physics",
+                "Translates unstructured natural language $\\mathcal{I}_{NL}$ into formal PDDL $\\mathcal{S}_{PDDL}$",
+                "Zero routing arithmetic or physical SNR calculations performed by LLM",
+                "Reverse prompting reconstructs intent $\\mathcal{I}_{recon}$ for validation",
+                "Interpretable intermediate representation prevents hallucinated configurations",
             ],
         },
-        right_data={
-            "icon": "📐",
-            "title": "Deterministic Execution Layer",
-            "title_color": COLOR_GREEN,
-            "border_color": COLOR_GREEN,
+        symbolic_data={
+            "title": "📐 Symbolic Subsystem (Optical Domain)",
             "bullets": [
-                "Path computation delegated to Yen's KSP graph algorithms",
-                "Physical validation delegated to analytical GN-model engine",
-                "Subtopology extraction via scoped Mock GraphRAG",
-                "Pre-deployment safety gate (RADG) verifies feasibility",
-                "Guarantees provable physical safety before configuration push",
+                "Subtopology extraction via scoped Mock GraphRAG ($k\\text{-hop}$ neighborhood)",
+                "Deterministic routing via Yen's $K\\text{-SP}$ constrained graph algorithm",
+                "Physical QoT validation via pure Python analytical GN-model engine",
+                "Evaluates $\\text{GSNR} \\ge \\text{GSNR}_{th}$ and $P_{rx} \\ge P_{rx,min}$ with zero hallucination",
             ],
         },
-        bottom_banner="Core Contributions: [1] Neurosymbolic Pipeline  |  [2] Scoped GraphRAG  |  [3] Risk-Adaptive Gates  |  [4] LangGraph Orchestrator",
+        contributions_header="🎯 Core Thesis Contributions (Architectural Novelties)",
+        contributions=[
+            {
+                "title": "1. Neurosymbolic Decoupling & Scoped GraphRAG",
+                "border_color": COLOR_NAVY,
+                "bullets": [
+                    "Strict separation: probabilistic semantic translation vs deterministic physics",
+                    "Subtopology scoping reduces prompt tokens by >75%, eliminating attention loss",
+                ],
+            },
+            {
+                "title": "2. Dual-Layer Semantic Uncertainty Gate ($U_{sem}$)",
+                "border_color": COLOR_AMBER,
+                "bullets": [
+                    "Layer 1 syntax check ($v_{struct} \\in \\{0, 1\\}$) + Layer 2 semantic discrepancy ($d_{sem}$)",
+                    "Pauses via LangGraph interrupt() when $U_{sem} > \\tau_{sem}$ to clarify ambiguity",
+                ],
+            },
+            {
+                "title": "3. Risk-Adaptive Decision Gate (RADG) & QoT",
+                "border_color": COLOR_GREEN,
+                "bullets": [
+                    "Piecewise decision $D(U_{sem}, \\text{QoT}_{valid})$: clarify, replan, or auto-approve",
+                    "Guarantees $\\text{UAR} = 100\\%$ physical safety with <5 ms calculation latency",
+                ],
+            },
+        ],
         notes="""[Estimated Time]: 55s
 [Key Message]: State the thesis contributions explicitly: decoupling probabilistic reasoning from deterministic calculations.
 [Spoken Script]: Our core architectural principle is: 'LLMs reason, deterministic tools calculate'. We forbid the LLM from performing math or path exploration. Instead, the LLM acts solely as a semantic translator, converting natural language into formal Planning Domain Definition Language, or PDDL. This enables our four key contributions: a neurosymbolic pipeline, a scoped Optical GraphRAG mechanism, sequential pre-deployment risk gates, and an auditable LangGraph state machine.
@@ -1110,12 +1910,12 @@ def build_thesis_defense_deck():
         title="End-to-End System Architecture & Pipeline Flow",
         slide_num=7,
         phases=[
-            {"title": "Optical RAG", "desc": "Enrich intent with ITU-T grid & transponders"},
-            {"title": "PDDL Parser", "desc": "Translate intent into formal PDDL AST"},
-            {"title": "Semantic Gate", "desc": "Evaluate CFG & Reverse Prompting", "is_gate": True},
-            {"title": "Symbolic Solver", "desc": "Scoped GraphRAG & Yen's KSP routing"},
-            {"title": "QoT Physics", "desc": "Deterministic GN-model GSNR calculation"},
-            {"title": "Risk Gate (RADG)", "desc": "Piecewise decision: Approve / Replan", "is_gate": True},
+            {"title": "Optical RAG", "desc": "Enrich $\\mathcal{I}_{NL}$ with ITU-T grid & transponders"},
+            {"title": "PDDL Parser", "desc": "Translate intent into formal PDDL $\\mathcal{S}_{PDDL}$ AST"},
+            {"title": "Semantic Gate", "desc": "Evaluate CFG $v_{struct}$ & Reverse Prompting $d_{sem}$", "is_gate": True},
+            {"title": "Symbolic Solver", "desc": "Scoped GraphRAG & Yen's $K\\text{-SP}$ routing"},
+            {"title": "QoT Physics", "desc": "Deterministic GN-model $\\text{GSNR}$ calculation"},
+            {"title": "Risk Gate (RADG)", "desc": "Piecewise risk gate $D(U_{sem}, \\text{QoT})$", "is_gate": True},
             {"title": "Plan Synthesizer", "desc": "Auditable report & deployment commands"},
         ],
         notes="""[Estimated Time]: 60s
@@ -1124,8 +1924,30 @@ def build_thesis_defense_deck():
 [Bridge to Next Slide]: Let us inspect how Phase 4 solves the token saturation problem.""",
     )
 
-    # 8. Slide 8: Scoped GraphRAG (Split with Diagram Placeholder)
+    # 8. Slide 8: Scoped GraphRAG (Split with Animated Scoped Topology)
     print("Building Slide 08: Scoped GraphRAG...")
+    deck_dir = Path(__file__).resolve().parent
+    assets_dir = deck_dir / "assets"
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    base_img = assets_dir / "germany_17nodes.png"
+    overlay_img = assets_dir / "germany_17nodes_opaco.jpg"
+
+    # Ensure assets exist, converting/copying from raw if needed
+    if not base_img.exists():
+        raw_webp = Path("docs/LLM_Wiki/raw/germany-17nodes.webp")
+        if not raw_webp.exists():
+            raw_webp = deck_dir.parents[3] / "raw" / "germany-17nodes.webp"
+        from PIL import Image
+        im = Image.open(raw_webp)
+        im.save(base_img, "PNG")
+
+    if not overlay_img.exists():
+        raw_opaco = Path("docs/LLM_Wiki/raw/germany-17nodes-opaco.jpg")
+        if not raw_opaco.exists():
+            raw_opaco = deck_dir.parents[3] / "raw" / "germany-17nodes-opaco.jpg"
+        import shutil
+        shutil.copy2(raw_opaco, overlay_img)
+
     builder.create_split_diagram_slide(
         title="Overcoming Token Saturation: Scoped Optical GraphRAG",
         slide_num=8,
@@ -1137,20 +1959,26 @@ def build_thesis_defense_deck():
             "bullets": [
                 "Full topology dumps overwhelm LLM context windows",
                 "Raw JSON contains excessive telemetry: ROADM ports, EDFAs, fibers",
-                "Mock GraphRAG extracts only the k-hop neighborhood between endpoints",
-                "Filters out irrelevant core subnets, links, and unused transponders",
+                "Mock GraphRAG extracts localized subtopology $G_{sub} \\subseteq G$",
+                "Bounding $k\\text{-hop}$ neighborhood between candidate endpoints",
                 "Quantitative Impact: Over 75% reduction in prompt token payload",
-                "Sub-millisecond graph extraction: O(V + E) executed in pure Python",
+                "Sub-millisecond graph extraction: $\\mathcal{O}(|V| + |E|)$ executed in pure Python",
                 "Guarantees sharp LLM attention focus on active optical constraints",
             ],
         },
-        placeholder_info={
-            "title": "Visual Diagram: Full 17-Node Backbone vs Scoped 2-Hop Subtopology",
-            "subtitle": "(Target: 4:3 Network Topology & Subtopology Diagram — Replace in PowerPoint)",
+        animated_image_pair={
+            "base_image": base_img,
+            "overlay_image": overlay_img,
+            "title": "🗺️ 17-Node German Backbone: Subnetwork Scoping",
+            "caption": "⚡ Frankfurt ➔ Munich demand: Northern nodes pruned from LLM prompt",
         },
+        formulas=[
+            OMML_MAP[r"G_{sub} = (V_{sub}, E_{sub}) \subseteq G"],
+            OMML_MAP[r"T_{prompt}(G_{sub}) \ll T_{prompt}(G)"],
+        ],
         notes="""[Estimated Time]: 50s
 [Key Message]: Scoped GraphRAG extracts only relevant k-hop subtopologies, eliminating attention degradation.
-[Spoken Script]: To solve token budget saturation, we implement Scoped Optical GraphRAG. Instead of flooding the LLM context with hundreds of network nodes and links, our deterministic graph engine extracts only the k-hop neighborhood bounding the source and destination. This reduces the prompt token footprint by over 75 percent, completely eliminating lost-in-the-middle phenomena while keeping the graph search computationally light.
+[Spoken Script]: To solve token budget saturation, we implement Scoped Optical GraphRAG. Instead of flooding the LLM context with the entire 17-node topology, our deterministic graph engine extracts only the k-hop neighborhood bounding the source and destination. For instance, [Click / Advance] if an operator requests a lightpath between Frankfurt and Munich, there is no need to load northern nodes like Hamburg, Bremen, or Berlin into the LLM context. We prune distant nodes and links, reducing the prompt token footprint by over 75 percent, eliminating the lost-in-the-middle phenomenon while keeping the graph search computationally instantaneous.
 [Bridge to Next Slide]: Now let us examine how we eliminate semantic drift before any physics calculations occur.""",
     )
 
@@ -1175,11 +2003,7 @@ def build_thesis_defense_deck():
     hdr_l9.fill.fore_color.rgb = COLOR_NAVY
     hdr_l9.line.fill.background()
     p_hl9 = hdr_l9.text_frame.paragraphs[0]
-    p_hl9.text = "🧠 Two-Layer Semantic Uncertainty (U_sem)"
-    p_hl9.font.name = FONT_TITLE
-    p_hl9.font.size = Pt(15)
-    p_hl9.font.bold = True
-    p_hl9.font.color.rgb = COLOR_WHITE
+    add_math_runs_to_paragraph(p_hl9, "🧠 Two-Layer Semantic Uncertainty ($U_{sem}$)", font_size=Pt(15), color=COLOR_WHITE, font_name=FONT_TITLE, bold=True)
     p_hl9.alignment = PP_ALIGN.CENTER
 
     body_l9 = s9.shapes.add_textbox(
@@ -1189,17 +2013,12 @@ def build_thesis_defense_deck():
     tf_bl9.word_wrap = True
 
     bullets_s9 = [
-        "Layer 1 (Structural): CFG regex AST check instantly catches syntax errors",
-        "Layer 2 (Semantic): Reverse Prompting reconstructs NL directly from PDDL",
-        "Independent LLM judge measures semantic discrepancy d_sem in [0, 1]",
+        "Layer 1 (Structural): CFG regex AST check ($v_{struct} \\in \\{0, 1\\}$) catches syntax errors",
+        "Layer 2 (Semantic): Reverse Prompting reconstructs NL $\\mathcal{I}_{recon}$ directly from PDDL",
+        "Independent LLM judge measures semantic discrepancy $d_{sem} \\in [0, 1]$",
     ]
-    for j, b_text in enumerate(bullets_s9):
-        p = tf_bl9.paragraphs[0] if j == 0 else tf_bl9.add_paragraph()
-        p.text = f"•  {b_text}"
-        p.font.name = FONT_BODY
-        p.font.size = Pt(12)
-        p.font.color.rgb = COLOR_DARK_SLATE
-        p.space_after = Pt(6)
+    for b_text in bullets_s9:
+        add_bullet_with_math(tf_bl9, f"•  {b_text}", font_size=Pt(12), color=COLOR_DARK_SLATE, space_after=Pt(6))
 
     p_omml_lbl = tf_bl9.add_paragraph()
     p_omml_lbl.text = "Uncertainty Formulation:"
@@ -1233,7 +2052,7 @@ def build_thesis_defense_deck():
         '</m:e>'
         '</m:d>'
     )
-    add_omml_equation(p_omml9, u_sem_xml)
+    add_omml_equation(p_omml9, u_sem_xml, font_size=Pt(12), color=COLOR_NAVY)
 
     # Right Column: HITL Clarification Loop Card
     card_r9 = s9.shapes.add_shape(
@@ -1266,19 +2085,14 @@ def build_thesis_defense_deck():
 
     bullets_r9 = [
         "Evaluated BEFORE invoking graph solvers or physical tools",
-        "If U_sem > tau_sem: Pipeline pauses via LangGraph interrupt()",
+        "If $U_{sem} > \\tau_{sem}$: Pipeline pauses via LangGraph interrupt()",
         "Prompts operator to clarify ambiguous parameters or missing nodes",
         "Eliminates infinite trial-and-error conversational loops",
-        "Guarantees that downstream tools receive mathematically verified intent",
-        "If operator approves valid syntax: Bypasses parsing straight to solver",
+        "Guarantees downstream tools receive mathematically verified intent",
+        "If operator approves valid syntax ($v_{struct} = 1$): Bypasses parsing straight to solver",
     ]
-    for j, b_text in enumerate(bullets_r9):
-        p = tf_br9.paragraphs[0] if j == 0 else tf_br9.add_paragraph()
-        p.text = f"•  {b_text}"
-        p.font.name = FONT_BODY
-        p.font.size = Pt(12)
-        p.font.color.rgb = COLOR_DARK_SLATE
-        p.space_after = Pt(6)
+    for b_text in bullets_r9:
+        add_bullet_with_math(tf_br9, f"•  {b_text}", font_size=Pt(12), color=COLOR_DARK_SLATE, space_after=Pt(6))
 
     # Bottom Summary Banner
     bb9 = s9.shapes.add_shape(
@@ -1356,7 +2170,7 @@ def build_thesis_defense_deck():
                 "icon": "❓",
                 "action": "Clarify Intent",
                 "color": COLOR_AMBER,
-                "condition": "U_sem > tau_sem",
+                "condition": "$U_{sem} > \\tau_{sem}$",
                 "bullets": [
                     "Trigger: Semantic uncertainty exceeds threshold",
                     "Action: Pause pipeline via interrupt()",
@@ -1368,7 +2182,7 @@ def build_thesis_defense_deck():
                 "icon": "↺",
                 "action": "Suggest Replan",
                 "color": COLOR_BURGUNDY,
-                "condition": "U_sem <= tau_sem & QoT = 0",
+                "condition": "$U_{sem} \\le \\tau_{sem} \\land \\text{QoT}_{valid} = 0$",
                 "bullets": [
                     "Trigger: Valid semantics, but physics infeasible",
                     "Action: Physics failed; notifies operator",
@@ -1380,9 +2194,9 @@ def build_thesis_defense_deck():
                 "icon": "✓",
                 "action": "Auto-Approve",
                 "color": COLOR_GREEN,
-                "condition": "U_sem <= tau_sem & QoT = 1",
+                "condition": "$U_{sem} \\le \\tau_{sem} \\land \\text{QoT}_{valid} = 1$",
                 "bullets": [
-                    "Trigger: Clear semantics and feasible GSNR",
+                    "Trigger: Clear semantics and feasible $\\text{GSNR}$",
                     "Action: Autonomous zero-touch provisioning",
                     "Generates auditable planning report",
                     "Zero unverified configurations reach controller",
@@ -1429,11 +2243,7 @@ def build_thesis_defense_deck():
     tf_bl11 = body_l11.text_frame
     tf_bl11.word_wrap = True
 
-    p_gn1 = tf_bl11.paragraphs[0]
-    p_gn1.text = "•  Pure Python implementation: zero LLM arithmetic"
-    p_gn1.font.name = FONT_BODY
-    p_gn1.font.size = Pt(12)
-    p_gn1.font.color.rgb = COLOR_DARK_SLATE
+    add_bullet_with_math(tf_bl11, "•  Pure Python implementation: zero LLM arithmetic", font_size=Pt(12), color=COLOR_DARK_SLATE, space_after=Pt(4))
 
     p_ase_lbl = tf_bl11.add_paragraph()
     p_ase_lbl.text = "Accumulated ASE Noise Power per Span:"
@@ -1450,7 +2260,7 @@ def build_thesis_defense_deck():
         '<m:r><m:t> = (G - 1) · h · ν · F · </m:t></m:r>'
         '<m:sSub><m:e><m:r><m:t>B</m:t></m:r></m:e><m:sub><m:r><m:t>ref</m:t></m:r></m:sub></m:sSub>'
     )
-    add_omml_equation(p_ase_eq, ase_xml)
+    add_omml_equation(p_ase_eq, ase_xml, font_size=Pt(13), color=COLOR_NAVY)
 
     p_nli_lbl = tf_bl11.add_paragraph()
     p_nli_lbl.text = "Nonlinear Interference (NLI) Noise Power:"
@@ -1467,14 +2277,9 @@ def build_thesis_defense_deck():
         '<m:r><m:t> ≈ η · </m:t></m:r>'
         '<m:sSup><m:e><m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>ch</m:t></m:r></m:sub></m:sSub></m:e><m:sup><m:r><m:t>3</m:t></m:r></m:sup></m:sSup>'
     )
-    add_omml_equation(p_nli_eq, nli_xml)
+    add_omml_equation(p_nli_eq, nli_xml, font_size=Pt(13), color=COLOR_NAVY)
 
-    p_gn2 = tf_bl11.add_paragraph()
-    p_gn2.text = "•  Accounts for fiber Kerr nonlinearity, dispersion, and EDFA noise"
-    p_gn2.font.name = FONT_BODY
-    p_gn2.font.size = Pt(11)
-    p_gn2.font.color.rgb = COLOR_DARK_SLATE
-    p_gn2.space_before = Pt(6)
+    add_bullet_with_math(tf_bl11, "•  Accounts for fiber Kerr nonlinearity, dispersion, and EDFA noise", font_size=Pt(11), color=COLOR_DARK_SLATE, space_before=Pt(6))
 
     # Right Column: Feasibility Verification Formulas
     card_r11 = s11.shapes.add_shape(
@@ -1523,7 +2328,7 @@ def build_thesis_defense_deck():
         '<m:r><m:t> ≥ </m:t></m:r>'
         '<m:sSub><m:e><m:r><m:t>GSNR</m:t></m:r></m:e><m:sub><m:r><m:t>th</m:t></m:r></m:sub></m:sSub>'
     )
-    add_omml_equation(p_gsnr_eq, gsnr_xml)
+    add_omml_equation(p_gsnr_eq, gsnr_xml, font_size=Pt(13), color=COLOR_GREEN)
 
     p_prx_lbl = tf_br11.add_paragraph()
     p_prx_lbl.text = "Receiver Power Sensitivity Budget:"
@@ -1546,14 +2351,9 @@ def build_thesis_defense_deck():
         '<m:r><m:t> ≥ </m:t></m:r>'
         '<m:sSub><m:e><m:r><m:t>P</m:t></m:r></m:e><m:sub><m:r><m:t>rx,min</m:t></m:r></m:sub></m:sSub>'
     )
-    add_omml_equation(p_prx_eq, prx_xml)
+    add_omml_equation(p_prx_eq, prx_xml, font_size=Pt(13), color=COLOR_GREEN)
 
-    p_qot_pts = tf_br11.add_paragraph()
-    p_qot_pts.text = "•  Deterministic feasibility: GSNR >= threshold AND Power >= sensitivity"
-    p_qot_pts.font.name = FONT_BODY
-    p_qot_pts.font.size = Pt(11)
-    p_qot_pts.font.color.rgb = COLOR_DARK_SLATE
-    p_qot_pts.space_before = Pt(6)
+    add_bullet_with_math(tf_br11, "•  Deterministic feasibility: $\\text{GSNR} \\ge \\text{GSNR}_{th} \\land P_{rx} \\ge P_{rx,min}$", font_size=Pt(11), color=COLOR_DARK_SLATE, space_before=Pt(6))
 
     # Bottom Performance Banner
     bb11 = s11.shapes.add_shape(
@@ -1563,12 +2363,9 @@ def build_thesis_defense_deck():
     bb11.fill.fore_color.rgb = COLOR_CARD_BG
     bb11.line.color.rgb = COLOR_GREEN
     bb11.line.width = Pt(1.5)
-    p_bb11 = bb11.text_frame.paragraphs[0]
-    p_bb11.text = "⚡ Execution Speed: Under 5 milliseconds per candidate route (100% deterministic reproducibility)"
-    p_bb11.font.name = FONT_TITLE
-    p_bb11.font.size = Pt(13)
-    p_bb11.font.bold = True
-    p_bb11.font.color.rgb = COLOR_GREEN
+    tb_bb11 = s11.shapes.add_textbox(Inches(0.75), Inches(6.2), Inches(11.75), Inches(0.65))
+    p_bb11 = tb_bb11.text_frame.paragraphs[0]
+    add_math_runs_to_paragraph(p_bb11, "⚡ Execution Speed: $T_{phys} < 5\\text{ ms}$ per candidate route (100% deterministic reproducibility)", font_size=Pt(13), color=COLOR_GREEN, font_name=FONT_TITLE, bold=True)
     p_bb11.alignment = PP_ALIGN.CENTER
 
     builder.set_speaker_notes(
@@ -1579,7 +2376,7 @@ def build_thesis_defense_deck():
 [Bridge to Next Slide]: Let us see how this entire system is deployed and tested.""",
     )
 
-    # 12. Slide 12: Experimental Setup (Split with Topology Map Placeholder)
+    # 12. Slide 12: Experimental Setup (Split with Topology Map Image)
     print("Building Slide 12: Experimental Setup...")
     builder.create_split_diagram_slide(
         title="Experimental Setup & Testbed Environment",
@@ -1590,18 +2387,19 @@ def build_thesis_defense_deck():
             "title_color": COLOR_NAVY,
             "border_color": COLOR_NAVY,
             "bullets": [
-                "Realistic telecom benchmark: 17 ROADMs and 26 fiber links",
-                "Standard Single-Mode Fiber (SMF-28): alpha = 0.2 dB/km",
-                "Dispersion parameter D = 16.7 ps/(nm*km), gamma = 1.2 / (W*km)",
-                "Amplified spans: dual-stage EDFAs with noise figure F = 5.5 dB",
-                "Dynamic link lengths ranging from 45 km to 350 km per span",
+                r"Realistic telecom benchmark: $|V| = 17, |E| = 26$ bidirectional fiber links",
+                r"Standard Single-Mode Fiber (SMF-28): $\alpha = 0.2\text{ dB/km}$",
+                r"Dispersion parameter $D = 16.7\text{ ps/(nm}\cdot\text{km})$, $\gamma = 1.2\text{ W}^{-1}\text{km}^{-1}$",
+                r"Amplified spans: dual-stage EDFAs with noise figure $NF = 5.5\text{ dB}$",
+                r"Dynamic span lengths ranging from $L \in [45, 350]\text{ km}$",
                 "Orchestrator: LangGraph StateGraph with memory persistence",
                 "Telemetry: RESTConf and Mock SDON testbed client adapters",
             ],
         },
-        placeholder_info={
-            "title": "Network Topology: Nobel-Germany 17-Node 26-Link Core Backbone",
-            "subtitle": "(Target: 16:9 Topology Map with ROADM Nodes & Amplified Spans — Replace in PowerPoint)",
+        image_info={
+            "image_path": "docs/LLM_Wiki/wiki/presentations/thesis_defense/assets/germany_17nodes.png",
+            "title": "🗺️ Nobel-Germany 17-Node Optical Core Backbone",
+            "caption": "⚡ 17 ROADMs, 26 amplified fiber links, RESTConf telemetry",
         },
         notes="""[Estimated Time]: 50s
 [Key Message]: Realistic evaluation using the standard 17-node German optical topology and RESTConf testbed.
@@ -1631,10 +2429,10 @@ def build_thesis_defense_deck():
                 "title": "100 Test Demands (4 Classes)",
                 "title_color": COLOR_BURGUNDY,
                 "bullets": [
-                    "Nominal Intents [40]: Unambiguous valid routing requests with feasible physics",
-                    "Ambiguous Intents [20]: Under-specified constraints triggering semantic gate (U_sem)",
-                    "Infeasible Intents [25]: High modulation over long unamplified reaches (QoT fails)",
-                    "Adversarial Prompts [15]: Hallucinated nodes & grammar violations",
+                    "Nominal Intents [40]: Unambiguous requests with feasible physics",
+                    "Ambiguous Intents [20]: Under-specified constraints triggering $U_{sem} > \\tau_{sem}$",
+                    "Infeasible Intents [25]: High modulation over long spans ($\\text{QoT}_{valid} = 0$)",
+                    "Adversarial Prompts [15]: Hallucinated nodes ($v_{struct} = 0$) & syntax violations",
                 ],
             },
             {
@@ -1642,10 +2440,10 @@ def build_thesis_defense_deck():
                 "title": "Evaluation Metrics",
                 "title_color": COLOR_GREEN,
                 "bullets": [
-                    "Pre-Deployment Blocking Accuracy: % of invalid routes blocked before deployment",
-                    "Human Intervention Rate: % of demands requiring human operator clarification",
-                    "End-to-End Latency: Pipeline execution time from NL intent to planning report",
-                    "Token Consumption: Prompt overhead across scoped vs full topologies",
+                    "Pre-Deployment Blocking Accuracy: $\\text{UAR} = 100\\%$ guarantee",
+                    "Human Intervention Rate ($\\text{HIC}$): % demands requiring operator clarification",
+                    "End-to-End Latency ($T_{E2E}$): NL intent to planning report turnaround",
+                    "Token Consumption ($T_{prompt}$): Overhead across scoped vs full topologies",
                 ],
             },
         ],
@@ -1666,21 +2464,21 @@ def build_thesis_defense_deck():
                 "color": COLOR_GREEN,
                 "border_color": COLOR_GREEN,
                 "label": "Pre-Deployment Safety Guarantee",
-                "subtitle": "Zero unfeasible lightpaths reach controller (vs 34% violation in LLM baseline)",
+                "subtitle": "$\\text{UAR} = 100\\%$: Zero unfeasible lightpaths reach controller (vs 34% in baseline)",
             },
             {
                 "value": "> 70%",
                 "color": COLOR_NAVY,
                 "border_color": COLOR_NAVY,
                 "label": "Reduction in Operator Fatigue",
-                "subtitle": "Autonomous approval when U_sem <= tau_sem (operator engaged only on high risk)",
+                "subtitle": "Autonomous approval when $U_{sem} \\le \\tau_{sem}$ (operator engaged only on high risk)",
             },
             {
-                "value": "< 15 ms",
+                "value": "< 5 ms",
                 "color": COLOR_NAVY,
                 "border_color": COLOR_NAVY,
-                "label": "Deterministic Physics & Solver Latency",
-                "subtitle": "Sub-second orchestration; solver & GN model execute in sub-milliseconds",
+                "label": "Deterministic Physics Latency",
+                "subtitle": "GN model executes in $T_{phys} < 5\\text{ ms}$ ($T_{solver} < 10\\text{ ms}$, sub-second total)",
             },
         ],
         placeholder_info={
@@ -1705,7 +2503,7 @@ def build_thesis_defense_deck():
             "border_color": COLOR_NAVY,
             "bullets": [
                 "Probabilistic LLMs must never calculate physical impairments or route lightpaths",
-                "Natural language reasoning cleanly bridges to formal PDDL planning",
+                "Natural language reasoning $\\mathcal{I}_{NL} \\to \\mathcal{S}_{PDDL}$ bridges to formal planning",
                 "Guarantees formal soundness without constraining operator expressiveness",
             ],
         },
@@ -1714,8 +2512,8 @@ def build_thesis_defense_deck():
             "title": "Sequential Risk Gates Prevent Failure",
             "border_color": COLOR_GREEN,
             "bullets": [
-                "Early semantic evaluation (U_sem) eliminates drift before physics computation",
-                "Deterministic GN-model verification (QoT_valid) ensures 100% physical feasibility",
+                "Early semantic evaluation ($U_{sem} \\le \\tau_{sem}$) eliminates drift before physics computation",
+                "Deterministic GN-model verification ($\\text{QoT}_{valid} = 1$) ensures 100% physical feasibility",
                 "Zero unverified configurations ever reach the optical controller",
             ],
         },
@@ -1735,7 +2533,7 @@ def build_thesis_defense_deck():
             "border_color": COLOR_NAVY,
             "bullets": [
                 "Fully implemented LangGraph state machine with memory checkpoints",
-                "Benchmarked on realistic 17-node German optical topology and RESTConf testbed",
+                "Benchmarked on realistic $|V| = 17, |E| = 26$ German topology and RESTConf testbed",
                 "Establishes a reproducible foundation for autonomous optical networking",
             ],
         },
@@ -1776,19 +2574,18 @@ def build_thesis_defense_deck():
         p_h.font.color.rgb = COLOR_WHITE
         p_h.alignment = PP_ALIGN.CENTER
 
-        tf_b = card.text_frame
+        tb_b = s15.shapes.add_textbox(
+            pos_left + Inches(0.15), pos_top + Inches(0.6), grid_w - Inches(0.3), grid_h - Inches(0.65)
+        )
+        tf_b = tb_b.text_frame
         tf_b.word_wrap = True
-        tf_b.margin_top = Inches(0.65)
-        tf_b.margin_left = Inches(0.15)
-        tf_b.margin_right = Inches(0.15)
+        tf_b.margin_top = Inches(0.05)
+        tf_b.margin_left = Inches(0.05)
+        tf_b.margin_right = Inches(0.05)
+        tf_b.margin_bottom = Inches(0.05)
 
-        for j, b_text in enumerate(item["bullets"]):
-            p = tf_b.paragraphs[0] if j == 0 else tf_b.add_paragraph()
-            p.text = f"•  {b_text}"
-            p.font.name = FONT_BODY
-            p.font.size = Pt(11)
-            p.font.color.rgb = COLOR_DARK_SLATE
-            p.space_after = Pt(3)
+        for b_text in item["bullets"]:
+            add_bullet_with_math(tf_b, f"•  {b_text}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(3))
 
     builder.set_speaker_notes(
         s15,
