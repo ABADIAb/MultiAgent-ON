@@ -68,6 +68,16 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Synchronized the updated title in system rules (`AGENTS.md`), project metadata (`openspec/config.yaml`), architecture documents (`Architecture_v5.md`, `ProblemStatement_v5.md`), thesis roadmap (`Writing_Roadmap_v1.md`, `Thesis_Outline_v4.md`), presentation specifications (`deck_spec.md`, `build_defense_deck.py`), and CLI entrypoint/state docstrings (`main.py`, `graph.py`, `state.py`).
    - Recompiled `thesis_defense.pptx`, vector `thesis_defense.pdf`, and 1080p `slides_png/` previews, verifying visual layout and 100% test pass rate across 278 unit tests.
 
+7. **Manual PowerPoint Visual Refinement & Programmatic Synchronization:**
+   - Inspected manual visual refinements made to the presentation deck to reduce text density and enhance readability across Slides 1, 3, 4, and 5.
+   - Decoded OpenXML DrawingML `<mc:AlternateContent>` structures containing embedded native Office Math equations, extracting exact layout coordinates, shape styling, and typography.
+   - Synchronized all visual improvements back into [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py) and [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md):
+     - **Slide 1 (Cover):** Added co-advisor metadata (`"Academic Advisor: Prof. Massimo Tornatore & Prof. Qiaolun Zhang"`).
+     - **Slide 3 (Motivation Evolution):** Implemented `create_evolution_sdon_ibon_slide()` featuring the comparative paradigm-shift layout (Burgundy Imperative SDON card vs. Navy Declarative IBON card, central connector arrow with `"PARADIGM SHIFT: HOW ➔ WHAT"` badge, 6 modular white rounded pills, and bottom caution banner).
+     - **Slide 4 (Failure Modes):** Standardized challenge badge typography to 14 pt, updated descriptions to 12 pt, and tuned the empirical risk banner text.
+     - **Slide 5 (Problem Statement):** Converted dense text blocks into 4 modular white rounded pills ($3.21'' \times 0.43''$) per upper card, resized the lower constraints container to $10.31'' \times 2.13''$, and added native OMML equation mappings for $T_{prompt} \le T_{max}$ and $\min \alpha N_{hitl} + \beta T_{tokens}$.
+   - Recompiled `thesis_defense.pptx`, rendered updated vector `thesis_defense.pdf` and 1080p slide PNGs, and verified zero test regressions (278 passing unit tests).
+
 ---
 
 ## 3. What do I plan to accomplish next week?
@@ -88,4 +98,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I created the `presentation-coauthor` skill and headless PowerPoint export pipeline, authored a 16-slide defense deck adhering to Prof. Tornatore's 15 Golden Rules, and modernized the official thesis title across the entire codebase and documentation ecosystem to "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks".
+I modernized the official thesis title to "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks", synchronized manual PowerPoint visual enhancements into the programmatic builder across Slides 1, 3, 4, and 5, and validated complete 1:1 headless compilation to vector PDF and 1080p previews.

@@ -23,14 +23,14 @@
 - **Title:** LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
 - **Subtitle:** A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
 - **Candidate:** Felipe Abadía
-- **Advisor:** Prof. Massimo Tornatore
+- **Advisor:** Prof. Massimo Tornatore & Prof. Qiaolun Zhang
 - **Institution:** Politecnico di Milano — Dipartimento di Elettronica, Informazione e Bioingegneria
 - **Date:** September 2026
 
 <!-- Speaker Notes:
 [Estimated Time]: 30s
 [Key Message]: Welcome the committee and introduce the thesis title and research focus.
-[Spoken Script]: Good morning members of the committee and Professor Tornatore. Today I present my Master's thesis entitled "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment". In this work, we address the challenge of bridging high-level operator intent with physical optical layer realities using a robust, fail-fast neurosymbolic architecture.
+[Spoken Script]: Good morning members of the committee, Professor Tornatore, and Professor Zhang. Today I present my Master's thesis entitled "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment". In this work, we address the challenge of bridging high-level operator intent with physical optical layer realities using a robust, fail-fast neurosymbolic architecture.
 [Bridge to Next Slide]: Let us begin with the specific roadmap of problems and solutions covered in this presentation.
 -->
 
@@ -66,40 +66,44 @@
 
 ---
 
-## Slide 3: Motivation: The Vision of Intent-Based Optical Networks
+## Slide 3: Motivation: The Evolution from Imperative SDON to Declarative IBON
 
 > [!LAYOUT]
-> 2-column comparative layout with dedicated highlight callout blocks at the base of each column card, and visual bottom flow connecting operator intent to validated lightpaths.
+> 2-column comparative evolution layout with central directional arrow connector and centered badge, plus an overarching bottom caution banner.
 
 > [!VISUAL]
-> - Left Column Card: Traditional Manual Provisioning (Burgundy header `#85200C`, warning icon `⚠️`)
->   - Bullets: core traffic scale, manual RESTConf/CLI workflows, human provisioning latency, multi-vendor friction
->   - Highlight Callout Block: `🎯 Goal: Transition to autonomous Intent-Based Networking (IBN)`
-> - Right Column Card: Intent-Based Autonomous Vision (Navy header `#0F2C53`, lightning icon `⚡`)
->   - Bullets: declarative abstraction ("what" not "how"), 400G carrier intent example, sub-second translation, automated verification
->   - Highlight Callout Block: `⚠️ Critical Challenge: Optical networks do not tolerate probabilistic errors`
-> - Bottom Banner: 3-step operational flow: `[Operator NL Intent]` ➔ `[AI Intent Orchestrator]` ➔ `[Zero-Error Physical Lightpath]`
+> - Left Column Card: Imperative SDON (`#F4F6F9` fill, Burgundy border `#85200C`, 1.5 pt)
+>   - Header Bar: `⚠️ Current Paradigm: Imperative SDON` / `Procedural "HOW" Execution • Open-Loop Control`
+>   - 3 White Rounded Pills: `Procedural Scripts`, `Static Margins`, `Open-Loop Control` (Burgundy border & text)
+> - Central Right Arrow: Directional connector (`#DCE6F2` fill, `#0F2C53` border, 1 pt)
+>   - Centered Badge: `PARADIGM SHIFT` / `"HOW" ➔ "WHAT"`
+> - Right Column Card: Declarative IBON (`#F4F6F9` fill, Navy border `#0F2C53`, 1.5 pt)
+>   - Header Bar: `⚡ Target Vision: Declarative IBON` / `Autonomous "WHAT" Abstraction • Closed-Loop Assurance`
+>   - 3 White Rounded Pills: `✓ High-Level Intents`, `✓ Dynamic Physics`, `✓ Zero-Touch Assurance` (Navy border & text)
+> - Bottom Banner: `⚠️ BUT: Standard LLMs alone cannot simply drive an IBON controller` (`#F4F6F9` fill, `#85200C` border)
 
-- **Operational Shift: Manual Bottleneck**
-  - Optical backbones carry terabits of core traffic across ROADM networks
-  - Traditional workflow: manual CLI scripts and complex RESTConf payloads
-  - Human configuration delays lightpath provisioning by hours or days
-  - High cognitive load and misconfiguration risk across multi-vendor links
-  - *Highlighted Callout Block:*
-    - 🎯 **Goal:** Transition to autonomous Intent-Based Networking (IBN)
-- **The Operational Promise: Autonomous Vision**
-  - High-level abstraction: specify *what* is needed, not *how* to configure it
-  - Realistic carrier intent: "Establish a 400G lightpath between Milan and Rome avoiding link L2"
-  - Autonomous translation into verified, collision-free physical lightpaths
-  - Rapid sub-second provisioning reducing operational delays by orders of magnitude
-  - *Highlighted Callout Block:*
-    - ⚠️ **Critical Challenge:** Optical networks do not tolerate probabilistic errors
+- **Current Paradigm: Imperative SDON** (`⚠️`)
+  - Subtitle: Procedural "HOW" Execution • Open-Loop Control
+  - Pills:
+    - Procedural Scripts
+    - Static Margins
+    - Open-Loop Control
+- **Center: Paradigm Shift**
+  - Transition: "HOW" ➔ "WHAT"
+- **Target Vision: Declarative IBON** (`⚡`)
+  - Subtitle: Autonomous "WHAT" Abstraction • Closed-Loop Assurance
+  - Pills:
+    - ✓ High-Level Intents
+    - ✓ Dynamic Physics
+    - ✓ Zero-Touch Assurance
+- **Bottom Caution Banner:**
+  - ⚠️ BUT: Standard LLMs alone cannot simply drive an IBON controller
 
 <!-- Speaker Notes:
 [Estimated Time]: 55s
-[Key Message]: Autonomous IBN promises agile multi-terabit provisioning, but the physical optical layer strictly demands deterministic zero-error execution.
-[Spoken Script]: Optical transport networks form the fundamental backbone of modern telecommunications, carrying tens of terabits per second across meshed ROADM topologies. In traditional carrier operations, establishing a single lightpath is a heavily bottlenecked manual process: engineers must spend hours or days drafting vendor-specific CLI scripts and intricate RESTConf payloads, incurring severe human error risks. Intent-Based Networking promises to revolutionize this paradigm by allowing operators to express declarative high-level intents in natural language—for example, asking to provision a 400G lightpath between Milan and Rome avoiding a specific maintenance link. However, while generative AI can interpret human language, optical transport networks operate under rigid physical constraints where even minor probabilistic errors lead to catastrophic link failures.
-[Bridge to Next Slide]: To see why general-purpose AI cannot simply be connected to an optical control plane, let us examine the five architectural failure modes that occur.
+[Key Message]: Moving from Imperative SDON to Declarative IBON is essential to eliminate the human configuration bottleneck, but connecting naive LLMs directly to optical control planes introduces catastrophic physical risks.
+[Spoken Script]: Optical transport networks form the multi-terabit backbone of modern telecommunications. Over the past decade, Software-Defined Optical Networking (SDON) successfully centralized the control plane through standardized Southbound interfaces like NETCONF and RESTConf. However, SDON remains fundamentally imperative: human operators must still manually compute explicit lightpaths, calculate wavelength grids, and configure ROADM cross-connects, relying on slow offline tools with conservative 3 to 5 dB margins. Intent-Based Optical Networking (IBON), formalized in IETF RFC 9315, represents a crucial paradigm shift from 'how' to 'what': operators express declarative service intents in natural language, and the system autonomously derives the physical optical configuration under continuous closed-loop assurance. However, connecting generative AI directly to optical backbones creates severe risks, as optical networks do not tolerate probabilistic hallucination.
+[Bridge to Next Slide]: To understand why standard LLMs cannot simply drive an IBON controller, let us examine the five architectural failure modes that occur.
 -->
 
 ---
@@ -110,56 +114,31 @@
 > 5 distinct failure blocks with visual alert badges and concise core impact statements, grounded directly in the 5 failure modes of Section 3.1.1, accompanied by an overarching empirical risk banner.
 
 > [!VISUAL]
-> - 5 distinct horizontal failure blocks (`#F4F6F9` fill, `#D0D7DE` border, 1.2 pt):
->   - `[⚠️ 1. Token Budget Saturation]` Badge Burgundy `#85200C` ➔ *Telemetry dumps trigger attention degradation, dropping critical route exclusions*
->   - `[🚫 2. Hallucinated Physical Feasibility]` Badge Burgundy `#85200C` ➔ *Probabilistic predictors lack wave propagation engines, violating non-linear GSNR margins*
->   - `[🔄 3. Semantic Drift in Refinement]` Badge Burgundy `#85200C` ➔ *Unconstrained multi-turn conversational loops mutate or drop initial boundary constraints*
->   - `[⏱️ 4. Reactive Post-Deployment Latency]` Badge Burgundy `#85200C` ➔ *Trial-and-error configuration risks live outages and introduces high control-plane recovery latency*
->   - `[👥 5. Suboptimal HITL Engagement]` Badge Burgundy `#85200C` ➔ *Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early*
-> - Bottom Summary Banner: `Empirical Risk: Unconstrained LLMs allow up to 34% unfeasible deployments, semantic drift loops, and critical control-plane latency`
+> - 5 distinct horizontal failure blocks (`#F4F6F9` fill, `#D0D7DE` border, 1.0 pt):
+>   - `[⚠️ 1. Token Budget Saturation]` Badge Burgundy `#85200C` (14 pt) ➔ *Telemetry dumps trigger attention degradation, dropping critical route exclusions* (12 pt)
+>   - `[🚫 2. Hallucinated Physics]` Badge Burgundy `#85200C` (14 pt) ➔ *Probabilistic predictors lack wave propagation engines, violating non-linear GSNR margins* (12 pt)
+>   - `[🔄 3. Semantic Drift]` Badge Burgundy `#85200C` (14 pt) ➔ *Unconstrained multi-turn conversational loops mutate or drop initial boundary constraints* (12 pt)
+>   - `[⏱️ 4. Reactive Deployment Latency]` Badge Burgundy `#85200C` (14 pt) ➔ *Trial-and-error configuration risks live outages and introduces high control-plane recovery latency* (12 pt)
+>   - `[👥 5. Suboptimal HITL Friction]` Badge Burgundy `#85200C` (14 pt) ➔ *Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early* (12 pt)
+> - Bottom Summary Banner: `Empirical Risk: Unconstrained LLMs might allow unfeasible deployments, semantic drift loops, and critical control-plane latency` (`#F4F6F9` fill, `#85200C` border)
 
-- **1. Token Budget Saturation & Attention Degradation** (`⚠️`)
-  - Massive topology dumps trigger attention degradation, dropping critical operator route exclusions
-- **2. Hallucinated Physical Feasibility** (`🚫`)
-  - Probabilistic predictors lack wave propagation engines, violating non-linear GSNR and noise margins
-- **3. Semantic Drift in Iterative Intent Refinement** (`🔄`)
-  - Unconstrained conversational refinement lacks convergence bounds, mutating initial boundary constraints
-- **4. Reactive Post-Deployment Failure Latency** (`⏱️`)
-  - Trial-and-error configuration risks live service disruption and introduces high control-plane recovery latency
-- **5. Suboptimal Human-in-the-Loop Engagement** (`👥`)
-  - Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early on ambiguity
+- **1. Token Budget Saturation** (`⚠️`)
+  - Telemetry dumps trigger attention degradation, dropping critical route exclusions
+- **2. Hallucinated Physics** (`🚫`)
+  - Probabilistic predictors lack wave propagation engines, violating non-linear GSNR margins
+- **3. Semantic Drift** (`🔄`)
+  - Unconstrained multi-turn conversational loops mutate or drop initial boundary constraints
+- **4. Reactive Deployment Latency** (`⏱️`)
+  - Trial-and-error configuration risks live outages and introduces high control-plane recovery latency
+- **5. Suboptimal HITL Friction** (`👥`)
+  - Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early
 - **Empirical Risk Summary Banner:**
-  - Empirical Risk: Unconstrained LLMs allow up to 34% unfeasible deployments, semantic drift loops, and critical control-plane latency
+  - Empirical Risk: Unconstrained LLMs might allow unfeasible deployments, semantic drift loops, and critical control-plane latency
 
 <!-- Speaker Notes:
 [Estimated Time]: 65s
 [Key Message]: Connecting standard generative LLMs directly to optical control planes exposes five fundamental architectural failure modes.
-[Spoken Script]: When we evaluate standard generative LLMs for optical network control, we observe five interconnected failure modes that compromise operational integrity:
-
-1. Token Budget Saturation and Attention Degradation:
-   - Modern optical topologies described via RESTConf, NETCONF, or T-API generate massive JSON payloads with hundreds of links and amplifiers.
-   - Injecting complete network states exhausts token budgets and triggers the "lost-in-the-middle" attention degradation phenomenon.
-   - Crucial long-horizon constraints—such as explicit link exclusions—are quietly dropped during prompt synthesis.
-
-2. Hallucinated Physical Feasibility:
-   - LLMs are autoregressive token predictors trained on text, not numerical physics engines.
-   - They cannot solve wave propagation equations, compute Generalized Signal-to-Noise Ratio (GSNR), or account for nonlinear Kerr effects and EDFA noise accumulation.
-   - The LLM generates syntactically plausible paths that violate physical margins, causing transponder receiver lock failure.
-
-3. Semantic Drift in Iterative Intent Refinement:
-   - Unstructured multi-turn conversational chat lacks formal mathematical convergence guarantees.
-   - When an operator requests adjustments in turn k, standard conversational memory often mutates or drops immutable boundary constraints established in turn 0.
-   - This traps the operator in endless negotiation loops without reaching a valid configuration state.
-
-4. Reactive Post-Deployment Failure Latency:
-   - Existing LLM networking frameworks rely on trial-and-error post-deployment execution, pushing unverified configurations directly to the controller.
-   - Configuration faults are detected only after hardware or SBI rejection, incurring high control-plane latency and risking transient optical link disruption.
-
-5. Suboptimal Human-in-the-Loop Engagement:
-   - Operational paradigms are locked into a flawed binary choice: either mandatory review for every single request (always-on HITL, causing operator fatigue) or fully autonomous deployment (no-HITL, risking catastrophic physical failures).
-   - Furthermore, LLMs fail to "fail-early"; when presented with ambiguous intent, they fabricate missing parameters instead of initiating structured clarification.
-   - There is no mechanism to engage the operator proportionally to the assessed operational risk.
-
+[Spoken Script]: When we evaluate standard generative LLMs for optical network control, we observe five interconnected failure modes that compromise operational integrity: First, Token Budget Saturation: injecting complete network states exhausts token budgets and triggers attention degradation, causing link exclusions to be dropped. Second, Hallucinated Physical Feasibility: autoregressive token predictors cannot solve wave propagation equations, computing invalid lightpaths that cause transponder loss of lock. Third, Semantic Drift: multi-turn chat loops mutate initial constraints without convergence guarantees. Fourth, Reactive Failure Latency: detecting faults after hardware rejection risks live link disruptions. Fifth, Suboptimal HITL: binary all-or-nothing review causes operator fatigue.
 [Bridge to Next Slide]: To overcome these five failure modes, we must formally structure the optical intent problem with hard physical constraints.
 -->
 
@@ -168,53 +147,50 @@
 ## Slide 5: Problem Statement: Given, Decide, Objective & Constraints
 
 > [!LAYOUT]
-> 2-tier structured optimization layout: Upper half contains a 3-column row (Given, Decide, Objective) side-by-side; Lower half is dedicated to Constraints, split into Resource Constraints (left) and Boundary Constraints (right), with all mathematical variables and expressions in formal notation.
+> 2-tier structured optimization layout: Upper tier contains 3 cards side-by-side with 4 modular white rounded pills each; Lower tier is a full-width container with 2 sub-panels for Resource vs. Boundary constraints.
 
 > [!VISUAL]
-> - Top Row (Upper Half - 3 Cards Side-by-Side):
+> - Top Row (Upper Tier - 3 Cards Side-by-Side):
 >   - Card 1 (Left): `[1] Given (System Inputs)` (Navy header `#0F2C53`, icon `📥`)
+>     - 4 Pills: Intent $\mathcal{I}_{NL}$, Topology $G(V, E)$, Physical parameters $L$, Feasibility threshold $\text{GSNR}$
 >   - Card 2 (Center): `[2] Decide (Variables & Actions)` (Navy header `#0F2C53`, icon `⚙️`)
->   - Card 3 (Right): `[3] Objective (Optimization Goal)` (Green header `#1A7F37`, icon `🎯`)
-> - Bottom Tier (Lower Half - Full-Width Constraints Container with 2 Sub-Panels):
->   - Header Bar: `[4] Constraints (Resource Limits vs. Physical & Semantic Boundaries)` (Burgundy `#85200C`, icon `🔒`)
->   - Left Sub-Panel: `Resource Constraints (System & Solver Limits)`
->   - Right Sub-Panel: `Boundary Constraints (Physical & Semantic Feasibility)`
+>     - 4 Pills: Symbolic PDDL $\mathcal{S}_{PDDL}$, Optimal route $\pi^*$, Decision action $a$, Routing config $c^*$
+>   - Card 3 (Right): `[3] Objective (Optimization)` (Green header `#1A7F37`, icon `🎯`)
+>     - 4 Pills: Minimize interruptions $\min N_{hitl}$, Minimize tokens $\min T_{tokens}$, Minimize friction $\min \alpha N_{hitl} + \beta T_{tokens}$, Pre-deployment safety $\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}$
+> - Bottom Tier (Lower Tier - Full-Width Constraints Container $10.31'' \times 2.13''$):
+>   - Header Bar: `🔒 [4] Constraints: Resource Limits vs. Physical & Semantic Boundaries` (Burgundy `#85200C`)
+>   - Left Sub-Panel: `Resource Constraints (System & Solver Limits):`
+>   - Right Sub-Panel: `Boundary Constraints (Physical & Semantic Feasibility):`
 
 - **1. Given (System Inputs)**
-  - Unstructured operator intent: $\mathcal{I}_{NL}$
-  - Active optical topology graph: $G(V, E)$ via RESTConf
-  - Physical parameters: link span length $L$, attenuation $\alpha$, amplifier gain $G_m$
-  - Physical feasibility threshold: $\text{GSNR}_{th} = \text{SNR}_{min} + \text{Margin}$
+  - Unstructured operator intent ($\mathcal{I}_{NL}$)
+  - Active optical topology graph $G(V, E)$
+  - Physical parameters (e.g. span length $L$)
+  - Feasibility threshold (e.g. $\text{GSNR}$)
 - **2. Decide (Variables & Actions)**
-  - Formal symbolic specification: $\mathcal{S}_{PDDL}$ compiled from intent
-  - Optimal physical lightpath route: $\pi^* \in \mathcal{K}_{path}$ from candidate paths
-  - Pre-deployment control action: $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$
-  - Provisioning routing configuration: $c^*$ dispatched to controller
-- **3. Objective (Optimization Goal)**
-  - Minimize composite operational friction: $\min \mathcal{J} = \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}$
-  - Cut operator cognitive fatigue: $\min N_{hitl}$ (minimize human interruptions)
-  - Bound compute expense and latency: $\min T_{tokens}$ (minimize prompt tokens)
-  - Hard pre-deployment safety guarantee: $\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}$
-- **4. Constraints (Resource Limits vs. Boundary Conditions)**
+  - Formal symbolic specification ($\mathcal{S}_{PDDL}$ compiled from intent)
+  - Optimal physical lightpath route ($\pi^* \in \mathcal{K}_{path}$ from candidate paths)
+  - Pre-deployment control action ($a \in \{\text{approve}, \text{clarify}, \text{replan}\}$)
+  - Provisioning routing configuration ($c^*$ dispatched to controller)
+- **3. Objective (Optimization)**
+  - Minimize human interruptions ($\min N_{hitl}$)
+  - Minimize prompt tokens ($\min T_{tokens}$)
+  - Minimize operational friction ($\min \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}$)
+  - Guarantee pre-deployment safety ($\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}$)
+- **4. Constraints: Resource Limits vs. Physical & Semantic Boundaries**
   - **Resource Constraints (Left Column):**
-    - Localized prompt context window bound: $T_{prompt} \le T_{max} \ll T_{full}$ (via subtopology $G_{sub}$)
-    - Strict end-to-end execution latency budget: $t_{exec} \le t_{max\_budget}$
-    - Bounded path search complexity: $K\text{-SP}$ with $K \in [3, 5]$
+    - Token context limits ($T_{prompt} \le T_{max}$)
+    - Computational inference latency ($t_{exec} \le t_{max\_budget}$)
+    - Symbolic solver complexity $K \in [3, 5]$
   - **Boundary Constraints (Right Column):**
-    - Zero semantic drift tolerance bound: $U_{sem} \le \tau_{sem}$
-    - Deterministic optical QoT feasibility: $\text{GSNR}(\pi^*) \ge \text{GSNR}_{th} \land P_{rx}(\pi^*) \ge P_{rx,min}$
-    - Pre-deployment physical validity state: $\text{QoT}_{valid} \in \{0, 1\}$
+    - Zero semantic drift tolerance bound
+    - Deterministic optical QoT feasibility
+    - Pre-deployment physical validity state ($\text{QoT}_{valid} \in \{0, 1\}$)
 
 <!-- Speaker Notes:
 [Estimated Time]: 60s
 [Key Message]: Formally formulate the problem across four structured dimensions: Given inputs, Decision variables, Objective function, and Constraints (Resource vs Boundary).
-[Spoken Script]: Following the classical telecommunications optimization methodology, we formulate our intent planning problem across four precise dimensions: Given, Decide, Objective, and Constraints.
-In the upper row, first, Given: the orchestrator ingests the unstructured natural language intent I_NL from the operator, queries the active network graph G(V, E) via RESTConf, and loads physical parameters—fiber attenuation alpha, span lengths L, and EDFA amplifier gains G_m—along with the required transmission feasibility threshold GSNR_th.
-Second, Decide: the system determines the formal symbolic PDDL specification S_PDDL, selects the optimal physical route pi* among candidate loopless paths, resolves the pre-deployment control action a in {approve, clarify, replan}, and generates the final configuration c*.
-Third, Objective: we formulate a multi-objective cost function min J = alpha * N_hitl + beta * T_tokens. We explicitly minimize human operator interruptions N_hitl to prevent cognitive fatigue, while minimizing prompt token consumption T_tokens to bound compute costs and latency, under the hard invariant that no lightpath is deployed unless the pre-deployment risk decision equals approve.
-In the lower half, our Constraints are decoupled into two distinct categories:
-On the left, Resource Constraints bound the prompt context window T_prompt <= T_max << T_full through scoped subtopologies, enforce a strict execution latency budget t_exec <= t_max_budget, and limit the symbolic solver complexity to K-shortest paths.
-On the right, Boundary Constraints enforce zero semantic drift tolerance (U_sem <= tau_sem), deterministic optical QoT feasibility (GSNR >= GSNR_th and P_rx >= P_rx,min), and binary pre-deployment validity QoT_valid in {0, 1}.
+[Spoken Script]: Following classical telecommunications optimization methodology, we formulate our intent planning problem across four precise dimensions: Given, Decide, Objective, and Constraints. In the upper row, first, Given: the orchestrator ingests the natural language intent, queries the network graph via RESTConf, and loads physical parameters. Second, Decide: the system determines the PDDL specification, selects the optimal lightpath route pi*, resolves the risk decision action in {approve, clarify, replan}, and generates the final configuration c*. Third, Objective: we formulate a multi-objective cost function minimizing human interruptions and prompt tokens under the hard invariant that no lightpath is deployed without approval. In the lower half, Constraints decouple into Resource Constraints on the left and Boundary Constraints on the right.
 [Bridge to Next Slide]: To solve this constrained optimization problem, we introduce our neurosymbolic architectural philosophy.
 -->
 

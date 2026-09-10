@@ -124,9 +124,11 @@ OMML_MAP = {
     r"a \in \{\text{approve}, \text{clarify}, \text{replan}\}": '<m:r><m:t>a ∈ {approve, clarify, replan}</m:t></m:r>',
     r"c^*": '<m:sSup><m:e><m:r><m:t>c</m:t></m:r></m:e><m:sup><m:r><m:t>*</m:t></m:r></m:sup></m:sSup>',
     r"\min \mathcal{J} = \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}": '<m:r><m:t>min 𝒥 = α · </m:t></m:r><m:sSub><m:e><m:r><m:t>N</m:t></m:r></m:e><m:sub><m:r><m:t>hitl</m:t></m:r></m:sub></m:sSub><m:r><m:t> + β · </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>tokens</m:t></m:r></m:sub></m:sSub>',
+    r"\min \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}": '<m:r><m:t>min α · </m:t></m:r><m:sSub><m:e><m:r><m:t>N</m:t></m:r></m:e><m:sub><m:r><m:t>hitl</m:t></m:r></m:sub></m:sSub><m:r><m:t> + β · </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>tokens</m:t></m:r></m:sub></m:sSub>',
     r"\min N_{hitl}": '<m:r><m:t>min </m:t></m:r><m:sSub><m:e><m:r><m:t>N</m:t></m:r></m:e><m:sub><m:r><m:t>hitl</m:t></m:r></m:sub></m:sSub>',
     r"\min T_{tokens}": '<m:r><m:t>min </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>tokens</m:t></m:r></m:sub></m:sSub>',
     r"\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}": '<m:r><m:t>𝒟(</m:t></m:r><m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub><m:r><m:t>, </m:t></m:r><m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub><m:r><m:t>) = approve</m:t></m:r>',
+    r"T_{prompt} \le T_{max}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>prompt</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>max</m:t></m:r></m:sub></m:sSub>',
     r"T_{prompt} \le T_{max} \ll T_{full}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>prompt</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>max</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≪ </m:t></m:r><m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>full</m:t></m:r></m:sub></m:sSub>',
     r"t_{exec} \le t_{max\_budget}": '<m:sSub><m:e><m:r><m:t>t</m:t></m:r></m:e><m:sub><m:r><m:t>exec</m:t></m:r></m:sub></m:sSub><m:r><m:t> ≤ </m:t></m:r><m:sSub><m:e><m:r><m:t>t</m:t></m:r></m:e><m:sub><m:r><m:t>max_budget</m:t></m:r></m:sub></m:sSub>',
     r"K \in [3, 5]": '<m:r><m:t>K ∈ [3, 5]</m:t></m:r>',
@@ -490,7 +492,7 @@ class DeckBuilder:
         p_cand.alignment = PP_ALIGN.CENTER
 
         p_adv = tf_meta.add_paragraph()
-        p_adv.text = "Academic Advisor: Prof. Massimo Tornatore"
+        p_adv.text = "Academic Advisor: Prof. Massimo Tornatore & Prof. Qiaolun Zhang"
         p_adv.font.name = "Arial"
         p_adv.font.size = Pt(15)
         p_adv.font.bold = True
@@ -685,6 +687,170 @@ class DeckBuilder:
         self.set_speaker_notes(s, notes)
         return s
 
+    def create_evolution_sdon_ibon_slide(
+        self,
+        title: str,
+        slide_num: int,
+        notes: str,
+    ):
+        """Creates Slide 3: Evolution from Imperative SDON to Declarative IBON (Paradigm Shift)."""
+        blank_layout = self.prs.slide_layouts[6]
+        s = self.prs.slides.add_slide(blank_layout)
+        self.add_chrome(s, title, slide_num)
+
+        # === LEFT COLUMN: Imperative SDON ===
+        card_l = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.95), Inches(1.42), Inches(4.65), Inches(4.41))
+        card_l.fill.solid()
+        card_l.fill.fore_color.rgb = COLOR_CARD_BG
+        card_l.line.color.rgb = COLOR_BURGUNDY
+        card_l.line.width = Pt(1.5)
+
+        hdr_l = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.30), Inches(5.05), Inches(0.72))
+        hdr_l.fill.solid()
+        hdr_l.fill.fore_color.rgb = COLOR_BURGUNDY
+        hdr_l.line.fill.background()
+
+        tf_hl = hdr_l.text_frame
+        tf_hl.word_wrap = True
+        tf_hl.margin_top = Inches(0.08)
+        p_hl0 = tf_hl.paragraphs[0]
+        p_hl0.text = "⚠️ Current Paradigm: Imperative SDON"
+        p_hl0.font.name = FONT_TITLE
+        p_hl0.font.size = Pt(13.5)
+        p_hl0.font.bold = True
+        p_hl0.font.color.rgb = COLOR_WHITE
+        p_hl0.alignment = PP_ALIGN.CENTER
+
+        p_hl1 = tf_hl.add_paragraph()
+        p_hl1.text = 'Procedural "HOW" Execution • Open-Loop Control'
+        p_hl1.font.name = FONT_BODY
+        p_hl1.font.size = Pt(10.5)
+        p_hl1.font.color.rgb = COLOR_WHITE
+        p_hl1.alignment = PP_ALIGN.CENTER
+
+        left_pills = ["Procedural Scripts", "Static Margins", "Open-Loop Control"]
+        left_tops = [Inches(2.46), Inches(3.315), Inches(4.17)]
+        for p_text, top_pos in zip(left_pills, left_tops):
+            pill = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.17), top_pos, Inches(4.21), Inches(0.62))
+            pill.fill.solid()
+            pill.fill.fore_color.rgb = COLOR_WHITE
+            pill.line.color.rgb = COLOR_BURGUNDY
+            pill.line.width = Pt(1.2)
+            tf_p = pill.text_frame
+            tf_p.word_wrap = True
+            tf_p.margin_top = Inches(0.12)
+            p_p = tf_p.paragraphs[0]
+            p_p.text = p_text
+            p_p.font.name = FONT_TITLE
+            p_p.font.size = Pt(14)
+            p_p.font.bold = True
+            p_p.font.color.rgb = COLOR_BURGUNDY
+            p_p.alignment = PP_ALIGN.CENTER
+
+        # === CENTRAL CONNECTOR: Right Arrow + Paradigm Shift Badge ===
+        arrow = s.shapes.add_shape(MSO_SHAPE.RIGHT_ARROW, Inches(5.41), Inches(2.40), Inches(2.51), Inches(2.39))
+        arrow.fill.solid()
+        arrow.fill.fore_color.rgb = RGBColor(0xDC, 0xE6, 0xF2)
+        arrow.line.color.rgb = COLOR_NAVY
+        arrow.line.width = Pt(1.0)
+
+        badge = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(5.81), Inches(3.23), Inches(1.67), Inches(0.69))
+        badge.fill.solid()
+        badge.fill.fore_color.rgb = COLOR_WHITE
+        badge.line.color.rgb = RGBColor(0x5A, 0x6B, 0x82)
+        badge.line.width = Pt(1.0)
+
+        tf_b = badge.text_frame
+        tf_b.word_wrap = True
+        tf_b.margin_top = Inches(0.08)
+        p_b0 = tf_b.paragraphs[0]
+        p_b0.text = "PARADIGM SHIFT"
+        p_b0.font.name = FONT_TITLE
+        p_b0.font.size = Pt(9.5)
+        p_b0.font.bold = True
+        p_b0.font.color.rgb = COLOR_NAVY
+        p_b0.alignment = PP_ALIGN.CENTER
+
+        p_b1 = tf_b.add_paragraph()
+        p_b1.text = '"HOW" ➔ "WHAT"'
+        p_b1.font.name = FONT_TITLE
+        p_b1.font.size = Pt(9.5)
+        p_b1.font.bold = True
+        p_b1.font.color.rgb = COLOR_BURGUNDY
+        p_b1.alignment = PP_ALIGN.CENTER
+
+        # === RIGHT COLUMN: Declarative IBON ===
+        card_r = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.70), Inches(1.42), Inches(4.65), Inches(4.41))
+        card_r.fill.solid()
+        card_r.fill.fore_color.rgb = COLOR_CARD_BG
+        card_r.line.color.rgb = COLOR_NAVY
+        card_r.line.width = Pt(1.5)
+
+        hdr_r = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.50), Inches(1.30), Inches(5.05), Inches(0.72))
+        hdr_r.fill.solid()
+        hdr_r.fill.fore_color.rgb = COLOR_NAVY
+        hdr_r.line.fill.background()
+
+        tf_hr = hdr_r.text_frame
+        tf_hr.word_wrap = True
+        tf_hr.margin_top = Inches(0.08)
+        p_hr0 = tf_hr.paragraphs[0]
+        p_hr0.text = "⚡ Target Vision: Declarative IBON"
+        p_hr0.font.name = FONT_TITLE
+        p_hr0.font.size = Pt(13.5)
+        p_hr0.font.bold = True
+        p_hr0.font.color.rgb = COLOR_WHITE
+        p_hr0.alignment = PP_ALIGN.CENTER
+
+        p_hr1 = tf_hr.add_paragraph()
+        p_hr1.text = "Autonomous \"WHAT\" Abstraction • Closed-Loop Assurance"
+        p_hr1.font.name = FONT_BODY
+        p_hr1.font.size = Pt(10.5)
+        p_hr1.font.color.rgb = COLOR_WHITE
+        p_hr1.alignment = PP_ALIGN.CENTER
+
+        right_pills = ["✓ High-Level Intents", "✓ Dynamic Physics", "✓ Zero-Touch Assurance"]
+        right_tops = [Inches(2.46), Inches(3.315), Inches(4.17)]
+        for p_text, top_pos in zip(right_pills, right_tops):
+            pill = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.92), top_pos, Inches(4.21), Inches(0.62))
+            pill.fill.solid()
+            pill.fill.fore_color.rgb = COLOR_WHITE
+            pill.line.color.rgb = COLOR_NAVY
+            pill.line.width = Pt(1.2)
+            tf_p = pill.text_frame
+            tf_p.word_wrap = True
+            tf_p.margin_top = Inches(0.12)
+            p_p = tf_p.paragraphs[0]
+            p_p.text = p_text
+            p_p.font.name = FONT_TITLE
+            p_p.font.size = Pt(14)
+            p_p.font.bold = True
+            p_p.font.color.rgb = COLOR_NAVY
+            p_p.alignment = PP_ALIGN.CENTER
+
+        # === BOTTOM WARNING BANNER ===
+        banner_box = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.74), Inches(6.15), Inches(11.75), Inches(0.75)
+        )
+        banner_box.fill.solid()
+        banner_box.fill.fore_color.rgb = COLOR_CARD_BG
+        banner_box.line.color.rgb = COLOR_BURGUNDY
+        banner_box.line.width = Pt(1.5)
+
+        tf_bb = banner_box.text_frame
+        tf_bb.word_wrap = True
+        tf_bb.margin_top = Inches(0.18)
+        p_bb = tf_bb.paragraphs[0]
+        p_bb.text = "⚠️ BUT: Standard LLMs alone cannot simply drive an IBON controller"
+        p_bb.font.name = FONT_TITLE
+        p_bb.font.size = Pt(14.5)
+        p_bb.font.bold = True
+        p_bb.font.color.rgb = COLOR_BURGUNDY
+        p_bb.alignment = PP_ALIGN.CENTER
+
+        self.set_speaker_notes(s, notes)
+        return s
+
     def create_five_challenges_slide(
         self,
         title: str,
@@ -730,20 +896,20 @@ class DeckBuilder:
             p_b = tf_b.paragraphs[0]
             p_b.text = item["badge_text"]
             p_b.font.name = FONT_TITLE
-            p_b.font.size = Pt(11.5)
+            p_b.font.size = Pt(14)
             p_b.font.bold = True
             p_b.font.color.rgb = COLOR_WHITE
             p_b.alignment = PP_ALIGN.CENTER
 
             # Right Description Text
             desc_box = s.shapes.add_textbox(
-                Inches(4.55), cur_top, Inches(7.8), card_h
+                Inches(4.55), cur_top, Inches(7.8), Inches(0.394)
             )
             tf_d = desc_box.text_frame
             tf_d.word_wrap = True
             tf_d.margin_top = Inches(0.14)
             p_d = tf_d.paragraphs[0]
-            add_math_runs_to_paragraph(p_d, item["desc"], font_size=Pt(11.5), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
+            add_math_runs_to_paragraph(p_d, item["desc"], font_size=Pt(12), color=COLOR_DARK_SLATE, font_name=FONT_TITLE)
 
         # Bottom Empirical Risk Banner
         banner_box = s.shapes.add_shape(
@@ -755,8 +921,10 @@ class DeckBuilder:
         banner_box.line.width = Pt(1.5)
 
         tf_bb = banner_box.text_frame
+        tf_bb.word_wrap = True
+        tf_bb.margin_top = Inches(0.12)
         p_bb = tf_bb.paragraphs[0]
-        add_math_runs_to_paragraph(p_bb, bottom_banner, font_size=Pt(11.5), color=COLOR_BURGUNDY, font_name=FONT_TITLE, bold=True)
+        add_math_runs_to_paragraph(p_bb, bottom_banner, font_size=Pt(12), color=COLOR_BURGUNDY, font_name=FONT_TITLE, bold=True)
         p_bb.alignment = PP_ALIGN.CENTER
 
         self.set_speaker_notes(s, notes)
@@ -803,27 +971,48 @@ class DeckBuilder:
             icon = card_data.get("icon", "")
             p_h.text = f"{icon} {card_data['title']}".strip()
             p_h.font.name = FONT_TITLE
-            p_h.font.size = Pt(13)
+            p_h.font.size = Pt(14)
             p_h.font.bold = True
             p_h.font.color.rgb = COLOR_WHITE
             p_h.alignment = PP_ALIGN.CENTER
 
-            # Body Bullets
-            body = s.shapes.add_textbox(left_c + Inches(0.12), top_u + hdr_h + Inches(0.08), w_u - Inches(0.24), h_u - hdr_h - Inches(0.15))
-            tf_b = body.text_frame
-            tf_b.word_wrap = True
-            tf_b.margin_top = Inches(0.02)
-            tf_b.margin_left = Inches(0.05)
-            tf_b.margin_right = Inches(0.05)
+            # 4 Rounded Pills inside card
+            pill_w = Inches(3.21)
+            pill_h = Inches(0.43)
+            pill_l = left_c + Inches(0.27)
+            pill_tops = [Inches(1.992), Inches(2.580), Inches(3.167), Inches(3.742)]
 
-            for b_text in card_data.get("bullets", []):
-                add_bullet_with_math(tf_b, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(3))
+            bullets = card_data.get("bullets", [])
+            for b_idx, b_text in enumerate(bullets[:4]):
+                top_p = pill_tops[b_idx]
+                pill = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, pill_l, top_p, pill_w, pill_h)
+                pill.fill.solid()
+                pill.fill.fore_color.rgb = COLOR_WHITE
+                pill.line.color.rgb = COLOR_CARD_BORDER
+                pill.line.width = Pt(1.0)
+
+                tf_p = pill.text_frame
+                tf_p.word_wrap = True
+                tf_p.margin_top = Inches(0.04)
+                tf_p.margin_bottom = Inches(0.04)
+                tf_p.margin_left = Inches(0.06)
+                tf_p.margin_right = Inches(0.06)
+
+                lines = b_text.split("\n")
+                p0 = tf_p.paragraphs[0]
+                add_math_runs_to_paragraph(p0, lines[0], font_size=Pt(10), color=COLOR_DARK_SLATE, font_name=FONT_TITLE, bold=True)
+                p0.alignment = PP_ALIGN.CENTER
+
+                if len(lines) > 1:
+                    p1 = tf_p.add_paragraph()
+                    add_math_runs_to_paragraph(p1, lines[1], font_size=Pt(9.5), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
+                    p1.alignment = PP_ALIGN.CENTER
 
         # === LOWER TIER: Full-Width Constraints Container with 2 Columns ===
-        top_l = Inches(4.10)
-        h_l = Inches(2.75)
-        w_l = Inches(11.75)
-        left_l = Inches(0.75)
+        top_l = Inches(4.734)
+        h_l = Inches(2.128)
+        w_l = Inches(10.308)
+        left_l = Inches(1.471)
 
         card_lower = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left_l, top_l, w_l, h_l)
         card_lower.fill.solid()
@@ -833,7 +1022,7 @@ class DeckBuilder:
 
         # Header
         hdr_lh = Inches(0.48)
-        hdr_l = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left_l, top_l, w_l, hdr_lh)
+        hdr_l = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left_l, Inches(4.652), w_l, hdr_lh)
         hdr_l.fill.solid()
         hdr_l.fill.fore_color.rgb = COLOR_BURGUNDY
         hdr_l.line.fill.background()
@@ -847,38 +1036,41 @@ class DeckBuilder:
         p_hl.alignment = PP_ALIGN.CENTER
 
         # Left Sub-Panel: Resource Constraints
-        sub_w = Inches(5.6)
-        sub_h = h_l - hdr_lh - Inches(0.20)
-        sub_y = top_l + hdr_lh + Inches(0.10)
+        sub_w = Inches(4.806)
+        sub_h = Inches(1.134)
+        sub_y = Inches(5.232)
 
-        box_rc = s.shapes.add_textbox(left_l + Inches(0.2), sub_y, sub_w, sub_h)
+        box_rc = s.shapes.add_textbox(Inches(1.577), sub_y, sub_w, sub_h)
         tf_rc = box_rc.text_frame
         tf_rc.word_wrap = True
+        tf_rc.margin_top = Inches(0.02)
         p_rc_title = tf_rc.paragraphs[0]
         p_rc_title.text = lower_constraints.get("left_title", "Resource Constraints (System & Solver Limits):")
         p_rc_title.font.name = FONT_TITLE
         p_rc_title.font.size = Pt(11)
         p_rc_title.font.bold = True
         p_rc_title.font.color.rgb = COLOR_NAVY
-        p_rc_title.space_after = Pt(3)
+        p_rc_title.space_after = Pt(2)
 
         for b_text in lower_constraints.get("left_bullets", []):
-            add_bullet_with_math(tf_rc, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(3))
+            add_bullet_with_math(tf_rc, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(2))
 
         # Right Sub-Panel: Boundary Constraints
-        box_bc = s.shapes.add_textbox(left_l + Inches(5.95), sub_y, sub_w, sub_h)
+        sub_hr = Inches(1.372)
+        box_bc = s.shapes.add_textbox(Inches(6.867), sub_y, sub_w, sub_hr)
         tf_bc = box_bc.text_frame
         tf_bc.word_wrap = True
+        tf_bc.margin_top = Inches(0.02)
         p_bc_title = tf_bc.paragraphs[0]
         p_bc_title.text = lower_constraints.get("right_title", "Boundary Constraints (Physical & Semantic Feasibility):")
         p_bc_title.font.name = FONT_TITLE
         p_bc_title.font.size = Pt(11)
         p_bc_title.font.bold = True
         p_bc_title.font.color.rgb = COLOR_BURGUNDY
-        p_bc_title.space_after = Pt(3)
+        p_bc_title.space_after = Pt(2)
 
         for b_text in lower_constraints.get("right_bullets", []):
-            add_bullet_with_math(tf_bc, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(3))
+            add_bullet_with_math(tf_bc, f"•  {b_text}", font_size=Pt(10), color=COLOR_DARK_SLATE, space_after=Pt(2))
 
         self.set_speaker_notes(s, notes)
         return s
@@ -1703,46 +1895,15 @@ def build_thesis_defense_deck():
 [Bridge to Next Slide]: Let us examine the motivation behind Intent-Based Networking in optical infrastructures.""",
     )
 
-    # 3. Slide 3: Motivation (with Highlight Callouts)
+    # 3. Slide 3: Motivation (Evolution from Imperative SDON to Declarative IBON)
     print("Building Slide 03: Motivation...")
-    builder.create_two_column_slide(
-        title="Motivation: The Vision of Intent-Based Optical Networks",
+    builder.create_evolution_sdon_ibon_slide(
+        title="Motivation: The Evolution from Imperative SDON to Declarative IBON",
         slide_num=3,
-        left_data={
-            "icon": "⚠️",
-            "title": "Operational Shift: Manual Bottleneck",
-            "title_color": COLOR_BURGUNDY,
-            "border_color": COLOR_BURGUNDY,
-            "bullets": [
-                "Optical backbones carry terabits of core traffic across ROADM networks",
-                "Traditional workflow: manual CLI scripts and complex RESTConf payloads",
-                "Human configuration delays lightpath provisioning by hours or days",
-                "High cognitive load and misconfiguration risk across multi-vendor links",
-            ],
-            "callout": {
-                "text": "🎯 Goal: Transition to autonomous Intent-Based Networking (IBN)",
-            },
-        },
-        right_data={
-            "icon": "⚡",
-            "title": "Operational Promise: Autonomous Vision",
-            "title_color": COLOR_NAVY,
-            "border_color": COLOR_NAVY,
-            "bullets": [
-                "High-level abstraction: specify what is needed, not how to configure it",
-                "Realistic carrier intent: 'Establish a 400G lightpath between Milan and Rome avoiding link L2'",
-                "Autonomous translation into verified, collision-free physical lightpaths",
-                "Rapid sub-second provisioning reducing operational delays by orders of magnitude",
-            ],
-            "callout": {
-                "text": "⚠️ Critical Challenge: Optical networks do not tolerate probabilistic errors",
-            },
-        },
-        bottom_banner="Operational Flow:  [Operator NL Intent]  ➔  [AI Intent Orchestrator]  ➔  [Zero-Error Physical Lightpath]",
         notes="""[Estimated Time]: 55s
-[Key Message]: Autonomous IBN promises agile multi-terabit provisioning, but the physical optical layer strictly demands deterministic zero-error execution.
-[Spoken Script]: Optical transport networks form the fundamental backbone of modern telecommunications, carrying tens of terabits per second across meshed ROADM topologies. In traditional carrier operations, establishing a single lightpath is a heavily bottlenecked manual process: engineers must spend hours or days drafting vendor-specific CLI scripts and intricate RESTConf payloads, incurring severe human error risks. Intent-Based Networking promises to revolutionize this paradigm by allowing operators to express declarative high-level intents in natural language—for example, asking to provision a 400G lightpath between Milan and Rome avoiding a specific maintenance link. However, while generative AI can interpret human language, optical transport networks operate under rigid physical constraints where even minor probabilistic errors lead to catastrophic link failures.
-[Bridge to Next Slide]: To see why general-purpose AI cannot simply be connected to an optical control plane, let us examine the five architectural failure modes that occur.""",
+[Key Message]: Moving from Imperative SDON to Declarative IBON is essential to eliminate the human configuration bottleneck, but connecting naive LLMs directly to optical control planes introduces catastrophic physical risks.
+[Spoken Script]: Optical transport networks form the multi-terabit backbone of modern telecommunications. Over the past decade, Software-Defined Optical Networking (SDON) successfully centralized the control plane through standardized Southbound interfaces like NETCONF and RESTConf. However, SDON remains fundamentally imperative: human operators must still manually compute explicit lightpaths, calculate wavelength grids, and configure ROADM cross-connects, relying on slow offline tools with conservative 3 to 5 dB margins. Intent-Based Optical Networking (IBON), formalized in IETF RFC 9315, represents a crucial paradigm shift from 'how' to 'what': operators express declarative service intents in natural language, and the system autonomously derives the physical optical configuration under continuous closed-loop assurance. However, connecting generative AI directly to optical backbones creates severe risks, as optical networks do not tolerate probabilistic hallucination.
+[Bridge to Next Slide]: To understand why standard LLMs cannot simply drive an IBON controller, let us examine the five architectural failure modes that occur.""",
     )
 
     # 4. Slide 4: Illustrative Failure Modes (5 Horizontal Failure Cards)
@@ -1759,7 +1920,7 @@ def build_thesis_defense_deck():
             {
                 "badge_text": "🚫 2. Hallucinated Physics",
                 "badge_color": COLOR_BURGUNDY,
-                "desc": "Probabilistic predictors lack wave propagation engines, violating non-linear $\\text{GSNR}$ margins",
+                "desc": "Probabilistic predictors lack wave propagation engines, violating non-linear GSNR margins",
             },
             {
                 "badge_text": "🔄 3. Semantic Drift",
@@ -1777,7 +1938,7 @@ def build_thesis_defense_deck():
                 "desc": "Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early",
             },
         ],
-        bottom_banner="Empirical Risk: Unconstrained LLMs allow up to 34% unfeasible deployments, semantic drift loops, and critical control-plane latency",
+        bottom_banner="Empirical Risk: Unconstrained LLMs might allow unfeasible deployments, semantic drift loops, and critical control-plane latency",
         notes="""[Estimated Time]: 65s
 [Key Message]: Connecting standard generative LLMs directly to optical control planes exposes five fundamental architectural failure modes.
 [Spoken Script]: When we evaluate standard generative LLMs for optical network control, we observe five interconnected failure modes that compromise operational integrity: First, Token Budget Saturation: injecting complete network states exhausts token budgets and triggers attention degradation, causing link exclusions to be dropped. Second, Hallucinated Physical Feasibility: autoregressive token predictors cannot solve wave propagation equations, computing invalid lightpaths that cause transponder loss of lock. Third, Semantic Drift: multi-turn chat loops mutate initial constraints without convergence guarantees. Fourth, Reactive Failure Latency: detecting faults after hardware rejection risks live link disruptions. Fifth, Suboptimal HITL: binary all-or-nothing review causes operator fatigue.
@@ -1796,10 +1957,10 @@ def build_thesis_defense_deck():
                 "title_color": COLOR_NAVY,
                 "border_color": COLOR_NAVY,
                 "bullets": [
-                    r"Unstructured operator intent: $\mathcal{I}_{NL}$",
-                    r"Active optical topology graph: $G(V, E)$ via RESTConf",
-                    r"Physical parameters: span length $L$, attenuation $\alpha$, gain $G_m$",
-                    r"Feasibility threshold: $\text{GSNR}_{th} = \text{SNR}_{min} + \text{Margin}$",
+                    r"Unstructured operator intent ($\mathcal{I}_{NL}$)",
+                    r"Active optical topology graph $G(V, E)$",
+                    r"Physical parameters (e.g. span length $L$)",
+                    r"Feasibility threshold (e.g. $\text{GSNR}$)",
                 ],
             },
             {
@@ -1808,10 +1969,10 @@ def build_thesis_defense_deck():
                 "title_color": COLOR_NAVY,
                 "border_color": COLOR_NAVY,
                 "bullets": [
-                    r"Formal symbolic specification: $\mathcal{S}_{PDDL}$ compiled from intent",
-                    r"Optimal physical lightpath route: $\pi^* \in \mathcal{K}_{path}$ from candidate paths",
-                    r"Pre-deployment control action: $a \in \{\text{approve}, \text{clarify}, \text{replan}\}$",
-                    r"Provisioning routing configuration: $c^*$ dispatched to controller",
+                    r"Formal symbolic specification" + "\n" + r"($\mathcal{S}_{PDDL}$ compiled from intent)",
+                    r"Optimal physical lightpath route" + "\n" + r"($\pi^* \in \mathcal{K}_{path}$ from candidate paths)",
+                    r"Pre-deployment control action" + "\n" + r"($a \in \{\text{approve}, \text{clarify}, \text{replan}\}$)",
+                    r"Provisioning routing configuration" + "\n" + r"($c^*$ dispatched to controller)",
                 ],
             },
             {
@@ -1820,10 +1981,10 @@ def build_thesis_defense_deck():
                 "title_color": COLOR_GREEN,
                 "border_color": COLOR_GREEN,
                 "bullets": [
-                    r"Minimize operational friction: $\min \mathcal{J} = \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}$",
-                    r"Cut operator cognitive fatigue: $\min N_{hitl}$ (minimize human interruptions)",
-                    r"Bound compute cost and latency: $\min T_{tokens}$ (minimize prompt tokens)",
-                    r"Hard pre-deployment safety guarantee: $\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}$",
+                    r"Minimize human interruptions ($\min N_{hitl}$)",
+                    r"Minimize prompt tokens ($\min T_{tokens}$)",
+                    r"Minimize operational friction" + "\n" + r"($\min \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}$)",
+                    r"Guarantee pre-deployment safety" + "\n" + r"($\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}$)",
                 ],
             },
         ],
@@ -1831,15 +1992,15 @@ def build_thesis_defense_deck():
             "title": "🔒 [4] Constraints: Resource Limits vs. Physical & Semantic Boundaries",
             "left_title": "Resource Constraints (System & Solver Limits):",
             "left_bullets": [
-                r"Localized prompt context window bound: $T_{prompt} \le T_{max} \ll T_{full}$ (via $G_{sub}$)",
-                r"Strict end-to-end execution latency budget: $t_{exec} \le t_{max\_budget}$",
-                r"Bounded path search complexity: $K\text{-SP}$ with $K \in [3, 5]$",
+                r"Token context limits ($T_{prompt} \le T_{max}$)",
+                r"Computational inference latency ($t_{exec} \le t_{max\_budget}$)",
+                r"Symbolic solver complexity $K \in [3, 5]$",
             ],
             "right_title": "Boundary Constraints (Physical & Semantic Feasibility):",
             "right_bullets": [
-                r"Zero semantic drift tolerance bound: $U_{sem} \le \tau_{sem}$",
-                r"Deterministic optical QoT feasibility: $\text{GSNR}(\pi^*) \ge \text{GSNR}_{th} \land P_{rx}(\pi^*) \ge P_{rx,min}$",
-                r"Pre-deployment physical validity state: $\text{QoT}_{valid} \in \{0, 1\}$",
+                "Zero semantic drift tolerance bound",
+                "Deterministic optical QoT feasibility",
+                r"Pre-deployment physical validity state ($\text{QoT}_{valid} \in \{0, 1\}$)",
             ],
         },
         notes="""[Estimated Time]: 60s

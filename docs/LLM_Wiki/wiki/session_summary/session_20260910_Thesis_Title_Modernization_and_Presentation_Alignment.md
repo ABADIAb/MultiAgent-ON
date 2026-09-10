@@ -61,18 +61,35 @@ Codified the explicit answer regarding manual `.pptx` edits:
 - The AI can inspect manual edits using `inspect_deck.py` and visual PNG previews.
 - Since `python-pptx` does not support automatic bidirectional decompilation, the protocol requires the AI to migrate verified manual adjustments back into `build_defense_deck.py` and `deck_spec.md`, preserving the code as the authoritative source of truth.
 
+### 2.4 Manual PowerPoint Visual Enhancement & Two-Way Code Synchronization
+Following the user's manual design refinements in PowerPoint to reduce text density and elevate visual hierarchy:
+1. **Low-Level XML Reverse-Engineering:**
+   - Identified that PowerPoint on Windows encapsulates native DrawingML math equations inside `<mc:AlternateContent><mc:Choice>`, causing high-level `slide.shapes` iterators to overlook them.
+   - Built low-level `lxml.etree` extraction scripts querying `.//p:sp` across all DrawingML namespaces, extracting exact coordinates, colors, font sizes, margins, and equation payloads.
+2. **Programmatic Generator Updates ([`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py)):**
+   - **Slide 1:** Updated advisor metadata to include co-advisor Prof. Qiaolun Zhang (`"Academic Advisor: Prof. Massimo Tornatore & Prof. Qiaolun Zhang"`).
+   - **Slide 3:** Added `create_evolution_sdon_ibon_slide()` implementing the paradigm-shift comparison (Burgundy Imperative SDON card vs. Navy Declarative IBON card, central right-arrow connector with `"PARADIGM SHIFT: HOW ➔ WHAT"` badge, 6 modular white rounded pills, and bottom warning banner).
+   - **Slide 4:** Standardized challenge badge typography to 14 pt, descriptions to 12 pt, and tuned the empirical risk banner text.
+   - **Slide 5:** Refactored the upper tier into 4 modular white rounded pills ($3.21'' \times 0.43''$) per card, resized the lower constraints container to $10.31'' \times 2.13''$, and added native OMML equation mappings for $T_{prompt} \le T_{max}$ and $\min \alpha N_{hitl} + \beta T_{tokens}$.
+3. **Specification Alignment ([`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md)):**
+   - Updated layout definitions, visual element inventories, bullet texts, and timed speaker notes for Slides 1, 3, 4, and 5.
+4. **Full Recompilation & Vector Export:**
+   - Compiled `thesis_defense.pptx` (16 slides) and exported vector `thesis_defense.pdf` and 1080p `slides_png/` previews via COM automation in under 6s.
+   - Visually confirmed 100% 1:1 match against the user's manual layout.
+
 ---
 
 ## 3. Verification & Test Outcomes
 
-- **Unit Test Suite:** Ran `uv run pytest`. All **278 unit tests passed cleanly** (100% success, 0 regressions, 5.32s runtime).
-- **Presentation Compilation:** Both `build_defense_deck.py` and `export_presentation.py` completed with exit code 0.
+- **Unit Test Suite:** Ran `uv run pytest`. All **278 unit tests passed cleanly** (100% success, 0 regressions, 4.42s runtime).
+- **Presentation Compilation & Export:** `build_defense_deck.py` and `export_presentation.py` completed with exit code 0.
+- **Visual Inspection:** Inspected all generated slide PNGs (`slide_01.png`, `slide_03.png`, `slide_04.png`, `slide_05.png`), verifying sharp layout, native math typography, and zero text overflow.
 - **Git Audit:** Confirmed clean git status touching only relevant active documents and preserving historical weekly reports.
 
 ---
 
 ## 4. Handover & Next Steps
 
-1. **Commit and Push:** Commit all modernized artifacts using conventional commit `docs(thesis): update thesis title across ecosystem` and push to open PR #65 (`feat/presentation-coauthor-and-defense-deck`).
-2. **Advisor Checkpoint:** Present the updated defense deck and narrative structure to Prof. Massimo Tornatore.
+1. **Commit and Push:** Commit all modernized artifacts and synchronized presentation files using conventional commits and push to open PR #65 (`feat/presentation-coauthor-and-defense-deck`).
+2. **Advisor Checkpoint:** Present the updated defense deck and narrative structure to Prof. Massimo Tornatore and Prof. Qiaolun Zhang.
 3. **Sprint 4 Benchmarking:** Proceed with the 100-demand evaluation on the 17-node German backbone network.

@@ -113,6 +113,20 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ---
 
+#### Solved Issue 7: Reverse-Engineering & Programmatic Synchronization of Manual PowerPoint Visual Refinements
+
+- **Issue:** Manual visual modifications made in Microsoft PowerPoint to reduce text density, improve slide aesthetics, and add co-advisor metadata (Slides 1, 3, 4, and 5) risk being overwritten on subsequent programmatic executions of `build_defense_deck.py`. Furthermore, PowerPoint on Windows encapsulates native DrawingML math shapes inside `<mc:AlternateContent><mc:Choice>`, causing standard `python-pptx` shape iterators (`slide.shapes`) to silently ignore them.
+- **What has already been tried:** Executed standard `python-pptx` inspection scripts to extract modified shapes and text. The scripts reported 0 shapes or missing pills on Slide 5 because the `<mc:AlternateContent>` wrapper was ignored by `python-pptx`.
+- **Result:** Naive script inspection gave false negative results indicating shapes were deleted, risking divergence between the manual presentation and the authoritative code.
+- **Estimated possible solution / Resolution:**
+  1. Developed low-level OpenXML inspection scripts using `lxml.etree` with XPath queries targeting `.//p:sp` across all markup compatibility namespaces, successfully extracting exact coordinates, colors, fonts, margins, and equation payloads.
+  2. Implemented `create_evolution_sdon_ibon_slide()` in [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py) for Slide 3 (Burgundy/Navy comparative containers, 6 white rounded pills, right-arrow connector with `"PARADIGM SHIFT: HOW ➔ WHAT"` badge, and bottom warning banner).
+  3. Standardized Slide 4 challenge badge typography to 14 pt, descriptions to 12 pt, and tuned the empirical risk banner.
+  4. Refactored Slide 5 into 4 modular white rounded pills ($3.21'' \times 0.43''$) per upper card, resized the lower constraints container to $10.31'' \times 2.13''$, and added native OMML mappings for $T_{prompt} \le T_{max}$ and $\min \alpha N_{hitl} + \beta T_{tokens}$.
+  5. Updated [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md) and recompiled `thesis_defense.pptx`, vector `thesis_defense.pdf`, and 1080p `slides_png/` previews, verifying 1:1 visual match with 278 passing tests.
+
+---
+
 ### Pending Issues
 
 > None. The presentation authoring pipeline, automated headless export, visual inspection tooling, and refined 16-slide thesis defense deck are complete, verified, and passing all unit tests.
