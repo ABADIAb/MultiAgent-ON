@@ -1,4 +1,4 @@
-"""LangGraph StateGraph definition for the V5 Risk-Adaptive Neurosymbolic Pipeline.
+"""LangGraph StateGraph definition for the V5 LLM-Assisted Risk-Adaptive Neurosymbolic Pipeline.
 
 Exp 3.0 / 3.2: Wires the complete V5 fail-fast conditional pipeline:
 
@@ -33,7 +33,7 @@ from src.nodes.semantic_gate_node import semantic_gate_node, semantic_gate_route
 
 
 def build_graph() -> StateGraph:
-    """Construct the V5 Risk-Adaptive Neurosymbolic Intent Pipeline.
+    """Construct the V5 LLM-Assisted Risk-Adaptive Neurosymbolic Intent Pipeline.
 
     Returns:
         A StateGraph builder (not yet compiled).

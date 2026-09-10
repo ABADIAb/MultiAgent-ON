@@ -1,6 +1,6 @@
 # Master's Thesis Defense: Slide Deck Specification
 
-- **Thesis Title:** Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
+- **Thesis Title:** LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
 - **Subtitle:** A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
 - **Candidate:** Felipe Abadía
 - **Academic Advisor:** Prof. Massimo Tornatore
@@ -20,7 +20,7 @@
 > - Title accent bar in Burgundy (`#85200C`)
 > - Candidate & Advisor metadata block in Slate (`#222222`) and Navy (`#0F2C53`)
 
-- **Title:** Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
+- **Title:** LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
 - **Subtitle:** A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
 - **Candidate:** Felipe Abadía
 - **Advisor:** Prof. Massimo Tornatore
@@ -30,7 +30,7 @@
 <!-- Speaker Notes:
 [Estimated Time]: 30s
 [Key Message]: Welcome the committee and introduce the thesis title and research focus.
-[Spoken Script]: Good morning members of the committee and Professor Tornatore. Today I present my Master's thesis entitled "Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment". In this work, we address the challenge of bridging high-level operator intent with physical optical layer realities using a robust, fail-fast neurosymbolic architecture.
+[Spoken Script]: Good morning members of the committee and Professor Tornatore. Today I present my Master's thesis entitled "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment". In this work, we address the challenge of bridging high-level operator intent with physical optical layer realities using a robust, fail-fast neurosymbolic architecture.
 [Bridge to Next Slide]: Let us begin with the specific roadmap of problems and solutions covered in this presentation.
 -->
 

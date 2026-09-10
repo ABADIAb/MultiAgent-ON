@@ -462,9 +462,9 @@ class DeckBuilder:
         tf = title_box.text_frame
         tf.word_wrap = True
         p1 = tf.paragraphs[0]
-        p1.text = "Risk-Adaptive Neurosymbolic Intent Planning\nfor Optical Networks"
+        p1.text = "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning\nfor Optical Networks"
         p1.font.name = FONT_TITLE
-        p1.font.size = Pt(36)
+        p1.font.size = Pt(32)
         p1.font.bold = True
         p1.font.color.rgb = COLOR_BURGUNDY
         p1.alignment = PP_ALIGN.CENTER
@@ -508,7 +508,7 @@ class DeckBuilder:
             s,
             """[Estimated Time]: 30s
 [Key Message]: Welcome the committee and introduce the thesis title and research focus.
-[Spoken Script]: Good morning members of the committee and Professor Tornatore. Today I present my Master's thesis entitled "Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment". In this work, we address the challenge of bridging high-level operator intent with physical optical layer realities using a robust, fail-fast neurosymbolic architecture.
+[Spoken Script]: Good morning members of the committee and Professor Tornatore. Today I present my Master's thesis entitled "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment". In this work, we address the challenge of bridging high-level operator intent with physical optical layer realities using a robust, fail-fast neurosymbolic architecture.
 [Bridge to Next Slide]: Let us begin with the specific roadmap of problems and solutions covered in this presentation.""",
         )
 

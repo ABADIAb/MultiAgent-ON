@@ -45,7 +45,7 @@ This document provides the fourth iteration of the thesis outline, incorporating
   - **Constrained by:** Deterministic physical QoT requirements ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$, receiver power thresholds) and strict semantic ambiguity thresholds ($U_{sem}$).
   - **Objective:** Minimize operational friction ($N_{hitl}$) and computational cost ($T_{tokens}$) subject to strict physical and semantic safety constraints. Physical safety is treated as a hard constraint (UAR = $0$) rather than a maximizable variable.
   - *Citations:* `[[ProblemStatement_v5]]`.
-- **3.2 Conceptual Framework:** High-level introduction of the Risk-Adaptive Neurosymbolic Intent Planning system.
+- **3.2 Conceptual Framework:** High-level introduction of the LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning system.
   - *Citations:* `[[Architecture_v5]]`.
 - **3.3 Strict Neurosymbolic Separation:** Constraining the LLM to linguistic parsing (Intent $\to$ PDDL) and isolating the physics computations to deterministic symbolic solvers.
   - *Citations:* `[[Scope_Pivot_20260706]]`.

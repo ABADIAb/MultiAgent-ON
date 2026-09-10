@@ -1,4 +1,4 @@
-"""CLI entrypoint for the Risk-Adaptive Neurosymbolic Intent Orchestrator (V5).
+"""CLI entrypoint for the LLM-Assisted Risk-Adaptive Neurosymbolic Intent Orchestrator (V5).
 
 Usage:
     uv run python src/main.py  # Interactive mode with rich UI and arrow-key selection
@@ -73,7 +73,7 @@ def print_banner() -> None:
     """Render a modern visual banner for the application."""
     banner = Text()
     banner.append("⚡ MULTIAGENT-ON ", style="bold cyan")
-    banner.append("│ Risk-Adaptive Neurosymbolic Intent Orchestrator (V5)\n", style="bold white")
+    banner.append("│ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Orchestrator (V5)\n", style="bold white")
     banner.append("Optical Backbone: ", style="dim")
     banner.append("Nobel-Germany 17-Node Network ", style="bold green")
     banner.append("│ Physical Model: ", style="dim")
@@ -372,7 +372,7 @@ def display_results(result: dict[str, Any]) -> None:
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Risk-Adaptive Neurosymbolic Intent Orchestrator for Optical Networks (V5)"
+        description="LLM-Assisted Risk-Adaptive Neurosymbolic Intent Orchestrator for Optical Networks (V5)"
     )
     parser.add_argument(
         "query",

@@ -11,8 +11,8 @@ Content-oriented catalog of everything in the wiki.
 
 
 ## Architecture
-- [[Architecture_v5]]: **Active V5 design** — Risk-Adaptive Neurosymbolic Intent Planning, RADG (joint semantic + QoT risk gate), conditional HITL, 4-outcome decision function.
-- [[ProblemStatement_v5]]: **Active** — Risk-Adaptive Neurosymbolic problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
+- [[Architecture_v5]]: **Active V5 design** — LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning, RADG (joint semantic + QoT risk gate), conditional HITL, 4-outcome decision function.
+- [[ProblemStatement_v5]]: **Active** — LLM-Assisted Risk-Adaptive Neurosymbolic problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
 - [[Scope_Pivot_20260706]]: Formal scope pivot document — complete evolution from V2 through V5, including PoliMi/CNSM 2025 positioning.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
@@ -143,6 +143,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260910_Thesis_Title_Modernization_and_Presentation_Alignment]]: Formal update of the thesis title to "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks", cross-ecosystem synchronization (architecture, drafts, rules, config, code docstrings), PowerPoint deck re-compilation, vector PDF/PNG export, and two-way sync workflow clarification.
 - [[session_summary/session_20260909_Presentation_CoAuthor_Skill_and_Thesis_Defense_Deck]]: Creation of presentation-coauthor skill, headless Windows PowerPoint COM export automation (vector PDF and 1080p PNG previews), and complete 16-slide Master's thesis defense deck adhering strictly to Prof. Tornatore's 15 Golden Rules.
 - [[session_summary/session_20260908_BUG009_Semantic_Gate_Refinement_Drift_and_Thesis_Alignment]]: Diagnosis and resolution of BUG-009 (monotonic refinement semantic drift) and BUG-010 (stale intent in planning report with horizontal lightpath graph redesign), Thesis Chapter 3 drafts / Overleaf LaTeX synchronization, and presentation rehearsal scheduling.
 - [[session_summary/session_20260907_CLI_Modernization_HITL_Bypass_and_Serialization]]: Interactive CLI modernization (Rich/Questionary), ghost placeholder styling, Phase 3b fast-track approval routing to symbolic solver, LangGraph MsgPack deserialization whitelist, Thesis Chapter 3 synchronization, Draw.io diagram updates, and automated export tooling.

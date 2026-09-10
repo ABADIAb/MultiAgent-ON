@@ -1,5 +1,5 @@
 ---
-title: "Architecture V5: Risk-Adaptive Neurosymbolic Intent Planning"
+title: "Architecture V5: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning"
 date: 2026-07-17
 tags: [architecture, langgraph, neurosymbolic, pddl, reverse-prompting, qot, risk-adaptive, radg]
 status: active
@@ -7,11 +7,11 @@ supersedes:
   - "[[architecture/archive/Architecture_v4]]"
 ---
 
-# Architecture V5: Risk-Adaptive Neurosymbolic Intent Planning
+# Architecture V5: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning
 
 ## 1. Executive Summary
 
-This document defines the V5 system architecture for the **Risk-Adaptive Neurosymbolic Intent Planning** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces a **Risk-Adaptive Decision Pipeline** — a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent.
+This document defines the V5 system architecture for the **LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces a **Risk-Adaptive Decision Pipeline** — a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent.
 
 The system translates natural language intent into PDDL. Before executing expensive symbolic solvers and physical simulations, a **Semantic Uncertainty Gate** evaluates if the intent is clear, triggering a targeted HITL request for missing data if it is not. Once semantically clear, the system filters valid topologies, validates physical feasibility, and applies a **Physical Risk Gate** to decide whether the plan should be **auto-approved**, **suggest replanning** with alternative paths, or **rejected** to prevent unfeasible deployments.
 

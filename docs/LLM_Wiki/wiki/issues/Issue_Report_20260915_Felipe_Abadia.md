@@ -13,7 +13,7 @@ status: active
 Felipe Abadia
 
 ## Project Title:
-Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
+LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
 
 ## Current Stage:
 > Thesis Defense Preparation & Presentation Tooling Infrastructure

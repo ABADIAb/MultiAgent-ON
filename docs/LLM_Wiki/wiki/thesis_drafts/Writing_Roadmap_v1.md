@@ -5,10 +5,10 @@ tags: [thesis, writing, roadmap, draft, system-model, implementation, evaluation
 status: active
 ---
 
-# Master Thesis Writing Roadmap: Risk-Adaptive Neurosymbolic Intent Planning
+# Master Thesis Writing Roadmap: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning
 
 Este documento establece la estrategia maestra y el orden de redacción para la tesis de maestría:
-**"Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment"**.
+**"LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment"**.
 
 Escribir una tesis de ingeniería de posgrado sigue una **estrategia concéntrica (de adentro hacia afuera)**: se redacta primero el núcleo teórico y matemático (Capítulo 3) y la ingeniería del pipeline (Capítulo 4), se continúa con la validación experimental y métricas (Capítulo 5), se fundamenta con el Estado del Arte (Capítulo 2) y se concluye con el marco narrativo exterior (Capítulos 1 y 6, y finalmente el Abstract).
 

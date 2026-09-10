@@ -1,16 +1,16 @@
 ---
-title: "Problem Statement V5: Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks"
+title: "Problem Statement V5: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks"
 date: 2026-07-17
 tags: [thesis, definition, objective, planning-loop, hitl, neurosymbolic, pddl, risk-adaptive, qot, evaluation]
 status: active
 supersedes: "[[architecture/archive/ProblemStatement_v4]]"
 ---
 
-# Problem Statement V5: Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
+# Problem Statement V5: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks
 
 ## 1. Context
 
-- **Thesis Title:** Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment.
+- **Thesis Title:** LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment.
 - **Keywords:** Generative AI, Intent-Based Networking, Quality of Transmission (QoT), Human-in-the-Loop (HITL), Neurosymbolic AI, PDDL, Risk-Adaptive Decision, Semantic Uncertainty, Pre-Deployment Validation.
 - **Academic Setting:** Master's thesis in Telecommunications Engineering, conducted in collaboration with the Software-Defined Optical Networking (SDON) research laboratory.
 
@@ -100,7 +100,7 @@ The output of the pipeline is a validated **Planning Report** containing:
 
 ## 7. The Optimization Objective
 
-The objective of the Risk-Adaptive Neurosymbolic Intent Planning system is **not** to "maximize safety" (as physical safety is non-negotiable in optical networks), but rather to **minimize operational and computational friction** subject to strict safety constraints.
+The objective of the LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning system is **not** to "maximize safety" (as physical safety is non-negotiable in optical networks), but rather to **minimize operational and computational friction** subject to strict safety constraints.
 
 $$\min_{\text{plan}} \Big( \alpha \cdot N_{hitl}(\text{plan}) + \beta \cdot T_{tokens}(\text{plan}) \Big)$$
 
