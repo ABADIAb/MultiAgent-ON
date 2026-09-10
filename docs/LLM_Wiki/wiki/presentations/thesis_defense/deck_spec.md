@@ -196,43 +196,49 @@
 
 ---
 
-## Slide 6: Proposed Solution: Neurosymbolic Decoupling
+## Slide 6: Proposed Solution: RADG with Neurosymbolic Planning
 
 > [!LAYOUT]
-> 2-column comparative architecture slide: Left column features two vertically stacked subsystem cards (Neural Subsystem: Semantic Domain on top, and Symbolic Subsystem: Optical Domain on bottom); Right column features a prominent "Core Thesis Contributions (Architectural Novelties)" container with 3 vertically stacked highlight blocks one below the other.
+> 2-column comparative architecture slide: Left column features two vertically stacked subsystem cards containing 3 modular white rounded pills each (Neural Subsystem: Semantic Domain on top, and Symbolic Subsystem: Optical Domain on bottom); Right column features a prominent "Core Thesis Contributions (Architectural Novelties)" container with 3 vertically stacked highlight blocks one below the other.
 
 > [!VISUAL]
 > - Left Column (Vertically Stacked Subsystems - $w=5.7''$, $x=0.75''$):
 >   - Top Card: `🧠 Neural Subsystem (Semantic Domain)` (Navy header `#0F2C53`, linguistic compiler, early fail-fast gate)
+>     - 3 White Rounded Pills:
+>       - `Translation of the intent`
+>       - `Validation of the semantic similarity`
+>       - `Orchestration`
 >   - Bottom Card: `📐 Symbolic Subsystem (Optical Domain)` (Green header `#1A7F37`, deterministic solvers, late physical risk gate)
+>     - 3 White Rounded Pills:
+>       - `Topology extraction`
+>       - `Deterministic tools usage`
+>       - `Physical feasibility validation`
 > - Right Column (Core Thesis Contributions - $w=5.75''$, $x=6.8''$):
 >   - Container Header Bar: `🎯 Core Thesis Contributions (Architectural Novelties)` (Navy bar `#0F2C53`)
 >   - 3 Vertically Stacked Highlight Blocks (Cards with colored borders):
->     - Block 1: `1. Neurosymbolic Decoupling & Scoped GraphRAG` (Navy border `#0F2C53`)
->     - Block 2: `2. Dual-Layer Semantic Uncertainty Gate ($U_{sem}$)` (Amber border `#B07D00`)
->     - Block 3: `3. Risk-Adaptive Decision Gate (RADG) & QoT` (Green border `#1A7F37`)
+>     - Block 1: `1. Scoped GraphRAG for IBN in a Neurosymbolic system` (Navy border `#0F2C53`)
+>     - Block 2: `2. Quantification of Semantic Uncertainty for IBN in a Neurosymbolic system` (Amber border `#B07D00`)
+>     - Block 3: `3. Risk-Adaptive Decision Gate (RADG) for optimized HITL` (Green border `#1A7F37`)
 
 - **Left Column: Decoupled Subsystems**
   - **Neural Subsystem (Semantic Domain)** (`🧠`)
-    - Translates unstructured natural language $\mathcal{I}_{NL}$ into formal PDDL $\mathcal{S}_{PDDL}$
-    - Zero routing arithmetic or physical SNR calculations performed by LLM
-    - Reverse prompting reconstructs intent $\mathcal{I}_{recon}$ for validation
-    - Interpretable intermediate representation prevents hallucinated configurations
+    - Translation of the intent
+    - Validation of the semantic similarity
+    - Orchestration
   - **Symbolic Subsystem (Optical Domain)** (`📐`)
-    - Subtopology extraction via scoped Mock GraphRAG ($k\text{-hop}$ neighborhood)
-    - Deterministic routing via Yen's $K\text{-SP}$ constrained graph algorithm
-    - Physical QoT validation via pure Python analytical GN-model engine
-    - Evaluates $\text{GSNR} \ge \text{GSNR}_{th}$ and $P_{rx} \ge P_{rx,min}$ with zero hallucination
+    - Topology extraction
+    - Deterministic tools usage
+    - Physical feasibility validation
 - **Right Column: Core Thesis Contributions (3 Stacked Blocks)**
-  - **1. Neurosymbolic Decoupling & Scoped GraphRAG**
+  - **1. Scoped GraphRAG for IBN in a Neurosymbolic system**
     - Strict separation: probabilistic semantic translation vs deterministic physics
-    - Subtopology scoping reduces prompt tokens by >75%, eliminating attention loss
-  - **2. Dual-Layer Semantic Uncertainty Gate ($U_{sem}$)**
-    - Layer 1 syntax check ($v_{struct} \in \{0, 1\}$) + Layer 2 semantic discrepancy ($d_{sem}$)
-    - Pauses via LangGraph `interrupt()` when $U_{sem} > \tau_{sem}$ to clarify ambiguity
-  - **3. Risk-Adaptive Decision Gate (RADG) & QoT**
+    - Subtopology scoping reduces prompt tokens, eliminating attention loss
+  - **2. Quantification of Semantic Uncertainty for IBN in a Neurosymbolic system**
+    - Layer 1 syntax check ($v_{struct} \in \{0, 1\}$)
+    - Layer 2 semantic discrepancy ($d_{sem}$)
+  - **3. Risk-Adaptive Decision Gate (RADG) for optimized HITL**
     - Piecewise decision $D(U_{sem}, \text{QoT}_{valid})$: clarify, replan, or auto-approve
-    - Guarantees $\text{UAR} = 100\%$ physical safety with <5 ms calculation latency
+    - Guarantees physical safety ($UAR = 0$) with <5 ms calculation latency
 
 <!-- Speaker Notes:
 [Estimated Time]: 55s
@@ -250,23 +256,25 @@
 
 > [!VISUAL]
 > - 7 Phase Cards arranged in execution sequence:
->   - `Phase 1: Intent Ingest & Optical RAG`
->   - `Phase 2: PDDL Intent Parsing`
->   - `Phase 3: Semantic Gate (U_sem)` [Highlighted Gate Badge]
->   - `Phase 4: Symbolic Solver & GraphRAG`
->   - `Phase 5: QoT Physics Validation`
->   - `Phase 6: Physical Risk Gate (RADG)` [Highlighted Gate Badge]
->   - `Phase 7: Plan Synthesizer`
+>   - `Phase 1: Optical RAG` (Enrich $\mathcal{I}_{NL}$ with ITU-T grid & transponders)
+>   - `Phase 2: PDDL Parser` (Translate intent into formal PDDL $\mathcal{S}_{PDDL}$ AST)
+>   - `Phase 3: Semantic Gate` [RISK GATE] (Two bullets: Evaluate CFG $v_{struct}$ & Reverse Prompting $d_{sem}$)
+>   - `Phase 4: Symbolic Solver` (Scoped GraphRAG & Yen's $K\text{-SP}$ routing)
+>   - `Phase 5: QoT Physics` (Deterministic GN-model $\text{GSNR}$ calculation)
+>   - `Phase 6: Feasibility Gate` [RISK GATE] (Piecewise risk gate $D(U_{sem}, \text{QoT})$)
+>   - `Phase 7: Plan Synthesizer` (Auditable report & deployment commands)
 > - Directional chevron/arrow shapes linking each phase
-> - Gate highlight styling: Phase 3 (Amber border / Clarify loop) and Phase 6 (Green/Red border / Replan loop)
+> - Gate highlight styling: Phase 3 (Amber border / Clarify loop) and Phase 6 (Burgundy border / Replan loop)
 
-- **Phase 1: Intent Ingest & Optical RAG** — Context enrichment via ITU-T optical grid standards
-- **Phase 2: PDDL Intent Parsing** — Few-shot semantic translation into formal PDDL constraints
-- **Phase 3: Semantic Gate ($U_{sem}$)** — Layer 1 CFG syntax check + Layer 2 Reverse Prompting
-- **Phase 4: Symbolic Solver & GraphRAG** — Scoped $k$-hop subtopology extraction + Yen's KSP solver
-- **Phase 5: QoT Validation** — Deterministic GN-model calculation of GSNR and receiver power $P_{rx}$
-- **Phase 6: Physical Risk Gate (RADG)** — Piecewise decision: Auto-Approve vs Replan vs Clarify
-- **Phase 7: Plan Synthesizer** — Structured, auditable Planning Report generation
+- **Phase 1: Optical RAG** — Enrich $\mathcal{I}_{NL}$ with ITU-T grid & transponders
+- **Phase 2: PDDL Parser** — Translate intent into formal PDDL $\mathcal{S}_{PDDL}$ AST
+- **Phase 3: Semantic Gate [RISK GATE]**
+  - Evaluate CFG $v_{struct}$
+  - Reverse Prompting $d_{sem}$
+- **Phase 4: Symbolic Solver** — Scoped GraphRAG & Yen's $K\text{-SP}$ routing
+- **Phase 5: QoT Physics** — Deterministic GN-model $\text{GSNR}$ calculation
+- **Phase 6: Feasibility Gate [RISK GATE]** — Piecewise risk gate $D(U_{sem}, \text{QoT})$
+- **Phase 7: Plan Synthesizer** — Auditable report & deployment commands
 
 <!-- Speaker Notes:
 [Estimated Time]: 60s
@@ -280,25 +288,34 @@
 ## Slide 8: Overcoming Token Saturation: Scoped Optical GraphRAG
 
 > [!LAYOUT]
-> Split-column layout: Left column contains problem analysis & scoping mechanics; Right column displays an animated 17-node German network topology container with 2-step subnetwork scoping.
+> Asymmetric split layout: Left side features a 3-stage vertical pill flow connected by a directional flow arrow, underpinned by mathematical scoping bound equations; Right side displays the 17-node German backbone network map with click animation, topology citation, and bottom callout banner.
 
 > [!VISUAL]
-> - Left Column: Scoping Mechanics Card (Navy header, quantitative metric badge: `> 75% Token Reduction`)
-> - Right Column: 17-Node German Core Network Scoping Card with Entrance Click Animation:
+> - Left Column Container ($w=9.3''$, $h=5.35''$, background `#F4F6F9`, border `#0F2C53`):
+>   - Header Badge: `🌐 Deterministic Subtopology Scoping` (Navy `#0F2C53`)
+>   - 3-Stage Vertical Pill Flow (connected by a continuous burgundy down arrow `#85200C`):
+>     - Pill 1 (Top): `Raw JSON contains excessive telemetry: ROADM ports, EDFAs, fibers`
+>     - Pill 2 (Middle): `Full topology dumps overwhelm LLM context windows`
+>     - Pill 3 (Bottom, Green border `#1A7F37`): `Mock GraphRAG extracts localized subtopology` + $G_{sub} \subseteq G$
+>   - Mathematical Scoping Bound (Native OMML):
+>     - $G_{sub} = (V_{sub}, E_{sub}) \subseteq G$
+>     - $T_{prompt}(G_{sub}) \ll T_{prompt}(G)$
+> - Right Column: 17-Node German Core Network Scoping with Entrance Click Animation ($x=6.85''$, $w=5.5''$):
 >   - Step 1 (Base State): Full 17-node German backbone topology (`assets/germany_17nodes.png`)
 >   - Step 2 (On Advance / Click): Scoped subtopology overlay (`assets/germany_17nodes_opaco.jpg`) with opacified northern nodes, highlighting localized Frankfurt–Munich subnetwork
->   - Bottom Callout: `⚡ Frankfurt ➔ Munich demand: Northern nodes pruned from LLM prompt`
+>   - Citation Text: `From: https://topolib.readthedocs.io/en/latest/topology_repository.html`
+>   - Bottom Banner: `e.g.  Frankfurt ➔ Munich demand: Northern nodes pruned from LLM prompt`
 
-- **The Problem: Full Topology Bloat**
-  - Transmitting the entire 17-node or 100-node network state saturates LLM context windows
-  - Raw JSON dumps cause severe attention degradation and inflated token costs
-- **The Solution: Deterministic $k$-hop Neighborhood Scoping**
-  - Mock GraphRAG extracts only the $k$-hop subnetwork bounding source and destination
-  - Filters out unneeded ROADMs, transponders, and distant fiber spans
-- **Impact & Quantitative Benefits**
-  - Over 75% reduction in prompt token payload
-  - Deterministic $O(V + E)$ graph extraction executes in $< 1$ ms via NetworkX
-  - Guarantees sharp LLM attention focus on active constraints
+- **3-Stage Vertical Pill Flow**
+  - **1. Telemetry Overload:** Raw JSON contains excessive telemetry: ROADM ports, EDFAs, fibers
+  - **2. Attention Saturation:** Full topology dumps overwhelm LLM context windows
+  - **3. Scoped Extraction:** Mock GraphRAG extracts localized subtopology $G_{sub} \subseteq G$
+- **Mathematical Scoping Bound**
+  - $G_{sub} = (V_{sub}, E_{sub}) \subseteq G$
+  - $T_{prompt}(G_{sub}) \ll T_{prompt}(G)$
+- **Empirical Network Verification**
+  - 17-Node German Backbone: Frankfurt ➔ Munich demand prunes distant northern nodes (Hamburg, Bremen, Berlin)
+  - Quantitative Impact: Over 75% prompt token reduction with sub-millisecond graph extraction $\mathcal{O}(|V| + |E|)$
 
 <!-- Speaker Notes:
 [Estimated Time]: 50s

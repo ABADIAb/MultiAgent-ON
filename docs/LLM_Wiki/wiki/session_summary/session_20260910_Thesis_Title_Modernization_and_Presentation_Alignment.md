@@ -77,19 +77,40 @@ Following the user's manual design refinements in PowerPoint to reduce text dens
    - Compiled `thesis_defense.pptx` (16 slides) and exported vector `thesis_defense.pdf` and 1080p `slides_png/` previews via COM automation in under 6s.
    - Visually confirmed 100% 1:1 match against the user's manual layout.
 
+### 2.5 Manual PowerPoint Visual Enhancement (Slides 6, 7, 8) & Complete Skill Codification
+Following the user's manual design refinements in PowerPoint to reduce text density and elevate visual aesthetics on Slides 6, 7, and 8:
+1. **Low-Level OpenXML Reverse-Engineering & Blind-Spot Resolution:**
+   - Identified that PowerPoint on Windows encapsulates native DrawingML math equations inside `<mc:AlternateContent><mc:Choice>`, causing standard `python-pptx` `slide.shapes` iteration to skip them.
+   - Upgraded [`.agents/skills/presentation-coauthor/scripts/inspect_deck.py`](file:///home/felipeab/MultiAgentON/.agents/skills/presentation-coauthor/scripts/inspect_deck.py) to traverse the full OpenXML `spTree` (including Choice and Fallback elements), extracting bounding boxes, preset geometries, fills, lines, text paragraphs, font sizes, and OMML runs.
+2. **Programmatic Generator Updates ([`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py)):**
+   - **Slide 6 (Proposed Solution: RADG with Neurosymbolic Planning):** Replaced dense textboxes with $2 \times 3$ modular white rounded pills (`Translation of the intent`, `Validation of the semantic similarity`, `Orchestration` on Neural card; `Topology extraction`, `Deterministic tools usage`, `Physical feasibility validation` on Symbolic card). Synthesized the 3 contribution highlight cards on the right with concise bullets and OMML math tags ($v_{struct} \in \{0, 1\}$, $d_{sem}$, $UAR = 0$).
+   - **Slide 7 (Pipeline Flow):** Formatted Phase 3 (Semantic Gate) into 2 clean bulleted lines (`Evaluate CFG v_{struct}` and `Reverse Prompting d_{sem}`). Renamed Phase 6 to `"Feasibility Gate"`.
+   - **Slide 8 (Scoped Optical GraphRAG):** Created `create_scoped_graphrag_slide()` implementing the large background container card (`#F4F6F9`), a 3-stage vertical pill flow connected by a burgundy down arrow (`#85200C`), mathematical scoping bounds ($G_{sub} \subseteq G$, $T_{prompt}(G_{sub}) \ll T_{prompt}(G)$), the 17-node German backbone network map with click animation, topology citation, and bottom callout banner.
+3. **Specification Alignment ([`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md)):**
+   - Synchronized visual architecture descriptions, component inventories, and copy for Slides 6, 7, and 8.
+4. **Recompilation, Vector Export & Automated Diffing:**
+   - Recompiled `thesis_defense.pptx` and exported vector `thesis_defense.pdf` and 1080p `slides_png/` previews via Windows PowerPoint COM automation in under 6 seconds.
+   - Ran `inspect_deck.py --diff` comparing the user's manual backup against the newly generated deck: **0 discrepancies detected across all 16 slides (100% match)**.
+5. **Permanent Skill Codification ([`presentation-coauthor`](file:///home/felipeab/MultiAgentON/.agents/skills/presentation-coauthor/)):**
+   - Enshrined **Hard Rule 5 (Two-Way Synchronization & Reverse Engineering Contract)** in `SKILL.md`.
+   - Formalized the 6-step protocol in `references/workflow-guide.md` (Backup $\rightarrow$ Deep OpenXML Inspection $\rightarrow$ Python Reverse-Engineering $\rightarrow$ Spec Synchronization $\rightarrow$ Diff Verification $\rightarrow$ Re-Export).
+   - Added `--diff` and `--json` CLI capabilities to `scripts/inspect_deck.py` with unicode math normalization.
+   - Synchronized to both local `.agents/skills/presentation-coauthor/` and global `~/.gemini/config/skills/presentation-coauthor/`.
+
 ---
 
 ## 3. Verification & Test Outcomes
 
+- **Automated Diff Verification:** Executed `inspect_deck.py <user_backup.pptx> --diff <thesis_defense.pptx>`. Result: **0 discrepancies detected across all 16 slides (100% match)**.
 - **Unit Test Suite:** Ran `uv run pytest`. All **278 unit tests passed cleanly** (100% success, 0 regressions, 4.42s runtime).
 - **Presentation Compilation & Export:** `build_defense_deck.py` and `export_presentation.py` completed with exit code 0.
-- **Visual Inspection:** Inspected all generated slide PNGs (`slide_01.png`, `slide_03.png`, `slide_04.png`, `slide_05.png`), verifying sharp layout, native math typography, and zero text overflow.
+- **Visual Inspection:** Inspected all generated slide PNGs (`slide_06.png`, `slide_07.png`, `slide_08.png`), verifying sharp layout, native math typography, and zero text overflow.
 - **Git Audit:** Confirmed clean git status touching only relevant active documents and preserving historical weekly reports.
 
 ---
 
 ## 4. Handover & Next Steps
 
-1. **Commit and Push:** Commit all modernized artifacts and synchronized presentation files using conventional commits and push to open PR #65 (`feat/presentation-coauthor-and-defense-deck`).
+1. **Commit and Push:** Commit all modernized artifacts, synchronized presentation files, and skill upgrades using conventional commits and push to open PR #65 (`feat/presentation-coauthor-and-defense-deck`).
 2. **Advisor Checkpoint:** Present the updated defense deck and narrative structure to Prof. Massimo Tornatore and Prof. Qiaolun Zhang.
 3. **Sprint 4 Benchmarking:** Proceed with the 100-demand evaluation on the 17-node German backbone network.

@@ -102,6 +102,9 @@ OMML_MAP = {
 
     # Evaluation Metrics
     r"\text{UAR} = 100\%": '<m:r><m:t>UAR = 100%</m:t></m:r>',
+    r"\text{UAR} = 0": '<m:r><m:t>UAR = 0</m:t></m:r>',
+    r"UAR = 0": '<m:r><m:t>UAR = 0</m:t></m:r>',
+    r"UAR = 0 ": '<m:r><m:t>UAR = 0 </m:t></m:r>',
     r"\text{UAR}": '<m:r><m:t>UAR</m:t></m:r>',
     r"\text{HIC}": '<m:r><m:t>HIC</m:t></m:r>',
     r"T_{E2E}": '<m:sSub><m:e><m:r><m:t>T</m:t></m:r></m:e><m:sub><m:r><m:t>E2E</m:t></m:r></m:sub></m:sSub>',
@@ -257,7 +260,7 @@ class DeckBuilder:
             self.prs.part.drop_rel(rId)
             del self.prs.slides._sldIdLst[i]
 
-    def add_chrome(self, slide, title_text: str, slide_num: int):
+    def add_chrome(self, slide, title_text: str, slide_num: int, title_h: float = 0.75):
         """Adds standard PoliMi header, underline, and footer chrome to a slide."""
         # Bottom Navy banner
         banner = slide.shapes.add_shape(
@@ -288,7 +291,7 @@ class DeckBuilder:
         p_num.font.color.rgb = COLOR_WHITE
 
         # Slide Title
-        title_box = slide.shapes.add_textbox(Inches(0.7), Inches(0.25), Inches(11.8), Inches(0.75))
+        title_box = slide.shapes.add_textbox(Inches(0.7), Inches(0.25), Inches(11.8), Inches(title_h))
         tf_title = title_box.text_frame
         tf_title.word_wrap = True
         p_title = tf_title.paragraphs[0]
@@ -1093,7 +1096,7 @@ class DeckBuilder:
         """
         blank_layout = self.prs.slide_layouts[6]
         s = self.prs.slides.add_slide(blank_layout)
-        self.add_chrome(s, title, slide_num)
+        self.add_chrome(s, title, slide_num, title_h=0.572)
 
         # === LEFT COLUMN: Two Vertically Stacked Subsystems ===
         left_col_x = Inches(0.75)
@@ -1124,15 +1127,35 @@ class DeckBuilder:
         p_hl1.font.color.rgb = COLOR_WHITE
         p_hl1.alignment = PP_ALIGN.CENTER
 
-        body_l1 = s.shapes.add_textbox(
-            left_col_x + Inches(0.15), top_y + Inches(0.58), left_col_w - Inches(0.3), card_h - Inches(0.62)
-        )
-        tf_l1 = body_l1.text_frame
-        tf_l1.word_wrap = True
-        tf_l1.margin_top = Inches(0.02)
-        tf_l1.margin_bottom = Inches(0.02)
-        for b_text in neural_data.get("bullets", []):
-            add_bullet_with_math(tf_l1, f"•  {b_text}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(3))
+        # 3 White Rounded Pills for Neural Subsystem
+        pill_l = Inches(1.593)
+        pill_w = Inches(3.967)
+        pill_h = Inches(0.43)
+        neural_tops = [Inches(2.065), Inches(2.612), Inches(3.210)]
+        neural_pills = neural_data.get("pills", [
+            "Translation of the intent",
+            "Validation of the semantic similarity",
+            "Orchestration",
+        ])
+        for p_idx, p_text in enumerate(neural_pills[:3]):
+            p_shape = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, pill_l, neural_tops[p_idx], pill_w, pill_h
+            )
+            p_shape.fill.solid()
+            p_shape.fill.fore_color.rgb = COLOR_WHITE
+            p_shape.line.color.rgb = COLOR_CARD_BORDER
+            p_shape.line.width = Pt(1.0)
+            tf_p = p_shape.text_frame
+            tf_p.word_wrap = True
+            tf_p.margin_top = Inches(0.06)
+            tf_p.margin_bottom = Inches(0.06)
+            p_para = tf_p.paragraphs[0]
+            p_para.text = p_text
+            p_para.font.name = FONT_TITLE
+            p_para.font.size = Pt(12)
+            p_para.font.bold = True
+            p_para.font.color.rgb = COLOR_DARK_SLATE
+            p_para.alignment = PP_ALIGN.CENTER
 
         # 2. Bottom Card: Symbolic Subsystem (Optical Domain)
         bottom_y = Inches(4.18)
@@ -1158,15 +1181,32 @@ class DeckBuilder:
         p_hl2.font.color.rgb = COLOR_WHITE
         p_hl2.alignment = PP_ALIGN.CENTER
 
-        body_l2 = s.shapes.add_textbox(
-            left_col_x + Inches(0.15), bottom_y + Inches(0.58), left_col_w - Inches(0.3), card_h - Inches(0.62)
-        )
-        tf_l2 = body_l2.text_frame
-        tf_l2.word_wrap = True
-        tf_l2.margin_top = Inches(0.02)
-        tf_l2.margin_bottom = Inches(0.02)
-        for b_text in symbolic_data.get("bullets", []):
-            add_bullet_with_math(tf_l2, f"•  {b_text}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(3))
+        # 3 White Rounded Pills for Symbolic Subsystem
+        symbolic_tops = [Inches(4.977), Inches(5.524), Inches(6.122)]
+        symbolic_pills = symbolic_data.get("pills", [
+            "Topology extraction",
+            "Deterministic tools usage",
+            "Physical feasibility validation",
+        ])
+        for p_idx, p_text in enumerate(symbolic_pills[:3]):
+            p_shape = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, pill_l, symbolic_tops[p_idx], pill_w, pill_h
+            )
+            p_shape.fill.solid()
+            p_shape.fill.fore_color.rgb = COLOR_WHITE
+            p_shape.line.color.rgb = COLOR_CARD_BORDER
+            p_shape.line.width = Pt(1.0)
+            tf_p = p_shape.text_frame
+            tf_p.word_wrap = True
+            tf_p.margin_top = Inches(0.06)
+            tf_p.margin_bottom = Inches(0.06)
+            p_para = tf_p.paragraphs[0]
+            p_para.text = p_text
+            p_para.font.name = FONT_TITLE
+            p_para.font.size = Pt(12)
+            p_para.font.bold = True
+            p_para.font.color.rgb = COLOR_DARK_SLATE
+            p_para.alignment = PP_ALIGN.CENTER
 
         # === RIGHT COLUMN: Core Thesis Contributions (3 Stacked Blocks) ===
         right_col_x = Inches(6.8)
@@ -1381,10 +1421,17 @@ class DeckBuilder:
                 p_gate_tag.font.color.rgb = border_color
                 p_gate_tag.alignment = PP_ALIGN.CENTER
 
-            p_d = tf_body.add_paragraph()
-            p_d.space_before = Pt(4)
-            p_d.alignment = PP_ALIGN.LEFT
-            add_math_runs_to_paragraph(p_d, phase["desc"], font_size=Pt(9.5), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
+            if isinstance(phase["desc"], list):
+                for d_idx, desc_item in enumerate(phase["desc"]):
+                    p_d = tf_body.add_paragraph()
+                    p_d.space_before = Pt(2 if d_idx > 0 else 4)
+                    p_d.alignment = PP_ALIGN.LEFT
+                    add_math_runs_to_paragraph(p_d, f"•  {desc_item}", font_size=Pt(9.5), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
+            else:
+                p_d = tf_body.add_paragraph()
+                p_d.space_before = Pt(4)
+                p_d.alignment = PP_ALIGN.LEFT
+                add_math_runs_to_paragraph(p_d, phase["desc"], font_size=Pt(9.5), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
 
             # Connector Arrow
             if i < num_phases - 1:
@@ -1839,6 +1886,199 @@ class DeckBuilder:
         self.set_speaker_notes(s, notes)
         return s
 
+    def create_scoped_graphrag_slide(
+        self,
+        title: str,
+        slide_num: int,
+        base_img_path: Path,
+        overlay_img_path: Path,
+        notes: str = "",
+    ):
+        """Creates Slide 8: Overcoming Token Saturation with Scoped Optical GraphRAG.
+        Features a 3-stage vertical pill flow connected by a down arrow,
+        the mathematical scoping bound equations, and the 17-node German backbone network map."""
+        blank_layout = self.prs.slide_layouts[6]
+        s = self.prs.slides.add_slide(blank_layout)
+        self.add_chrome(s, title, slide_num)
+
+        # 1. Large background container card
+        card_l = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.833), Inches(1.300), Inches(9.300), Inches(5.350)
+        )
+        card_l.fill.solid()
+        card_l.fill.fore_color.rgb = COLOR_CARD_BG
+        card_l.line.color.rgb = COLOR_NAVY
+        card_l.line.width = Pt(1.5)
+
+        # 2. Header Bar Badge
+        header_bar = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.750), Inches(1.244), Inches(5.600), Inches(0.706)
+        )
+        header_bar.fill.solid()
+        header_bar.fill.fore_color.rgb = COLOR_NAVY
+        header_bar.line.fill.background()
+
+        tf_h = header_bar.text_frame
+        p_h = tf_h.paragraphs[0]
+        p_h.text = "🌐 Deterministic Subtopology Scoping"
+        p_h.font.name = FONT_TITLE
+        p_h.font.size = Pt(15)
+        p_h.font.bold = True
+        p_h.font.color.rgb = COLOR_WHITE
+        p_h.alignment = PP_ALIGN.CENTER
+
+        # 3. Down Arrow connecting the pills (placed before pills in z-order so white pills sit on top)
+        arrow = s.shapes.add_shape(
+            MSO_SHAPE.DOWN_ARROW, Inches(3.311), Inches(2.075), Inches(0.767), Inches(2.258)
+        )
+        arrow.fill.solid()
+        arrow.fill.fore_color.rgb = COLOR_BURGUNDY
+        arrow.line.color.rgb = COLOR_CARD_BG
+
+        # 4. Pill 1 (Top)
+        pill1 = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.103), Inches(2.222), Inches(3.183), Inches(0.623)
+        )
+        pill1.fill.solid()
+        pill1.fill.fore_color.rgb = COLOR_WHITE
+        pill1.line.color.rgb = COLOR_CARD_BORDER
+        pill1.line.width = Pt(1.0)
+        tf_p1 = pill1.text_frame
+        tf_p1.word_wrap = True
+        tf_p1.margin_top = Inches(0.04)
+        tf_p1.margin_bottom = Inches(0.04)
+        p1_0 = tf_p1.paragraphs[0]
+        p1_0.text = "Raw JSON contains excessive telemetry:"
+        p1_0.font.name = FONT_TITLE
+        p1_0.font.size = Pt(12)
+        p1_0.font.bold = True
+        p1_0.font.color.rgb = COLOR_DARK_SLATE
+        p1_0.alignment = PP_ALIGN.CENTER
+        p1_1 = tf_p1.add_paragraph()
+        p1_1.text = "ROADM ports, EDFAs, fibers"
+        p1_1.font.name = FONT_TITLE
+        p1_1.font.size = Pt(12)
+        p1_1.font.bold = True
+        p1_1.font.color.rgb = COLOR_DARK_SLATE
+        p1_1.alignment = PP_ALIGN.CENTER
+
+        # 5. Pill 2 (Middle)
+        pill2 = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(2.069), Inches(3.105), Inches(3.217), Inches(0.623)
+        )
+        pill2.fill.solid()
+        pill2.fill.fore_color.rgb = COLOR_WHITE
+        pill2.line.color.rgb = COLOR_CARD_BORDER
+        pill2.line.width = Pt(1.0)
+        tf_p2 = pill2.text_frame
+        tf_p2.word_wrap = True
+        tf_p2.margin_top = Inches(0.1)
+        tf_p2.margin_bottom = Inches(0.04)
+        p2_0 = tf_p2.paragraphs[0]
+        p2_0.text = "Full topology dumps overwhelm LLM context windows"
+        p2_0.font.name = FONT_TITLE
+        p2_0.font.size = Pt(12)
+        p2_0.font.bold = True
+        p2_0.font.color.rgb = COLOR_DARK_SLATE
+        p2_0.alignment = PP_ALIGN.CENTER
+
+        # 6. Pill 3 (Bottom - Green Border)
+        pill3 = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.779), Inches(4.333), Inches(3.967), Inches(0.592)
+        )
+        pill3.fill.solid()
+        pill3.fill.fore_color.rgb = COLOR_WHITE
+        pill3.line.color.rgb = COLOR_GREEN
+        pill3.line.width = Pt(1.0)
+        tf_p3 = pill3.text_frame
+        tf_p3.word_wrap = True
+        tf_p3.margin_top = Inches(0.04)
+        tf_p3.margin_bottom = Inches(0.04)
+        p3_0 = tf_p3.paragraphs[0]
+        p3_0.text = "Mock GraphRAG extracts localized subtopology"
+        p3_0.font.name = FONT_TITLE
+        p3_0.font.size = Pt(12)
+        p3_0.font.bold = True
+        p3_0.font.color.rgb = COLOR_GREEN
+        p3_0.alignment = PP_ALIGN.CENTER
+        p3_1 = tf_p3.add_paragraph()
+        p3_1.alignment = PP_ALIGN.CENTER
+        add_math_runs_to_paragraph(p3_1, "$G_{sub} \\subseteq G$", font_size=Pt(12), color=COLOR_GREEN, font_name=FONT_TITLE)
+
+        # 7. Mathematical Scoping Bound Textbox
+        tb_math = s.shapes.add_textbox(
+            Inches(1.094), Inches(5.197), Inches(5.200), Inches(0.706)
+        )
+        tf_m = tb_math.text_frame
+        tf_m.word_wrap = True
+        p_mlbl = tf_m.paragraphs[0]
+        p_mlbl.text = "Mathematical Scoping Bound:"
+        p_mlbl.font.name = FONT_TITLE
+        p_mlbl.font.size = Pt(11)
+        p_mlbl.font.bold = True
+        p_mlbl.font.color.rgb = COLOR_NAVY
+        p_mlbl.space_before = Pt(0)
+        p_mlbl.space_after = Pt(2)
+
+        p_eq1 = tf_m.add_paragraph()
+        p_eq1.alignment = PP_ALIGN.CENTER
+        add_omml_equation(p_eq1, OMML_MAP[r"G_{sub} = (V_{sub}, E_{sub}) \subseteq G"], font_size=Pt(12), color=COLOR_NAVY)
+
+        p_eq2 = tf_m.add_paragraph()
+        p_eq2.alignment = PP_ALIGN.CENTER
+        add_omml_equation(p_eq2, OMML_MAP[r"T_{prompt}(G_{sub}) \ll T_{prompt}(G)"], font_size=Pt(12), color=COLOR_NAVY)
+
+        # 8. Right Column Images
+        img_left = Inches(6.850)
+        img_top = Inches(2.075)
+        img_w = Inches(5.500)
+        img_h = Inches(3.670)
+
+        pic_base = s.shapes.add_picture(str(base_img_path), img_left, img_top, width=img_w, height=img_h)
+        pic_base.line.color.rgb = COLOR_CARD_BORDER
+        pic_base.line.width = Pt(1.0)
+
+        pic_overlay = s.shapes.add_picture(str(overlay_img_path), img_left, img_top, width=img_w, height=img_h)
+        pic_overlay.line.color.rgb = COLOR_CARD_BORDER
+        pic_overlay.line.width = Pt(1.0)
+
+        # Entrance Animation on Click/Advance for Overlay Image
+        self.add_entrance_click_animation(s, pic_overlay.shape_id)
+
+        # Citation textbox below image
+        tb_cite = s.shapes.add_textbox(
+            img_left, Inches(5.527), img_w, Inches(0.236)
+        )
+        tf_cite = tb_cite.text_frame
+        tf_cite.word_wrap = True
+        p_cite = tf_cite.paragraphs[0]
+        p_cite.text = "From: https://topolib.readthedocs.io/en/latest/topology_repository.html"
+        p_cite.font.name = FONT_BODY
+        p_cite.font.size = Pt(8)
+        p_cite.font.color.rgb = COLOR_DARK_SLATE
+
+        # Bottom Banner
+        banner = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, img_left, Inches(5.960), img_w, Inches(0.480)
+        )
+        banner.fill.solid()
+        banner.fill.fore_color.rgb = COLOR_WHITE
+        banner.line.color.rgb = COLOR_CARD_BORDER
+        banner.line.width = Pt(1.0)
+
+        tf_bn = banner.text_frame
+        tf_bn.word_wrap = True
+        p_bn = tf_bn.paragraphs[0]
+        p_bn.text = "e.g.  Frankfurt ➔ Munich demand: Northern nodes pruned from LLM prompt"
+        p_bn.font.name = FONT_TITLE
+        p_bn.font.size = Pt(10.5)
+        p_bn.font.bold = True
+        p_bn.font.color.rgb = COLOR_NAVY
+        p_bn.alignment = PP_ALIGN.CENTER
+
+        self.set_speaker_notes(s, notes)
+        return s
+
 
 def build_thesis_defense_deck():
     template = Path("docs/LLM_Wiki/raw/ACP_MinPowCons_v5.pptx")
@@ -2012,50 +2252,48 @@ def build_thesis_defense_deck():
     # 6. Slide 6: Proposed Solution & Contributions
     print("Building Slide 06: Proposed Solution...")
     builder.create_proposed_solution_slide(
-        title="Proposed Solution: Neurosymbolic Decoupling",
+        title="Proposed Solution: RADG with Neurosymbolic Planning",
         slide_num=6,
         neural_data={
             "title": "🧠 Neural Subsystem (Semantic Domain)",
-            "bullets": [
-                "Translates unstructured natural language $\\mathcal{I}_{NL}$ into formal PDDL $\\mathcal{S}_{PDDL}$",
-                "Zero routing arithmetic or physical SNR calculations performed by LLM",
-                "Reverse prompting reconstructs intent $\\mathcal{I}_{recon}$ for validation",
-                "Interpretable intermediate representation prevents hallucinated configurations",
+            "pills": [
+                "Translation of the intent",
+                "Validation of the semantic similarity",
+                "Orchestration",
             ],
         },
         symbolic_data={
             "title": "📐 Symbolic Subsystem (Optical Domain)",
-            "bullets": [
-                "Subtopology extraction via scoped Mock GraphRAG ($k\\text{-hop}$ neighborhood)",
-                "Deterministic routing via Yen's $K\\text{-SP}$ constrained graph algorithm",
-                "Physical QoT validation via pure Python analytical GN-model engine",
-                "Evaluates $\\text{GSNR} \\ge \\text{GSNR}_{th}$ and $P_{rx} \\ge P_{rx,min}$ with zero hallucination",
+            "pills": [
+                "Topology extraction",
+                "Deterministic tools usage",
+                "Physical feasibility validation",
             ],
         },
         contributions_header="🎯 Core Thesis Contributions (Architectural Novelties)",
         contributions=[
             {
-                "title": "1. Neurosymbolic Decoupling & Scoped GraphRAG",
+                "title": "1. Scoped GraphRAG for IBN in a Neurosymbolic system",
                 "border_color": COLOR_NAVY,
                 "bullets": [
                     "Strict separation: probabilistic semantic translation vs deterministic physics",
-                    "Subtopology scoping reduces prompt tokens by >75%, eliminating attention loss",
+                    "Subtopology scoping reduces prompt tokens, eliminating attention loss",
                 ],
             },
             {
-                "title": "2. Dual-Layer Semantic Uncertainty Gate ($U_{sem}$)",
+                "title": "2. Quantification of Semantic Uncertainty for IBN in a Neurosymbolic system",
                 "border_color": COLOR_AMBER,
                 "bullets": [
-                    "Layer 1 syntax check ($v_{struct} \\in \\{0, 1\\}$) + Layer 2 semantic discrepancy ($d_{sem}$)",
-                    "Pauses via LangGraph interrupt() when $U_{sem} > \\tau_{sem}$ to clarify ambiguity",
+                    r"Layer 1 syntax check ($v_{struct} \in \{0, 1\}$)",
+                    r"Layer 2 semantic discrepancy ($d_{sem}$)",
                 ],
             },
             {
-                "title": "3. Risk-Adaptive Decision Gate (RADG) & QoT",
+                "title": "3. Risk-Adaptive Decision Gate (RADG) for optimized HITL",
                 "border_color": COLOR_GREEN,
                 "bullets": [
-                    "Piecewise decision $D(U_{sem}, \\text{QoT}_{valid})$: clarify, replan, or auto-approve",
-                    "Guarantees $\\text{UAR} = 100\\%$ physical safety with <5 ms calculation latency",
+                    r"Piecewise decision $D(U_{sem}, \text{QoT}_{valid})$: clarify, replan, or auto-approve",
+                    r"Guarantees physical safety ($UAR = 0$) with <5 ms calculation latency",
                 ],
             },
         ],
@@ -2073,10 +2311,10 @@ def build_thesis_defense_deck():
         phases=[
             {"title": "Optical RAG", "desc": "Enrich $\\mathcal{I}_{NL}$ with ITU-T grid & transponders"},
             {"title": "PDDL Parser", "desc": "Translate intent into formal PDDL $\\mathcal{S}_{PDDL}$ AST"},
-            {"title": "Semantic Gate", "desc": "Evaluate CFG $v_{struct}$ & Reverse Prompting $d_{sem}$", "is_gate": True},
+            {"title": "Semantic Gate", "desc": ["Evaluate CFG $v_{struct}$", "Reverse Prompting $d_{sem}$"], "is_gate": True},
             {"title": "Symbolic Solver", "desc": "Scoped GraphRAG & Yen's $K\\text{-SP}$ routing"},
             {"title": "QoT Physics", "desc": "Deterministic GN-model $\\text{GSNR}$ calculation"},
-            {"title": "Risk Gate (RADG)", "desc": "Piecewise risk gate $D(U_{sem}, \\text{QoT})$", "is_gate": True},
+            {"title": "Feasibility Gate", "desc": "Piecewise risk gate $D(U_{sem}, \\text{QoT})$", "is_gate": True},
             {"title": "Plan Synthesizer", "desc": "Auditable report & deployment commands"},
         ],
         notes="""[Estimated Time]: 60s
@@ -2109,34 +2347,11 @@ def build_thesis_defense_deck():
         import shutil
         shutil.copy2(raw_opaco, overlay_img)
 
-    builder.create_split_diagram_slide(
+    builder.create_scoped_graphrag_slide(
         title="Overcoming Token Saturation: Scoped Optical GraphRAG",
         slide_num=8,
-        content_data={
-            "icon": "🌐",
-            "title": "Deterministic k-hop Subtopology Scoping",
-            "title_color": COLOR_NAVY,
-            "border_color": COLOR_NAVY,
-            "bullets": [
-                "Full topology dumps overwhelm LLM context windows",
-                "Raw JSON contains excessive telemetry: ROADM ports, EDFAs, fibers",
-                "Mock GraphRAG extracts localized subtopology $G_{sub} \\subseteq G$",
-                "Bounding $k\\text{-hop}$ neighborhood between candidate endpoints",
-                "Quantitative Impact: Over 75% reduction in prompt token payload",
-                "Sub-millisecond graph extraction: $\\mathcal{O}(|V| + |E|)$ executed in pure Python",
-                "Guarantees sharp LLM attention focus on active optical constraints",
-            ],
-        },
-        animated_image_pair={
-            "base_image": base_img,
-            "overlay_image": overlay_img,
-            "title": "🗺️ 17-Node German Backbone: Subnetwork Scoping",
-            "caption": "⚡ Frankfurt ➔ Munich demand: Northern nodes pruned from LLM prompt",
-        },
-        formulas=[
-            OMML_MAP[r"G_{sub} = (V_{sub}, E_{sub}) \subseteq G"],
-            OMML_MAP[r"T_{prompt}(G_{sub}) \ll T_{prompt}(G)"],
-        ],
+        base_img_path=base_img,
+        overlay_img_path=overlay_img,
         notes="""[Estimated Time]: 50s
 [Key Message]: Scoped GraphRAG extracts only relevant k-hop subtopologies, eliminating attention degradation.
 [Spoken Script]: To solve token budget saturation, we implement Scoped Optical GraphRAG. Instead of flooding the LLM context with the entire 17-node topology, our deterministic graph engine extracts only the k-hop neighborhood bounding the source and destination. For instance, [Click / Advance] if an operator requests a lightpath between Frankfurt and Munich, there is no need to load northern nodes like Hamburg, Bremen, or Berlin into the LLM context. We prune distant nodes and links, reducing the prompt token footprint by over 75 percent, eliminating the lost-in-the-middle phenomenon while keeping the graph search computationally instantaneous.
