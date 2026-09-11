@@ -1507,13 +1507,20 @@ class DeckBuilder:
         top_card.line.width = Pt(1.5)
 
         top_box = s.shapes.add_textbox(
-            Inches(0.95), Inches(1.4), Inches(11.4), Inches(2.0)
+            Inches(0.95), Inches(1.4), Inches(11.4), Inches(1.5)
         )
         tf_top = top_box.text_frame
         tf_top.word_wrap = True
 
         p_hdr = tf_top.paragraphs[0]
-        add_math_runs_to_paragraph(p_hdr, "Piecewise Decision Formulation $D(U_{sem}, \\text{QoT}_{valid})$:", font_size=Pt(14), color=COLOR_NAVY, font_name=FONT_TITLE, bold=True)
+        p_hdr.text = "Piecewise Decision Formulation:"
+        p_hdr.font.name = FONT_TITLE
+        p_hdr.font.size = Pt(16)
+        p_hdr.font.bold = True
+        p_hdr.font.color.rgb = COLOR_NAVY
+
+        # Spacing
+        tf_top.add_paragraph()
 
         # Inject piecewise equation
         p_eq = tf_top.add_paragraph()
@@ -1540,9 +1547,9 @@ class DeckBuilder:
             b_card.line.color.rgb = b_color
             b_card.line.width = Pt(2.0)
 
-            # Header Bar
+            # Header Bar with OMML Condition
             h_bar = s.shapes.add_shape(
-                MSO_SHAPE.ROUNDED_RECTANGLE, b_left, b_top, b_width, Inches(0.65)
+                MSO_SHAPE.ROUNDED_RECTANGLE, b_left, Inches(3.649), b_width, Inches(0.851)
             )
             h_bar.fill.solid()
             h_bar.fill.fore_color.rgb = b_color
@@ -1557,22 +1564,28 @@ class DeckBuilder:
             p_bh.font.color.rgb = COLOR_WHITE
             p_bh.alignment = PP_ALIGN.CENTER
 
+            p_bheq = tf_bh.add_paragraph()
+            p_bheq.alignment = PP_ALIGN.CENTER
+            add_omml_equation(p_bheq, branch.get("condition_xml", ""), font_size=Pt(12), color=COLOR_WHITE)
+
             # Body text inside transparent textbox
+            b_body_h = Inches(1.38) if i < 2 else Inches(1.01)
             b_body_box = s.shapes.add_textbox(
-                b_left + Inches(0.15),
-                b_top + Inches(0.65) + Inches(0.1),
+                b_left + Inches(0.167),
+                Inches(4.705),
                 b_width - Inches(0.3),
-                b_height - Inches(0.75),
+                b_body_h,
             )
             tf_bbody = b_body_box.text_frame
             tf_bbody.word_wrap = True
 
-            p_cond = tf_bbody.paragraphs[0]
-            p_cond.space_after = Pt(6)
-            add_math_runs_to_paragraph(p_cond, f"Condition: {branch['condition']}", font_size=Pt(12), color=b_color, font_name=FONT_TITLE, bold=True)
-
-            for item in branch.get("bullets", []):
-                add_bullet_with_math(tf_bbody, f"•  {item}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(4))
+            for j, item in enumerate(branch.get("bullets", [])):
+                if j == 0:
+                    p_b = tf_bbody.paragraphs[0]
+                    add_math_runs_to_paragraph(p_b, f"•  {item}", font_size=Pt(11), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
+                    p_b.space_after = Pt(3)
+                else:
+                    add_bullet_with_math(tf_bbody, f"•  {item}", font_size=Pt(11), color=COLOR_DARK_SLATE, space_after=Pt(3))
 
         self.set_speaker_notes(s, notes)
         return s
@@ -2270,7 +2283,7 @@ def build_thesis_defense_deck():
                 "Physical feasibility validation",
             ],
         },
-        contributions_header="🎯 Core Thesis Contributions (Architectural Novelties)",
+        contributions_header="🎯 Core Thesis Contributions",
         contributions=[
             {
                 "title": "1. Scoped GraphRAG for IBN in a Neurosymbolic system",
@@ -2363,17 +2376,18 @@ def build_thesis_defense_deck():
     s9 = builder.prs.slides.add_slide(builder.prs.slide_layouts[6])
     builder.add_chrome(s9, "Overcoming Semantic Drift: Reverse Prompting & HITL", 9)
 
-    # Left Column: 2-Layer Uncertainty Card with OMML
+    # Main Container Card
     card_l9 = s9.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.3), Inches(5.7), Inches(4.7)
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.867), Inches(1.25), Inches(8.51), Inches(4.7)
     )
     card_l9.fill.solid()
     card_l9.fill.fore_color.rgb = COLOR_CARD_BG
     card_l9.line.color.rgb = COLOR_NAVY
     card_l9.line.width = Pt(1.5)
 
+    # Header Bar
     hdr_l9 = s9.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.3), Inches(5.7), Inches(0.65)
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.2), Inches(5.7), Inches(0.75)
     )
     hdr_l9.fill.solid()
     hdr_l9.fill.fore_color.rgb = COLOR_NAVY
@@ -2382,26 +2396,21 @@ def build_thesis_defense_deck():
     add_math_runs_to_paragraph(p_hl9, "🧠 Two-Layer Semantic Uncertainty ($U_{sem}$)", font_size=Pt(15), color=COLOR_WHITE, font_name=FONT_TITLE, bold=True)
     p_hl9.alignment = PP_ALIGN.CENTER
 
+    # Lower Text & Formula Box inside Container Card
     body_l9 = s9.shapes.add_textbox(
-        Inches(0.95), Inches(2.05), Inches(5.3), Inches(3.85)
+        Inches(1.06), Inches(3.72), Inches(6.37), Inches(1.238)
     )
     tf_bl9 = body_l9.text_frame
     tf_bl9.word_wrap = True
 
-    bullets_s9 = [
-        "Layer 1 (Structural): CFG regex AST check ($v_{struct} \\in \\{0, 1\\}$) catches syntax errors",
-        "Layer 2 (Semantic): Reverse Prompting reconstructs NL $\\mathcal{I}_{recon}$ directly from PDDL",
-        "Independent LLM judge measures semantic discrepancy $d_{sem} \\in [0, 1]$",
-    ]
-    for b_text in bullets_s9:
-        add_bullet_with_math(tf_bl9, f"•  {b_text}", font_size=Pt(12), color=COLOR_DARK_SLATE, space_after=Pt(6))
+    p_judge = tf_bl9.paragraphs[0]
+    add_math_runs_to_paragraph(p_judge, "Independent LLM judge measures semantic discrepancy $d_{sem} \\in [0, 1]$", font_size=Pt(14), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
 
     p_omml_lbl = tf_bl9.add_paragraph()
     p_omml_lbl.text = "Uncertainty Formulation:"
-    p_omml_lbl.font.name = FONT_TITLE
-    p_omml_lbl.font.size = Pt(12)
-    p_omml_lbl.font.bold = True
-    p_omml_lbl.font.color.rgb = COLOR_NAVY
+    p_omml_lbl.font.name = FONT_BODY
+    p_omml_lbl.font.size = Pt(14)
+    p_omml_lbl.font.color.rgb = COLOR_DARK_SLATE
     p_omml_lbl.space_before = Pt(4)
 
     p_omml9 = tf_bl9.add_paragraph()
@@ -2430,61 +2439,80 @@ def build_thesis_defense_deck():
     )
     add_omml_equation(p_omml9, u_sem_xml, font_size=Pt(12), color=COLOR_NAVY)
 
-    # Right Column: HITL Clarification Loop Card
-    card_r9 = s9.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(1.3), Inches(5.7), Inches(4.7)
+    # Right Action Banner 1: Amber Clarification
+    banner_amber = s9.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.505), Inches(3.801), Inches(4.247), Inches(0.807)
     )
-    card_r9.fill.solid()
-    card_r9.fill.fore_color.rgb = COLOR_CARD_BG
-    card_r9.line.color.rgb = COLOR_AMBER
-    card_r9.line.width = Pt(1.5)
+    banner_amber.fill.solid()
+    banner_amber.fill.fore_color.rgb = COLOR_AMBER
+    banner_amber.line.fill.background()
+    p_ba = banner_amber.text_frame.paragraphs[0]
+    p_ba.text = "⏸️ Fail-Fast HITL Clarification Loop"
+    p_ba.font.name = FONT_TITLE
+    p_ba.font.size = Pt(16)
+    p_ba.font.bold = True
+    p_ba.font.color.rgb = COLOR_WHITE
+    p_ba.alignment = PP_ALIGN.CENTER
 
-    hdr_r9 = s9.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(6.8), Inches(1.3), Inches(5.7), Inches(0.65)
+    # Right Action Banner 2: Green Guarantee
+    banner_green = s9.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.505), Inches(4.818), Inches(4.247), Inches(0.807)
     )
-    hdr_r9.fill.solid()
-    hdr_r9.fill.fore_color.rgb = COLOR_AMBER
-    hdr_r9.line.fill.background()
-    p_hr9 = hdr_r9.text_frame.paragraphs[0]
-    p_hr9.text = "⏸️ Fail-Fast HITL Clarification Loop"
-    p_hr9.font.name = FONT_TITLE
-    p_hr9.font.size = Pt(15)
-    p_hr9.font.bold = True
-    p_hr9.font.color.rgb = COLOR_WHITE
-    p_hr9.alignment = PP_ALIGN.CENTER
+    banner_green.fill.solid()
+    banner_green.fill.fore_color.rgb = COLOR_CARD_BG
+    banner_green.line.color.rgb = COLOR_GREEN
+    banner_green.line.width = Pt(1.5)
+    p_bg = banner_green.text_frame.paragraphs[0]
+    p_bg.text = "Fail-Fast Guarantee: Zero computational waste on physics simulation when intent is ambiguous"
+    p_bg.font.name = FONT_TITLE
+    p_bg.font.size = Pt(14)
+    p_bg.font.bold = True
+    p_bg.font.color.rgb = COLOR_GREEN
+    p_bg.alignment = PP_ALIGN.CENTER
 
-    body_r9 = s9.shapes.add_textbox(
-        Inches(7.0), Inches(2.05), Inches(5.3), Inches(3.85)
+    # Subcard 1: Structural
+    sub1_s9 = s9.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.458), Inches(2.543), Inches(2.133), Inches(0.818)
     )
-    tf_br9 = body_r9.text_frame
-    tf_br9.word_wrap = True
+    sub1_s9.fill.solid()
+    sub1_s9.fill.fore_color.rgb = COLOR_WHITE
+    sub1_s9.line.color.rgb = COLOR_CARD_BORDER
+    sub1_s9.line.width = Pt(1.0)
+    tf_sub1 = sub1_s9.text_frame
+    p_s1_0 = tf_sub1.paragraphs[0]
+    p_s1_0.text = "Structural"
+    p_s1_0.font.name = FONT_TITLE
+    p_s1_0.font.size = Pt(16)
+    p_s1_0.font.color.rgb = COLOR_DARK_SLATE
+    p_s1_0.alignment = PP_ALIGN.CENTER
 
-    bullets_r9 = [
-        "Evaluated BEFORE invoking graph solvers or physical tools",
-        "If $U_{sem} > \\tau_{sem}$: Pipeline pauses via LangGraph interrupt()",
-        "Prompts operator to clarify ambiguous parameters or missing nodes",
-        "Eliminates infinite trial-and-error conversational loops",
-        "Guarantees downstream tools receive mathematically verified intent",
-        "If operator approves valid syntax ($v_{struct} = 1$): Bypasses parsing straight to solver",
-    ]
-    for b_text in bullets_r9:
-        add_bullet_with_math(tf_br9, f"•  {b_text}", font_size=Pt(12), color=COLOR_DARK_SLATE, space_after=Pt(6))
+    p_s1_1 = tf_sub1.add_paragraph()
+    p_s1_1.alignment = PP_ALIGN.CENTER
+    add_math_runs_to_paragraph(p_s1_1, "CFG regex AST checks ($v_{struct} \\in \\{0, 1\\}$)", font_size=Pt(11), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
 
-    # Bottom Summary Banner
-    bb9 = s9.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(6.2), Inches(11.75), Inches(0.65)
+    # Subcard 2: Semantic
+    sub2_s9 = s9.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(4.042), Inches(2.575), Inches(2.133), Inches(0.818)
     )
-    bb9.fill.solid()
-    bb9.fill.fore_color.rgb = COLOR_CARD_BG
-    bb9.line.color.rgb = COLOR_GREEN
-    bb9.line.width = Pt(1.5)
-    p_bb9 = bb9.text_frame.paragraphs[0]
-    p_bb9.text = "Fail-Fast Guarantee: Zero computational waste on physics simulation when intent is ambiguous"
-    p_bb9.font.name = FONT_TITLE
-    p_bb9.font.size = Pt(13)
-    p_bb9.font.bold = True
-    p_bb9.font.color.rgb = COLOR_GREEN
-    p_bb9.alignment = PP_ALIGN.CENTER
+    sub2_s9.fill.solid()
+    sub2_s9.fill.fore_color.rgb = COLOR_WHITE
+    sub2_s9.line.color.rgb = COLOR_CARD_BORDER
+    sub2_s9.line.width = Pt(1.0)
+    tf_sub2 = sub2_s9.text_frame
+    p_s2_0 = tf_sub2.paragraphs[0]
+    p_s2_0.text = "Semantic"
+    p_s2_0.font.name = FONT_TITLE
+    p_s2_0.font.size = Pt(16)
+    p_s2_0.font.color.rgb = COLOR_DARK_SLATE
+    p_s2_0.alignment = PP_ALIGN.CENTER
+
+    p_s2_1 = tf_sub2.add_paragraph()
+    p_s2_1.alignment = PP_ALIGN.CENTER
+    p_s2_1.text = "Reverse Prompting reconstructs the intent"
+    p_s2_1.font.name = FONT_TITLE
+    p_s2_1.font.size = Pt(11)
+    p_s2_1.font.bold = True
+    p_s2_1.font.color.rgb = COLOR_DARK_SLATE
 
     builder.set_speaker_notes(
         s9,
@@ -2547,6 +2575,11 @@ def build_thesis_defense_deck():
                 "action": "Clarify Intent",
                 "color": COLOR_AMBER,
                 "condition": "$U_{sem} > \\tau_{sem}$",
+                "condition_xml": (
+                    '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>'
+                    '<m:r><m:t> &gt; </m:t></m:r>'
+                    '<m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>'
+                ),
                 "bullets": [
                     "Trigger: Semantic uncertainty exceeds threshold",
                     "Action: Pause pipeline via interrupt()",
@@ -2559,6 +2592,14 @@ def build_thesis_defense_deck():
                 "action": "Suggest Replan",
                 "color": COLOR_BURGUNDY,
                 "condition": "$U_{sem} \\le \\tau_{sem} \\land \\text{QoT}_{valid} = 0$",
+                "condition_xml": (
+                    '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>'
+                    '<m:r><m:t> ≤ </m:t></m:r>'
+                    '<m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>'
+                    '<m:r><m:t> ∧ </m:t></m:r>'
+                    '<m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub>'
+                    '<m:r><m:t> = 0</m:t></m:r>'
+                ),
                 "bullets": [
                     "Trigger: Valid semantics, but physics infeasible",
                     "Action: Physics failed; notifies operator",
@@ -2571,6 +2612,14 @@ def build_thesis_defense_deck():
                 "action": "Auto-Approve",
                 "color": COLOR_GREEN,
                 "condition": "$U_{sem} \\le \\tau_{sem} \\land \\text{QoT}_{valid} = 1$",
+                "condition_xml": (
+                    '<m:sSub><m:e><m:r><m:t>U</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>'
+                    '<m:r><m:t> ≤ </m:t></m:r>'
+                    '<m:sSub><m:e><m:r><m:t>τ</m:t></m:r></m:e><m:sub><m:r><m:t>sem</m:t></m:r></m:sub></m:sSub>'
+                    '<m:r><m:t> ∧ </m:t></m:r>'
+                    '<m:sSub><m:e><m:r><m:t>QoT</m:t></m:r></m:e><m:sub><m:r><m:t>valid</m:t></m:r></m:sub></m:sSub>'
+                    '<m:r><m:t> = 1</m:t></m:r>'
+                ),
                 "bullets": [
                     "Trigger: Clear semantics and feasible $\\text{GSNR}$",
                     "Action: Autonomous zero-touch provisioning",
@@ -2752,32 +2801,70 @@ def build_thesis_defense_deck():
 [Bridge to Next Slide]: Let us see how this entire system is deployed and tested.""",
     )
 
-    # 12. Slide 12: Experimental Setup (Split with Topology Map Image)
+    # 12. Slide 12: Experimental Setup (Unified Backdrop Container & Topology Map)
     print("Building Slide 12: Experimental Setup...")
-    builder.create_split_diagram_slide(
-        title="Experimental Setup & Testbed Environment",
-        slide_num=12,
-        content_data={
-            "icon": "🌐",
-            "title": "17-Node German Core Network Benchmark",
-            "title_color": COLOR_NAVY,
-            "border_color": COLOR_NAVY,
-            "bullets": [
-                r"Realistic telecom benchmark: $|V| = 17, |E| = 26$ bidirectional fiber links",
-                r"Standard Single-Mode Fiber (SMF-28): $\alpha = 0.2\text{ dB/km}$",
-                r"Dispersion parameter $D = 16.7\text{ ps/(nm}\cdot\text{km})$, $\gamma = 1.2\text{ W}^{-1}\text{km}^{-1}$",
-                r"Amplified spans: dual-stage EDFAs with noise figure $NF = 5.5\text{ dB}$",
-                r"Dynamic span lengths ranging from $L \in [45, 350]\text{ km}$",
-                "Orchestrator: LangGraph StateGraph with memory persistence",
-                "Telemetry: RESTConf and Mock SDON testbed client adapters",
-            ],
-        },
-        image_info={
-            "image_path": "docs/LLM_Wiki/wiki/presentations/thesis_defense/assets/germany_17nodes.png",
-            "title": "🗺️ Nobel-Germany 17-Node Optical Core Backbone",
-            "caption": "⚡ 17 ROADMs, 26 amplified fiber links, RESTConf telemetry",
-        },
-        notes="""[Estimated Time]: 50s
+    s12 = builder.prs.slides.add_slide(builder.prs.slide_layouts[6])
+    builder.add_chrome(s12, "Experimental Setup & Testbed Environment", 12)
+
+    # Main Container Card (expanded width 9.404")
+    card_l12 = s12.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.3), Inches(9.404), Inches(5.35)
+    )
+    card_l12.fill.solid()
+    card_l12.fill.fore_color.rgb = COLOR_CARD_BG
+    card_l12.line.color.rgb = COLOR_NAVY
+    card_l12.line.width = Pt(1.5)
+
+    # Header Bar
+    hdr_l12 = s12.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.75), Inches(1.25), Inches(5.6), Inches(0.7)
+    )
+    hdr_l12.fill.solid()
+    hdr_l12.fill.fore_color.rgb = COLOR_NAVY
+    hdr_l12.line.fill.background()
+    p_hl12 = hdr_l12.text_frame.paragraphs[0]
+    p_hl12.text = "🌐 17-Node German Core Network Benchmark"
+    p_hl12.font.name = FONT_TITLE
+    p_hl12.font.size = Pt(15)
+    p_hl12.font.bold = True
+    p_hl12.font.color.rgb = COLOR_WHITE
+    p_hl12.alignment = PP_ALIGN.CENTER
+
+    # Bullets Textbox
+    body_l12 = s12.shapes.add_textbox(
+        Inches(1.15), Inches(2.863), Inches(5.517), Inches(1.935)
+    )
+    tf_bl12 = body_l12.text_frame
+    tf_bl12.word_wrap = True
+
+    bullets_s12 = [
+        r"Realistic telecom topology: $|V| = 17, |E| = 26$ bidirectional fiber links",
+        r"Standard Single-Mode Fiber (SMF-28): $\alpha = 0.2\text{ dB/km}$",
+        r"Dispersion parameter $D = 16.7\text{ ps/(nm}\cdot\text{km})$, $\gamma = 1.2\text{ W}^{-1}\text{km}^{-1}$",
+        r"Amplified spans: dual-stage EDFAs with noise figure $NF = 5.5\text{ dB}$",
+        r"Dynamic span lengths ranging from $L \in [45, 350]\text{ km}$",
+        "Orchestrator: LangGraph StateGraph with memory persistence",
+        "Telemetry: RESTConf and Mock SDON testbed client adapters",
+    ]
+    for b_text in bullets_s12:
+        add_bullet_with_math(tf_bl12, f"•  {b_text}", font_size=Pt(12), color=COLOR_DARK_SLATE, space_after=Pt(3))
+
+    # Topology Image & Source Citation
+    img_path = Path("docs/LLM_Wiki/wiki/presentations/thesis_defense/assets/germany_17nodes.png")
+    pic12 = s12.shapes.add_picture(str(img_path), Inches(6.85), Inches(2.075), Inches(5.5), Inches(3.67))
+    pic12.line.color.rgb = COLOR_CARD_BORDER
+    pic12.line.width = Pt(1.0)
+
+    cite_box = s12.shapes.add_textbox(Inches(6.85), Inches(5.527), Inches(5.5), Inches(0.236))
+    p_cite = cite_box.text_frame.paragraphs[0]
+    p_cite.text = "From: https://topolib.readthedocs.io/en/latest/topology_repository.html"
+    p_cite.font.name = FONT_BODY
+    p_cite.font.size = Pt(9)
+    p_cite.font.color.rgb = COLOR_COOL_GRAY
+
+    builder.set_speaker_notes(
+        s12,
+        """[Estimated Time]: 50s
 [Key Message]: Realistic evaluation using the standard 17-node German optical topology and RESTConf testbed.
 [Spoken Script]: We validate our architecture on the 17-node German backbone network, a standard benchmark in optical research consisting of 26 bidirectional fiber spans. All spans model standard SMF-28 fiber with realistic attenuation, dispersion, and EDFA noise figures. The orchestrator is implemented in Python using LangGraph, interfacing with the optical testbed via RESTConf APIs, and benchmarked using state-of-the-art LLMs as semantic translators.
 [Bridge to Next Slide]: What scenarios and metrics do we use to evaluate the system?""",

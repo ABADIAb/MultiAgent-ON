@@ -97,14 +97,31 @@ Following the user's manual design refinements in PowerPoint to reduce text dens
    - Added `--diff` and `--json` CLI capabilities to `scripts/inspect_deck.py` with unicode math normalization.
    - Synchronized to both local `.agents/skills/presentation-coauthor/` and global `~/.gemini/config/skills/presentation-coauthor/`.
 
+### 2.6 Manual PowerPoint Visual Enhancement (Slides 6, 9, 10, 12) & Complete Deck Synchronization
+Following the user's manual design refinements in PowerPoint across Slides 6, 9, 10, and 12:
+1. **Safety Backup & Deep OpenXML Traversal:**
+   - Established safety backup `thesis_defense_user_backup.pptx` prior to code modifications.
+   - Employed `scripts/inspect_deck.py --json` and custom OpenXML element parsers to extract exact bounding boxes ($\Delta \le 0.08''$), shape styling, and DrawingML OMML mathematical equations.
+2. **Programmatic Generator Updates ([`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py)):**
+   - **Slide 6 (Proposed Solution: RADG with Neurosymbolic Planning):** Cleaned contributions header to `🎯 Core Thesis Contributions`, removing redundant parenthetical subtitle.
+   - **Slide 9 (Overcoming Semantic Drift: Reverse Prompting & HITL):** Rebuilt layout into an asymmetrical design featuring an expanded container card ($8.51'' \times 4.7''$), dedicated white sub-cards for `Structural` (CFG regex AST checks, $v_{struct} \in \{0, 1\}$) and `Semantic` (Reverse Prompting intent reconstruction), centered piecewise formulation for $U_{sem}$, and two right-anchored floating action banners (`⏸️ Fail-Fast HITL Clarification Loop` in `#B07D00` and `Fail-Fast Guarantee` in `#1A7F37`).
+   - **Slide 10 (Pre-Deployment Risk Gate: The RADG Decision Function):** Updated top container to clean title `Piecewise Decision Formulation:`. Embedded native OMML condition equations directly into the colored header pills of the three decision branches (`$U_{sem} > \tau_{sem}$` for Clarify, `$U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 0$` for Replan, `$U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 1$` for Auto-Approve), eliminating redundant "Condition:" labels and streamlining the body textboxes to 4 focused bullets each.
+   - **Slide 12 (Experimental Setup & Testbed Environment):** Unified the backdrop container card ($9.404'' \times 5.35''$), standardized terminology to *telecom topology*, and added the official TopoLib source citation link directly beneath the 17-node Nobel-Germany network map.
+3. **Specification Alignment ([`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md)):**
+   - Synchronized layout specifications, visual component taxonomy, mathematical equations, and bullet points across Slides 6, 9, 10, and 12.
+4. **Recompilation, Automated Diffing & Vector Export:**
+   - Re-executed `build_defense_deck.py` to regenerate the presentation binary.
+   - Executed `inspect_deck.py thesis_defense_user_backup.pptx --diff thesis_defense.pptx`, validating **0 discrepancy(ies) detected across all 16 slides (100% match)**.
+   - Re-exported vector PDF [`thesis_defense.pdf`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/thesis_defense.pdf) and refreshed 1080p `slides_png/` previews via Windows PowerPoint COM automation.
+
 ---
 
 ## 3. Verification & Test Outcomes
 
-- **Automated Diff Verification:** Executed `inspect_deck.py <user_backup.pptx> --diff <thesis_defense.pptx>`. Result: **0 discrepancies detected across all 16 slides (100% match)**.
+- **Automated Diff Verification:** Executed `inspect_deck.py <user_backup.pptx> --diff <thesis_defense.pptx>`. Result: **0 discrepancies detected across all 16 slides (100% match)** across all iterations (Slides 1–5, Slides 6–8, and Slides 6, 9, 10, 12).
 - **Unit Test Suite:** Ran `uv run pytest`. All **278 unit tests passed cleanly** (100% success, 0 regressions, 4.42s runtime).
 - **Presentation Compilation & Export:** `build_defense_deck.py` and `export_presentation.py` completed with exit code 0.
-- **Visual Inspection:** Inspected all generated slide PNGs (`slide_06.png`, `slide_07.png`, `slide_08.png`), verifying sharp layout, native math typography, and zero text overflow.
+- **Visual Inspection:** Inspected all generated slide PNGs (`slide_01.png` to `slide_16.png`), verifying sharp layout, native math typography, proper z-ordering, and zero text overflow.
 - **Git Audit:** Confirmed clean git status touching only relevant active documents and preserving historical weekly reports.
 
 ---

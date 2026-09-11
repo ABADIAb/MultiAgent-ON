@@ -199,7 +199,7 @@
 ## Slide 6: Proposed Solution: RADG with Neurosymbolic Planning
 
 > [!LAYOUT]
-> 2-column comparative architecture slide: Left column features two vertically stacked subsystem cards containing 3 modular white rounded pills each (Neural Subsystem: Semantic Domain on top, and Symbolic Subsystem: Optical Domain on bottom); Right column features a prominent "Core Thesis Contributions (Architectural Novelties)" container with 3 vertically stacked highlight blocks one below the other.
+> 2-column comparative architecture slide: Left column features two vertically stacked subsystem cards containing 3 modular white rounded pills each (Neural Subsystem: Semantic Domain on top, and Symbolic Subsystem: Optical Domain on bottom); Right column features a prominent "Core Thesis Contributions" container with 3 vertically stacked highlight blocks one below the other.
 
 > [!VISUAL]
 > - Left Column (Vertically Stacked Subsystems - $w=5.7''$, $x=0.75''$):
@@ -214,7 +214,7 @@
 >       - `Deterministic tools usage`
 >       - `Physical feasibility validation`
 > - Right Column (Core Thesis Contributions - $w=5.75''$, $x=6.8''$):
->   - Container Header Bar: `🎯 Core Thesis Contributions (Architectural Novelties)` (Navy bar `#0F2C53`)
+>   - Container Header Bar: `🎯 Core Thesis Contributions` (Navy bar `#0F2C53`)
 >   - 3 Vertically Stacked Highlight Blocks (Cards with colored borders):
 >     - Block 1: `1. Scoped GraphRAG for IBN in a Neurosymbolic system` (Navy border `#0F2C53`)
 >     - Block 2: `2. Quantification of Semantic Uncertainty for IBN in a Neurosymbolic system` (Amber border `#B07D00`)
@@ -326,26 +326,30 @@
 
 ---
 
-## Slide 9: Overcoming Semantic Drift: Reverse Prompting & HITL Loop
+## Slide 9: Overcoming Semantic Drift: Reverse Prompting & HITL
 
 > [!LAYOUT]
-> 2-column layout: Left column details the 2-layer uncertainty formula with native OMML piecewise math; Right column illustrates the closed-loop HITL clarification mechanism.
+> Asymmetrical layout: Large prominent container card on the left ($w=8.51''$) hosting modular Structural vs Semantic cards alongside the formal $U_{sem}$ formula and LLM agreement judge; Right side features two stacked floating action banners for fail-fast intervention and computational guarantees.
 
 > [!VISUAL]
-> - Left Column: Two-Layer Uncertainty Card with Native OMML Equation:
->   $$U_{sem} = \begin{cases} 1 & \text{if } v_{struct} = 0 \\ d_{sem} & \text{if } v_{struct} = 1 \end{cases}$$
-> - Right Column: HITL Clarification Loop Card (Amber header `#B07D00`, interrupt badge `⏸️ LangGraph interrupt()`)
-> - Bottom Banner: `Evaluated BEFORE physics tools — Zero human interruption when U_sem <= tau_sem`
+> - Main Container Card ($w=8.51''$, $h=4.7''$, $x=0.867''$, fill `#F4F6F9`, border `#0F2C53`):
+>   - Header Pill: `🧠 Two-Layer Semantic Uncertainty ($U_{sem}$)` ($w=5.7''$, fill `#0F2C53`, white text)
+>   - Sub-card 1 (`Structural`, white fill, border `#D0D7DE`): `CFG regex AST checks ($v_{struct} \in \{0, 1\}$)`
+>   - Sub-card 2 (`Semantic`, white fill, border `#D0D7DE`): `Reverse Prompting reconstructs the intent`
+>   - Commentary & Judge: `Independent LLM judge measures semantic discrepancy $d_{sem} \in [0, 1]$`
+>   - Native OMML Piecewise Equation:
+>     $$U_{sem} = \begin{cases} 1 & \text{if } v_{struct} = 0 \\ d_{sem} & \text{if } v_{struct} = 1 \end{cases}$$
+> - Right Action Banners ($w=4.25''$, $x=7.505''$):
+>   - Top Banner (Amber fill `#B07D00`, white text): `⏸️ Fail-Fast HITL Clarification Loop`
+>   - Bottom Banner (Neutral fill `#F4F6F9`, Green border `#1A7F37`): `Fail-Fast Guarantee: Zero computational waste on physics simulation when intent is ambiguous`
 
 - **Two-Layer Semantic Uncertainty Gate ($U_{sem}$)**
-  - Layer 1 (Structural): Context-Free Grammar (CFG) AST validator catches syntax errors
-  - Layer 2 (Semantic): Reverse Prompting reconstructs NL intent directly from generated PDDL
+  - Structural Layer: Context-Free Grammar (CFG) regex AST checks ($v_{struct} \in \{0, 1\}$)
+  - Semantic Layer: Reverse Prompting reconstructs the intent directly from generated PDDL
   - Semantic Divergence: Independent LLM judge measures semantic distance $d_{sem} \in [0, 1]$
-- **Fail-Fast HITL Clarification Loop**
-  - Evaluated BEFORE invoking graph solvers or physical tools
-  - If $U_{sem} > \tau_{sem}$: Pipeline pauses via LangGraph `interrupt()`
-  - Prompts operator to clarify ambiguous parameters or missing endpoints
-  - Eliminates infinite trial-and-error conversational loops
+- **Fail-Fast Action Banners**
+  - **Fail-Fast HITL Clarification Loop:** Pauses pipeline via `interrupt()` before downstream graph/physical tools
+  - **Computational Guarantee:** Zero computational waste on physics simulation when intent is ambiguous
 
 <!-- Speaker Notes:
 [Estimated Time]: 60s
@@ -359,23 +363,23 @@
 ## Slide 10: Pre-Deployment Risk Gate: The RADG Decision Function
 
 > [!LAYOUT]
-> Structured Decision Tree slide: Top card displays the formal piecewise OMML equation; Bottom section displays 3 distinct outcome branch cards.
+> Structured Decision Tree slide: Top card displays the formal piecewise OMML equation; Bottom section displays 3 distinct outcome branch cards featuring embedded OMML condition equations directly inside their colored header pills.
 
 > [!VISUAL]
 > - Top Container: Formal RADG Piecewise Equation in native OMML:
 >   $$D(U_{sem}, \text{QoT}_{valid}) = \begin{cases} \text{clarify} & \text{if } U_{sem} > \tau_{sem} \\ \text{replan} & \text{if } U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 0 \\ \text{approve} & \text{if } U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 1 \end{cases}$$
-> - 3 Bottom Outcome Cards:
->   - `Auto-Approve` (Green fill/border `#1A7F37`, badge `✓ Deploy`)
->   - `Suggest Replan` (Burgundy fill/border `#85200C`, badge `↺ Relax Physics`)
->   - `Clarify Intent` (Amber fill/border `#B07D00`, badge `❓ Prompt Operator`)
+> - 3 Bottom Outcome Cards (with embedded condition equations in header pills):
+>   - `Clarify Intent` (Amber fill/border `#B07D00`, condition $U_{sem} > \tau_{sem}$ in header pill)
+>   - `Suggest Replan` (Burgundy fill/border `#85200C`, condition $U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 0$ in header pill)
+>   - `Auto-Approve` (Green fill/border `#1A7F37`, condition $U_{sem} \le \tau_{sem} \land \text{QoT}_{valid} = 1$ in header pill)
 
 - **State Space & Signals**
   - Evaluates semantic uncertainty $U_{sem} \in [0, 1]$ and binary QoT feasibility $\text{QoT}_{valid} \in \{0, 1\}$
   - Action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$
-- **Action Guarantees**
-  - **Auto-Approve:** Autonomous zero-touch deployment for verified, feasible lightpaths
-  - **Suggest Replan:** Notifies operator that physical feasibility failed; suggests relaxing baud rate or bypass
-  - **Clarify:** Early intervention for ambiguous intents before wasting compute on physics
+- **Action Guarantees & Triggers**
+  - **Clarify Intent:** Semantic uncertainty exceeds threshold ➔ pauses pipeline via `interrupt()`, prompts operator for missing data
+  - **Suggest Replan:** Valid semantics, but physics infeasible ➔ notifies operator and suggests relaxing constraints (e.g. lower baud rate)
+  - **Auto-Approve:** Clear semantics and feasible GSNR ➔ autonomous zero-touch provisioning and auditable planning report
 
 <!-- Speaker Notes:
 [Estimated Time]: 60s
@@ -421,22 +425,29 @@
 ## Slide 12: Experimental Setup & Testbed Environment
 
 > [!LAYOUT]
-> Split-column layout: Left column details network topology and software stack; Right column contains a dedicated Topology Map Figure Placeholder.
+> Integrated wide layout: A single unified background container ($w=9.404''$) anchors the 17-node core network specifications on the left and the Nobel-Germany optical core backbone map on the right with a dedicated source citation link.
 
 > [!VISUAL]
-> - Left Column: Testbed Specifications Card (Navy header, node/link badges)
-> - Right Column: 17-Node Nobel-Germany Core Network Topology Map (`germany_17nodes.png`, container card with Navy header bar and caption callout)
+> - Unified Container Card ($w=9.404''$, $h=5.35''$, $x=0.75''$, fill `#F4F6F9`, border `#0F2C53`):
+>   - Header Bar: `🌐 17-Node German Core Network Benchmark` ($w=5.6''$, fill `#0F2C53`, white text)
+>   - Network Specifications (7 bullet items at $x=1.15''$, 12 pt Arial):
+>     - Telecom topology: $|V| = 17, |E| = 26$ bidirectional fiber links
+>     - SMF-28 parameters: $\alpha = 0.2$ dB/km, $D = 16.7$ ps/(nm$\cdot$km), $\gamma = 1.2\text{ W}^{-1}\text{km}^{-1}$
+>     - Dual-stage EDFAs ($NF = 5.5$ dB), span lengths $L \in [45, 350]$ km
+>     - LangGraph StateGraph orchestrator with memory persistence & RESTConf adapters
+> - Topology Graphic & Source Citation ($x=6.85''$):
+>   - High-resolution Nobel-Germany 17-Node Map (`germany_17nodes.png`, $w=5.5''$, $h=3.67''$, border `#D0D7DE`)
+>   - Source Link Subtitle: `From: https://topolib.readthedocs.io/en/latest/topology_repository.html` (9 pt `#5A6B82`)
 
 - **17-Node German Core Network Benchmark**
-  - Realistic telecom topology: 17 ROADM nodes, 26 bidirectional fiber links
-  - Standard Single-Mode Fiber (SMF-28): $\alpha = 0.2$ dB/km, $D = 16.7$ ps/(nm$\cdot$km)
-  - Amplified spans: dual-stage EDFAs with noise figure $F = 5.5$ dB
-  - Link lengths ranging dynamically from 45 km to 350 km
-- **Software Orchestration Stack**
-  - Orchestrator: LangGraph StateGraph with checkpointed memory persistence
-  - Physics Engine: Analytical Python GN-model validator
-  - Symbolic Solver: NetworkX Yen's KSP path generation
-  - Testbed Interface: RESTConf and Mock SDON testbed adapters
+  - Realistic telecom topology: $|V| = 17, |E| = 26$ bidirectional fiber links
+  - Standard Single-Mode Fiber (SMF-28): $\alpha = 0.2$ dB/km, $D = 16.7$ ps/(nm$\cdot$km), $\gamma = 1.2\text{ W}^{-1}\text{km}^{-1}$
+  - Amplified spans: dual-stage EDFAs with noise figure $NF = 5.5$ dB
+  - Dynamic span lengths ranging from $L \in [45, 350]$ km
+  - Orchestrator: LangGraph StateGraph with memory persistence
+  - Telemetry: RESTConf and Mock SDON testbed client adapters
+- **Topology Source**
+  - Sourced directly from TopoLib repository (`https://topolib.readthedocs.io/en/latest/topology_repository.html`)
 
 <!-- Speaker Notes:
 [Estimated Time]: 50s
