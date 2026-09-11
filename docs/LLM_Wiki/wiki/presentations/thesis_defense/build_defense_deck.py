@@ -1185,7 +1185,7 @@ class DeckBuilder:
         symbolic_tops = [Inches(4.977), Inches(5.524), Inches(6.122)]
         symbolic_pills = symbolic_data.get("pills", [
             "Topology extraction",
-            "Deterministic tools usage",
+            "Compute candidate lightpaths",
             "Physical feasibility validation",
         ])
         for p_idx, p_text in enumerate(symbolic_pills[:3]):
@@ -1712,7 +1712,7 @@ class DeckBuilder:
         h_base.line.fill.background()
         tf_hb = h_base.text_frame
         p_hb = tf_hb.paragraphs[0]
-        p_hb.text = f"{baselines_info.get('icon', '⚖️')} {baselines_info['title']}"
+        p_hb.text = f"{baselines_info['icon']} {baselines_info['title']}" if baselines_info.get("icon") else baselines_info["title"]
         p_hb.font.name = FONT_TITLE
         p_hb.font.size = Pt(12)
         p_hb.font.bold = True
@@ -1738,7 +1738,7 @@ class DeckBuilder:
         h_corp.line.fill.background()
         tf_hc = h_corp.text_frame
         p_hc = tf_hc.paragraphs[0]
-        p_hc.text = f"{corpus_info.get('icon', '🧪')} {corpus_info['title']}"
+        p_hc.text = f"{corpus_info['icon']} {corpus_info['title']}" if corpus_info.get("icon") else corpus_info["title"]
         p_hc.font.name = FONT_TITLE
         p_hc.font.size = Pt(12)
         p_hc.font.bold = True
@@ -1746,11 +1746,11 @@ class DeckBuilder:
         p_hc.alignment = PP_ALIGN.CENTER
 
         # Table: 100 Test Demands (4 Risk Classes)
-        t_shape = s.shapes.add_table(5, 3, Inches(0.85), Inches(4.62), Inches(4.4), Inches(2.18))
+        t_shape = s.shapes.add_table(5, 3, Inches(0.978), Inches(4.53), Inches(4.144), Inches(2.215))
         table = t_shape.table
-        table.columns[0].width = Inches(1.45)
-        table.columns[1].width = Inches(1.75)
-        table.columns[2].width = Inches(1.20)
+        table.columns[0].width = Inches(1.366)
+        table.columns[1].width = Inches(1.648)
+        table.columns[2].width = Inches(1.130)
 
         t_headers = ["Class & Size", "Intent Characteristics", "RADG Action"]
         for j, h in enumerate(t_headers):
@@ -1843,7 +1843,7 @@ class DeckBuilder:
 
             # Title line
             p_title = tf_p.paragraphs[0]
-            p_title.text = f"{pillar.get('icon', '')} {pillar['title']}"
+            p_title.text = f"{pillar['icon']} {pillar['title']}" if pillar.get("icon") else pillar["title"]
             p_title.font.name = FONT_TITLE
             p_title.font.size = Pt(11)
             p_title.font.bold = True
@@ -2219,7 +2219,7 @@ class DeckBuilder:
 
         tf_h = header_bar.text_frame
         p_h = tf_h.paragraphs[0]
-        p_h.text = "🌐 Deterministic Subtopology Scoping"
+        p_h.text = "Deterministic Subtopology Scoping"
         p_h.font.name = FONT_TITLE
         p_h.font.size = Pt(15)
         p_h.font.bold = True
@@ -2403,27 +2403,27 @@ def build_thesis_defense_deck():
         slide_num=2,
         rows=[
             {
-                "prefix": "[01] Bottleneck",
+                "prefix": "01 Bottleneck",
                 "title": "The Optical Intent Planning Bottleneck",
                 "desc": "Physical-layer constraints, token saturation, and hallucinated routing in optical backbones",
             },
             {
-                "prefix": "[02] Architecture",
+                "prefix": "02 Architecture",
                 "title": "Neurosymbolic Intent Planning Pipeline",
                 "desc": "Decoupling probabilistic reasoning ($\\mathcal{I}_{NL} \\to \\mathcal{S}_{PDDL}$) from deterministic solvers and physics tools",
             },
             {
-                "prefix": "[03] Risk Gates",
+                "prefix": "03 Risk Gates",
                 "title": "Pre-Deployment Risk Gates: Semantic & Physical Validation",
                 "desc": "Sequential fail-fast decision via Layer 1/2 semantic gate ($U_{sem}$) and GN-model QoT gate ($\\text{QoT}_{valid}$)",
             },
             {
-                "prefix": "[04] Evaluation",
+                "prefix": "04 Evaluation",
                 "title": "Experimental Testbed Validation on 17-Node Optical Topology",
                 "desc": "Benchmarking safety ($\\text{UAR} = 100\\%$), human intervention reduction, and orchestration latency against baselines",
             },
             {
-                "prefix": "[05] Outlook",
+                "prefix": "05 Outlook",
                 "title": "Key Takeaways, System Guarantees & Future Directions",
                 "desc": "Summary of thesis contributions, operational guarantees, and extension to joint compute scheduling",
             },
@@ -2452,27 +2452,27 @@ def build_thesis_defense_deck():
         slide_num=4,
         challenges=[
             {
-                "badge_text": "⚠️ 1. Token Budget Saturation",
+                "badge_text": "1. Token Budget Saturation",
                 "badge_color": COLOR_BURGUNDY,
                 "desc": "Telemetry dumps trigger attention degradation, dropping critical route exclusions",
             },
             {
-                "badge_text": "🚫 2. Hallucinated Physics",
+                "badge_text": "2. Hallucinated Physics",
                 "badge_color": COLOR_BURGUNDY,
                 "desc": "Probabilistic predictors lack wave propagation engines, violating non-linear GSNR margins",
             },
             {
-                "badge_text": "🔄 3. Semantic Drift",
+                "badge_text": "3. Semantic Drift",
                 "badge_color": COLOR_BURGUNDY,
                 "desc": "Unconstrained multi-turn conversational loops mutate or drop initial boundary constraints",
             },
             {
-                "badge_text": "⏱️ 4. Reactive Deployment Latency",
+                "badge_text": "4. Reactive Deployment Latency",
                 "badge_color": COLOR_BURGUNDY,
                 "desc": "Trial-and-error configuration risks live outages and introduces high control-plane recovery latency",
             },
             {
-                "badge_text": "👥 5. Suboptimal HITL Friction",
+                "badge_text": "5. Suboptimal HITL Friction",
                 "badge_color": COLOR_BURGUNDY,
                 "desc": "Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early",
             },
@@ -2491,8 +2491,8 @@ def build_thesis_defense_deck():
         slide_num=5,
         upper_cards=[
             {
-                "icon": "📥",
-                "title": "[1] Given (System Inputs)",
+                "icon": "",
+                "title": "Given (System Inputs)",
                 "title_color": COLOR_NAVY,
                 "border_color": COLOR_NAVY,
                 "bullets": [
@@ -2503,8 +2503,8 @@ def build_thesis_defense_deck():
                 ],
             },
             {
-                "icon": "⚙️",
-                "title": "[2] Decide (Variables & Actions)",
+                "icon": "",
+                "title": "Decide (Variables & Actions)",
                 "title_color": COLOR_NAVY,
                 "border_color": COLOR_NAVY,
                 "bullets": [
@@ -2515,8 +2515,8 @@ def build_thesis_defense_deck():
                 ],
             },
             {
-                "icon": "🎯",
-                "title": "[3] Objective (Optimization)",
+                "icon": "",
+                "title": "Objective (Optimization)",
                 "title_color": COLOR_GREEN,
                 "border_color": COLOR_GREEN,
                 "bullets": [
@@ -2528,7 +2528,7 @@ def build_thesis_defense_deck():
             },
         ],
         lower_constraints={
-            "title": "🔒 [4] Constraints: Resource Limits vs. Physical & Semantic Boundaries",
+            "title": "Constraints: Resource Limits vs. Physical & Semantic Boundaries",
             "left_title": "Resource Constraints (System & Solver Limits):",
             "left_bullets": [
                 r"Token context limits ($T_{prompt} \le T_{max}$)",
@@ -2554,7 +2554,7 @@ def build_thesis_defense_deck():
         title="Proposed Solution: RADG with Neurosymbolic Planning",
         slide_num=6,
         neural_data={
-            "title": "🧠 Neural Subsystem (Semantic Domain)",
+            "title": "Neural Subsystem (Semantic Domain)",
             "pills": [
                 "Translation of the intent",
                 "Validation of the semantic similarity",
@@ -2562,17 +2562,17 @@ def build_thesis_defense_deck():
             ],
         },
         symbolic_data={
-            "title": "📐 Symbolic Subsystem (Optical Domain)",
+            "title": "Symbolic Subsystem (Optical Domain)",
             "pills": [
                 "Topology extraction",
-                "Deterministic tools usage",
+                "Compute candidate lightpaths",
                 "Physical feasibility validation",
             ],
         },
-        contributions_header="🎯 Core Thesis Contributions",
+        contributions_header="Core Thesis Contributions",
         contributions=[
             {
-                "title": "1. Scoped GraphRAG for IBN in a Neurosymbolic system",
+                "title": "1. Scoped GraphRAG for IBON in a Neurosymbolic system",
                 "border_color": COLOR_NAVY,
                 "bullets": [
                     "Strict separation: probabilistic semantic translation vs deterministic physics",
@@ -2580,7 +2580,7 @@ def build_thesis_defense_deck():
                 ],
             },
             {
-                "title": "2. Quantification of Semantic Uncertainty for IBN in a Neurosymbolic system",
+                "title": "2. Quantification of Semantic Uncertainty for IBON in a Neurosymbolic system",
                 "border_color": COLOR_AMBER,
                 "bullets": [
                     r"Layer 1 syntax check ($v_{struct} \in \{0, 1\}$)",
@@ -2588,7 +2588,7 @@ def build_thesis_defense_deck():
                 ],
             },
             {
-                "title": "3. Risk-Adaptive Decision Gate (RADG) for optimized HITL",
+                "title": "3. Risk-Adaptive Decision Gate (RADG) for HITL optimization",
                 "border_color": COLOR_GREEN,
                 "bullets": [
                     r"Piecewise decision $D(U_{sem}, \text{QoT}_{valid})$: clarify, replan, or auto-approve",
@@ -2679,7 +2679,7 @@ def build_thesis_defense_deck():
     hdr_l9.fill.fore_color.rgb = COLOR_NAVY
     hdr_l9.line.fill.background()
     p_hl9 = hdr_l9.text_frame.paragraphs[0]
-    add_math_runs_to_paragraph(p_hl9, "🧠 Two-Layer Semantic Uncertainty ($U_{sem}$)", font_size=Pt(15), color=COLOR_WHITE, font_name=FONT_TITLE, bold=True)
+    add_math_runs_to_paragraph(p_hl9, "Two-Layer Semantic Uncertainty ($U_{sem}$)", font_size=Pt(15), color=COLOR_WHITE, font_name=FONT_TITLE, bold=True)
     p_hl9.alignment = PP_ALIGN.CENTER
 
     # Lower Text & Formula Box inside Container Card
@@ -2733,7 +2733,7 @@ def build_thesis_defense_deck():
     banner_amber.fill.fore_color.rgb = COLOR_AMBER
     banner_amber.line.fill.background()
     p_ba = banner_amber.text_frame.paragraphs[0]
-    p_ba.text = "⏸️ Fail-Fast HITL Clarification Loop"
+    p_ba.text = "Fail-Fast HITL Clarification Loop"
     p_ba.font.name = FONT_TITLE
     p_ba.font.size = Pt(16)
     p_ba.font.bold = True
@@ -3109,7 +3109,7 @@ def build_thesis_defense_deck():
     hdr_l12.fill.fore_color.rgb = COLOR_NAVY
     hdr_l12.line.fill.background()
     p_hl12 = hdr_l12.text_frame.paragraphs[0]
-    p_hl12.text = "🌐 17-Node German Core Network Benchmark"
+    p_hl12.text = "17-Node German Core Network Benchmark"
     p_hl12.font.name = FONT_TITLE
     p_hl12.font.size = Pt(15)
     p_hl12.font.bold = True
@@ -3162,7 +3162,7 @@ def build_thesis_defense_deck():
         title="Evaluation Framework & Benchmark Scenarios",
         slide_num=13,
         baselines_info={
-            "icon": "⚖️",
+            "icon": "",
             "title": "Architectural Baselines",
             "bullets": [
                 "Baseline A (LLM-Only): Direct prompt-to-configuration generation with reactive retry",
@@ -3172,7 +3172,7 @@ def build_thesis_defense_deck():
             ],
         },
         corpus_info={
-            "icon": "🧪",
+            "icon": "",
             "title": "100 Test Demands (4 Risk Classes)",
             "table_rows": [
                 ("Class I: Nominal [40]", "Feasible path, unambiguous", "Auto-Approve", COLOR_GREEN),
@@ -3189,28 +3189,28 @@ def build_thesis_defense_deck():
         },
         pillars=[
             {
-                "icon": "🧠",
+                "icon": "",
                 "title": "1. Semantic Translation Accuracy (Neural Domain)",
                 "color": COLOR_AMBER,
                 "focus": "Validates NL ➔ PDDL translation without constraint loss or hallucinations",
                 "metrics": "Constraint Retention Rate (CRR = 100%) • CFG AST Pass Rate ($v_{struct} = 1$)",
             },
             {
-                "icon": "📐",
+                "icon": "",
                 "title": "2. Physical Feasibility (Optical Layer Integrity)",
                 "color": COLOR_GREEN,
                 "focus": "Validates optical reach and non-linear impairments before controller push",
                 "metrics": "Unsafe Approval Rate (UAR = 0% hard invariant) • QoT Feasibility (100%)",
             },
             {
-                "icon": "⚡",
+                "icon": "",
                 "title": "3. Orchestration & Resource Efficiency (System Limits)",
                 "color": COLOR_NAVY,
                 "focus": "Quantifies prompt token savings from GraphRAG and operator fatigue reduction",
                 "metrics": "> 75% Token Reduction ($G_{sub} \\subseteq G$) • > 70% HITL Cut • Sub-second compute",
             },
             {
-                "icon": "🔒",
+                "icon": "",
                 "title": "4. RADG Decision Robustness (Gate Reliability)",
                 "color": COLOR_BURGUNDY,
                 "focus": "Stress-tests piecewise decision logic ($U_{sem}$, $\\text{QoT}_{valid}$) across boundary conditions",

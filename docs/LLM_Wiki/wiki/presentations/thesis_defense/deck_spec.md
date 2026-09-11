@@ -43,7 +43,7 @@
 
 > [!VISUAL]
 > - 5 horizontal container banners (`#F4F6F9` fill, `#D0D7DE` border)
-> - Progression badges: `[01] Bottleneck`, `[02] Architecture`, `[03] Risk Gates`, `[04] Evaluation`, `[05] Outlook`
+> - Progression badges: `01 Bottleneck`, `02 Architecture`, `03 Risk Gates`, `04 Evaluation`, `05 Outlook`
 > - Bold titles in Navy (`#0F2C53`), descriptions in Dark Slate (`#222222`)
 
 - **The Optical Intent Planning Bottleneck**
@@ -115,22 +115,22 @@
 
 > [!VISUAL]
 > - 5 distinct horizontal failure blocks (`#F4F6F9` fill, `#D0D7DE` border, 1.0 pt):
->   - `[⚠️ 1. Token Budget Saturation]` Badge Burgundy `#85200C` (14 pt) ➔ *Telemetry dumps trigger attention degradation, dropping critical route exclusions* (12 pt)
->   - `[🚫 2. Hallucinated Physics]` Badge Burgundy `#85200C` (14 pt) ➔ *Probabilistic predictors lack wave propagation engines, violating non-linear GSNR margins* (12 pt)
->   - `[🔄 3. Semantic Drift]` Badge Burgundy `#85200C` (14 pt) ➔ *Unconstrained multi-turn conversational loops mutate or drop initial boundary constraints* (12 pt)
->   - `[⏱️ 4. Reactive Deployment Latency]` Badge Burgundy `#85200C` (14 pt) ➔ *Trial-and-error configuration risks live outages and introduces high control-plane recovery latency* (12 pt)
->   - `[👥 5. Suboptimal HITL Friction]` Badge Burgundy `#85200C` (14 pt) ➔ *Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early* (12 pt)
+>   - `[1. Token Budget Saturation]` Badge Burgundy `#85200C` (14 pt) ➔ *Telemetry dumps trigger attention degradation, dropping critical route exclusions* (12 pt)
+>   - `[2. Hallucinated Physics]` Badge Burgundy `#85200C` (14 pt) ➔ *Probabilistic predictors lack wave propagation engines, violating non-linear GSNR margins* (12 pt)
+>   - `[3. Semantic Drift]` Badge Burgundy `#85200C` (14 pt) ➔ *Unconstrained multi-turn conversational loops mutate or drop initial boundary constraints* (12 pt)
+>   - `[4. Reactive Deployment Latency]` Badge Burgundy `#85200C` (14 pt) ➔ *Trial-and-error configuration risks live outages and introduces high control-plane recovery latency* (12 pt)
+>   - `[5. Suboptimal HITL Friction]` Badge Burgundy `#85200C` (14 pt) ➔ *Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early* (12 pt)
 > - Bottom Summary Banner: `Empirical Risk: Unconstrained LLMs might allow unfeasible deployments, semantic drift loops, and critical control-plane latency` (`#F4F6F9` fill, `#85200C` border)
 
-- **1. Token Budget Saturation** (`⚠️`)
+- **1. Token Budget Saturation**
   - Telemetry dumps trigger attention degradation, dropping critical route exclusions
-- **2. Hallucinated Physics** (`🚫`)
+- **2. Hallucinated Physics**
   - Probabilistic predictors lack wave propagation engines, violating non-linear GSNR margins
-- **3. Semantic Drift** (`🔄`)
+- **3. Semantic Drift**
   - Unconstrained multi-turn conversational loops mutate or drop initial boundary constraints
-- **4. Reactive Deployment Latency** (`⏱️`)
+- **4. Reactive Deployment Latency**
   - Trial-and-error configuration risks live outages and introduces high control-plane recovery latency
-- **5. Suboptimal HITL Friction** (`👥`)
+- **5. Suboptimal HITL Friction**
   - Binary all-or-nothing review causes operator fatigue or outages; models fail to fail-early
 - **Empirical Risk Summary Banner:**
   - Empirical Risk: Unconstrained LLMs might allow unfeasible deployments, semantic drift loops, and critical control-plane latency
@@ -151,33 +151,33 @@
 
 > [!VISUAL]
 > - Top Row (Upper Tier - 3 Cards Side-by-Side):
->   - Card 1 (Left): `[1] Given (System Inputs)` (Navy header `#0F2C53`, icon `📥`)
+>   - Card 1 (Left): `Given (System Inputs)` (Navy header `#0F2C53`)
 >     - 4 Pills: Intent $\mathcal{I}_{NL}$, Topology $G(V, E)$, Physical parameters $L$, Feasibility threshold $\text{GSNR}$
->   - Card 2 (Center): `[2] Decide (Variables & Actions)` (Navy header `#0F2C53`, icon `⚙️`)
+>   - Card 2 (Center): `Decide (Variables & Actions)` (Navy header `#0F2C53`)
 >     - 4 Pills: Symbolic PDDL $\mathcal{S}_{PDDL}$, Optimal route $\pi^*$, Decision action $a$, Routing config $c^*$
->   - Card 3 (Right): `[3] Objective (Optimization)` (Green header `#1A7F37`, icon `🎯`)
+>   - Card 3 (Right): `Objective (Optimization)` (Green header `#1A7F37`)
 >     - 4 Pills: Minimize interruptions $\min N_{hitl}$, Minimize tokens $\min T_{tokens}$, Minimize friction $\min \alpha N_{hitl} + \beta T_{tokens}$, Pre-deployment safety $\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}$
 > - Bottom Tier (Lower Tier - Full-Width Constraints Container $10.31'' \times 2.13''$):
->   - Header Bar: `🔒 [4] Constraints: Resource Limits vs. Physical & Semantic Boundaries` (Burgundy `#85200C`)
+>   - Header Bar: `Constraints: Resource Limits vs. Physical & Semantic Boundaries` (Burgundy `#85200C`)
 >   - Left Sub-Panel: `Resource Constraints (System & Solver Limits):`
 >   - Right Sub-Panel: `Boundary Constraints (Physical & Semantic Feasibility):`
 
-- **1. Given (System Inputs)**
+- **Given (System Inputs)**
   - Unstructured operator intent ($\mathcal{I}_{NL}$)
   - Active optical topology graph $G(V, E)$
   - Physical parameters (e.g. span length $L$)
   - Feasibility threshold (e.g. $\text{GSNR}$)
-- **2. Decide (Variables & Actions)**
+- **Decide (Variables & Actions)**
   - Formal symbolic specification ($\mathcal{S}_{PDDL}$ compiled from intent)
   - Optimal physical lightpath route ($\pi^* \in \mathcal{K}_{path}$ from candidate paths)
   - Pre-deployment control action ($a \in \{\text{approve}, \text{clarify}, \text{replan}\}$)
   - Provisioning routing configuration ($c^*$ dispatched to controller)
-- **3. Objective (Optimization)**
+- **Objective (Optimization)**
   - Minimize human interruptions ($\min N_{hitl}$)
   - Minimize prompt tokens ($\min T_{tokens}$)
   - Minimize operational friction ($\min \alpha \cdot N_{hitl} + \beta \cdot T_{tokens}$)
   - Guarantee pre-deployment safety ($\mathcal{D}(U_{sem}, \text{QoT}_{valid}) = \text{approve}$)
-- **4. Constraints: Resource Limits vs. Physical & Semantic Boundaries**
+- **Constraints: Resource Limits vs. Physical & Semantic Boundaries**
   - **Resource Constraints (Left Column):**
     - Token context limits ($T_{prompt} \le T_{max}$)
     - Computational inference latency ($t_{exec} \le t_{max\_budget}$)
@@ -203,40 +203,40 @@
 
 > [!VISUAL]
 > - Left Column (Vertically Stacked Subsystems - $w=5.7''$, $x=0.75''$):
->   - Top Card: `🧠 Neural Subsystem (Semantic Domain)` (Navy header `#0F2C53`, linguistic compiler, early fail-fast gate)
+>   - Top Card: `Neural Subsystem (Semantic Domain)` (Navy header `#0F2C53`, linguistic compiler, early fail-fast gate)
 >     - 3 White Rounded Pills:
 >       - `Translation of the intent`
 >       - `Validation of the semantic similarity`
 >       - `Orchestration`
->   - Bottom Card: `📐 Symbolic Subsystem (Optical Domain)` (Green header `#1A7F37`, deterministic solvers, late physical risk gate)
+>   - Bottom Card: `Symbolic Subsystem (Optical Domain)` (Green header `#1A7F37`, deterministic solvers, late physical risk gate)
 >     - 3 White Rounded Pills:
 >       - `Topology extraction`
->       - `Deterministic tools usage`
+>       - `Compute candidate lightpaths`
 >       - `Physical feasibility validation`
 > - Right Column (Core Thesis Contributions - $w=5.75''$, $x=6.8''$):
->   - Container Header Bar: `🎯 Core Thesis Contributions` (Navy bar `#0F2C53`)
+>   - Container Header Bar: `Core Thesis Contributions` (Navy bar `#0F2C53`)
 >   - 3 Vertically Stacked Highlight Blocks (Cards with colored borders):
->     - Block 1: `1. Scoped GraphRAG for IBN in a Neurosymbolic system` (Navy border `#0F2C53`)
->     - Block 2: `2. Quantification of Semantic Uncertainty for IBN in a Neurosymbolic system` (Amber border `#B07D00`)
->     - Block 3: `3. Risk-Adaptive Decision Gate (RADG) for optimized HITL` (Green border `#1A7F37`)
+>     - Block 1: `1. Scoped GraphRAG for IBON in a Neurosymbolic system` (Navy border `#0F2C53`)
+>     - Block 2: `2. Quantification of Semantic Uncertainty for IBON in a Neurosymbolic system` (Amber border `#B07D00`)
+>     - Block 3: `3. Risk-Adaptive Decision Gate (RADG) for HITL optimization` (Green border `#1A7F37`)
 
 - **Left Column: Decoupled Subsystems**
-  - **Neural Subsystem (Semantic Domain)** (`🧠`)
+  - **Neural Subsystem (Semantic Domain)**
     - Translation of the intent
     - Validation of the semantic similarity
     - Orchestration
-  - **Symbolic Subsystem (Optical Domain)** (`📐`)
+  - **Symbolic Subsystem (Optical Domain)**
     - Topology extraction
-    - Deterministic tools usage
+    - Compute candidate lightpaths
     - Physical feasibility validation
 - **Right Column: Core Thesis Contributions (3 Stacked Blocks)**
-  - **1. Scoped GraphRAG for IBN in a Neurosymbolic system**
+  - **1. Scoped GraphRAG for IBON in a Neurosymbolic system**
     - Strict separation: probabilistic semantic translation vs deterministic physics
     - Subtopology scoping reduces prompt tokens, eliminating attention loss
-  - **2. Quantification of Semantic Uncertainty for IBN in a Neurosymbolic system**
+  - **2. Quantification of Semantic Uncertainty for IBON in a Neurosymbolic system**
     - Layer 1 syntax check ($v_{struct} \in \{0, 1\}$)
     - Layer 2 semantic discrepancy ($d_{sem}$)
-  - **3. Risk-Adaptive Decision Gate (RADG) for optimized HITL**
+  - **3. Risk-Adaptive Decision Gate (RADG) for HITL optimization**
     - Piecewise decision $D(U_{sem}, \text{QoT}_{valid})$: clarify, replan, or auto-approve
     - Guarantees physical safety ($UAR = 0$) with <5 ms calculation latency
 
@@ -292,7 +292,7 @@
 
 > [!VISUAL]
 > - Left Column Container ($w=9.3''$, $h=5.35''$, background `#F4F6F9`, border `#0F2C53`):
->   - Header Badge: `🌐 Deterministic Subtopology Scoping` (Navy `#0F2C53`)
+>   - Header Badge: `Deterministic Subtopology Scoping` (Navy `#0F2C53`)
 >   - 3-Stage Vertical Pill Flow (connected by a continuous burgundy down arrow `#85200C`):
 >     - Pill 1 (Top): `Raw JSON contains excessive telemetry: ROADM ports, EDFAs, fibers`
 >     - Pill 2 (Middle): `Full topology dumps overwhelm LLM context windows`
@@ -333,14 +333,14 @@
 
 > [!VISUAL]
 > - Main Container Card ($w=8.51''$, $h=4.7''$, $x=0.867''$, fill `#F4F6F9`, border `#0F2C53`):
->   - Header Pill: `🧠 Two-Layer Semantic Uncertainty ($U_{sem}$)` ($w=5.7''$, fill `#0F2C53`, white text)
+>   - Header Pill: `Two-Layer Semantic Uncertainty ($U_{sem}$)` ($w=5.7''$, fill `#0F2C53`, white text)
 >   - Sub-card 1 (`Structural`, white fill, border `#D0D7DE`): `CFG regex AST checks ($v_{struct} \in \{0, 1\}$)`
 >   - Sub-card 2 (`Semantic`, white fill, border `#D0D7DE`): `Reverse Prompting reconstructs the intent`
 >   - Commentary & Judge: `Independent LLM judge measures semantic discrepancy $d_{sem} \in [0, 1]$`
 >   - Native OMML Piecewise Equation:
 >     $$U_{sem} = \begin{cases} 1 & \text{if } v_{struct} = 0 \\ d_{sem} & \text{if } v_{struct} = 1 \end{cases}$$
 > - Right Action Banners ($w=4.25''$, $x=7.505''$):
->   - Top Banner (Amber fill `#B07D00`, white text): `⏸️ Fail-Fast HITL Clarification Loop`
+>   - Top Banner (Amber fill `#B07D00`, white text): `Fail-Fast HITL Clarification Loop`
 >   - Bottom Banner (Neutral fill `#F4F6F9`, Green border `#1A7F37`): `Fail-Fast Guarantee: Zero computational waste on physics simulation when intent is ambiguous`
 
 - **Two-Layer Semantic Uncertainty Gate ($U_{sem}$)**
@@ -429,7 +429,7 @@
 
 > [!VISUAL]
 > - Unified Container Card ($w=9.404''$, $h=5.35''$, $x=0.75''$, fill `#F4F6F9`, border `#0F2C53`):
->   - Header Bar: `🌐 17-Node German Core Network Benchmark` ($w=5.6''$, fill `#0F2C53`, white text)
+>   - Header Bar: `17-Node German Core Network Benchmark` ($w=5.6''$, fill `#0F2C53`, white text)
 >   - Network Specifications (7 bullet items at $x=1.15''$, 12 pt Arial):
 >     - Telecom topology: $|V| = 17, |E| = 26$ bidirectional fiber links
 >     - SMF-28 parameters: $\alpha = 0.2$ dB/km, $D = 16.7$ ps/(nm$\cdot$km), $\gamma = 1.2\text{ W}^{-1}\text{km}^{-1}$
@@ -465,29 +465,29 @@
 
 > [!VISUAL]
 > - Left Column (Setup & Benchmarks - $w=4.6''$, $x=0.75''$):
->   - Top Card: `⚖️ Architectural Baselines` (`#F4F6F9` fill, Navy border `#0F2C53`, 1.5 pt)
+>   - Top Card: `Architectural Baselines` (`#F4F6F9` fill, Navy border `#0F2C53`, 1.5 pt)
 >     - Sub-Card: `Baseline A` (LLM-Only) ($w=1.6''$, $h=0.625''$, White fill, border `#D0D7DE`)
 >     - Comparison indicator: `vs.` (centered)
 >     - Sub-Card: `Baseline B` (Always-HITL) ($w=1.6''$, $h=0.625''$, White fill, border `#D0D7DE`)
 >     - Full-Width Sub-Card: `Proposed Neurosymbolic RADG` ($w=4.324''$, $h=0.645''$, White fill, Green border `#1A7F37`, 1.0 pt)
 >       - Subtitle: *Decoupled translation + sequential pre-deployment risk gates*
->   - Bottom Card: `🧪 100 Test Demands (4 Risk Classes)` (`#F4F6F9` fill, Burgundy border `#85200C`, 1.5 pt)
->     - Formatted 3-Column Benchmark Table ($w=4.4''$, $h=2.18''$, Navy header `#0F2C53`):
+>   - Bottom Card: `100 Test Demands (4 Risk Classes)` (`#F4F6F9` fill, Burgundy border `#85200C`, 1.5 pt)
+>     - Formatted 3-Column Benchmark Table ($w=4.144''$, $h=2.215''$, $x=0.978''$, $y=4.53''$, Navy header `#0F2C53`):
 >       - Col 1 (`Class & Size`): Class I: Nominal [40], Class II: Ambiguous [20], Class III: Infeasible [25], Class IV: Adversarial [15]
 >       - Col 2 (`Intent Characteristics`): Feasible path / Under-specified ($U_{sem} > \tau$) / Violates GSNR / Hallucinated nodes ($v_{struct} = 0$)
 >       - Col 3 (`RADG Action`): Color-coded expected gate verdicts: **Auto-Approve** (Green), **Clarify Intent** (Amber), **Suggest Replan** (Burgundy), **Reject Intent** (Burgundy)
 > - Right Column (4 Core Validation Pillars - $w=6.65''$, $x=5.75''$, floating directly on slide canvas):
 >   - 4 Vertically Stacked Modular Cards (White `#FFFFFF` fill, 1.5 pt borders, $w=6.65''$, $h=1.15''$):
->     - `🧠 1. Semantic Translation Accuracy (Neural Domain)` (Amber border `#B07D00`)
+>     - `1. Semantic Translation Accuracy (Neural Domain)` (Amber border `#B07D00`)
 >       - Test Focus: Validates NL ➔ PDDL translation without constraint loss or hallucinations
 >       - Metrics: Constraint Retention Rate ($\text{CRR} = 100\%$) • CFG AST Pass Rate ($v_{struct} = 1$)
->     - `📐 2. Physical Feasibility (Optical Layer Integrity)` (Green border `#1A7F37`)
+>     - `2. Physical Feasibility (Optical Layer Integrity)` (Green border `#1A7F37`)
 >       - Test Focus: Validates optical reach and non-linear impairments before controller push
 >       - Metrics: Unsafe Approval Rate ($\text{UAR} = 0\%$ hard invariant) • QoT Feasibility ($100\%$)
->     - `⚡ 3. Orchestration & Resource Efficiency (System Limits)` (Navy border `#0F2C53`)
+>     - `3. Orchestration & Resource Efficiency (System Limits)` (Navy border `#0F2C53`)
 >       - Test Focus: Quantifies prompt token savings from GraphRAG and operator fatigue reduction
 >       - Metrics: $> 75\%$ Token Reduction ($G_{sub} \subseteq G$) • $> 70\%$ HITL Cut • Sub-second compute
->     - `🔒 4. RADG Decision Robustness (Gate Reliability)` (Burgundy border `#85200C`)
+>     - `4. RADG Decision Robustness (Gate Reliability)` (Burgundy border `#85200C`)
 >       - Test Focus: Stress-tests piecewise decision logic ($U_{sem}, \text{QoT}_{valid}$) across boundary conditions
 >       - Metrics: Gate Decision Accuracy ($> 98\%$) • Zero False Positives ($\text{FPR} = 0\%$)
 
