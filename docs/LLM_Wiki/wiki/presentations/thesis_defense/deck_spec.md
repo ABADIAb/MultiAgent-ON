@@ -461,32 +461,56 @@
 ## Slide 13: Evaluation Framework & Benchmark Scenarios
 
 > [!LAYOUT]
-> 3 structured comparison cards (Baselines, Test Scenarios, Target Metrics) with distinct visual indicator pills.
+> Asymmetric 2-column benchmark layout: Left column features two stacked cards ($w=4.6''$): Top card showcases Architectural Baselines with visual comparison pills (Baseline A vs. Baseline B) and a full-width Proposed Neurosymbolic RADG pill; Bottom card presents the 100-Demand Benchmark Corpus across 4 risk classes. Right column presents the 4 Core Validation Pillars floating directly on the slide canvas with modular white cards ($w=6.65''$, $x=5.75''$) and distinct institutional color borders.
 
 > [!VISUAL]
-> - Card 1: `Architectural Baselines` (Pills: `Baseline A: LLM-Only`, `Baseline B: Rule-Based`, `Proposed: Neurosymbolic RADG`)
-> - Card 2: `100 Test Demands (4 Categories)` (Pills: `Nominal [40]`, `Ambiguous [20]`, `Unfeasible [25]`, `Adversarial [15]`)
-> - Card 3: `Evaluation Metrics` (Pills: `Pre-Deployment Safety`, `HITL Reduction %`, `Orchestration Latency`)
+> - Left Column (Setup & Benchmarks - $w=4.6''$, $x=0.75''$):
+>   - Top Card: `⚖️ Architectural Baselines` (`#F4F6F9` fill, Navy border `#0F2C53`, 1.5 pt)
+>     - Sub-Card: `Baseline A` (LLM-Only) ($w=1.6''$, $h=0.625''$, White fill, border `#D0D7DE`)
+>     - Comparison indicator: `vs.` (centered)
+>     - Sub-Card: `Baseline B` (Always-HITL) ($w=1.6''$, $h=0.625''$, White fill, border `#D0D7DE`)
+>     - Full-Width Sub-Card: `Proposed Neurosymbolic RADG` ($w=4.324''$, $h=0.645''$, White fill, Green border `#1A7F37`, 1.0 pt)
+>       - Subtitle: *Decoupled translation + sequential pre-deployment risk gates*
+>   - Bottom Card: `🧪 100 Test Demands (4 Risk Classes)` (`#F4F6F9` fill, Burgundy border `#85200C`, 1.5 pt)
+>     - Formatted 3-Column Benchmark Table ($w=4.4''$, $h=2.18''$, Navy header `#0F2C53`):
+>       - Col 1 (`Class & Size`): Class I: Nominal [40], Class II: Ambiguous [20], Class III: Infeasible [25], Class IV: Adversarial [15]
+>       - Col 2 (`Intent Characteristics`): Feasible path / Under-specified ($U_{sem} > \tau$) / Violates GSNR / Hallucinated nodes ($v_{struct} = 0$)
+>       - Col 3 (`RADG Action`): Color-coded expected gate verdicts: **Auto-Approve** (Green), **Clarify Intent** (Amber), **Suggest Replan** (Burgundy), **Reject Intent** (Burgundy)
+> - Right Column (4 Core Validation Pillars - $w=6.65''$, $x=5.75''$, floating directly on slide canvas):
+>   - 4 Vertically Stacked Modular Cards (White `#FFFFFF` fill, 1.5 pt borders, $w=6.65''$, $h=1.15''$):
+>     - `🧠 1. Semantic Translation Accuracy (Neural Domain)` (Amber border `#B07D00`)
+>       - Test Focus: Validates NL ➔ PDDL translation without constraint loss or hallucinations
+>       - Metrics: Constraint Retention Rate ($\text{CRR} = 100\%$) • CFG AST Pass Rate ($v_{struct} = 1$)
+>     - `📐 2. Physical Feasibility (Optical Layer Integrity)` (Green border `#1A7F37`)
+>       - Test Focus: Validates optical reach and non-linear impairments before controller push
+>       - Metrics: Unsafe Approval Rate ($\text{UAR} = 0\%$ hard invariant) • QoT Feasibility ($100\%$)
+>     - `⚡ 3. Orchestration & Resource Efficiency (System Limits)` (Navy border `#0F2C53`)
+>       - Test Focus: Quantifies prompt token savings from GraphRAG and operator fatigue reduction
+>       - Metrics: $> 75\%$ Token Reduction ($G_{sub} \subseteq G$) • $> 70\%$ HITL Cut • Sub-second compute
+>     - `🔒 4. RADG Decision Robustness (Gate Reliability)` (Burgundy border `#85200C`)
+>       - Test Focus: Stress-tests piecewise decision logic ($U_{sem}, \text{QoT}_{valid}$) across boundary conditions
+>       - Metrics: Gate Decision Accuracy ($> 98\%$) • Zero False Positives ($\text{FPR} = 0\%$)
 
-- **Baseline Comparative Architectures**
-  - Baseline A (LLM-Only): Direct prompt-to-configuration with heuristic retry
-  - Baseline B (Static Rule-Based): Rigid regex parsing with always-on human review
-  - Proposed (Neurosymbolic RADG): Decoupled translation + sequential risk gates
-- **Evaluation Scenarios (100 Test Demands)**
-  - Nominal Intents: Unambiguous requests with feasible optical paths
-  - Ambiguous Intents: Under-specified constraints triggering semantic divergence ($U_{sem}$)
-  - Physically Unfeasible Intents: Long unamplified reaches violating GSNR thresholds
-  - Adversarial Prompts: Inputs designed to induce syntax or optical hallucinations
-- **Core Evaluation Dimensions**
-  - Pre-deployment safety against unfeasible lightpath deployment
-  - Reduction in human operator fatigue via selective HITL engagement
-  - End-to-end planning latency across all pipeline phases
+- **Architectural Baselines & Testbed**
+  - Baseline A (LLM-Only) vs. Baseline B (Always-HITL)
+  - Proposed Neurosymbolic RADG: Decoupled translation + sequential pre-deployment risk gates
+  - 17-Node German Backbone: 26 bidirectional fiber links, standard SMF-28, dual-stage EDFAs
+- **100 Test Demands (4 Risk Classes)**
+  - Class I — Nominal [40]: Unambiguous requests with feasible optical paths ➔ Auto-Approve
+  - Class II — Ambiguous [20]: Under-specified constraints triggering $U_{sem} > \tau_{sem}$ ➔ Clarify
+  - Class III — Infeasible [25]: High modulation over long spans violating GSNR ➔ Suggest Replan
+  - Class IV — Adversarial [15]: Hallucinated nodes & syntax violations ($v_{struct} = 0$) ➔ Reject
+- **Four Core Validation Pillars**
+  - **1. Semantic Translation Accuracy:** Constraint Retention Rate ($\text{CRR} = 100\%$), CFG AST Pass Rate ($v_{struct} = 1$)
+  - **2. Physical Feasibility:** Unsafe Approval Rate ($\text{UAR} = 0\%$ hard invariant), QoT Feasibility ($100\%$)
+  - **3. Orchestration Efficiency:** $> 75\%$ Token Cut ($G_{sub} \subseteq G$), $> 70\%$ HITL Cut, Sub-second compute
+  - **4. RADG Decision Robustness:** Gate Decision Accuracy ($> 98\%$), Zero False Positives ($\text{FPR} = 0\%$)
 
 <!-- Speaker Notes:
 [Estimated Time]: 55s
-[Key Message]: Rigorous benchmarking across 100 diverse intent scenarios against LLM-only and rule-based baselines.
-[Spoken Script]: Our evaluation framework tests 100 diverse intent requests across four operational categories: nominal intents, ambiguous intents with missing constraints, physically unfeasible demands, and adversarial prompts designed to induce hallucinations. We compare our neurosymbolic architecture against two baselines: an unconstrained LLM-only pipeline, and a rigid rule-based system. We measure three core dimensions: safety against unfeasible deployments, reduction in operator fatigue, and end-to-end execution latency.
-[Bridge to Next Slide]: Let us analyze the key findings and trade-offs.
+[Key Message]: Rigorous benchmarking across 100 diverse intent scenarios against LLM-only and rule-based baselines across 4 validation pillars.
+[Spoken Script]: In Slide 13, we present our comprehensive evaluation framework. On the left, we establish the experimental baseline: we test against an unconstrained LLM-only baseline with trial-and-error retry, and a rigid rule-based system with always-on human review, deployed on the 17-node German optical backbone. We evaluate a benchmark corpus of 100 intent demands spanning four risk classes: nominal, ambiguous, physically infeasible, and adversarial prompts. On the right, rather than just measuring latency, we evaluate our system across four rigorous validation pillars: first, Semantic Translation Accuracy to guarantee zero constraint loss; second, Physical Feasibility to enforce our non-negotiable zero percent Unsafe Approval Rate; third, Orchestration Efficiency, measuring over 75 percent token savings from GraphRAG and 70 percent reduction in operator fatigue; and fourth, RADG Decision Robustness, ensuring over 98 percent gate accuracy and zero false positives across all boundary conditions.
+[Bridge to Next Slide]: Let us analyze the key findings and empirical guarantees obtained from these benchmarks.
 -->
 
 ---

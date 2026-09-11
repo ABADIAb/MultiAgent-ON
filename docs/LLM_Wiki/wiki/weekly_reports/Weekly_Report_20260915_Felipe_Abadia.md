@@ -78,6 +78,20 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
      - **Slide 5 (Problem Statement):** Converted dense text blocks into 4 modular white rounded pills ($3.21'' \times 0.43''$) per upper card, resized the lower constraints container to $10.31'' \times 2.13''$, and added native OMML equation mappings for $T_{prompt} \le T_{max}$ and $\min \alpha N_{hitl} + \beta T_{tokens}$.
    - Recompiled `thesis_defense.pptx`, rendered updated vector `thesis_defense.pdf` and 1080p slide PNGs, and verified zero test regressions (278 passing unit tests).
 
+8. **Evaluation Framework Restructuring & Slide 13 Two-Way Synchronization:**
+   - Formally structured the thesis evaluation methodology into the **Four Core Validation Pillars**:
+     - *Pillar 1 (Semantic Translation Accuracy):* Constraint Retention Rate ($\text{CRR} = 100\%$) and CFG AST Pass Rate ($v_{struct} = 1$).
+     - *Pillar 2 (Physical Feasibility):* Strict hard invariant of Unsafe Approval Rate ($\text{UAR} = 0\%$) and QoT Feasibility Rate ($100\%$).
+     - *Pillar 3 (Orchestration & Resource Efficiency):* $> 75\%$ prompt token reduction via Scoped Optical GraphRAG and $> 70\%$ human intervention cut.
+     - *Pillar 4 (RADG Decision Robustness):* Piecewise gate accuracy $> 98\%$ and zero false positives across boundary conditions.
+   - Formalized comparative baselines: **Baseline A (LLM-Only)** with unconstrained prompt execution and reactive retry, and **Baseline B (Static Rule-Based)** with rigid regex parsing and mandatory Always-HITL review; analyzed the "Always-Off HITL" paradigm, demonstrating that turning off HITL in our pipeline yields high service blocking probability.
+   - Synchronized manual visual improvements on **Slide 13**:
+     - Replaced dense text blocks with parallel modular comparison pills for `Baseline A` and `Baseline B` with a centered `vs.` badge, and a full-width `Proposed Neurosymbolic RADG` pill.
+     - Diagnosed and fixed DrawingML text run color inheritance where white theme styling overrode paragraph defaults, locking text runs to bold Navy (`#0F2C53`).
+     - Converted the 100 Test Demands benchmark corpus into a structured, color-coded 3-column table (`Class & Size`, `Intent Characteristics`, `RADG Action`).
+     - Cleaned right column by letting the 4 validation pillar cards float directly on the canvas without outer container bounding boxes.
+   - Verified 0 discrepancies across all 16 slides via `inspect_deck.py --diff`, regenerated vector `thesis_defense.pdf` and 1080p slide PNGs, and confirmed 100% test pass rate (278 tests).
+
 ---
 
 ## 3. What do I plan to accomplish next week?
@@ -98,4 +112,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I modernized the official thesis title to "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks", synchronized manual PowerPoint visual enhancements into the programmatic builder across Slides 1, 3, 4, and 5, and validated complete 1:1 headless compilation to vector PDF and 1080p previews.
+I structured the thesis evaluation around Four Core Validation Pillars and comparative baselines, synchronized Slide 13 manual improvements with tabular benchmark flows, and validated zero-discrepancy 16-slide compilation to vector PDF and 1080p previews.

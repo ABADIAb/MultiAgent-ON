@@ -67,8 +67,12 @@ This document provides the fourth iteration of the thesis outline, incorporating
 # **5 Experimental Evaluation and Results** 
 - **5.1 Experimental Setup:** Definition of the synthetic intent dataset, utilizing a **17-node German Mock Topology** to evaluate realistic fiber lengths and EDFA amplifier placement.
   - *Citations:* `[[Scope_Pivot_20260706]]` (experimental design).
-- **5.2 Performance Metrics:** Unsafe Approval Rate (UAR), Human Interaction Count (HIC), QoT Feasibility Rate (QFR), End-to-End Latency (E2EL), and Token Cost (TC).
-  - *Citations:* `[[Scope_Pivot_20260706]]`.
+- **5.2 Performance Metrics (Four Validation Pillars):** 
+  - *1. Semantic Translation Accuracy:* Constraint Retention Rate (CRR), CFG AST Pass Rate ($v_{struct} \in \{0, 1\}$), Semantic Agreement Score ($1 - d_{sem}$).
+  - *2. Physical Feasibility:* Unsafe Approval Rate (UAR $\to 0\%$), QoT Feasibility Rate (QFR $\to 100\%$), Physical Infeasibility Interception Rate (PIIR).
+  - *3. Orchestration & Resource Efficiency:* Prompt Token Reduction ($\Delta T_{tokens} > 75\%$ via Scoped GraphRAG), Human Intervention Reduction ($\Delta N_{hitl} > 70\%$), Sub-second deterministic compute ($T_{det} < 15\text{ ms}$), End-to-End Latency ($T_{E2E}$).
+  - *4. RADG Decision Robustness:* Gate Decision Accuracy (GDA $> 98\%$), False Positive Rate ($\text{FPR} = 0\%$), Selective HITL Precision.
+  - *Citations:* `[[ProblemStatement_v5]]`; `[[Scope_Pivot_20260706]]`.
 - **5.3 Performance under Safe Conditions:** Results data of the architecture autonomously processing unambiguous, QoT-valid intents. Integrates comparison against No-HITL and Always-HITL baselines.
 - **5.4 Performance under Ambiguity:** Results data of the system engaging the HITL proportionally via reverse prompting when constraints are missing. Integrates comparison against the reactive-retry baseline.
 - **5.5 Summary of Findings:** The computational and operational savings achieved by avoiding post-deployment failures and applying pre-deployment verification.

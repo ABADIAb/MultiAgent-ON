@@ -121,15 +121,19 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 | **Fixed-Retry (N=3)** | System generates plan, simulates deployment check, retries up to 3 times on failure. |
 | **Risk-Adaptive HITL (Ours)** | RADG decides per-intent based on $U_{sem}$ and $\text{QoT}_{valid}$. |
 
-- **Metrics Collected Per Run:**
+- **Metrics Collected Per Run (Organized across 4 Validation Pillars):**
 
-| Metric | Symbol | Definition | Target |
-|--------|--------|------------|--------|
-| **Unsafe Approval Rate** | UAR | Fraction of intents producing physically infeasible lightpaths that get approved | 0% |
-| **Human Interaction Count** | HIC | Number of operator interruptions per intent | Lower than Always-HITL |
-| **QoT Feasibility Rate** | QFR | Fraction of final approved plans that pass QoT validation | 100% |
-| **End-to-End Latency** | E2EL | Wall-clock time from intent submission to final plan approval | Competitive |
-| **Token Cost** | TC | Total LLM tokens consumed per intent | Lower than retry-based |
+| Pillar | Metric | Symbol | Definition | Target |
+|--------|--------|:------:|------------|:------:|
+| **1. Semantic Accuracy** | Constraint Retention Rate | CRR | Fraction of intent constraints preserved in formal PDDL | 100% |
+| | CFG Pass Rate | CFG-PR | Syntactic validity of PDDL AST ($v_{struct} \in \{0, 1\}$) | 100% |
+| **2. Physical Feasibility** | Unsafe Approval Rate | UAR | Fraction of intents producing unfeasible lightpaths that get approved | 0% |
+| | QoT Feasibility Rate | QFR | Fraction of final approved plans that pass GN-model QoT validation | 100% |
+| **3. Orchestration Efficiency** | Token Reduction | $\Delta T_{tokens}$ | Prompt token savings via Scoped GraphRAG ($G_{sub} \subseteq G$) | > 75% |
+| | Human Interaction Reduction | $\Delta N_{hitl}$ | Reduction in operator interrupts compared to Always-HITL | > 70% |
+| | Deterministic Compute Latency | $T_{det}$ | Wall-clock time for Yen's $K$-SP ($<10$ ms) and GN model ($<5$ ms) | < 15 ms |
+| **4. RADG Robustness** | Gate Decision Accuracy | GDA | Classification accuracy into {approve, clarify, replan} | > 98% |
+| | False Positive Rate | FPR | Probability of approving an unsafe or ambiguous lightpath | 0% |
 
 - **Deliverable:** `tests/evaluation/baseline_evaluation.py` — automated evaluation harness. Results table and analysis in thesis.
 

@@ -14,7 +14,7 @@ import re
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.dml import MSO_LINE_DASH_STYLE
 from pptx.oxml import parse_xml
@@ -1664,6 +1664,292 @@ class DeckBuilder:
         self.set_speaker_notes(s, notes)
         return s
 
+    def create_evaluation_framework_slide(
+        self,
+        title: str,
+        slide_num: int,
+        baselines_info: dict,
+        corpus_info: dict,
+        pillars: list[dict],
+        notes: str,
+    ):
+        """Creates the Slide 13 Evaluation Framework featuring Baselines + Corpus on the left and 4 Validation Pillars on the right."""
+        blank_layout = self.prs.slide_layouts[6]
+        s = self.prs.slides.add_slide(blank_layout)
+        self.add_chrome(s, title, slide_num)
+
+        # Left Column: Setup & Benchmarks (Baselines + Corpus)
+        left_pos = Inches(0.75)
+        left_width = Inches(4.6)
+        top_start = Inches(1.25)
+
+        # 1. Top Card: Architectural Baselines Container
+        base_top = top_start
+        base_h = Inches(2.65)
+        card_base = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, left_pos, base_top, left_width, base_h
+        )
+        card_base.fill.solid()
+        card_base.fill.fore_color.rgb = COLOR_CARD_BG
+        card_base.line.color.rgb = COLOR_NAVY
+        card_base.line.width = Pt(1.5)
+
+        tf_cb = card_base.text_frame
+        p_vs = tf_cb.paragraphs[0]
+        p_vs.text = "vs."
+        p_vs.alignment = PP_ALIGN.CENTER
+        p_vs.font.name = FONT_BODY
+        p_vs.font.size = Pt(13)
+        p_vs.font.bold = True
+        p_vs.font.color.rgb = COLOR_COOL_GRAY
+
+        # Header Bar for Baselines
+        h_base = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, left_pos, Inches(1.21), left_width, Inches(0.52)
+        )
+        h_base.fill.solid()
+        h_base.fill.fore_color.rgb = COLOR_NAVY
+        h_base.line.fill.background()
+        tf_hb = h_base.text_frame
+        p_hb = tf_hb.paragraphs[0]
+        p_hb.text = f"{baselines_info.get('icon', '⚖️')} {baselines_info['title']}"
+        p_hb.font.name = FONT_TITLE
+        p_hb.font.size = Pt(12)
+        p_hb.font.bold = True
+        p_hb.font.color.rgb = COLOR_WHITE
+        p_hb.alignment = PP_ALIGN.CENTER
+
+        # 2. Bottom Card: 100 Test Demands Container
+        corpus_top = Inches(4.05)
+        corpus_h = Inches(2.85)
+        card_corp = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, left_pos, corpus_top, left_width, corpus_h
+        )
+        card_corp.fill.solid()
+        card_corp.fill.fore_color.rgb = COLOR_CARD_BG
+        card_corp.line.color.rgb = COLOR_BURGUNDY
+        card_corp.line.width = Pt(1.5)
+
+        h_corp = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, left_pos, corpus_top, left_width, Inches(0.48)
+        )
+        h_corp.fill.solid()
+        h_corp.fill.fore_color.rgb = COLOR_BURGUNDY
+        h_corp.line.fill.background()
+        tf_hc = h_corp.text_frame
+        p_hc = tf_hc.paragraphs[0]
+        p_hc.text = f"{corpus_info.get('icon', '🧪')} {corpus_info['title']}"
+        p_hc.font.name = FONT_TITLE
+        p_hc.font.size = Pt(12)
+        p_hc.font.bold = True
+        p_hc.font.color.rgb = COLOR_WHITE
+        p_hc.alignment = PP_ALIGN.CENTER
+
+        # Table: 100 Test Demands (4 Risk Classes)
+        t_shape = s.shapes.add_table(5, 3, Inches(0.85), Inches(4.62), Inches(4.4), Inches(2.18))
+        table = t_shape.table
+        table.columns[0].width = Inches(1.45)
+        table.columns[1].width = Inches(1.75)
+        table.columns[2].width = Inches(1.20)
+
+        t_headers = ["Class & Size", "Intent Characteristics", "RADG Action"]
+        for j, h in enumerate(t_headers):
+            cell = table.cell(0, j)
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = COLOR_NAVY
+            cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+            cell.margin_left = Inches(0.05)
+            cell.margin_right = Inches(0.05)
+            cell.margin_top = Inches(0.02)
+            cell.margin_bottom = Inches(0.02)
+            p = cell.text_frame.paragraphs[0]
+            p.text = h
+            p.alignment = PP_ALIGN.CENTER
+            for r in p.runs:
+                r.font.name = FONT_TITLE
+                r.font.size = Pt(9.5)
+                r.font.bold = True
+                r.font.color.rgb = COLOR_WHITE
+
+        table_data = corpus_info.get("table_rows", [
+            ("Class I: Nominal [40]", "Feasible path, unambiguous", "Auto-Approve", COLOR_GREEN),
+            ("Class II: Ambiguous [20]", "Under-specified (U_sem > τ)", "Clarify Intent", COLOR_AMBER),
+            ("Class III: Infeasible [25]", "Violates GSNR threshold", "Suggest Replan", COLOR_BURGUNDY),
+            ("Class IV: Adversarial [15]", "Hallucinated nodes (v_struct=0)", "Reject Intent", COLOR_BURGUNDY),
+        ])
+
+        for row_idx, (c_name, c_char, c_act, act_color) in enumerate(table_data, start=1):
+            bg_color = COLOR_WHITE if row_idx % 2 == 1 else COLOR_CARD_BG
+            for col_idx in range(3):
+                cell = table.cell(row_idx, col_idx)
+                cell.fill.solid()
+                cell.fill.fore_color.rgb = bg_color
+                cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+                cell.margin_left = Inches(0.05)
+                cell.margin_right = Inches(0.05)
+                cell.margin_top = Inches(0.02)
+                cell.margin_bottom = Inches(0.02)
+                p = cell.text_frame.paragraphs[0]
+                if col_idx == 0:
+                    p.text = c_name
+                    p.alignment = PP_ALIGN.LEFT
+                    for r in p.runs:
+                        r.font.name = FONT_BODY
+                        r.font.size = Pt(9.0)
+                        r.font.bold = True
+                        r.font.color.rgb = COLOR_DARK_SLATE
+                elif col_idx == 1:
+                    p.text = c_char
+                    p.alignment = PP_ALIGN.LEFT
+                    for r in p.runs:
+                        r.font.name = FONT_BODY
+                        r.font.size = Pt(8.8)
+                        r.font.color.rgb = COLOR_DARK_SLATE
+                else:
+                    p.text = c_act
+                    p.alignment = PP_ALIGN.CENTER
+                    for r in p.runs:
+                        r.font.name = FONT_BODY
+                        r.font.size = Pt(9.0)
+                        r.font.bold = True
+                        r.font.color.rgb = act_color
+
+        # Right Column: 4 Stacked Pillar Cards (floating directly on slide)
+        subcard_left = Inches(5.75)
+        subcard_w = Inches(6.65)
+        p_card_h = Inches(1.15)
+        p_gap = Inches(0.1)
+        p_top_start = Inches(1.87)
+
+        for i, pillar in enumerate(pillars):
+            cur_p_top = p_top_start + i * (p_card_h + p_gap)
+            p_color = pillar.get("color", COLOR_NAVY)
+
+            subcard = s.shapes.add_shape(
+                MSO_SHAPE.ROUNDED_RECTANGLE, subcard_left, cur_p_top, subcard_w, p_card_h
+            )
+            subcard.fill.solid()
+            subcard.fill.fore_color.rgb = COLOR_WHITE
+            subcard.line.color.rgb = p_color
+            subcard.line.width = Pt(1.5)
+
+            tb_pillar = s.shapes.add_textbox(
+                subcard_left + Inches(0.12), cur_p_top + Inches(0.04), subcard_w - Inches(0.24), p_card_h - Inches(0.08)
+            )
+            tf_p = tb_pillar.text_frame
+            tf_p.word_wrap = True
+            tf_p.margin_top = Inches(0.02)
+            tf_p.margin_left = Inches(0.02)
+
+            # Title line
+            p_title = tf_p.paragraphs[0]
+            p_title.text = f"{pillar.get('icon', '')} {pillar['title']}"
+            p_title.font.name = FONT_TITLE
+            p_title.font.size = Pt(11)
+            p_title.font.bold = True
+            p_title.font.color.rgb = p_color
+
+            # Focus line
+            p_foc = tf_p.add_paragraph()
+            p_foc.space_before = Pt(1)
+            add_math_runs_to_paragraph(p_foc, f"•  Test Focus: {pillar['focus']}", font_size=Pt(9.2), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
+
+            # Metrics line
+            p_met = tf_p.add_paragraph()
+            p_met.space_before = Pt(1)
+            add_math_runs_to_paragraph(p_met, f"•  Key Metrics: {pillar['metrics']}", font_size=Pt(9.2), color=COLOR_DARK_SLATE, font_name=FONT_BODY)
+
+        # Baseline Sub-Cards inside Top Card
+        # 1. Baseline A Pill
+        card_b_a = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(1.1), Inches(1.99), Inches(1.6), Inches(0.625)
+        )
+        card_b_a.fill.solid()
+        card_b_a.fill.fore_color.rgb = COLOR_WHITE
+        card_b_a.line.color.rgb = COLOR_CARD_BORDER
+        card_b_a.line.width = Pt(1.0)
+        tf_ba = card_b_a.text_frame
+        tf_ba.margin_left = Inches(0.1)
+        tf_ba.margin_right = Inches(0.1)
+        tf_ba.margin_top = Inches(0.05)
+        tf_ba.margin_bottom = Inches(0.05)
+        p_ba1 = tf_ba.paragraphs[0]
+        p_ba1.text = "Baseline A"
+        p_ba1.alignment = PP_ALIGN.CENTER
+        for r in p_ba1.runs:
+            r.font.name = FONT_TITLE
+            r.font.size = Pt(14)
+            r.font.bold = True
+            r.font.color.rgb = COLOR_NAVY
+        p_ba2 = tf_ba.add_paragraph()
+        p_ba2.text = "LLM-Only"
+        p_ba2.alignment = PP_ALIGN.CENTER
+        for r in p_ba2.runs:
+            r.font.name = FONT_BODY
+            r.font.size = Pt(10.5)
+            r.font.color.rgb = COLOR_DARK_SLATE
+
+        # 2. Baseline B Pill
+        card_b_b = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(3.41), Inches(1.99), Inches(1.6), Inches(0.625)
+        )
+        card_b_b.fill.solid()
+        card_b_b.fill.fore_color.rgb = COLOR_WHITE
+        card_b_b.line.color.rgb = COLOR_CARD_BORDER
+        card_b_b.line.width = Pt(1.0)
+        tf_bb = card_b_b.text_frame
+        tf_bb.margin_left = Inches(0.1)
+        tf_bb.margin_right = Inches(0.1)
+        tf_bb.margin_top = Inches(0.05)
+        tf_bb.margin_bottom = Inches(0.05)
+        p_bb1 = tf_bb.paragraphs[0]
+        p_bb1.text = "Baseline B"
+        p_bb1.alignment = PP_ALIGN.CENTER
+        for r in p_bb1.runs:
+            r.font.name = FONT_TITLE
+            r.font.size = Pt(14)
+            r.font.bold = True
+            r.font.color.rgb = COLOR_NAVY
+        p_bb2 = tf_bb.add_paragraph()
+        p_bb2.text = "Always-HITL"
+        p_bb2.alignment = PP_ALIGN.CENTER
+        for r in p_bb2.runs:
+            r.font.name = FONT_BODY
+            r.font.size = Pt(10.5)
+            r.font.color.rgb = COLOR_DARK_SLATE
+
+        # 3. Proposed Neurosymbolic RADG Full-Width Pill
+        card_prop = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.906), Inches(2.925), Inches(4.324), Inches(0.645)
+        )
+        card_prop.fill.solid()
+        card_prop.fill.fore_color.rgb = COLOR_WHITE
+        card_prop.line.color.rgb = COLOR_GREEN
+        card_prop.line.width = Pt(1.0)
+        tf_cp = card_prop.text_frame
+        tf_cp.margin_left = Inches(0.1)
+        tf_cp.margin_right = Inches(0.1)
+        tf_cp.margin_top = Inches(0.05)
+        tf_cp.margin_bottom = Inches(0.05)
+        p_cp1 = tf_cp.paragraphs[0]
+        p_cp1.text = "Proposed Neurosymbolic RADG"
+        p_cp1.alignment = PP_ALIGN.CENTER
+        for r in p_cp1.runs:
+            r.font.name = FONT_TITLE
+            r.font.size = Pt(14)
+            r.font.bold = True
+            r.font.color.rgb = COLOR_GREEN
+        p_cp2 = tf_cp.add_paragraph()
+        p_cp2.text = "Decoupled translation + sequential pre-deployment risk gates"
+        p_cp2.alignment = PP_ALIGN.CENTER
+        for r in p_cp2.runs:
+            r.font.name = FONT_BODY
+            r.font.size = Pt(10.5)
+            r.font.color.rgb = COLOR_DARK_SLATE
+
+        self.set_speaker_notes(s, notes)
+        return s
+
     def create_split_diagram_slide(
         self,
         title: str,
@@ -2870,50 +3156,71 @@ def build_thesis_defense_deck():
 [Bridge to Next Slide]: What scenarios and metrics do we use to evaluate the system?""",
     )
 
-    # 13. Slide 13: Evaluation Framework (3 Cards: Baselines, Scenarios, Metrics)
+    # 13. Slide 13: Evaluation Framework (Baselines + Corpus on Left, 4 Validation Pillars on Right)
     print("Building Slide 13: Evaluation Framework...")
-    builder.create_card_slide(
+    builder.create_evaluation_framework_slide(
         title="Evaluation Framework & Benchmark Scenarios",
         slide_num=13,
-        cards=[
+        baselines_info={
+            "icon": "⚖️",
+            "title": "Architectural Baselines",
+            "bullets": [
+                "Baseline A (LLM-Only): Direct prompt-to-configuration generation with reactive retry",
+                "Baseline B (Static Rule-Based): Strict regex parser with mandatory Always-HITL review",
+                "Proposed (Neurosymbolic RADG): Decoupled translation + sequential pre-deployment risk gates",
+                "17-Node German Backbone: 26 bidirectional fiber links, standard SMF-28, dual-stage EDFAs",
+            ],
+        },
+        corpus_info={
+            "icon": "🧪",
+            "title": "100 Test Demands (4 Risk Classes)",
+            "table_rows": [
+                ("Class I: Nominal [40]", "Feasible path, unambiguous", "Auto-Approve", COLOR_GREEN),
+                ("Class II: Ambiguous [20]", "Under-specified (U_sem > τ)", "Clarify Intent", COLOR_AMBER),
+                ("Class III: Infeasible [25]", "Violates GSNR threshold", "Suggest Replan", COLOR_BURGUNDY),
+                ("Class IV: Adversarial [15]", "Hallucinated nodes (v_struct=0)", "Reject Intent", COLOR_BURGUNDY),
+            ],
+            "bullets": [
+                "Class I — Nominal [40]: Unambiguous requests with feasible optical paths ➔ Auto-Approve",
+                "Class II — Ambiguous [20]: Under-specified constraints triggering $U_{sem} > \\tau_{sem}$ ➔ Clarify",
+                "Class III — Infeasible [25]: High modulation over long spans violating GSNR ➔ Suggest Replan",
+                "Class IV — Adversarial [15]: Hallucinated nodes & syntax violations ($v_{struct} = 0$) ➔ Reject",
+            ],
+        },
+        pillars=[
             {
-                "icon": "⚖️",
-                "title": "Architectural Baselines",
-                "title_color": COLOR_NAVY,
-                "bullets": [
-                    "Baseline A (LLM-Only): Direct prompt-to-configuration generation with heuristic retry",
-                    "Baseline B (Static Rule-Based): Strict regex parser with always-on human review",
-                    "Proposed (Neurosymbolic RADG): Decoupled translation + sequential risk gates",
-                    "Evaluates LLM reasoning limits vs deterministic safety",
-                ],
+                "icon": "🧠",
+                "title": "1. Semantic Translation Accuracy (Neural Domain)",
+                "color": COLOR_AMBER,
+                "focus": "Validates NL ➔ PDDL translation without constraint loss or hallucinations",
+                "metrics": "Constraint Retention Rate (CRR = 100%) • CFG AST Pass Rate ($v_{struct} = 1$)",
             },
             {
-                "icon": "🧪",
-                "title": "100 Test Demands (4 Classes)",
-                "title_color": COLOR_BURGUNDY,
-                "bullets": [
-                    "Nominal Intents [40]: Unambiguous requests with feasible physics",
-                    "Ambiguous Intents [20]: Under-specified constraints triggering $U_{sem} > \\tau_{sem}$",
-                    "Infeasible Intents [25]: High modulation over long spans ($\\text{QoT}_{valid} = 0$)",
-                    "Adversarial Prompts [15]: Hallucinated nodes ($v_{struct} = 0$) & syntax violations",
-                ],
+                "icon": "📐",
+                "title": "2. Physical Feasibility (Optical Layer Integrity)",
+                "color": COLOR_GREEN,
+                "focus": "Validates optical reach and non-linear impairments before controller push",
+                "metrics": "Unsafe Approval Rate (UAR = 0% hard invariant) • QoT Feasibility (100%)",
             },
             {
-                "icon": "📊",
-                "title": "Evaluation Metrics",
-                "title_color": COLOR_GREEN,
-                "bullets": [
-                    "Pre-Deployment Blocking Accuracy: $\\text{UAR} = 100\\%$ guarantee",
-                    "Human Intervention Rate ($\\text{HIC}$): % demands requiring operator clarification",
-                    "End-to-End Latency ($T_{E2E}$): NL intent to planning report turnaround",
-                    "Token Consumption ($T_{prompt}$): Overhead across scoped vs full topologies",
-                ],
+                "icon": "⚡",
+                "title": "3. Orchestration & Resource Efficiency (System Limits)",
+                "color": COLOR_NAVY,
+                "focus": "Quantifies prompt token savings from GraphRAG and operator fatigue reduction",
+                "metrics": "> 75% Token Reduction ($G_{sub} \\subseteq G$) • > 70% HITL Cut • Sub-second compute",
+            },
+            {
+                "icon": "🔒",
+                "title": "4. RADG Decision Robustness (Gate Reliability)",
+                "color": COLOR_BURGUNDY,
+                "focus": "Stress-tests piecewise decision logic ($U_{sem}$, $\\text{QoT}_{valid}$) across boundary conditions",
+                "metrics": "Gate Decision Accuracy (> 98%) • Zero False Positives (FPR = 0%)",
             },
         ],
         notes="""[Estimated Time]: 55s
-[Key Message]: Rigorous benchmarking across 100 diverse intent scenarios against LLM-only and rule-based baselines.
-[Spoken Script]: Our evaluation framework tests 100 diverse intent requests across four operational categories: nominal intents, ambiguous intents with missing constraints, physically unfeasible demands, and adversarial prompts designed to induce hallucinations. We compare our neurosymbolic architecture against two baselines: an unconstrained LLM-only pipeline, and a rigid rule-based system. We measure three core dimensions: safety against unfeasible deployments, reduction in operator fatigue, and end-to-end execution latency.
-[Bridge to Next Slide]: Let us analyze the key findings and trade-offs.""",
+[Key Message]: Rigorous benchmarking across 100 diverse intent scenarios against LLM-only and rule-based baselines across 4 validation pillars.
+[Spoken Script]: In Slide 13, we present our comprehensive evaluation framework. On the left, we establish the experimental baseline: we test against an unconstrained LLM-only baseline with trial-and-error retry, and a rigid rule-based system with always-on human review, deployed on the 17-node German optical backbone. We evaluate a benchmark corpus of 100 intent demands spanning four risk classes: nominal, ambiguous, physically infeasible, and adversarial prompts. On the right, rather than just measuring latency, we evaluate our system across four rigorous validation pillars: first, Semantic Translation Accuracy to guarantee zero constraint loss; second, Physical Feasibility to enforce our non-negotiable zero percent Unsafe Approval Rate; third, Orchestration Efficiency, measuring over 75 percent token savings from GraphRAG and 70 percent reduction in operator fatigue; and fourth, RADG Decision Robustness, ensuring over 98 percent gate accuracy and zero false positives across all boundary conditions.
+[Bridge to Next Slide]: Let us analyze the key findings and empirical guarantees obtained from these benchmarks.""",
     )
 
     # 14. Slide 14: Key Findings (3 KPI Stat Banners + Empirical Chart Placeholder)
