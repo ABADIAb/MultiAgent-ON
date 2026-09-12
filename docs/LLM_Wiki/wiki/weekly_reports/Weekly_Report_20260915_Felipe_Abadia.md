@@ -107,14 +107,22 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Added `active_intent`, `intent_update_reasoning`, and `intent_update_type` to `AgentState` in [`src/core/state.py`](file:///home/felipeab/MultiAgentON/src/core/state.py), ensuring a single, non-contradictory operational truth.
     - Integrated Mock GraphRAG dynamic rescoping: re-extracts the $k$-hop subtopology neighborhood whenever operator refinement changes routing endpoints.
     - Updated Phase 2 (`pddl_parser.py`), Semantic Gate (`semantic_gate_node.py`), and Plan Synthesizer (`plan_synthesizer.py`) to consume `active_intent` directly.
-    - Verified under Strict TDD with 8 dedicated tests in `tests/unit/test_intent_reconciler.py` and achieved a 100% pass rate across 291 unit tests with zero lint errors.
+11. **Bandwidth SLA Constraint Mapping, 400G Physical SNR Threshold & Synthetic Corpus Rebalancing:**
+    - Integrated formal optical bandwidth/capacity constraints into the neurosymbolic pipeline to support real-world operator SLAs (e.g., 100G, 200G, 400G).
+    - Extended the PDDL Context-Free Grammar (CFG) in [`src/core/pddl_validator.py`](file:///home/felipeab/MultiAgentON/src/core/pddl_validator.py) with the production rule `(bandwidth <int>)` and updated [`src/core/symbolic_solver.py`](file:///home/felipeab/MultiAgentON/src/core/symbolic_solver.py) to preserve bandwidth demands.
+    - Updated the physical layer constants in [`src/core/constants.py`](file:///home/felipeab/MultiAgentON/src/core/constants.py) by calibrating `snr_threshold_400g_dB = 21.5` and wired dynamic SNR threshold selection into [`src/nodes/qot_validation.py`](file:///home/felipeab/MultiAgentON/src/nodes/qot_validation.py), enabling realistic physical infeasibility detection on long multi-hop optical paths.
+    - Enhanced LLM prompt definitions in [`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py) and [`src/nodes/reverse_prompt.py`](file:///home/felipeab/MultiAgentON/src/nodes/reverse_prompt.py) to eliminate false-alarm semantic divergences during reverse prompting.
+    - Expanded [`tests/evaluation/test_corpus.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus.json) to 107 intents, sequentially categorized across four classes (28 Nominal, 26 Ambiguous, 27 Infeasible, 26 Adversarial).
+    - Generated the structured Excel workbook [`docs/LLM_Wiki/raw/test_corpus_summary.xlsx`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/raw/test_corpus_summary.xlsx) with color-coded taxonomy.
+    - Normalized the benchmark corpus action space, strictly eliminating erroneous `reject` labels and aligning with the formal RADG ternary action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$.
+    - Verified full test suite under Strict TDD with 294 passing unit tests (100% success rate).
 
 ---
 
 ## 3. What do I plan to accomplish next week?
 
 1. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and narrative structure to Prof. Massimo Tornatore for formal academic review and feedback.
-2. **Implement Automated Evaluation Harness:** Develop `run_benchmark.py`, `metrics.py`, and `plotter.py` in `tests/evaluation/scripts/` following Strict TDD to execute the 100-demand corpus across Baseline A, Baseline B, Baseline C, and Proposed.
+2. **Implement Automated Evaluation Harness:** Develop `run_benchmark.py`, `metrics.py`, and `plotter.py` in `tests/evaluation/scripts/` following Strict TDD to execute the 107-demand corpus across Baseline A, Baseline B, Baseline C, and Proposed.
 3. **Execute Sprint 4 Benchmark Evaluation & Collect Empirical Data:** Run the full evaluation suite on the 17-node German backbone network and generate high-resolution IEEE/PoliMi style figures for Slide 14 and Chapter 4.
 4. **Thesis Chapter 4 Drafting:** Begin drafting Chapter 4 (*Experimental Evaluation & Numerical Results*) using `thesis-coauthor` and Overleaf integration.
 
@@ -122,11 +130,11 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 4. Do You Need Support?
 
-- **Current Status:** No external blockers. The evaluation dataset, baseline definitions, intent reconciliation engine, and PowerPoint presentation deck are fully aligned and validated.
+- **Current Status:** No external blockers. The evaluation dataset, baseline definitions, bandwidth SLA mechanics, and PowerPoint presentation deck are fully aligned and validated.
 - **Advisor Review:** I will schedule a checkpoint to present the 15-minute defense deck draft and discuss empirical benchmark results.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I formalized Baseline C, balanced the 100-demand corpus ($25 \times 4$), scaffolded the automated evaluation suite, and implemented the LLM-assisted Intent Reconciler to eliminate semantic drift during HITL refinement loops while maintaining 100% test pass rate across 291 unit tests.
+I formalized Baseline C, mapped bandwidth/capacity SLA constraints into PDDL and GN-model physics with a 21.5 dB 400G threshold, expanded and balanced the synthetic benchmark corpus to 107 intents with normalized ternary RADG actions, and generated the comprehensive Excel dataset while maintaining a 100% test pass rate across 294 unit tests.

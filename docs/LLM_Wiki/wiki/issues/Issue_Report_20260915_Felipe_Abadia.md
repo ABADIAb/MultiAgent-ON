@@ -141,6 +141,23 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ---
 
+#### Solved Issue 9: Erroneous 'Reject' Action in Synthetic Corpus and Mathematical Action Space Divergence
+
+- **Issue:** 24 intents in Class IV (Adversarial) were labeled with `"expected_radg_action": "reject"`, and several edge cases had inconsistent mappings (`intent_adv_26` had `replan` while `intent_amb_26` had `approve`). This directly contradicted the thesis problem statement (ProblemStatement_v5, Section 4.3), which formalizes the RADG action space as strictly ternary: $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$.
+- **What has already been tried:** Traced the source code in [`src/core/radg.py`](file:///home/felipeab/MultiAgentON/src/core/radg.py) and [`src/nodes/radg_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/radg_node.py). `evaluate_radg()` evaluates only physical feasibility outcomes and returns strictly `"approve"` or `"replan"`.
+- **Result:** Adversarial intents (unknown nodes, topological contradictions, PDDL injection) fail structurally at Layer 1 ($v_{struct}=0$) or diverge semantically at Layer 2 ($U_{sem} > \tau_{sem}$), triggering early fail-fast `clarify` in Phase 3b. They never reach the RADG physical gate as a "reject".
+- **Estimated possible solution / Resolution:**
+  1. Normalized all 107 intents in [`tests/evaluation/test_corpus.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus.json):
+     - **Class I (Nominal)**: $U_{sem} \to$ `pass`, RADG $\to$ `approve`, $\text{QoT} \to$ `true`.
+     - **Class II (Ambiguous)**: $U_{sem} \to$ `clarify`, RADG $\to$ `clarify`, $\text{QoT} \to$ `null`.
+     - **Class III (Infeasible)**: $U_{sem} \to$ `pass`, RADG $\to$ `replan`, $\text{QoT} \to$ `false`.
+     - **Class IV (Adversarial)**: $U_{sem} \to$ `clarify`, RADG $\to$ `clarify`, $\text{QoT} \to$ `null`.
+  2. Updated the benchmark taxonomy table in [`tests/evaluation/README.md`](file:///home/felipeab/MultiAgentON/tests/evaluation/README.md) to replace `reject / clarify` with `clarify (Phase 3b HITL / CFG)`.
+  3. Regenerated [`docs/LLM_Wiki/raw/test_corpus_summary.xlsx`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/raw/test_corpus_summary.xlsx) reflecting the corrected actions.
+  4. Verified all 294 unit tests continue to pass with 100% success.
+
+---
+
 ### Pending Issues
 
 > None. The presentation authoring pipeline, benchmark corpus, intent reconciliation engine, and full 7-phase neurosymbolic pipeline are complete, verified, and passing all unit tests.

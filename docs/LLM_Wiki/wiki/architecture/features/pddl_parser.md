@@ -30,6 +30,7 @@ The system uses a simplified PDDL problem domain for optical routing:
     (and
       (route <source> <target>)
       (min-gsnr <value>)       ; optional
+      (bandwidth <value>)      ; optional (e.g. 100, 200, 400 Gbps)
       (avoid-node <node>)      ; optional
       (avoid-link <src> <dst>) ; optional
       (max-hops <n>)           ; optional
