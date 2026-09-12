@@ -138,20 +138,26 @@ def plan_synthesizer_node(state: AgentState) -> dict:
     base_intent = _extract_clean_base_intent(state)
     refinement_history = state.get("refinement_history") or []
     refinement_count = state.get("refinement_count") or len(refinement_history)
+    active_intent = state.get("active_intent")
+    reasoning = state.get("intent_update_reasoning")
 
     # 1. Refinement & Intent status
     if refinement_history:
         refinement_status = f"Refined via Operator HITL ({refinement_count} iteration{'s' if refinement_count != 1 else ''})"
         refinements_list = "\n".join(f"  - Turn {idx}: \"{fb}\"" for idx, fb in enumerate(refinement_history, 1))
-        active_intent = f"{base_intent} (Updated with operator refinements: {'; '.join(refinement_history)})"
+        if not active_intent:
+            active_intent = f"{base_intent} (Updated with operator refinements: {'; '.join(refinement_history)})"
+
+        reasoning_line = f"\n- **Intent Reconciliation Rationale:** {reasoning}" if reasoning else ""
         refinement_block = (
             f"- **Refinement Status:** {refinement_status}\n"
-            f"- **Applied HITL Refinements:**\n{refinements_list}\n"
+            f"- **Applied HITL Refinements:**\n{refinements_list}{reasoning_line}\n"
             f"- **Active Operational Intent:** {active_intent}"
         )
     else:
         refinement_status = "Autonomous Pass (0 Interrupts)"
-        active_intent = base_intent
+        if not active_intent:
+            active_intent = base_intent
         refinement_block = (
             f"- **Refinement Status:** {refinement_status}\n"
             f"- **Active Operational Intent:** {active_intent}"

@@ -2,17 +2,22 @@
   {
     "id": "intent_nom_01",
     "class": "I_Nominal",
-    "intent_text": "Establish an optical connection from Hamburg to Berlin with at least 15 dB GSNR.",
+    "intent_text": "Establish an optical connection from Hamburg to Berlin avoiding both Bremen and Hannover, with a minimum of 15 dB GSNR and a maximum of 3 hops.",
     "source_node": "Hamburg",
     "target_node": "Berlin",
     "ground_truth_constraints": {
-      "min_gsnr": 15.0
+      "min_gsnr": 15.0,
+      "avoid_nodes": [
+        "Bremen",
+        "Hannover"
+      ],
+      "max_hops": 3
     },
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": true,
     "expected_radg_action": "approve",
-    "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
+    "rationale": "Complex single-service intent: Tests LLM capability to parse multiple constraints (GSNR, avoid multiple nodes, max hops) without dropping any (CRR)."
   },
   {
     "id": "intent_nom_02",
@@ -388,15 +393,15 @@
   {
     "id": "intent_amb_01",
     "class": "II_Ambiguous",
-    "intent_text": "Establish an optical connection somewhere in the north region.",
-    "source_node": null,
-    "target_node": null,
+    "intent_text": "Set up a path from Bremen to Frankfurt. Make sure it's secure and has good enough signal for a standard transmission.",
+    "source_node": "Bremen",
+    "target_node": "Frankfurt",
     "ground_truth_constraints": {},
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
     "expected_radg_action": "clarify",
-    "rationale": "Underspecified endpoints or colloquial SLA, triggering early fail-fast Phase 3b HITL."
+    "rationale": "Ambiguous constraints (secure, good enough signal), triggering Phase 3b HITL clarification for GSNR threshold and protection."
   },
   {
     "id": "intent_amb_02",
@@ -719,17 +724,21 @@
   {
     "id": "intent_inf_01",
     "class": "III_Infeasible",
-    "intent_text": "Route traffic from Norden to Munich with at least 32 dB GSNR across all spans.",
+    "intent_text": "Establish a single direct span from Norden to Munich with at least 30 dB GSNR avoiding Leipzig.",
     "source_node": "Norden",
     "target_node": "Munich",
     "ground_truth_constraints": {
-      "min_gsnr": 32.0
+      "min_gsnr": 30.0,
+      "avoid_nodes": [
+        "Leipzig"
+      ],
+      "max_hops": 1
     },
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
     "expected_radg_action": "replan",
-    "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
+    "rationale": "Infeasible single-service intent: Single span from Norden to Munich with 30dB is physically impossible. Evaluates RADG replan capability on complex constraints."
   },
   {
     "id": "intent_inf_02",
@@ -1097,17 +1106,19 @@
   {
     "id": "intent_adv_01",
     "class": "IV_Adversarial",
-    "intent_text": "Establish an optical route from Paris to Rome with 15 dB GSNR.",
-    "source_node": "Paris",
-    "target_node": "Rome",
+    "intent_text": "Route traffic from Leipzig to Cologne using the shortest path by hops, but avoid all intermediate nodes.",
+    "source_node": "Leipzig",
+    "target_node": "Cologne",
     "ground_truth_constraints": {
-      "min_gsnr": 15.0
+      "avoid_nodes": [
+        "ALL"
+      ]
     },
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
-    "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
+    "expected_radg_action": "clarify",
+    "rationale": "Logical paradox: shortest path but avoiding all nodes. Semantic Gate should detect contradiction."
   },
   {
     "id": "intent_adv_02",

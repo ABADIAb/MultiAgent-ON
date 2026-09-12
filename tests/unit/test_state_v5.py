@@ -177,6 +177,17 @@ class TestAgentStateV5Fields:
         hints = get_type_hints(AgentState)
         assert "topology_context" in hints
 
+    def test_state_has_active_intent_field(self):
+        """State must have active_intent for reconciled operational intent."""
+        hints = get_type_hints(AgentState)
+        assert "active_intent" in hints
+
+    def test_state_has_intent_reconciliation_fields(self):
+        """State must have intent_update_reasoning and intent_update_type fields."""
+        hints = get_type_hints(AgentState)
+        assert "intent_update_reasoning" in hints
+        assert "intent_update_type" in hints
+
     def test_fiber_link_has_amplifiers_field(self):
         """FiberLink must carry amplifiers list for QoT physics propagation."""
         link = FiberLink(

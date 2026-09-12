@@ -224,6 +224,45 @@ class TestPddlParserNode:
         assert feedback in message_contents
         assert previous_pddl in message_contents
 
+    @patch("src.nodes.pddl_parser.reconcile_and_enrich_intent")
+    @patch("src.nodes.pddl_parser.get_llm")
+    def test_pddl_parser_reconciles_intent_on_refinement(self, mock_get_llm, mock_reconcile):
+        """pddl_parser_node calls intent reconciliation on refinement and includes active_intent in prompt."""
+        from src.nodes.pddl_parser import pddl_parser_node
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content=VALID_PDDL_RESPONSE)
+        mock_get_llm.return_value = mock_llm
+
+        reconciled_intent = "Route from Hamburg to Berlin with min GSNR 12 dB"
+        mock_reconcile.return_value = {
+            "active_intent": reconciled_intent,
+            "intent_update_type": "partial_update",
+            "intent_update_reasoning": "Destination changed to Berlin, GSNR relaxed to 12 dB.",
+            "enriched_intent": reconciled_intent,
+            "topology_context": None,
+            "subtopology_snapshot": None,
+        }
+
+        state = _make_state(
+            active_intent="Route from Hamburg to Munich with min GSNR 15 dB",
+            enriched_intent="Route from Hamburg to Munich with min GSNR 15 dB",
+            pddl_constraints="(define (problem route) ...)",
+            error_context="Lower GSNR to 12 dB and route to Berlin",
+            refinement_history=["Lower GSNR to 12 dB and route to Berlin"],
+        )
+
+        result = pddl_parser_node(state)
+
+        assert mock_reconcile.called
+        assert result["active_intent"] == reconciled_intent
+        assert result["intent_update_type"] == "partial_update"
+        assert result["intent_update_reasoning"] == "Destination changed to Berlin, GSNR relaxed to 12 dB."
+
+        call_args = mock_llm.invoke.call_args[0][0]
+        prompt_content = " ".join(msg.content for msg in call_args)
+        assert reconciled_intent in prompt_content
+
     def test_no_hardcoded_topology_in_system_prompt(self):
         """PDDL_SYSTEM_PROMPT must not have hardcoded testbed nodes/topology."""
         from src.nodes.pddl_parser import PDDL_SYSTEM_PROMPT
@@ -613,6 +652,24 @@ class TestPlanSynthesizerNode:
         assert "Relax minimum GSNR to 14.0 dB and avoid Leipzig" in report
         # Must indicate the intent was refined / active operational intent
         assert "Refinement" in report or "Refined" in report
+
+    def test_report_renders_reconciled_active_intent_and_reasoning(self):
+        """When active_intent and intent_update_reasoning exist, report renders them cleanly."""
+        from src.nodes.plan_synthesizer import plan_synthesizer_node
+
+        state = _make_state(
+            enriched_intent="Intent: Route 100G from Berlin to Munich with 18 dB GSNR",
+            active_intent="Route 100G from Berlin to Munich with 14 dB GSNR avoiding Leipzig",
+            intent_update_reasoning="GSNR relaxed from 18 to 14 dB, added node avoidance for Leipzig.",
+            refinement_history=["Relax minimum GSNR to 14.0 dB and avoid Leipzig"],
+            refinement_count=1,
+            qot_results=[{"path": ["Berlin", "Nuremberg", "Munich"], "feasible": True, "snr_dB": 15.2, "power_dBm": -8.0}],
+        )
+        result = plan_synthesizer_node(state)
+        report = result["planning_report"]
+
+        assert "Active Operational Intent:** Route 100G from Berlin to Munich with 14 dB GSNR avoiding Leipzig" in report
+        assert "Intent Reconciliation Rationale:** GSNR relaxed from 18 to 14 dB, added node avoidance for Leipzig." in report
 
     def test_report_eliminates_repeated_intent_and_topology_dump(self):
         from src.nodes.plan_synthesizer import plan_synthesizer_node

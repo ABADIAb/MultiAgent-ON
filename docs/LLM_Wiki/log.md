@@ -495,5 +495,14 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Baseline C formalization, GraphRAG token economy validation, 100-demand corpus balancing (25x4), evaluation environment scaffolding, presentation alignment, and debrief maintenance.
 - Testing & Verification: Full unit test suite passing with 100% success across 278 tests (`uv run pytest`).
 
-
-
+## [2026-09-12] ingest | Feature: Intent Reconciler & Refinement Reasoning
+- Created: `docs/LLM_Wiki/wiki/architecture/features/intent_reconciler.md` — formalizing LLM-assisted intent reconciliation during HITL refinement loops (Phase 3b Semantic Gate clarify & Phase 6 RADG replan).
+- Implemented: `src/nodes/intent_reconciler.py` (`IntentUpdateType`, `RefinedIntentAnalysis`, `reconcile_operator_intent()`, `reconcile_and_enrich_intent()`).
+- Updated: `src/core/state.py` (`active_intent`, `intent_update_reasoning`, `intent_update_type`), `src/nodes/pddl_parser.py`, `src/nodes/semantic_gate_node.py`, `src/nodes/plan_synthesizer.py`, and `src/nodes/intent_ingest.py`.
+- Updated: `docs/LLM_Wiki/wiki/architecture/features/pddl_parser.md` and `docs/LLM_Wiki/index.md`.
+- Testing & Verification: 291 passing tests with 100% success rate (`uv run pytest`), zero lint errors (`uv run ruff check src/ tests/unit/test_intent_reconciler.py`).
+## [2026-09-12] debrief2 | LLM-Assisted Intent Reconciliation, Refinement Reasoning & Phase 2 Integration
+- Wiki Deep Lint: Audited and verified `Weekly_Report_20260915_Felipe_Abadia.md`, `Issue_Report_20260915_Felipe_Abadia.md`, `session_20260912_LLM_Assisted_Intent_Reconciliation_and_Refinement.md`, `intent_reconciler.md`, and `pddl_parser.md` for complete YAML frontmatter and `[[wikilinks]]`. Synchronized `index.md`.
+- Consistency Audit: Verified formalization of the binding operator $\mathcal{I}_{\text{eff}}^{(k)} = \text{Reconcile}(\mathcal{I}_{\text{active}}^{(k-1)}, \mathcal{F}_k)$ across Phase 2 PDDL parser, Semantic Gate, and Plan Synthesizer. Documented Solved Issue 8 in Issue Report. Updated Weekly Report with accomplishment Item 10 and updated One-Sentence Summary.
+- Session focus: Designed and implemented `src/nodes/intent_reconciler.py` with Chain-of-Thought taxonomy (`FULL_REPLACEMENT` vs `PARTIAL_UPDATE`), state schema extension (`active_intent`, `intent_update_reasoning`, `intent_update_type`), Mock GraphRAG dynamic rescoping, clean downstream consumption in Phase 2, Semantic Gate, and Plan Synthesizer, and debrief maintenance.
+- Testing & Verification: Full unit test suite passing with 100% success across 291 tests (`uv run pytest`), zero lint errors (`uv run ruff check src/ tests/unit/test_intent_reconciler.py`).

@@ -18,6 +18,7 @@ Content-oriented catalog of everything in the wiki.
 
 ### Feature Docs (`docs/LLM_Wiki/wiki/architecture/features/`)
 - [[architecture/features/intent_ingest]]: Phase 1 — NL intent parsing node, IntentSummary schema, LLM structured output.
+- [[architecture/features/intent_reconciler]]: Phase 2 (Refinement) — LLM-assisted intent reconciliation and reasoning (full replacement vs partial update).
 - [[architecture/features/pddl_parser]]: Phase 2 — PDDL Parser node + CFG Validator. LLM as translator, refinement loop.
 - [[architecture/features/reverse_prompt]]: Phase 3 (HITL) — Reverse Prompting HITL node, LLM reconstruction, `interrupt()` pattern.
 - [[architecture/features/semantic_gate]]: Phase 3 (Gate) — Semantic Gate node computing $U_{sem}$ with 2-layer validation. Routes to Phase 4 or clarifies.
@@ -67,7 +68,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
-- [[issues/Issue_Report_20260915_Felipe_Abadia]]: Solved Windows PowerPoint file-locking constraint, slide banner height overflow, DrawingML shape text inversion on light cards, and text-heavy slide walls via native OMML math and rich visual layouts; 0 pending issues.
+- [[issues/Issue_Report_20260915_Felipe_Abadia]]: Solved Windows PowerPoint file-locking, multi-stage banner overflow, DrawingML shape text inversion, native OMML math, manual visual reverse-engineering, and Solved Issue 8 (LLM-assisted intent reconciliation eliminating HITL semantic drift); 0 pending issues.
 - [[issues/Issue_Report_20260908_Felipe_Abadia]]: Solved BUG-009 (Monotonic Refinement Semantic Drift) and BUG-010 (Planning Report Stale Intent & Raw Subtopology Dump); 0 pending issues.
 - [[issues/Issue_Report_20260906_Felipe_Abadia]]: Solved Draw.io temporary lock/backup files cluttering workspace via permanent .gitignore rules; 0 pending issues.
 - [[issues/Issue_Report_20260824_Felipe_Abadia]]: Solved 3-node numerical evaluation limitation via Nobel-Germany 17-node topology; solved multi-hop power accumulation; solved BUG-006 solver endpoint parsing; pending testbed link provisioning; in progress Sprint 4 test corpus.
@@ -143,6 +144,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260912_LLM_Assisted_Intent_Reconciliation_and_Refinement]]: Implementation of the LLM-assisted Intent Reconciler (`intent_reconciler.py`), structured prompt engineering with Chain-of-Thought taxonomy (`FULL_REPLACEMENT` vs `PARTIAL_UPDATE`), dynamic GraphRAG subtopology rescoping upon endpoint alteration, unification of operational `active_intent` across Phase 2, Semantic Gate, and Plan Synthesizer, and 291 passing tests.
 - [[session_summary/session_20260912_Benchmark_Corpus_Balancing_Baseline_C_and_Evaluation_Scaffolding]]: Formalization of Baseline C (traditional SDON / PCE without LLM), optical topology JSON and GraphRAG token economy validation (>90% savings), benchmark corpus balancing (25 demands per class across 4 classes), evaluation environment scaffolding (test_corpus.json, README.md), and defense presentation Slide 13 synchronization.
 - [[session_summary/session_20260911_Evaluation_Framework_and_Slide13_Refinement]]: Formalization of the Four Core Validation Pillars and comparative baselines (Baseline A LLM-only, Baseline B static rule-based), analysis of Always-Off HITL ablation, Slide 13 visual enhancements (parallel baseline comparison pills, DrawingML run color fix, structured 3-column benchmark table), and headless vector PDF / 1080p slide export.
 - [[session_summary/session_20260910_Thesis_Title_Modernization_and_Presentation_Alignment]]: Formal update of the thesis title to "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks", cross-ecosystem synchronization (architecture, drafts, rules, config, code docstrings), PowerPoint deck re-compilation, vector PDF/PNG export, and two-way sync workflow clarification.

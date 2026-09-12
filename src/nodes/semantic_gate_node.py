@@ -98,12 +98,15 @@ def semantic_gate_node(state: AgentState) -> dict:
     """
     v_struct: bool = state.get("pddl_valid") or False
     intent: str = state.get("enriched_intent") or ""
+    active_intent: str | None = state.get("active_intent")
     reconstruction: str = state.get("hitl_reconstruction") or ""
     refinement_history: list[str] = state.get("refinement_history") or []
 
     # Layer 2: only meaningful if Layer 1 passed and we have a reconstruction
     if v_struct and reconstruction:
-        if refinement_history:
+        if active_intent:
+            effective_intent = active_intent
+        elif refinement_history:
             refinements_block = "\n".join(f"- {r}" for r in refinement_history)
             effective_intent = (
                 f"{intent}\n\n"

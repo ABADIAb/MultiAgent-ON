@@ -64,6 +64,9 @@ class TestIntentIngestNode:
             assert result["enriched_intent"] is not None
             assert "Milano-A" in result["enriched_intent"]
             assert "Milano-D" in result["enriched_intent"]
+            assert result["active_intent"] is not None
+            assert "Milano-A" in result["active_intent"]
+            assert "Topology Context:" not in result["active_intent"]
         finally:
             llm_module._llm = None
 

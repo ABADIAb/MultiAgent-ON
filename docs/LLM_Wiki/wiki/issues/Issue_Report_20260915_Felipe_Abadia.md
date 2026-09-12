@@ -127,9 +127,23 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ---
 
+#### Solved Issue 8: Naive String Concatenation and Semantic Contradictions in HITL Intent Refinement
+
+- **Issue:** During multi-turn Human-in-the-Loop refinement loops (Phase 3b Semantic Gate clarification and Phase 6 RADG replan), operator feedback was processed via naive string concatenation (`base_intent + "\n" + feedback`). This created semantic contradictions in prompts (e.g. both old and new destinations present in the same prompt string), forcing the downstream PDDL parser to guess constraint precedence, biasing the Semantic Gate agreement judge with conflicting text blocks, and producing oxymoronic updates in the final planning report.
+- **What has already been tried:** Monotonic refinement feedback capture (BUG-009) accumulated feedback in `refinement_history` to prevent gate drift, but the reference string remained an ad-hoc concatenation of conflicting turns.
+- **Result:** Refinement prompts grew noisy and contradictory; full replacements could not prune superseded constraints; planning reports displayed cluttered trails.
+- **Estimated possible solution / Resolution:**
+  1. Implemented the LLM-assisted Intent Reconciler in [`src/nodes/intent_reconciler.py`](file:///home/felipeab/MultiAgentON/src/nodes/intent_reconciler.py), applying Chain-of-Thought prompt engineering and Pydantic structured output (`RefinedIntentAnalysis`) to classify refinement scope into `FULL_REPLACEMENT` (complete request reset) vs `PARTIAL_UPDATE` (delta constraint adjustment).
+  2. Extended `AgentState` with `active_intent`, `intent_update_reasoning`, and `intent_update_type` in [`src/core/state.py`](file:///home/felipeab/MultiAgentON/src/core/state.py), providing a single, non-contradictory operational truth across the pipeline.
+  3. Integrated Mock GraphRAG dynamic rescoping: dynamically re-extracts the $k$-hop subtopology neighborhood whenever operator refinement alters routing endpoints.
+  4. Updated Phase 2 (`pddl_parser.py`), Semantic Gate (`semantic_gate_node.py`), and Plan Synthesizer (`plan_synthesizer.py`) to consume `active_intent` directly.
+  5. Authored dedicated unit tests in `tests/unit/test_intent_reconciler.py` and updated regression tests, achieving a 100% pass rate across 291 unit tests with zero lint errors.
+
+---
+
 ### Pending Issues
 
-> None. The presentation authoring pipeline, automated headless export, visual inspection tooling, and refined 16-slide thesis defense deck are complete, verified, and passing all unit tests.
+> None. The presentation authoring pipeline, benchmark corpus, intent reconciliation engine, and full 7-phase neurosymbolic pipeline are complete, verified, and passing all unit tests.
 
 ---
 

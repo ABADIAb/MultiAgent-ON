@@ -22,6 +22,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from src.core.llm import get_llm
 from src.core.pddl_validator import validate_pddl_syntax
 from src.core.state import AgentState
+from src.nodes.intent_reconciler import reconcile_and_enrich_intent
 
 PDDL_SYSTEM_PROMPT = """\
 You are the PDDL Parser module of a Neurosymbolic Orchestrator for a \
@@ -71,27 +72,37 @@ def _strip_code_fences(text: str) -> str:
 def pddl_parser_node(state: AgentState) -> dict:
     """Parse enriched intent into PDDL constraints using the LLM.
 
-    1. Sends the enriched intent to Kimi with PDDL generation prompt.
-    2. Strips any markdown code fences from the response.
-    3. Validates structural syntax via CFG regex validator.
-    4. Sets pddl_valid and error_context accordingly.
+    1. If refinement feedback exists, reconciles intent via LLM reasoning first.
+    2. Sends the active intent to Kimi with PDDL generation prompt.
+    3. Strips any markdown code fences from the response.
+    4. Validates structural syntax via CFG regex validator.
+    5. Sets pddl_valid and error_context accordingly.
 
     Returns:
         Partial state update with pddl_constraints, pddl_valid,
-        error_context, and messages.
+        error_context, active_intent, and messages.
     """
     enriched = state.get("enriched_intent") or "No intent provided"
     previous_pddl = state.get("pddl_constraints")
     feedback = state.get("error_context")
     refinement_history = state.get("refinement_history") or []
+    active_intent = state.get("active_intent")
 
-    if previous_pddl and feedback:
+    reconciliation_updates: dict = {}
+
+    if previous_pddl and (feedback or refinement_history):
+        # Reconcile intent using LLM reasoning (full replacement vs partial update)
+        reconciliation_updates = reconcile_and_enrich_intent(state)
+        active_intent = reconciliation_updates.get("active_intent") or active_intent
+        enriched = reconciliation_updates.get("enriched_intent") or enriched
+
         history_text = (
             "\n".join(f"- {r}" for r in refinement_history)
             if refinement_history
             else f"- {feedback}"
         )
         user_content = (
+            f"Active Operational Intent:\n{active_intent}\n\n"
             f"Original Intent: {enriched}\n\n"
             f"Previous PDDL constraints:\n{previous_pddl}\n\n"
             f"Operator refinement feedback:\n{history_text}\n\n"
@@ -99,6 +110,9 @@ def pddl_parser_node(state: AgentState) -> dict:
         )
     else:
         user_content = enriched
+        if not active_intent and enriched != "No intent provided":
+            # Extract clean active intent from enriched if missing
+            active_intent = enriched.split("\nTopology Context:")[0].strip()
 
     llm = get_llm()
     messages = [
@@ -123,11 +137,26 @@ def pddl_parser_node(state: AgentState) -> dict:
         else f"PDDL constraints generated (valid={is_valid}): {pddl}"
     )
 
-    return {
+    result: dict = {
         "pddl_constraints": pddl,
         "pddl_valid": is_valid,
         "error_context": error_ctx,
+        "active_intent": active_intent,
         "messages": [
             AIMessage(content=msg_content, name="pddl_parser"),
         ],
     }
+
+    if reconciliation_updates:
+        if "intent_update_type" in reconciliation_updates:
+            result["intent_update_type"] = reconciliation_updates["intent_update_type"]
+        if "intent_update_reasoning" in reconciliation_updates:
+            result["intent_update_reasoning"] = reconciliation_updates["intent_update_reasoning"]
+        if "enriched_intent" in reconciliation_updates:
+            result["enriched_intent"] = reconciliation_updates["enriched_intent"]
+        if "subtopology_snapshot" in reconciliation_updates and reconciliation_updates["subtopology_snapshot"]:
+            result["subtopology_snapshot"] = reconciliation_updates["subtopology_snapshot"]
+        if "topology_context" in reconciliation_updates and reconciliation_updates["topology_context"]:
+            result["topology_context"] = reconciliation_updates["topology_context"]
+
+    return result

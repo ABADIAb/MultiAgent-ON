@@ -45,8 +45,12 @@ The system uses a simplified PDDL problem domain for optical routing:
 4. Validates via `validate_pddl_syntax()` — performs S-expression tokenization and AST parsing: checks balanced parentheses, `(define ...)` wrapper, presence of `:domain`, `:objects`, `:init`, `:goal` sections, and goal predicate production rules (arities and numeric types).
 5. Returns `pddl_valid=True/False` and `error_context` with any CFG error messages.
 
-### Refinement Loop Support
-When the Reverse Prompt node returns `action="refine"`, the operator's feedback is stored in `error_context`. On the next call, `pddl_parser_node` detects the presence of both `pddl_constraints` and `error_context` and includes both the previous PDDL and the feedback in the LLM prompt — enabling convergent iterative refinement.
+### Refinement Loop Support (Intent Reconciler Integration)
+When the operator submits refinement feedback via HITL (Phase 3b [[architecture/features/reverse_prompt|reverse_prompt]] or Phase 6 [[architecture/features/radg|radg_node]] replan), `pddl_parser_node` detects the presence of feedback in `error_context` or `refinement_history`. Rather than naively concatenating raw feedback strings, it delegates to [[architecture/features/intent_reconciler]] (`reconcile_and_enrich_intent`):
+1. An LLM reasoning step classifies the update scope (`FULL_REPLACEMENT` vs `PARTIAL_UPDATE`) and calculates the constraint delta.
+2. If endpoints changed, Mock GraphRAG re-extracts the $k$-hop subtopology.
+3. The reconciled operational goal is saved as `active_intent`.
+4. `pddl_parser_node` generates PDDL from this unified, non-contradictory `active_intent`.
 
 ## 5. CFG Validator Details (`src/core/pddl_validator.py`)
 - **Layer 1 (Structural)**: Feeds into $U_{sem}$ Layer 1 check
