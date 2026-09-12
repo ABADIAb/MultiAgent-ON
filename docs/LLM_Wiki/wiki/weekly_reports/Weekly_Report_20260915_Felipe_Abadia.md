@@ -90,26 +90,35 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
      - Diagnosed and fixed DrawingML text run color inheritance where white theme styling overrode paragraph defaults, locking text runs to bold Navy (`#0F2C53`).
      - Converted the 100 Test Demands benchmark corpus into a structured, color-coded 3-column table (`Class & Size`, `Intent Characteristics`, `RADG Action`).
      - Cleaned right column by letting the 4 validation pillar cards float directly on the canvas without outer container bounding boxes.
-   - Verified 0 discrepancies across all 16 slides via `inspect_deck.py --diff`, regenerated vector `thesis_defense.pdf` and 1080p slide PNGs, and confirmed 100% test pass rate (278 tests).
+    - Verified 0 discrepancies across all 16 slides via `inspect_deck.py --diff`, regenerated vector `thesis_defense.pdf` and 1080p slide PNGs, and confirmed 100% test pass rate (278 tests).
+
+9. **Benchmark Corpus Balancing, Baseline C Formalization & Evaluation Scaffolding:**
+   - In response to advisor inquiries regarding non-LLM baselines, formalized **Baseline C (Traditional SDON / PCE without LLM)** grounded in RFC 8231, standard YANG models, and static design margins.
+   - Analytically validated the JSON topology of the 17-node German backbone network (Nobel-Germany) and confirmed that Scoped Optical GraphRAG ($k=2$ hop neighborhood extraction) achieves $>90\%$ prompt token reduction compared to full topology injection.
+   - Rebalanced the 100-demand synthetic evaluation benchmark into an equiprobable $25 \times 4$ distribution across all four intent risk categories (Class I Nominal [25], Class II Ambiguous [25], Class III Infeasible [25], Class IV Adversarial [25]) to prevent class-imbalance bias.
+   - Scaffolded the automated evaluation environment under [`tests/evaluation/`](file:///home/felipeab/MultiAgentON/tests/evaluation/):
+     - Generated [`test_corpus.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus.json) containing all 100 validated intent demands with ground truth mappings and expected actions.
+     - Authored [`README.md`](file:///home/felipeab/MultiAgentON/tests/evaluation/README.md) documenting the Four Validation Pillars, formal metric equations, comparative baseline matrix, and runner execution contracts.
+   - Synchronized Slide 13 in [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py) and [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md), recompiled the presentation deck, and updated system architecture documentation (`ProblemStatement_v5.md`, `MVP_Roadmap.md`, `Architecture_v5.md`).
 
 ---
 
 ## 3. What do I plan to accomplish next week?
 
 1. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and narrative structure to Prof. Massimo Tornatore for formal academic review and feedback.
-2. **Execute Sprint 4 Benchmark Evaluation:** Run the full 100-demand evaluation suite on the 17-node German backbone network across Baseline A (LLM-only), Baseline B (Rule-based), and Proposed (Neurosymbolic RADG).
-3. **Populate Empirical Figures into Slide Deck:** Ingest the empirical benchmark plots (blocking probability, latency distributions, and HITL reduction curves) directly into Slide 14 and backup slides.
-4. **Thesis Chapter 4 & 5 Drafting:** Begin drafting Chapter 4 (*Experimental Evaluation & Numerical Results*) using `thesis-coauthor` and Overleaf integration.
+2. **Implement Automated Evaluation Harness:** Develop `run_benchmark.py`, `metrics.py`, and `plotter.py` in `tests/evaluation/scripts/` following Strict TDD to execute the 100-demand corpus across Baseline A, Baseline B, Baseline C, and Proposed.
+3. **Execute Sprint 4 Benchmark Evaluation & Collect Empirical Data:** Run the full evaluation suite on the 17-node German backbone network and generate high-resolution IEEE/PoliMi style figures for Slide 14 and Chapter 4.
+4. **Thesis Chapter 4 Drafting:** Begin drafting Chapter 4 (*Experimental Evaluation & Numerical Results*) using `thesis-coauthor` and Overleaf integration.
 
 ---
 
 ## 4. Do You Need Support?
 
-- **Current Status:** No external blockers. The PowerPoint co-authoring workflow and export automation are fully operational under WSL and Windows.
-- **Advisor Review:** I will schedule a checkpoint to present the 15-minute defense deck draft and collect feedback on slide emphasis and result presentation.
+- **Current Status:** No external blockers. The evaluation dataset, baseline definitions, and PowerPoint presentation deck are fully aligned and validated.
+- **Advisor Review:** I will schedule a checkpoint to present the 15-minute defense deck draft and discuss empirical benchmark results.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I structured the thesis evaluation around Four Core Validation Pillars and comparative baselines, synchronized Slide 13 manual improvements with tabular benchmark flows, and validated zero-discrepancy 16-slide compilation to vector PDF and 1080p previews.
+I formalized Baseline C (traditional SDON/PCE), balanced the 100-demand evaluation corpus into an equiprobable $25 \times 4$ distribution, and scaffolded the automated evaluation test environment in `tests/evaluation/` while synchronizing presentation Slide 13 and architecture documentation.

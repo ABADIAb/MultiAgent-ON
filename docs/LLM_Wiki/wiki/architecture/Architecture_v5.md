@@ -25,7 +25,7 @@ The system translates natural language intent into PDDL. Before executing expens
 2. **Risk-Proportional HITL Engagement.** The operator is not always interrupted (expensive, slow) nor never consulted (unsafe). The RADG engages the human only when the assessed risk warrants it, based on joint semantic and QoT signals.
 3. **Pre-Deployment Safety.** No configuration is pushed to the network without passing the RADG. Unlike post-deployment retry systems, physically infeasible or semantically ambiguous plans are caught before they can cause harm.
 4. **Mock GraphRAG for Context Bounding.** Rather than dumping the entire RESTConf topology JSON into the LLM, a mock GraphRAG layer fetches only the $k$-hop neighborhood required, preventing context saturation.
-5. **Pragmatic MVP Design.** Given the August 25 deadline, the PDDL symbolic solver, GraphRAG, and RADG will be implemented as lightweight Python modules.
+5. **Modular Production Design.** The PDDL symbolic solver, Mock GraphRAG, and RADG are implemented as decoupled, testable pure-Python modules adhering strictly to `src/core/` domain boundaries.
 
 ## 3. System Overview
 

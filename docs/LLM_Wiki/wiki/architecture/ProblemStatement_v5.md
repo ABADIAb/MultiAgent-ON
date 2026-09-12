@@ -85,7 +85,7 @@ This formalization enforces the **pre-deployment fail-fast** mechanism.
 ## 5. Given
 
 The planning system receives:
-1. **The Natural Language Intent.** A high-level, unstructured semantic request from a human operator (e.g., "Route traffic from Milano-A to Milano-C with at least 20 dB GSNR, avoiding link L2").
+1. **The Natural Language Intent.** A high-level, unstructured semantic request from a human operator (e.g., "Route traffic from Hamburg to Munich with at least 15 dB GSNR, avoiding Frankfurt").
 2. **The Physical Network Graph $G(V,E)$.** Extracted from the SDON testbed via RESTConf/SSH.
 3. **QoT Physical Parameters.** Fiber attenuation coefficients, optical amplifier gains, and channel configurations for deterministic GN-model computation.
 
@@ -120,7 +120,8 @@ Where:
 |----------|--------------|------------------|-----------------|
 | **Baseline A (LLM-Only)** | Monolithic LLM (Direct NL $\to$ JSON/CLI) | Unconstrained autonomous execution with reactive post-deployment retry | Evaluates failure modes: hallucinated physics, attention degradation, and high recovery latency |
 | **Baseline B (Static Rule-Based)** | Deterministic regex / CFG parser | Always-on human review (mandatory human validation on every intent) | Evaluates operational friction: operator fatigue, low expressiveness, and configuration rigidity |
-| **Proposed (Neurosymbolic RADG)** | Decoupled LangGraph pipeline (LLM translator + Yen's $K$-SP + GN-model) | Pre-deployment sequential risk gates ($U_{sem} \to \text{QoT}_{valid}$) with selective HITL | Evaluates proposed thesis hypothesis: pre-deployment safety ($UAR = 0\%$) with minimal operational friction |
+| **Baseline C (Traditional SDON)** | Non-LLM imperative YANG / RESTCONF RPC + PCE | Manual payload authoring by expert operator + deterministic Yen's $K$-SP / GN-model | Evaluates industrial baseline: zero NL translation error, absolute safety ($UAR=0\%$), but high human friction ($N_{human}$) and zero ambiguity tolerance |
+| **Proposed (Neurosymbolic RADG)** | Decoupled LangGraph pipeline (LLM translator + Yen's $K$-SP + GN-model) | Pre-deployment sequential risk gates ($U_{sem} \to \text{QoT}_{valid}$) with selective HITL | Evaluates proposed thesis hypothesis: pre-deployment safety ($UAR = 0\%$) with minimal operational friction and high NL expressiveness |
 
 ### 8.2 The Four Core Validation Pillars & Performance Metrics
 
@@ -157,14 +158,14 @@ To ensure a rigorous, multidimensional assessment beyond mere latency and token 
 
 ### 8.3 Benchmark Corpus: 100 Test Demands (4 Risk Classes)
 
-The evaluation suite executes on the standardized **17-Node Nobel-Germany Core Backbone Topology** ($|V| = 17, |E| = 26$ bidirectional SMF-28 links, dual-stage EDFAs, span lengths $L \in [45, 350]\text{ km}$):
+The evaluation suite executes on the standardized **17-Node Nobel-Germany Core Backbone Topology** ($|V| = 17, |E| = 26$ bidirectional SMF-28 links, dual-stage EDFAs, span lengths $L \in [45, 350]\text{ km}$), balanced across four equal cohorts (25 demands each):
 
 | Class | Intent Category | Sample Size | Intent Characteristics | Expected RADG Action | Target Outcome |
 |:-----:|-----------------|:-----------:|------------------------|:---------------------:|:--------------:|
-| **I** | **Nominal Intents** | 40 | Unambiguous source-destination requests with feasible physical paths | Auto-Approve | Zero human intervention, $U_{sem} \le \tau_{sem}$, $\text{QoT}_{valid} = 1$ |
-| **II** | **Ambiguous Intents** | 20 | Under-specified constraints, missing endpoints, or underspecified SLAs | Clarify Intent | Early fail-fast pause in Phase 3b via `interrupt()`, $U_{sem} > \tau_{sem}$ |
-| **III** | **Physically Infeasible** | 25 | Demands requiring high-order modulation formats over unamplified ultra-long spans | Suggest Replan | Intercepted in Phase 6, $\text{QoT}_{valid} = 0$, human invited to relax constraints |
-| **IV** | **Adversarial Prompts** | 15 | Hallucinated node names, syntax injection, or contradictory topological constraints | Reject / Clarify | Intercepted by Layer 1 CFG validator ($v_{struct} = 0 \to U_{sem} = 1.0$) |
+| **I** | **Nominal Intents** | 25 | Unambiguous source-destination requests with feasible physical paths | Auto-Approve | Zero human intervention, $U_{sem} \le \tau_{sem}$, $\text{QoT}_{valid} = 1$ |
+| **II** | **Ambiguous Intents** | 25 | Under-specified constraints, missing endpoints, or underspecified SLAs | Clarify Intent | Early fail-fast pause in Phase 3b via `interrupt()`, $U_{sem} > \tau_{sem}$ |
+| **III** | **Physically Infeasible** | 25 | Demands requiring unachievable GSNR targets over ultra-long unregenerated reaches | Suggest Replan | Intercepted in Phase 6, $\text{QoT}_{valid} = 0$, human invited to relax constraints |
+| **IV** | **Adversarial Prompts** | 25 | Hallucinated node names, syntax injection, or contradictory topological constraints | Reject / Clarify | Intercepted by Layer 1 CFG validator ($v_{struct} = 0 \to U_{sem} = 1.0$) |
 
 ## 9. Cross-References
 

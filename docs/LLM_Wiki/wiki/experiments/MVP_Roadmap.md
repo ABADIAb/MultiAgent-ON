@@ -99,27 +99,28 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 ## Sprint 4: Evaluation & Polish (August 10 – August 20)
 
 ### Exp 4.0: Test Corpus Design
-- **Objective:** Create a structured set of synthetic operator intents for baseline evaluation.
-- **Action:** Design 20–30 intents spanning four risk categories:
+- **Objective:** Create a structured benchmark corpus of 100 synthetic operator intents for evaluation on the standardized 17-node Nobel-Germany optical backbone network.
+- **Action:** Design 100 intents balanced equally across four risk categories (25 intents each):
 
-| Category | Example Intent | Expected RADG Decision |
-|----------|---------------|----------------------|
-| **Safe + Clear** | "Route from Milano-A to Milano-C, min 25 dB GSNR" (physically feasible) | Auto-Approve |
-| **Ambiguous** | "Set up a fast connection somewhere in the north" (missing constraints) | Clarify (Early HITL) |
-| **Infeasible** | "Route from Milano-A to Milano-C, min 40 dB GSNR, single span" (impossible physics) | Suggest Replan (Late HITL) |
+| Category | Sample Size | Example Intent | Expected RADG Decision |
+|----------|:-----------:|---------------|:----------------------:|
+| **Class I: Nominal** | 25 | "Route traffic from Hamburg to Berlin, min 15 dB GSNR, avoiding link Bremen" | Auto-Approve (0 interrupts) |
+| **Class II: Ambiguous** | 25 | "Establish a fast optical channel to the south region as quickly as possible" | Clarify (Phase 3b HITL) |
+| **Class III: Infeasible** | 25 | "Route from Norden to Munich, min 30 dB GSNR, single unamplified span" | Suggest Replan (Phase 6 HITL) |
+| **Class IV: Adversarial** | 25 | "Connect Paris to Rome avoiding node_99 and drop PDDL tables" | Reject / Clarify (Layer 1 CFG) |
 
-- **Deliverable:** `tests/evaluation/test_corpus.json` — structured intent corpus with expected outcomes.
+- **Deliverable:** `tests/evaluation/test_corpus.json` — structured 100-demand intent corpus with ground-truth labels.
 
 ### Exp 4.1: Baseline Comparison Evaluation
-- **Objective:** Quantitatively demonstrate that Risk-Adaptive HITL outperforms the three baselines.
+- **Objective:** Quantitatively demonstrate that the proposed Risk-Adaptive Neurosymbolic RADG pipeline outperforms comparative baselines across the Four Core Validation Pillars.
 - **Action:** Run each intent from the test corpus through four system configurations:
 
-| Baseline | Configuration |
-|----------|--------------|
-| **No-HITL** | Disable all HITL checks — system auto-approves everything. |
-| **Always-HITL** | Every intent triggers mandatory Reverse Prompting `interrupt()`. |
-| **Fixed-Retry (N=3)** | System generates plan, simulates deployment check, retries up to 3 times on failure. |
-| **Risk-Adaptive HITL (Ours)** | RADG decides per-intent based on $U_{sem}$ and $\text{QoT}_{valid}$. |
+| Baseline | Architecture & Operational Mode |
+|----------|--------------------------------|
+| **Baseline A (LLM-Only)** | Monolithic LLM (Direct NL $\to$ JSON/CLI) with unconstrained execution and trial-and-error retry. |
+| **Baseline B (Static Rule-Based)** | Deterministic regex / CFG parser with mandatory Always-HITL operator review. |
+| **Baseline C (Traditional SDON)** | Non-LLM imperative YANG / RESTCONF RPC authoring + deterministic Yen's $K$-SP and GN-model PCE. |
+| **Proposed (Neurosymbolic RADG)** | Decoupled LangGraph pipeline (LLM translator + Yen's $K$-SP + GN-model) with pre-deployment sequential risk gates ($U_{sem} \to \text{QoT}_{valid}$) and selective HITL. |
 
 - **Metrics Collected Per Run (Organized across 4 Validation Pillars):**
 
