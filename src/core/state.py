@@ -1,4 +1,4 @@
-"""Core state schema for the V5 Risk-Adaptive Neurosymbolic Intent Pipeline.
+"""Core state schema for the V5 LLM-Assisted Risk-Adaptive Neurosymbolic Intent Pipeline.
 
 Defines the AgentState TypedDict used as the shared state across all nodes
 in the V5 StateGraph, plus Pydantic models for structured domain data.
@@ -50,7 +50,7 @@ class TopologySnapshot(BaseModel):
 
 
 class AgentState(TypedDict, total=False):
-    """Shared state for the V5 Risk-Adaptive Neurosymbolic Intent Pipeline.
+    """Shared state for the V5 LLM-Assisted Risk-Adaptive Neurosymbolic Intent Pipeline.
 
     Fields:
         messages: Append-only message list (uses add reducer).

@@ -15,6 +15,7 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "rich>=15.0.0",
     "questionary>=2.1.1",
+    "python-pptx>=1.0.2",
 ]
 
 [dependency-groups]
@@ -37,4 +38,6 @@ addopts = "-m 'not integration'"
 
 [tool.pyright]
 extraPaths = ["."]
+venvPath = "."
+venv = ".venv"
 

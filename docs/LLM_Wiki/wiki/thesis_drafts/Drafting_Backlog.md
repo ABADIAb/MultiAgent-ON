@@ -31,3 +31,6 @@ Review this list before finalizing each chapter.
 - **Decision:** To prevent redundancy and maintain a dense, purely mathematical focus on our own system model within Chapter 3, this figure was moved to `figs_SystemModel/archive/`.
 - **Action:** When drafting Chapter 1 (Motivation) or Chapter 2 (Literature Review & SOTA Gap Analysis), evaluate retrieving and placing this figure to visually substantiate the architectural gap against SOTA.
 
+### 3. Dynamic Subtopology Scoping (Ellipsoid GraphRAG)
+- **Context:** In Phase 1 and 4, the initial theoretical design proposed a naive static $k$-hop neighborhood extraction to bound the context size. However, if the shortest path distance $d > 2k$, the extracted subgraph becomes disconnected, causing the LLM to falsely conclude infeasibility.
+- **Action:** Ensure that the final architecture description (and future work section) explicitly clarifies the migration from naive $k$-hop to an **Ellipsoid Subtopology Scoping** (or dynamic $k$-hop), where nodes are extracted conditionally based on $d(S, v) + d(v, T) \le d(S, T) + \Delta$ to guarantee subgraph connectivity and optimal token efficiency regardless of network diameter.

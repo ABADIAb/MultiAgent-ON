@@ -5,10 +5,10 @@ tags: [thesis, writing, roadmap, draft, system-model, implementation, evaluation
 status: active
 ---
 
-# Master Thesis Writing Roadmap: Risk-Adaptive Neurosymbolic Intent Planning
+# Master Thesis Writing Roadmap: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning
 
 Este documento establece la estrategia maestra y el orden de redacción para la tesis de maestría:
-**"Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment"**.
+**"LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment"**.
 
 Escribir una tesis de ingeniería de posgrado sigue una **estrategia concéntrica (de adentro hacia afuera)**: se redacta primero el núcleo teórico y matemático (Capítulo 3) y la ingeniería del pipeline (Capítulo 4), se continúa con la validación experimental y métricas (Capítulo 5), se fundamenta con el Estado del Arte (Capítulo 2) y se concluye con el marco narrativo exterior (Capítulos 1 y 6, y finalmente el Abstract).
 
@@ -99,12 +99,11 @@ flowchart LR
 - **Recomendaciones:** Explicar por qué migrar de una topología lineal de 3 nodos a una red de 17 nodos permitió evaluar rutas multi-hop realistas.
 
 #### 5.2 Performance Metrics
-- **Contenido:** Definición formal de las 5 métricas:
-  1. *Unsafe Approval Rate (UAR)*: $\frac{N_{\text{unfeasible\_approved}}}{N_{\text{total\_intents}}} \to 0\%$
-  2. *Human Interaction Count (HIC)*: Promedio de interrupciones por intención.
-  3. *QoT Feasibility Rate (QFR)*: $\frac{N_{\text{feasible\_approved}}}{N_{\text{approved\_plans}}} \to 100\%$
-  4. *End-to-End Latency (E2EL)*: Tiempo de ejecución en segundos.
-  5. *Token Cost (TC)*: Total de tokens consumidos por intención.
+- **Contenido:** Definición formal estructurada en los 4 Pilares de Validación:
+  1. *Pilar 1 — Semantic Translation Accuracy:* Constraint Retention Rate ($CRR = 100\%$), Context-Free Grammar Pass Rate ($v_{struct} \in \{0, 1\}$), Semantic Agreement ($1 - d_{sem}$).
+  2. *Pilar 2 — Physical Feasibility:* Unsafe Approval Rate ($UAR = \frac{N_{\text{unfeasible\_approved}}}{N_{\text{total\_intents}}} \to 0\%$), QoT Feasibility Rate ($QFR = \frac{N_{\text{feasible\_approved}}}{N_{\text{approved\_plans}}} \to 100\%$), Physical Infeasibility Interception Rate (PIIR).
+  3. *Pilar 3 — Orchestration & Resource Efficiency:* Prompt Token Reduction ($\Delta T_{tokens} > 75\%$ via Scoped GraphRAG), Human Intervention Reduction ($\Delta N_{hitl} > 70\%$ frente a Always-HITL), latencia determinista ($T_{det} < 15\text{ ms}$) y End-to-End Latency ($T_{E2E}$).
+  4. *Pilar 4 — RADG Decision Robustness:* Gate Decision Accuracy ($GDA > 98\%$), False Positive Rate ($FPR = 0\%$), precisión del interrupt selectivo.
 
 #### 5.3 Performance under Safe Conditions
 - **Contenido:** Resultados para intenciones claras y físicamente viables. Demostración de auto-aprobación autónoma ($HIC=0$) sin intervención humana, comparado con *Always-HITL*.

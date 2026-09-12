@@ -11,8 +11,8 @@ Content-oriented catalog of everything in the wiki.
 
 
 ## Architecture
-- [[Architecture_v5]]: **Active V5 design** — Risk-Adaptive Neurosymbolic Intent Planning, RADG (joint semantic + QoT risk gate), conditional HITL, 4-outcome decision function.
-- [[ProblemStatement_v5]]: **Active** — Risk-Adaptive Neurosymbolic problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
+- [[Architecture_v5]]: **Active V5 design** — LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning, RADG (joint semantic + QoT risk gate), conditional HITL, 4-outcome decision function.
+- [[ProblemStatement_v5]]: **Active** — LLM-Assisted Risk-Adaptive Neurosymbolic problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
 - [[Scope_Pivot_20260706]]: Formal scope pivot document — complete evolution from V2 through V5, including PoliMi/CNSM 2025 positioning.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
@@ -40,6 +40,7 @@ Content-oriented catalog of everything in the wiki.
 - [[architecture/archive/Hybrid_Memory_Architecture]]: (archived) Tri-partite memory architecture. Superseded by Architecture_v2.
 
 ## Weekly Reports
+- [[weekly_reports/Weekly_Report_20260915_Felipe_Abadia]]: Weekly report September 15, 2026. Authoring of the presentation-coauthor skill, headless Windows PowerPoint COM export pipeline (PDF/PNG) without file locking, and the 16-slide Master's thesis defense deck following Prof. Tornatore's 15 Golden Rules.
 - [[weekly_reports/Weekly_Report_20260908_Felipe_Abadia]]: Weekly report September 08, 2026. Thesis Chapter 3 figures restructuring, Draw.io XML authoring, vector/raster batch export, Overleaf LaTeX consolidation, custom academicbox/formalbox environments, float barriers, resolution of BUG-009 & BUG-010, Planning Report visual redesign, and presentation rehearsal scheduling.
 - [[weekly_reports/Weekly_Report_20260901_Felipe_Abadia]]: Weekly report September 01, 2026. Thesis Chapter 3 drafting & refinement (Sections 3.1–3.3), Reverse Prompting decoupling, full CFG AST PDDL parser, symbolic solver node exclusion (`avoid-node`), and 268 passing tests.
 - [[weekly_reports/Weekly_Report_20260811_Felipe_Abadia]]: Weekly report August 11, 2026. Sprint 3 completion, RADG integration, QoT physics, and Architecture V5 wiring.
@@ -66,6 +67,7 @@ Content-oriented catalog of everything in the wiki.
 - [[literature/AutoLight_ECOC2025]]: Field trial of SJTU's AutoLight — L4 autonomous optical network for distributed AI training (ECOC 2025). LangGraph-based hierarchical MAS, Chain of Identity (CoI), ~98% task completion.
 
 ## Issues
+- [[issues/Issue_Report_20260915_Felipe_Abadia]]: Solved Windows PowerPoint file-locking constraint, slide banner height overflow, DrawingML shape text inversion on light cards, and text-heavy slide walls via native OMML math and rich visual layouts; 0 pending issues.
 - [[issues/Issue_Report_20260908_Felipe_Abadia]]: Solved BUG-009 (Monotonic Refinement Semantic Drift) and BUG-010 (Planning Report Stale Intent & Raw Subtopology Dump); 0 pending issues.
 - [[issues/Issue_Report_20260906_Felipe_Abadia]]: Solved Draw.io temporary lock/backup files cluttering workspace via permanent .gitignore rules; 0 pending issues.
 - [[issues/Issue_Report_20260824_Felipe_Abadia]]: Solved 3-node numerical evaluation limitation via Nobel-Germany 17-node topology; solved multi-hop power accumulation; solved BUG-006 solver endpoint parsing; pending testbed link provisioning; in progress Sprint 4 test corpus.
@@ -82,17 +84,19 @@ Content-oriented catalog of everything in the wiki.
 - [[Issue_Report_20260430_Felipe_Abadia]]: Solved repo structure confusion; pending LangGraph prototyping and QoT tool.
 
 ## Presentations
-- [[presentations/presentation_chapter_3_system_model_figures]]: Advisor slide deck for Thesis Chapter 3 System Model, 7-phase architecture, two-gate fail-fast model, and complete 7-figure visual suite walkthrough.
-- [[presentations/Presentation_Proposal_20260729]]: Proposal deck on Testbed Integration, Symbolic Solver, and physical parameter questions.
+- [[presentations/thesis_defense/deck_spec]]: **Active** — Master's Thesis Defense Slide Deck (16 slides, PoliMi template, Prof. Tornatore's 15 Golden Rules, native OMML equations, visual diagrams, and empirical placeholders).
 
-- [[presentations/Presentation_20260706_Neurosymbolic_MVP]]: Slide deck proposing the Neurosymbolic Intent Orchestration MVP roadmap.
-- [[Presentation_20260621_Scope_Pivot]]: Slide deck presenting the SOTA-driven scope pivot from full MAS to Intent Planning Loop for Prof. Zhang.
-- [[Presentation_20260604_SOTA_Analysis]]: Slide deck summarizing the Agentic AI for IBON SOTA comparison (pre-pivot).
-- [[Presentation_20260519_QoT_&_Orchestrator_Integration]]: Unified slide deck combining Orchestrator V2 architecture and QoT physics port for professor review.
-- [[Presentation_20260519_Orchestrator_Architecture]]: V2 LangGraph Orchestrator architecture slide deck for professor review.
-- [[Presentation_20260511_QoT_Integration]]: Technical analysis of the C++ QoT simulator and the Pure Python Port integration proposal.
-- [[Presentation_Hybrid_Memory_MAS]]: Presentation outline proposing the Hybrid Memory Architecture to the professor.
-- [[Presentation_20260430_DevEnvironment]]: Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
+### Archived Presentations (`docs/LLM_Wiki/wiki/presentations/archive/`)
+- [[presentations/archive/presentation_chapter_3_system_model_figures]]: (archived) Advisor slide deck for Thesis Chapter 3 System Model, 7-phase architecture, two-gate fail-fast model, and 7-figure visual suite.
+- [[presentations/archive/Presentation_Proposal_20260729]]: (archived) Proposal deck on Testbed Integration, Symbolic Solver, and physical parameter questions.
+- [[presentations/archive/Presentation_20260706_Neurosymbolic_MVP]]: (archived) Slide deck proposing the Neurosymbolic Intent Orchestration MVP roadmap.
+- [[presentations/archive/Presentation_20260621_Scope_Pivot]]: (archived) Slide deck presenting the SOTA-driven scope pivot from full MAS to Intent Planning Loop for Prof. Zhang.
+- [[presentations/archive/Presentation_20260604_SOTA_Analysis]]: (archived) Slide deck summarizing the Agentic AI for IBON SOTA comparison (pre-pivot).
+- [[presentations/archive/Presentation_20260519_QoT_&_Orchestrator_Integration]]: (archived) Unified slide deck combining Orchestrator V2 architecture and QoT physics port for professor review.
+- [[presentations/archive/Presentation_20260519_Orchestrator_Architecture]]: (archived) V2 LangGraph Orchestrator architecture slide deck for professor review.
+- [[presentations/archive/Presentation_20260511_QoT_Integration]]: (archived) Technical analysis of the C++ QoT simulator and the Pure Python Port integration proposal.
+- [[presentations/archive/Presentation_Hybrid_Memory_Architecture_and_Implementation]]: (archived) Presentation outline proposing the Hybrid Memory Architecture to the professor.
+- [[presentations/archive/Presentation_20260430_DevEnvironment]]: (archived) Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
 
 ## Transcriptions
 - [[transcriptions/Transcript_20260811_ThesisOutline_MockTopology]]: Meeting with team on thesis outline feedback (introduction, baseline integration, October defense timeline) and shifting from physical testbed RESTConf topology to mock topologies (17-node German / 14-node Japan).
@@ -139,6 +143,9 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260911_Evaluation_Framework_and_Slide13_Refinement]]: Formalization of the Four Core Validation Pillars and comparative baselines (Baseline A LLM-only, Baseline B static rule-based), analysis of Always-Off HITL ablation, Slide 13 visual enhancements (parallel baseline comparison pills, DrawingML run color fix, structured 3-column benchmark table), and headless vector PDF / 1080p slide export.
+- [[session_summary/session_20260910_Thesis_Title_Modernization_and_Presentation_Alignment]]: Formal update of the thesis title to "LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks", cross-ecosystem synchronization (architecture, drafts, rules, config, code docstrings), PowerPoint deck re-compilation, vector PDF/PNG export, and two-way sync workflow clarification.
+- [[session_summary/session_20260909_Presentation_CoAuthor_Skill_and_Thesis_Defense_Deck]]: Creation of presentation-coauthor skill, headless Windows PowerPoint COM export automation (vector PDF and 1080p PNG previews), and complete 16-slide Master's thesis defense deck adhering strictly to Prof. Tornatore's 15 Golden Rules.
 - [[session_summary/session_20260908_BUG009_Semantic_Gate_Refinement_Drift_and_Thesis_Alignment]]: Diagnosis and resolution of BUG-009 (monotonic refinement semantic drift) and BUG-010 (stale intent in planning report with horizontal lightpath graph redesign), Thesis Chapter 3 drafts / Overleaf LaTeX synchronization, and presentation rehearsal scheduling.
 - [[session_summary/session_20260907_CLI_Modernization_HITL_Bypass_and_Serialization]]: Interactive CLI modernization (Rich/Questionary), ghost placeholder styling, Phase 3b fast-track approval routing to symbolic solver, LangGraph MsgPack deserialization whitelist, Thesis Chapter 3 synchronization, Draw.io diagram updates, and automated export tooling.
 - [[session_summary/session_20260906_Thesis_Chapter3_Figures_and_LaTeX_Consolidation]]: Publication-ready restructuring of Chapter 3 figures, Draw.io vector exports, Overleaf LaTeX source (`chapter_3_system_model.txt`), academicbox listings, formalbox specifications, float barrier controls, and margin overflow normalization.

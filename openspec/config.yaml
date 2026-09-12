@@ -1,7 +1,7 @@
 schema: spec-driven
 
 context: |
-  Project: MultiAgentON — Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
+  Project: MultiAgentON — LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment
   Stack: Python 3.12, uv, LangGraph, LangSmith
   Architecture: Screaming Architecture (src/nodes, src/core, src/services, src/tools)
   Testing: pytest (Strict TDD), pytest-mock, pytest-cov

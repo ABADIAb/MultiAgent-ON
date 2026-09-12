@@ -27,7 +27,7 @@ By decoupling and ordering these validation checks sequentially, the architectur
 The framework operates through seven interconnected functional phases managed by a stateful orchestration graph:
 
 - **Phase 1: Intent Ingestion and Optical Retrieval-Augmented Generation (Optical RAG):**
-  The raw operator intent $\mathcal{I}_{NL}$ is ingested. To prevent token context exhaustion, an optical topological retriever queries the active network state to extract a localized $k$-hop subtopology $G_{sub} \subseteq G$ encompassing the candidate endpoints. Relevant ITU-T optical grid specifications and amplifier parameters are merged into an enriched intent schema.
+  The raw operator intent $\mathcal{I}_{NL}$ is ingested. To prevent token context exhaustion, an optical topological retriever queries the active network state to extract a localized $k$-hop subtopology $G_{sub} \subseteq G$ encompassing the candidate endpoints (Note: while this thesis bounds context using a static $k$-hop radius, future work proposes dynamic ellipsoid extraction to guarantee subgraph connectivity in larger diameter networks). Relevant ITU-T optical grid specifications and amplifier parameters are merged into an enriched intent schema.
 - **Phase 2: Context-Free Grammar (CFG) Validated PDDL Parsing:**
   The enriched intent is processed by an LLM acting strictly as a linguistic compiler, translating the operational requirements into Planning Domain Definition Language (PDDL) goal predicates and constraint clauses. A deterministic Context-Free Grammar (CFG) validator immediately audits the output to eliminate structural hallucinations ($v_{struct} \in \{0, 1\}$).
 - **Phase 3: Automated Reverse Prompting & Semantic Uncertainty Gate ($U_{sem}$ Evaluation):**
