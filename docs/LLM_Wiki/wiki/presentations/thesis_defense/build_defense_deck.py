@@ -1772,10 +1772,10 @@ class DeckBuilder:
                 r.font.color.rgb = COLOR_WHITE
 
         table_data = corpus_info.get("table_rows", [
-            ("Class I: Nominal [40]", "Feasible path, unambiguous", "Auto-Approve", COLOR_GREEN),
-            ("Class II: Ambiguous [20]", "Under-specified (U_sem > τ)", "Clarify Intent", COLOR_AMBER),
+            ("Class I: Nominal [25]", "Feasible path, unambiguous", "Auto-Approve", COLOR_GREEN),
+            ("Class II: Ambiguous [25]", "Under-specified (U_sem > τ)", "Clarify Intent", COLOR_AMBER),
             ("Class III: Infeasible [25]", "Violates GSNR threshold", "Suggest Replan", COLOR_BURGUNDY),
-            ("Class IV: Adversarial [15]", "Hallucinated nodes (v_struct=0)", "Reject Intent", COLOR_BURGUNDY),
+            ("Class IV: Adversarial [25]", "Hallucinated nodes (v_struct=0)", "Reject Intent", COLOR_BURGUNDY),
         ])
 
         for row_idx, (c_name, c_char, c_act, act_color) in enumerate(table_data, start=1):
@@ -3175,16 +3175,16 @@ def build_thesis_defense_deck():
             "icon": "",
             "title": "100 Test Demands (4 Risk Classes)",
             "table_rows": [
-                ("Class I: Nominal [40]", "Feasible path, unambiguous", "Auto-Approve", COLOR_GREEN),
-                ("Class II: Ambiguous [20]", "Under-specified (U_sem > τ)", "Clarify Intent", COLOR_AMBER),
+                ("Class I: Nominal [25]", "Feasible path, unambiguous", "Auto-Approve", COLOR_GREEN),
+                ("Class II: Ambiguous [25]", "Under-specified (U_sem > τ)", "Clarify Intent", COLOR_AMBER),
                 ("Class III: Infeasible [25]", "Violates GSNR threshold", "Suggest Replan", COLOR_BURGUNDY),
-                ("Class IV: Adversarial [15]", "Hallucinated nodes (v_struct=0)", "Reject Intent", COLOR_BURGUNDY),
+                ("Class IV: Adversarial [25]", "Hallucinated nodes (v_struct=0)", "Reject Intent", COLOR_BURGUNDY),
             ],
             "bullets": [
-                "Class I — Nominal [40]: Unambiguous requests with feasible optical paths ➔ Auto-Approve",
-                "Class II — Ambiguous [20]: Under-specified constraints triggering $U_{sem} > \\tau_{sem}$ ➔ Clarify",
+                "Class I — Nominal [25]: Unambiguous requests with feasible optical paths ➔ Auto-Approve",
+                "Class II — Ambiguous [25]: Under-specified constraints triggering $U_{sem} > \\tau_{sem}$ ➔ Clarify",
                 "Class III — Infeasible [25]: High modulation over long spans violating GSNR ➔ Suggest Replan",
-                "Class IV — Adversarial [15]: Hallucinated nodes & syntax violations ($v_{struct} = 0$) ➔ Reject",
+                "Class IV — Adversarial [25]: Hallucinated nodes & syntax violations ($v_{struct} = 0$) ➔ Reject",
             ],
         },
         pillars=[

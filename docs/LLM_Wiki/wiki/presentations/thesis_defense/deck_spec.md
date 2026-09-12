@@ -473,7 +473,7 @@
 >       - Subtitle: *Decoupled translation + sequential pre-deployment risk gates*
 >   - Bottom Card: `100 Test Demands (4 Risk Classes)` (`#F4F6F9` fill, Burgundy border `#85200C`, 1.5 pt)
 >     - Formatted 3-Column Benchmark Table ($w=4.144''$, $h=2.215''$, $x=0.978''$, $y=4.53''$, Navy header `#0F2C53`):
->       - Col 1 (`Class & Size`): Class I: Nominal [40], Class II: Ambiguous [20], Class III: Infeasible [25], Class IV: Adversarial [15]
+>       - Col 1 (`Class & Size`): Class I: Nominal [25], Class II: Ambiguous [25], Class III: Infeasible [25], Class IV: Adversarial [25]
 >       - Col 2 (`Intent Characteristics`): Feasible path / Under-specified ($U_{sem} > \tau$) / Violates GSNR / Hallucinated nodes ($v_{struct} = 0$)
 >       - Col 3 (`RADG Action`): Color-coded expected gate verdicts: **Auto-Approve** (Green), **Clarify Intent** (Amber), **Suggest Replan** (Burgundy), **Reject Intent** (Burgundy)
 > - Right Column (4 Core Validation Pillars - $w=6.65''$, $x=5.75''$, floating directly on slide canvas):
@@ -496,10 +496,10 @@
   - Proposed Neurosymbolic RADG: Decoupled translation + sequential pre-deployment risk gates
   - 17-Node German Backbone: 26 bidirectional fiber links, standard SMF-28, dual-stage EDFAs
 - **100 Test Demands (4 Risk Classes)**
-  - Class I — Nominal [40]: Unambiguous requests with feasible optical paths ➔ Auto-Approve
-  - Class II — Ambiguous [20]: Under-specified constraints triggering $U_{sem} > \tau_{sem}$ ➔ Clarify
+  - Class I — Nominal [25]: Unambiguous requests with feasible optical paths ➔ Auto-Approve
+  - Class II — Ambiguous [25]: Under-specified constraints triggering $U_{sem} > \tau_{sem}$ ➔ Clarify
   - Class III — Infeasible [25]: High modulation over long spans violating GSNR ➔ Suggest Replan
-  - Class IV — Adversarial [15]: Hallucinated nodes & syntax violations ($v_{struct} = 0$) ➔ Reject
+  - Class IV — Adversarial [25]: Hallucinated nodes & syntax violations ($v_{struct} = 0$) ➔ Reject
 - **Four Core Validation Pillars**
   - **1. Semantic Translation Accuracy:** Constraint Retention Rate ($\text{CRR} = 100\%$), CFG AST Pass Rate ($v_{struct} = 1$)
   - **2. Physical Feasibility:** Unsafe Approval Rate ($\text{UAR} = 0\%$ hard invariant), QoT Feasibility ($100\%$)
