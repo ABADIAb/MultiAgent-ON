@@ -42,7 +42,7 @@ PDDL problem string. Use this exact structure:
   (:goal
     (and
       <routing goal: (route <source> <target>)>
-      <constraints: (min-gsnr <value>), (max-latency <value>), (avoid-node <node>), (avoid-link <src> <dst>), etc.>
+      <constraints: (min-gsnr <value>), (bandwidth <value>), (avoid-node <node>), (avoid-link <src> <dst>), etc.>
     )
   )
 )
@@ -54,7 +54,7 @@ Rules:
 - Output ONLY the PDDL string, no explanations or markdown.
 - Include ALL nodes and links in :objects and :init even if not all are mentioned in the intent.
 - Always use the human-readable node names (e.g. Berlin, Frankfurt, Munich, Hamburg) for node objects and routing goals in PDDL, NOT internal IDs like node_1.
-- Extract specific constraints (GSNR, latency, avoid nodes, avoid links) from the intent.
+- Extract specific constraints (GSNR, bandwidth, avoid nodes, avoid links, etc) from the intent.
 - If no specific constraints are mentioned, use only the (route ...) goal.\
 """
 

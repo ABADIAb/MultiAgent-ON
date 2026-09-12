@@ -335,6 +335,36 @@ class TestPddlCfgAstGrammar:
         assert is_valid is False
         assert any("must be a number" in e for e in errors)
 
+    def test_bandwidth_integer_passes(self):
+        from src.core.pddl_validator import validate_pddl_syntax
+
+        pddl = (
+            "(define (problem bandwidth-test)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Berlin Munich - node)\n"
+            "  (:init (connected Berlin Munich))\n"
+            "  (:goal (and (route Berlin Munich) (bandwidth 100)))\n"
+            ")"
+        )
+        is_valid, errors = validate_pddl_syntax(pddl)
+        assert is_valid is True
+        assert errors == []
+
+    def test_bandwidth_non_integer_fails(self):
+        from src.core.pddl_validator import validate_pddl_syntax
+
+        pddl = (
+            "(define (problem bad-bandwidth)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Berlin Munich - node)\n"
+            "  (:init (connected Berlin Munich))\n"
+            "  (:goal (and (route Berlin Munich) (bandwidth high)))\n"
+            ")"
+        )
+        is_valid, errors = validate_pddl_syntax(pddl)
+        assert is_valid is False
+        assert any("must be an integer" in e for e in errors)
+
     def test_parse_pddl_ast_success(self, valid_pddl: str):
         from src.core.pddl_validator import parse_pddl_ast
 

@@ -131,10 +131,11 @@ class TestConstants:
         assert THRESHOLD.get_snr_threshold(10) == pytest.approx(12.2)
         assert THRESHOLD.get_snr_threshold(100) == pytest.approx(8.6)
         assert THRESHOLD.get_snr_threshold(200) == pytest.approx(15.2)
+        assert THRESHOLD.get_snr_threshold(400) == pytest.approx(21.5)
 
     def test_unsupported_bitrate_raises(self) -> None:
         with pytest.raises(ValueError, match="Unsupported bitrate"):
-            THRESHOLD.get_snr_threshold(400)
+            THRESHOLD.get_snr_threshold(800)
 
 
 # ---------------------------------------------------------------------------

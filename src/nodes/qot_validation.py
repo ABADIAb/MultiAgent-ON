@@ -41,6 +41,7 @@ def qot_validation_node(state: AgentState) -> dict:
     candidates = state.get("candidate_paths") or []
     parsed_constraints = state.get("pddl_parsed_constraints") or {}
     target_snr_dB = parsed_constraints.get("min_gsnr")
+    bitrate_gbps = parsed_constraints.get("bandwidth") or 100
 
     qot_results = []
     for candidate in candidates:
@@ -63,7 +64,7 @@ def qot_validation_node(state: AgentState) -> dict:
                 continue
 
             result = assess_qot(
-                fiber_links, bitrate_gbps=100, target_snr_dB=target_snr_dB
+                fiber_links, bitrate_gbps=bitrate_gbps, target_snr_dB=target_snr_dB
             )
             qot_results.append({
                 "path": path_nodes,

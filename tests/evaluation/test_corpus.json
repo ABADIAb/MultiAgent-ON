@@ -2,6 +2,21 @@
   {
     "id": "intent_nom_01",
     "class": "I_Nominal",
+    "intent_text": "Establish an optical connection from Hamburg to Berlin with 100G capacity.",
+    "source_node": "Hamburg",
+    "target_node": "Berlin",
+    "ground_truth_constraints": {
+      "bandwidth": 100
+    },
+    "expected_pddl_valid": true,
+    "expected_usem_action": "pass",
+    "expected_qot_valid": true,
+    "expected_radg_action": "approve",
+    "rationale": "Tests LLM capability to parse bandwidth SLA constraint (100G)."
+  },
+  {
+    "id": "intent_nom_02",
+    "class": "I_Nominal",
     "intent_text": "Establish an optical connection from Hamburg to Berlin avoiding both Bremen and Hannover, with a minimum of 15 dB GSNR and a maximum of 3 hops.",
     "source_node": "Hamburg",
     "target_node": "Berlin",
@@ -20,7 +35,7 @@
     "rationale": "Complex single-service intent: Tests LLM capability to parse multiple constraints (GSNR, avoid multiple nodes, max hops) without dropping any (CRR)."
   },
   {
-    "id": "intent_nom_02",
+    "id": "intent_nom_03",
     "class": "I_Nominal",
     "intent_text": "Route traffic from Frankfurt to Cologne avoiding Mannheim with minimum 14 dB GSNR.",
     "source_node": "Frankfurt",
@@ -38,7 +53,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_03",
+    "id": "intent_nom_04",
     "class": "I_Nominal",
     "intent_text": "Provision an optical channel from Munich to Stuttgart via Ulm with GSNR at least 15 dB.",
     "source_node": "Munich",
@@ -53,7 +68,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_04",
+    "id": "intent_nom_05",
     "class": "I_Nominal",
     "intent_text": "Connect Hannover to Bremen with minimum 16 dB GSNR.",
     "source_node": "Hannover",
@@ -68,7 +83,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_05",
+    "id": "intent_nom_06",
     "class": "I_Nominal",
     "intent_text": "Set up a lightpath from Berlin to Leipzig with at least 15 dB GSNR.",
     "source_node": "Berlin",
@@ -83,7 +98,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_06",
+    "id": "intent_nom_07",
     "class": "I_Nominal",
     "intent_text": "Establish a route from Dortmund to Cologne avoiding Essen.",
     "source_node": "Dortmund",
@@ -100,7 +115,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_07",
+    "id": "intent_nom_08",
     "class": "I_Nominal",
     "intent_text": "Provision a lightpath from Nuremberg to Munich with at least 15 dB GSNR.",
     "source_node": "Nuremberg",
@@ -115,7 +130,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_08",
+    "id": "intent_nom_09",
     "class": "I_Nominal",
     "intent_text": "Route an optical channel between Karlsruhe and Mannheim with 16 dB GSNR.",
     "source_node": "Karlsruhe",
@@ -130,7 +145,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_09",
+    "id": "intent_nom_10",
     "class": "I_Nominal",
     "intent_text": "Connect Essen to Dusseldorf with minimum 17 dB GSNR.",
     "source_node": "Essen",
@@ -145,7 +160,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_10",
+    "id": "intent_nom_11",
     "class": "I_Nominal",
     "intent_text": "Establish an optical path from Stuttgart to Karlsruhe.",
     "source_node": "Stuttgart",
@@ -158,7 +173,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_11",
+    "id": "intent_nom_12",
     "class": "I_Nominal",
     "intent_text": "Route high-priority traffic from Bremen to Hamburg with min 15 dB GSNR.",
     "source_node": "Bremen",
@@ -173,7 +188,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_12",
+    "id": "intent_nom_13",
     "class": "I_Nominal",
     "intent_text": "Provision an optical lightpath between Frankfurt and Mannheim.",
     "source_node": "Frankfurt",
@@ -186,7 +201,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_13",
+    "id": "intent_nom_14",
     "class": "I_Nominal",
     "intent_text": "Connect Leipzig to Nuremberg with at least 14 dB GSNR.",
     "source_node": "Leipzig",
@@ -201,7 +216,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_14",
+    "id": "intent_nom_15",
     "class": "I_Nominal",
     "intent_text": "Route traffic from Cologne to Dusseldorf with at least 16 dB GSNR.",
     "source_node": "Cologne",
@@ -216,7 +231,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_15",
+    "id": "intent_nom_16",
     "class": "I_Nominal",
     "intent_text": "Establish optical service from Hannover to Hamburg avoiding Bremen.",
     "source_node": "Hannover",
@@ -233,7 +248,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_16",
+    "id": "intent_nom_17",
     "class": "I_Nominal",
     "intent_text": "Provision a connection from Munich to Ulm with 16 dB GSNR.",
     "source_node": "Munich",
@@ -248,7 +263,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_17",
+    "id": "intent_nom_18",
     "class": "I_Nominal",
     "intent_text": "Route traffic from Dortmund to Hannover with minimum 14 dB GSNR.",
     "source_node": "Dortmund",
@@ -263,7 +278,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_18",
+    "id": "intent_nom_19",
     "class": "I_Nominal",
     "intent_text": "Connect Frankfurt to Nuremberg with at least 14 dB GSNR avoiding Leipzig.",
     "source_node": "Frankfurt",
@@ -281,7 +296,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_19",
+    "id": "intent_nom_20",
     "class": "I_Nominal",
     "intent_text": "Establish an optical lightpath from Ulm to Stuttgart with at least 16 dB GSNR.",
     "source_node": "Ulm",
@@ -296,7 +311,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_20",
+    "id": "intent_nom_21",
     "class": "I_Nominal",
     "intent_text": "Provision optical connectivity from Norden to Bremen with 15 dB GSNR.",
     "source_node": "Norden",
@@ -311,7 +326,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_21",
+    "id": "intent_nom_22",
     "class": "I_Nominal",
     "intent_text": "Route traffic between Berlin and Hannover with at least 14 dB GSNR.",
     "source_node": "Berlin",
@@ -326,7 +341,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_22",
+    "id": "intent_nom_23",
     "class": "I_Nominal",
     "intent_text": "Connect Mannheim to Frankfurt with min 15 dB GSNR avoiding Cologne.",
     "source_node": "Mannheim",
@@ -344,7 +359,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_23",
+    "id": "intent_nom_24",
     "class": "I_Nominal",
     "intent_text": "Establish a connection from Leipzig to Berlin with 16 dB GSNR.",
     "source_node": "Leipzig",
@@ -359,7 +374,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_24",
+    "id": "intent_nom_25",
     "class": "I_Nominal",
     "intent_text": "Route an optical channel from Stuttgart to Nuremberg avoiding Ulm.",
     "source_node": "Stuttgart",
@@ -376,7 +391,7 @@
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
   },
   {
-    "id": "intent_nom_25",
+    "id": "intent_nom_26",
     "class": "I_Nominal",
     "intent_text": "Provision an optical service between Essen and Dortmund with at least 17 dB GSNR.",
     "source_node": "Essen",
@@ -389,6 +404,39 @@
     "expected_qot_valid": true,
     "expected_radg_action": "approve",
     "rationale": "Feasible physical path on 17-node German topology with realistic GSNR targets."
+  },
+  {
+    "id": "intent_nom_27",
+    "class": "I_Nominal",
+    "intent_text": "Provision a 200G lightpath between Frankfurt and Munich.",
+    "source_node": "Frankfurt",
+    "target_node": "Munich",
+    "ground_truth_constraints": {
+      "bandwidth": 200
+    },
+    "expected_pddl_valid": true,
+    "expected_usem_action": "pass",
+    "expected_qot_valid": true,
+    "expected_radg_action": "approve",
+    "rationale": "Tests LLM parsing of '200G lightpath' as a bandwidth constraint."
+  },
+  {
+    "id": "intent_nom_28",
+    "class": "I_Nominal",
+    "intent_text": "I need a connection from Stuttgart to Berlin carrying 100G of traffic, avoiding Leipzig.",
+    "source_node": "Stuttgart",
+    "target_node": "Berlin",
+    "ground_truth_constraints": {
+      "bandwidth": 100,
+      "avoid_nodes": [
+        "Leipzig"
+      ]
+    },
+    "expected_pddl_valid": true,
+    "expected_usem_action": "pass",
+    "expected_qot_valid": true,
+    "expected_radg_action": "approve",
+    "rationale": "Tests combined constraints: bandwidth and avoid node."
   },
   {
     "id": "intent_amb_01",
@@ -720,6 +768,24 @@
     "expected_qot_valid": null,
     "expected_radg_action": "clarify",
     "rationale": "Underspecified endpoints or colloquial SLA, triggering early fail-fast Phase 3b HITL."
+  },
+  {
+    "id": "intent_amb_26",
+    "class": "II_Ambiguous",
+    "intent_text": "Establish an optical connection from Dusseldorf to Nuremberg. The required capacity is 200 Gbps, and avoid the link from Frankfurt to Mannheim if possible.",
+    "source_node": "Dusseldorf",
+    "target_node": "Nuremberg",
+    "ground_truth_constraints": {
+      "bandwidth": 200,
+      "avoid_links": [
+        "Frankfurt Mannheim"
+      ]
+    },
+    "expected_pddl_valid": true,
+    "expected_usem_action": "clarify",
+    "expected_qot_valid": null,
+    "expected_radg_action": "clarify",
+    "rationale": "Tests LLM parsing of 'capacity is 200 Gbps'. Ambiguous due to 'if possible'."
   },
   {
     "id": "intent_inf_01",
@@ -1104,6 +1170,37 @@
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
+    "id": "intent_inf_26",
+    "class": "III_Infeasible",
+    "intent_text": "Route traffic from Hamburg to Munich with 400G capacity.",
+    "source_node": "Hamburg",
+    "target_node": "Munich",
+    "ground_truth_constraints": {
+      "bandwidth": 400
+    },
+    "expected_pddl_valid": true,
+    "expected_usem_action": "pass",
+    "expected_qot_valid": false,
+    "expected_radg_action": "replan",
+    "rationale": "Tests RADG fail-fast capability. 400G constraint parsed correctly but fails QoT due to high SNR threshold (21.5 dB) on long distance."
+  },
+  {
+    "id": "intent_inf_27",
+    "class": "III_Infeasible",
+    "intent_text": "Route from Hamburg to Ulm. Set bitrate to 400G and keep it under 3 hops.",
+    "source_node": "Hamburg",
+    "target_node": "Ulm",
+    "ground_truth_constraints": {
+      "bandwidth": 400,
+      "max_hops": 3
+    },
+    "expected_pddl_valid": true,
+    "expected_usem_action": "pass",
+    "expected_qot_valid": false,
+    "expected_radg_action": "replan",
+    "rationale": "Tests 400G on a long route with strict hop limit. Should fail QoT."
+  },
+  {
     "id": "intent_adv_01",
     "class": "IV_Adversarial",
     "intent_text": "Route traffic from Leipzig to Cologne using the shortest path by hops, but avoid all intermediate nodes.",
@@ -1134,7 +1231,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1147,7 +1244,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1162,7 +1259,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1179,7 +1276,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1192,7 +1289,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1205,7 +1302,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1223,7 +1320,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1238,7 +1335,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1253,7 +1350,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1266,7 +1363,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1281,7 +1378,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1294,7 +1391,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1307,7 +1404,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1320,7 +1417,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1335,7 +1432,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1348,7 +1445,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1361,7 +1458,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1379,7 +1476,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1392,7 +1489,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1405,7 +1502,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1418,7 +1515,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1431,7 +1528,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1450,7 +1547,7 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1463,7 +1560,20 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "reject",
+    "expected_radg_action": "clarify",
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
+  },
+  {
+    "id": "intent_adv_26",
+    "class": "IV_Adversarial",
+    "intent_text": "I need infinite bandwidth between Bremen and Cologne.",
+    "source_node": "Bremen",
+    "target_node": "Cologne",
+    "ground_truth_constraints": {},
+    "expected_pddl_valid": false,
+    "expected_usem_action": "clarify",
+    "expected_qot_valid": null,
+    "expected_radg_action": "clarify",
+    "rationale": "Adversarial bandwidth request. Should either fail PDDL syntax if translated as (bandwidth infinite) or trigger semantic clarification."
   }
 ]

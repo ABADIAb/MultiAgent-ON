@@ -124,7 +124,7 @@ The evaluation dataset contains **100 synthetic operator intents** structured in
 | **Class I** | **Nominal** | 25 | Clear source-destination pairs, feasible optical paths, realistic GSNR requirements ($\le 18\text{ dB}$). | `approve` (0 interrupts) |
 | **Class II** | **Ambiguous** | 25 | Underspecified endpoints ("to the north region"), colloquial SLA ("ultra-fast link"), missing constraints. | `clarify` (Phase 3b HITL) |
 | **Class III** | **Physically Infeasible** | 25 | Impossible physical constraints on Nobel-Germany ($>30\text{ dB}$ GSNR on multi-hop routes, 0 hops). | `replan` (Phase 6 RADG) |
-| **Class IV** | **Adversarial** | 25 | Hallucinated non-German nodes ("Paris to Rome"), contradictory constraints, PDDL syntax injection. | `reject` / `clarify` (Layer 1 CFG) |
+| **Class IV** | **Adversarial** | 25+ | Hallucinated non-German nodes ("Paris to Rome"), contradictory constraints, PDDL syntax injection. | `clarify` (Phase 3b HITL / CFG) |
 
 ---
 
