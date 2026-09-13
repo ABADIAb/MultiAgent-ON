@@ -104,14 +104,43 @@ Stress-tests the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ ac
 
 ---
 
-## 3. Comparative Baselines
+## 3. Comparative Baselines & Polymorphic Execution Contract
 
 | Baseline | Architecture | Operational Mode | Evaluation Role |
 |----------|--------------|------------------|-----------------|
-| **Baseline A (LLM-Only)** | Monolithic LLM (Direct NL $\to$ JSON/CLI) | Unconstrained autonomous execution with reactive post-deployment retry | Evaluates failure modes: hallucinated physics, attention degradation, and high recovery latency |
-| **Baseline B (Static Rule-Based)** | Deterministic regex / CFG parser | Always-on human review (mandatory human validation on every intent) | Evaluates operational friction: operator fatigue, low expressiveness, and configuration rigidity |
-| **Baseline C (Traditional SDON)** | Non-LLM imperative YANG / RESTCONF RPC + PCE | Manual payload authoring by expert operator + deterministic Yen's $K$-SP / GN-model | Evaluates industrial baseline: zero NL translation error, absolute safety ($UAR=0\%$), but high human friction ($N_{human}$) and zero ambiguity tolerance |
-| **Proposed (Neurosymbolic RADG)** | Decoupled LangGraph pipeline (LLM translator + Yen's $K$-SP + GN-model) | Pre-deployment sequential risk gates ($U_{sem} \to \text{QoT}_{valid}$) with selective HITL | Evaluates proposed thesis hypothesis: pre-deployment safety ($UAR = 0\%$) with minimal operational friction and high NL expressiveness |
+| **Baseline A (Monolithic LLM)** | Direct Prompting (NL $\to$ JSON/CLI) | Unconstrained autonomous execution with zero deterministic tools | Evaluates neural failure modes: hallucinated physics, topological invalidity, and high $UAR$ |
+| **Baseline B (Always-On HITL)** | Full Neurosymbolic Pipeline | Mandatory human review at Phase 3b and Phase 6 for every intent | Evaluates operational friction: operator fatigue ($N_{hitl} = 100\%$), inflated token cost, and execution latency |
+| **Baseline C (Always-Off HITL)** | Full Neurosymbolic Pipeline | Autonomous execution with decision gates bypassed (no HITL) | Evaluates safety failure modes: unhandled ambiguity, high service blocking, and deployment of unfeasible paths |
+| **Baseline D (Traditional SDON)** | Non-LLM imperative YANG / RESTCONF RPC + PCE | Manual payload authoring by expert operator + deterministic Yen's $K$-SP / GN-model | Evaluates industrial standard: zero NL translation error, absolute safety ($UAR=0\%$), but $100\%$ human setup effort |
+| **Proposed (Neurosymbolic RADG)** | Decoupled LangGraph pipeline (LLM translator + Yen's $K$-SP + GN-model) | Pre-deployment sequential risk gates ($U_{sem} \to \text{QoT}_{valid}$) with selective HITL | Evaluates proposed thesis hypothesis: pre-deployment safety ($UAR = 0\%$) with minimal operational friction ($N_{hitl} \le 1$) and high NL expressiveness |
+
+### 3.1 Polymorphic Baseline Contract (`tests/evaluation/baselines/`)
+
+All baselines (and the Proposed architecture wrapper) implement a unified contract defined in `tests/evaluation/baselines/base.py`:
+
+```python
+class BaseBaseline(ABC):
+    name: str
+    baseline_id: str
+
+    @abstractmethod
+    def run(self, intent_data: dict[str, Any], **kwargs) -> BaselineResult:
+        """Execute the baseline against a single intent record."""
+        ...
+```
+
+The output `BaselineResult` standardizes metrics for downstream comparative plotting (`run_benchmark.py`):
+- `intent_id`: Identifier of the intent from `test_corpus.json`.
+- `baseline_id`: Key of the evaluated system (`"llm_only"`, `"always_on"`, `"always_off"`, `"traditional_sdon"`, `"proposed_radg"`).
+- `action`: Ternary RADG action (`"approve"`, `"clarify"`, `"replan"`, or `"reject"`).
+- `selected_path`: Route computed or hallucinated by the system.
+- `computed_gsnr_dB`: Ground-truth physical GSNR computed via GN-model.
+- `qot_feasible`: Ground-truth binary optical feasibility.
+- `pddl_valid`: Context-free grammar validation flag.
+- `hitl_interrupts`: Total count of human interruptions ($N_{hitl}$).
+- `prompt_tokens`, `completion_tokens`, `total_tokens`: Token consumption metrics.
+- `execution_time_s`: Wall-clock execution latency.
+- `planning_report`: Output report string or JSON.
 
 ---
 

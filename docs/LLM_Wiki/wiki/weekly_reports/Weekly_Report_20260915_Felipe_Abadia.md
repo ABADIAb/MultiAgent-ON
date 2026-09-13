@@ -120,13 +120,22 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Refactored architecture documentation (`ProblemStatement_v5.md`, `Scope_Pivot_20260706.md`, `Architecture_v5.md`) to demote Mock GraphRAG from a core scientific contribution to a "Context Bounding Optimization" implementation detail.
     - Updated Chapter 3 thesis drafts (`chapter_3_system_model.txt`, `3_3_Strict_Neurosymbolic_Separation.md`) replacing formal mentions of GraphRAG with "topological context extractor".
     - Preserved the Token Economy ($\Delta T_{tokens}$) metric and optimization objective as a measurable operational benefit of the decoupled Neurosymbolic architecture without risking the need for massive topological JSON validation.
+13. **Comparative Evaluation Baselines Redesign & Polymorphic Harness Implementation:**
+    - Redesigned and formalized the 4 evaluation baselines plus the Proposed system to conduct an ablation study of the neurosymbolic separation and risk-adaptive decision mechanisms:
+      - *Baseline A (Monolithic LLM-Only):* Direct prompting with the full 17-node Nobel-Germany topology ($N_{hitl}=0$), assessing physics hallucinations and route invalidity ($UAR$).
+      - *Baseline B (Always-On HITL):* Full neurosymbolic pipeline with mandatory human reviews at Phase 3b and Phase 6 ($N_{hitl} \ge 2$), evaluating worst-case operational friction and latency.
+      - *Baseline C (Always-Off HITL):* Full neurosymbolic pipeline with decision gates bypassed ($N_{hitl}=0$), proving that unconstrained autonomous execution leads to severe safety breaches on ambiguous and infeasible demands ($UAR > 0\%$).
+      - *Baseline D (Traditional SDON / PCE):* Expert-crafted YANG RPC with deterministic Yen's $K$-SP and conservative $+3\text{ dB}$ static design margins ($0$ tokens, $N_{hitl}=1$, $UAR=0\%$).
+      - *Proposed Architecture (Neurosymbolic RADG):* Production LangGraph pipeline wrapped for automated benchmarking with selective human engagement ($N_{hitl} \le 1$).
+    - Built the decoupled package under [`tests/evaluation/baselines/`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/) with standardized `BaselineResult` schema and polymorphic `BaseBaseline` interface.
+    - Verified all baselines and contracts under Strict TDD in [`tests/unit/test_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_baselines.py) with 100% success rate across 314 unit tests.
 
 ---
 
 ## 3. What do I plan to accomplish next week?
 
 1. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and narrative structure to Prof. Massimo Tornatore for formal academic review and feedback.
-2. **Implement Automated Evaluation Harness:** Develop `run_benchmark.py`, `metrics.py`, and `plotter.py` in `tests/evaluation/scripts/` following Strict TDD to execute the 107-demand corpus across Baseline A, Baseline B, Baseline C, and Proposed.
+2. **Implement Automated Evaluation Harness:** Develop `run_benchmark.py`, `metrics.py`, and `plotter.py` in `tests/evaluation/scripts/` following Strict TDD to execute the 107-demand corpus across Baseline A, Baseline B, Baseline C, Baseline D, and Proposed.
 3. **Execute Sprint 4 Benchmark Evaluation & Collect Empirical Data:** Run the full evaluation suite on the 17-node German backbone network and generate high-resolution IEEE/PoliMi style figures for Slide 14 and Chapter 4.
 4. **Thesis Chapter 4 Drafting:** Begin drafting Chapter 4 (*Experimental Evaluation & Numerical Results*) using `thesis-coauthor` and Overleaf integration.
 
@@ -141,4 +150,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I formalized Baseline C, mapped bandwidth/capacity SLA constraints into PDDL and GN-model physics with a 21.5 dB 400G threshold, expanded and balanced the synthetic benchmark corpus to 107 intents, generated the comprehensive Excel dataset, and formally refactored the thesis scope to strictly focus on the RADG contribution (demoting GraphRAG to an implementation detail), maintaining a 100% test pass rate across 294 unit tests.
+I redesigned and formalized the 4 comparative evaluation baselines (Monolithic LLM, Always-On HITL, Always-Off HITL, Traditional SDON) against my proposed Neurosymbolic RADG system, implemented the decoupled polymorphic execution package in `tests/evaluation/baselines/`, and verified contract compliance with 314 passing unit tests under Strict TDD.
