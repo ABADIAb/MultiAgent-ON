@@ -40,7 +40,7 @@ class LLMOnlyOutput(BaseModel):
     estimated_gsnr_dB: float = Field(default=0.0, description="Estimated GSNR in dB")
     action: str = Field(
         default="approve",
-        description="Decision: 'approve', 'clarify', 'replan', or 'reject'",
+        description="Decision: 'approve', 'clarify', or 'replan'",
     )
     reasoning: str = Field(default="", description="Explanation of planning decision")
 
@@ -80,7 +80,7 @@ class LLMOnlyBaseline(BaseBaseline):
             "optical route from source to destination, estimate physical GSNR using optical physics principles, "
             "and output your planning decision as JSON with keys: "
             "'source_node', 'destination_node', 'route' (list of strings), 'estimated_gsnr_dB' (float), "
-            "'action' ('approve', 'clarify', 'replan', or 'reject'), and 'reasoning'."
+            "'action' ('approve', 'clarify', or 'replan'), and 'reasoning'."
         )
 
         user_prompt = (
@@ -102,7 +102,7 @@ class LLMOnlyBaseline(BaseBaseline):
             return {
                 "intent_id": intent_id,
                 "baseline_id": self.baseline_id,
-                "action": "reject",
+                "action": "replan",
                 "selected_path": None,
                 "computed_gsnr_dB": None,
                 "qot_feasible": False,
@@ -148,13 +148,13 @@ class LLMOnlyBaseline(BaseBaseline):
                     action = str(data.get("action", "approve")).lower()
                 except Exception as ex:
                     error_msg = f"JSON parse error: {ex}"
-                    action = "reject"
+                    action = "replan"
             else:
                 error_msg = "No JSON object found in response"
-                action = "reject"
+                action = "replan"
 
-        # Normalize action to strictly ternary or reject
-        if action not in ("approve", "clarify", "replan", "reject"):
+        # Normalize action to strictly ternary
+        if action not in ("approve", "clarify", "replan"):
             action = "approve"
 
         # Evaluate actual physical QoT of whatever path the LLM proposed

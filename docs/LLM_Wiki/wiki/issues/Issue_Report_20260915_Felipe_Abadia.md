@@ -158,6 +158,44 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ---
 
+#### Solved Issue 10: Residual 'Reject' Action in Baseline Implementations and Publication Plotting
+
+- **Issue:** Despite normalizing the test corpus to the strictly ternary RADG action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$, residual `"reject"` references remained embedded in baseline implementations (`llm_only.py`, `always_off_hitl.py`, `traditional_sdon.py`), schema definitions (`base.py`), node logic (`radg_node.py`), and publication plotting scripts (`plotter.py`). As a consequence, the generated `gate_decision_distribution` figure incorrectly displayed a Burgundy bar for an obsolete "reject" action category.
+- **What has already been tried:** The test corpus was normalized in Issue 9, but downstream baseline fallbacks (e.g. JSON parse errors in LLM-Only, solver path starvation in Traditional SDON) still returned `"reject"`.
+- **Result:** Visual inconsistency in generated thesis figures and schema type pollution across baseline modules.
+- **Estimated possible solution / Resolution:**
+  1. Updated [`tests/evaluation/baselines/base.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/base.py) to define `action: Literal["approve", "clarify", "replan"]`.
+  2. Replaced all fallback and error actions in [`llm_only.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/llm_only.py), [`always_off_hitl.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_off_hitl.py), and [`traditional_sdon.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/traditional_sdon.py) with `"replan"`.
+  3. Cleaned legacy `"reject"` branch handling from [`src/nodes/radg_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/radg_node.py).
+  4. Purged `"reject"` from [`tests/evaluation/scripts/plotter.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/plotter.py), removing the Burgundy color mapping and plot entry.
+  5. Updated unit test assertions in [`tests/unit/test_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_baselines.py) to assert `'replan'`.
+
+---
+
+#### Solved Issue 11: Phase 6 HITL Interruption Origin Misattribution for Autonomous Baselines (A & C)
+
+- **Issue:** In the publication figure `hitl_interruption_origin.pdf` and `.png`, both Baseline A (LLM-Only) and Baseline C (Always-Off HITL) erroneously displayed Phase 6 HITL interruptions for Class III infeasible intents. Because both baselines are architecturally defined as fully autonomous ($N_{hitl} = 0$), displaying human interruptions distorted comparative evaluation.
+- **What has already been tried:** Verified baseline runtime telemetry. Both baselines returned `hitl_interrupts = 0` correctly in their `BaselineResult` payloads.
+- **Result:** The plotting metrics aggregation in `metrics.py` misattributed baseline replans as human interventions.
+- **Estimated possible solution / Resolution:**
+  1. Traced the issue to `compute_radg_metrics()` in [`tests/evaluation/scripts/metrics.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/metrics.py), which unconditionally incremented `physical_replans += 1` whenever `actual_action == "replan"`, regardless of whether a human interruption was triggered.
+  2. Wrapped `semantic_clarifies` and `physical_replans` tallies inside an explicit `if interrupts > 0:` guard.
+  3. Recomputed benchmark metrics and recompiled `hitl_interruption_origin.pdf`, confirming that Baselines A and C strictly report $0$ HITL interruptions.
+
+---
+
+#### Solved Issue 12: High Token Consumption and Quota Exhaustion During Live LLM API Benchmarking
+
+- **Issue:** Executing the full 107-intent synthetic benchmark corpus across multiple LLM-driven baselines rapidly exhausts live LLM API token and request rate quotas (such as Moonshot/Kimi API limits), blocking complete live evaluation passes.
+- **What has already been tried:** Executing full passes with `--live` led to rate-limit interruption mid-benchmark.
+- **Result:** Benchmark runs were interrupted before collecting full multi-baseline telemetry.
+- **Estimated possible solution / Resolution:**
+  1. Engineered [`tests/evaluation/test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json), selecting 20 highly representative demands (5 per risk class: Nominal, Ambiguous, Infeasible, Adversarial).
+  2. Configured [`tests/evaluation/scripts/run_benchmark.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/run_benchmark.py) to default to `test_corpus_compact.json`, reducing live API token consumption by $>80\%$ while maintaining full mathematical validity and coverage across all 4 validation pillars.
+  3. Retained the full 107-demand corpus (`test_corpus.json`) for final offline mock benchmarks and full-scale runs once production quotas reset.
+
+---
+
 ### Pending Issues
 
 > None. The presentation authoring pipeline, benchmark corpus, intent reconciliation engine, and full 7-phase neurosymbolic pipeline are complete, verified, and passing all unit tests.

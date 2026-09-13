@@ -30,7 +30,7 @@ class BaselineResult(TypedDict, total=False):
 
     intent_id: str
     baseline_id: str
-    action: Literal["approve", "clarify", "replan", "reject"]
+    action: Literal["approve", "clarify", "replan"]
     selected_path: list[str] | None
     computed_gsnr_dB: float | None
     qot_feasible: bool | None

@@ -393,12 +393,11 @@ def plot_gate_decision_distribution(
         "Class IV\nAdversarial",
     ]
 
-    actions = ["approve", "clarify", "replan", "reject"]
+    actions = ["approve", "clarify", "replan"]
     action_colors = {
         "approve": POLIMI_GREEN,
         "clarify": POLIMI_SLATE,
         "replan": POLIMI_AMBER,
-        "reject": POLIMI_BURGUNDY,
     }
 
     counts: dict[str, dict[str, int]] = {c: {a: 0 for a in actions} for c in classes}

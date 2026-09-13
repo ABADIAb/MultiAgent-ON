@@ -90,7 +90,7 @@ class AlwaysOffHITLBaseline(BaseBaseline):
 
         # GATE BYPASS 2: No Phase 6 Physical Risk Gate (RADG)!
         # In Always-Off mode, the system never halts or replans.
-        # It blindly approves whatever candidate path was computed (or rejects only if solver returned 0 paths).
+        # It blindly approves whatever candidate path was computed (or replans only if solver returned 0 paths).
         selected_path: list[str] | None = None
         computed_gsnr: float | None = None
         qot_feasible = False
@@ -107,7 +107,7 @@ class AlwaysOffHITLBaseline(BaseBaseline):
             selected_path = candidate_paths[0].get("nodes")
             action = "approve"
         else:
-            action = "reject"
+            action = "replan"
             state["error_context"] = "Solver failed to find any path."
 
         exec_time = time.perf_counter() - start_time

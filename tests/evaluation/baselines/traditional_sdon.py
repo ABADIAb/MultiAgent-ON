@@ -64,7 +64,7 @@ class TraditionalSDONBaseline(BaseBaseline):
             return {
                 "intent_id": intent_id,
                 "baseline_id": self.baseline_id,
-                "action": "reject",
+                "action": "replan",
                 "selected_path": None,
                 "computed_gsnr_dB": None,
                 "qot_feasible": False,
@@ -114,7 +114,7 @@ class TraditionalSDONBaseline(BaseBaseline):
         selected_path: list[str] | None = None
         computed_gsnr: float | None = None
         qot_feasible = False
-        action: str = "reject"
+        action: str = "replan"
 
         # Evaluate against GN-model with conservative industrial design margin (+3 dB)
         for path_info in candidate_paths:

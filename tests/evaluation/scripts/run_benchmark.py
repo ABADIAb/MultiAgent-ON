@@ -502,7 +502,7 @@ def main() -> None:
     parser.add_argument(
         "--corpus",
         type=str,
-        default="tests/evaluation/test_corpus.json",
+        default="tests/evaluation/test_corpus_compact.json",
         help="Path to benchmark intent corpus JSON",
     )
     parser.add_argument(

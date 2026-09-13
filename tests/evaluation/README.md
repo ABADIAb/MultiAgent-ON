@@ -95,7 +95,7 @@ Stress-tests the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ ac
 
 1. **Gate Decision Accuracy (GDA):**
    $$\text{GDA} = \frac{\sum_{i=1}^{N} \mathbb{I}(D(U_{sem}^{(i)}, \text{QoT}_{valid}^{(i)}) = \text{Action}_{\text{ground\_truth}}^{(i)})}{N} \times 100\%$$
-   - **Definition:** Overall accuracy of the RADG in routing intents to the optimal action state (`approve`, `clarify`, `replan`, `reject`).
+   - **Definition:** Overall accuracy of the RADG in routing intents to the optimal action state (`approve`, `clarify`, `replan`).
    - **Target:** $> 98\%$.
 
 2. **False Positive Rate (FPR):**
@@ -137,7 +137,7 @@ class BaseBaseline(ABC):
 The output `BaselineResult` standardizes metrics for downstream comparative plotting (`run_benchmark.py`):
 - `intent_id`: Identifier of the intent from `test_corpus.json`.
 - `baseline_id`: Key of the evaluated system (`"llm_only"`, `"always_on"`, `"always_off"`, `"traditional_sdon"`, `"proposed_radg"`).
-- `action`: Ternary RADG action (`"approve"`, `"clarify"`, `"replan"`, or `"reject"`).
+- `action`: Ternary RADG action (`"approve"`, `"clarify"`, or `"replan"`).
 - `selected_path`: Route computed or hallucinated by the system.
 - `computed_gsnr_dB`: Ground-truth physical GSNR computed via GN-model.
 - `qot_feasible`: Ground-truth binary optical feasibility.

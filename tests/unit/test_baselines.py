@@ -179,7 +179,7 @@ class TestTraditionalSDONBaseline:
         baseline = get_baseline("traditional_sdon")
         result = baseline.run(sample_ambiguous_intent)
 
-        assert result["action"] == "reject"
+        assert result["action"] == "replan"
         assert result["selected_path"] is None
         assert "underspecified" in (result["planning_report"] or "")
 
@@ -187,7 +187,7 @@ class TestTraditionalSDONBaseline:
         baseline = get_baseline("traditional_sdon")
         result = baseline.run(sample_adversarial_intent)
 
-        assert result["action"] == "reject"
+        assert result["action"] == "replan"
         assert result["selected_path"] is None
 
 

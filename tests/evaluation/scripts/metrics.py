@@ -186,7 +186,7 @@ def compute_physical_metrics(
         for r in class_3_results:
             if r.get("action") == "replan" or (
                 r.get("action") != "approve"
-                and r.get("action") in ("clarify", "reject")
+                and r.get("action") == "clarify"
             ):
                 intercepted += 1
 
@@ -336,10 +336,10 @@ def compute_radg_metrics(
         if interrupts > 0:
             interrupted_runs += 1
 
-        if actual_action == "clarify":
-            semantic_clarifies += 1
-        elif actual_action == "replan":
-            physical_replans += 1
+            if actual_action == "clarify":
+                semantic_clarifies += 1
+            elif actual_action == "replan":
+                physical_replans += 1
 
     n_results = len(results)
     gda = (matched_actions / n_results) * 100.0
