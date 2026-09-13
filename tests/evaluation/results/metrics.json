@@ -17,7 +17,7 @@
     "efficiency": {
       "mean_latency_s": 0.03,
       "median_latency_s": 0.028,
-      "p95_latency_s": 0.045,
+      "p95_latency_s": 0.043,
       "mean_prompt_tokens": 593.8,
       "mean_completion_tokens": 229.6,
       "mean_total_tokens": 823.4,
@@ -114,9 +114,9 @@
       "piir_percent": 3.7
     },
     "efficiency": {
-      "mean_latency_s": 0.003,
+      "mean_latency_s": 0.002,
       "median_latency_s": 0.002,
-      "p95_latency_s": 0.009,
+      "p95_latency_s": 0.008,
       "mean_prompt_tokens": 593.8,
       "mean_completion_tokens": 33.0,
       "mean_total_tokens": 626.8,

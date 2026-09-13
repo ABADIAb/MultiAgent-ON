@@ -3,13 +3,13 @@
 > Standardized 17-Node Nobel-Germany Core Backbone Topology ($|V|=17, |E|=26$).
 > Invariant Proof: **Proposed Neurosymbolic RADG strictly guarantees UAR = 0.0%**.
 
-| Baseline | CRR (%) | CFG-PR (%) | UAR (%) | QFR (%) | PIIR (%) | Latency (s) | Prompt Tokens | ΔTokens (%) | ΔHITL (%) | GDA (%) | FPR (%) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Proposed (Neurosymbolic RADG)** | 55.0% | 51.4% | 0.0% | 100.0% | 100.0% | 0.03s | 593 | 23.3% | 50.6% | 73.8% | 0.0% |
-| Baseline A (Monolithic LLM) | 0.0% | 0.0% | 89.0% | 11.0% | 0.0% | 0.00s | 774 | 0.0% | 100.0% | 26.2% | 68.3% |
-| Baseline B (Always-On HITL) | 55.0% | 51.4% | 0.0% | 100.0% | 100.0% | 0.00s | 593 | 23.3% | 0.0% | 99.1% | 0.0% |
-| Baseline C (Always-Off HITL) | 55.0% | 51.4% | 43.9% | 56.1% | 3.7% | 0.00s | 593 | 23.3% | 100.0% | 26.2% | 48.1% |
-| Baseline D (Traditional SDON) | 81.2% | 0.0% | 0.0% | 100.0% | 100.0% | 0.00s | 0 | 100.0% | 34.0% | 44.9% | 0.0% |
+| Baseline | CRR (%) | CFG-PR (%) | UAR (%) | QFR (%) | PIIR (%) | Latency (s) | Prompt Tokens | Total Tokens | ΔTokens (%) | ΔHITL (%) | GDA (%) | FPR (%) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Proposed (Neurosymbolic RADG)** | 55.0% | 51.4% | 0.0% | 100.0% | 100.0% | 0.03s | 593 | 823 | 23.3% | 50.6% | 73.8% | 0.0% |
+| Baseline A (Monolithic LLM) | 0.0% | 0.0% | 89.0% | 11.0% | 0.0% | 0.00s | 774 | 819 | 0.0% | 100.0% | 26.2% | 68.3% |
+| Baseline B (Always-On HITL) | 55.0% | 51.4% | 0.0% | 100.0% | 100.0% | 0.00s | 593 | 626 | 23.3% | 0.0% | 99.1% | 0.0% |
+| Baseline C (Always-Off HITL) | 55.0% | 51.4% | 43.9% | 56.1% | 3.7% | 0.00s | 593 | 626 | 23.3% | 100.0% | 26.2% | 48.1% |
+| Baseline D (Traditional SDON) | 81.2% | 0.0% | 0.0% | 100.0% | 100.0% | 0.00s | 0 | 0 | 100.0% | 34.0% | 44.9% | 0.0% |
 
 ### Metric Definitions & Target Invariants
 - **CRR (Constraint Retention Rate):** Percentage of operator constraints preserved in PDDL. (Target: 100%)

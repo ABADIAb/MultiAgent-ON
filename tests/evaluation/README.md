@@ -67,19 +67,24 @@ Quantifies computational savings in prompt tokens and runtime, alongside operato
    - **Target:** $> 75\%$ (Empirically measured: **$> 93\%$** on Nobel-Germany).
    - **Measurement:** `tiktoken` (`cl100k_base`) token counter comparing serialized full topology vs. `graph_to_context_string()`.
 
-2. **Human Intervention Reduction ($\Delta N_{hitl}$):**
+2. **Baseline Token Consumption ($T_{tokens}$):**
+   - **Definition:** Raw number of prompt and completion tokens consumed per intent by each baseline architecture.
+   - **Purpose:** Compares the absolute computational footprint and LLM API cost across different planning approaches.
+   - **Measurement:** `tiktoken` (`cl100k_base`) token counter across all LLM calls per intent execution.
+
+3. **Human Intervention Reduction ($\Delta N_{hitl}$):**
    $$\Delta N_{hitl} = \left( 1 - \frac{N_{hitl,\text{ours}}}{N_{hitl,\text{always}}} \right) \times 100\%$$
    - **Definition:** Reduction in operator interruptions compared to the mandatory Always-HITL baseline ($N_{hitl} = 100\%$).
    - **Target:** $> 70\%$.
-   - **Measurement:** Count of `interrupt()` events triggered across the 100 test demands.
+   - **Measurement:** Count of `interrupt()` events triggered across the 107 test demands.
 
-3. **Deterministic Compute Latency ($T_{det}$):**
+4. **Deterministic Compute Latency ($T_{det}$):**
    $$T_{det} = T_{solver} + T_{phys}$$
-   - **Definition:** Wall-clock execution time of symbolic routing (Yen's $K$-SP, $T_{solver} < 10\text{ ms}$) and GN-model physics ($T_{phys} < 5\text{ ms}$).
-   - **Target:** $< 15\text{ ms}$.
+   - **Definition:** Wall-clock execution time of symbolic routing (Yen's $K$-SP, $T_{solver} < 10\\text{ ms}$) and GN-model physics ($T_{phys} < 5\\text{ ms}$).
+   - **Target:** $< 15\\text{ ms}$.
    - **Measurement:** `time.perf_counter()` inside `symbolic_solver_node` and `qot_validation_node`.
 
-4. **End-to-End Orchestration Latency ($T_{E2E}$):**
+5. **End-to-End Orchestration Latency ($T_{E2E}$):**
    - **Definition:** Total wall-clock turnaround from NL submission to final planning report generation.
    - **Measurement:** Overall invocation duration excluding human pause time in `interrupt()`.
 
@@ -146,14 +151,14 @@ The output `BaselineResult` standardizes metrics for downstream comparative plot
 
 ## 4. Benchmark Corpus: `test_corpus.json`
 
-The evaluation dataset contains **100 synthetic operator intents** structured into four equal classes (25 intents each) tailored for the 17-node German backbone topology:
+The evaluation dataset contains **107 synthetic operator intents** structured into four classes tailored for the 17-node German backbone topology:
 
 | Class | Name | Size | Key Characteristics | Target RADG Action |
 |:-----:|:-----|:----:|:-------------------|:------------------:|
-| **Class I** | **Nominal** | 25 | Clear source-destination pairs, feasible optical paths, realistic GSNR requirements ($\le 18\text{ dB}$). | `approve` (0 interrupts) |
-| **Class II** | **Ambiguous** | 25 | Underspecified endpoints ("to the north region"), colloquial SLA ("ultra-fast link"), missing constraints. | `clarify` (Phase 3b HITL) |
-| **Class III** | **Physically Infeasible** | 25 | Impossible physical constraints on Nobel-Germany ($>30\text{ dB}$ GSNR on multi-hop routes, 0 hops). | `replan` (Phase 6 RADG) |
-| **Class IV** | **Adversarial** | 25+ | Hallucinated non-German nodes ("Paris to Rome"), contradictory constraints, PDDL syntax injection. | `clarify` (Phase 3b HITL / CFG) |
+| **Class I** | **Nominal** | 28 | Clear source-destination pairs, feasible optical paths, realistic GSNR requirements ($\le 18\text{ dB}$). | `approve` (0 interrupts) |
+| **Class II** | **Ambiguous** | 26 | Underspecified endpoints ("to the north region"), colloquial SLA ("ultra-fast link"), missing constraints. | `clarify` (Phase 3b HITL) |
+| **Class III** | **Physically Infeasible** | 27 | Impossible physical constraints on Nobel-Germany ($>30\text{ dB}$ GSNR on multi-hop routes, 0 hops). | `replan` (Phase 6 RADG) |
+| **Class IV** | **Adversarial** | 26 | Hallucinated non-German nodes ("Paris to Rome"), contradictory constraints, PDDL syntax injection. | `clarify` (Phase 3b HITL / CFG) |
 
 ---
 

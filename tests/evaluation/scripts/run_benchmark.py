@@ -456,7 +456,8 @@ def display_terminal_summary(metrics_summary: dict[str, dict[str, Any]]) -> None
     table.add_column("UAR (Target: 0%)", justify="right")
     table.add_column("QFR", justify="right")
     table.add_column("Latency", justify="right")
-    table.add_column("Tokens", justify="right")
+    table.add_column("Tokens (P)", justify="right")
+    table.add_column("Tokens (T)", justify="right")
     table.add_column("ΔTokens", justify="right")
     table.add_column("ΔHITL", justify="right")
     table.add_column("GDA", justify="right")
@@ -478,6 +479,7 @@ def display_terminal_summary(metrics_summary: dict[str, dict[str, Any]]) -> None
             f"{phys.get('qfr_percent', 0.0):.1f}%",
             f"{eff.get('mean_latency_s', 0.0):.2f}s",
             f"{int(eff.get('mean_prompt_tokens', 0))}",
+            f"{int(eff.get('mean_total_tokens', 0))}",
             f"{eff.get('token_reduction_percent', 0.0):.1f}%",
             f"{eff.get('hitl_reduction_percent', 0.0):.1f}%",
             f"{radg.get('gda_percent', 0.0):.1f}%",
