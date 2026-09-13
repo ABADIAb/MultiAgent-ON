@@ -1,0 +1,167 @@
+{
+  "proposed_radg": {
+    "baseline_id": "proposed_radg",
+    "sample_size": 107,
+    "semantic": {
+      "crr_percent": 55.0,
+      "cfg_pass_rate_percent": 51.4,
+      "syntax_error_rate_percent": 48.6,
+      "hallucination_rate_percent": 0.0,
+      "mean_semantic_agreement": 0.488
+    },
+    "physical": {
+      "uar_percent": 0.0,
+      "qfr_percent": 100.0,
+      "piir_percent": 100.0
+    },
+    "efficiency": {
+      "mean_latency_s": 0.03,
+      "median_latency_s": 0.028,
+      "p95_latency_s": 0.045,
+      "mean_prompt_tokens": 593.8,
+      "mean_completion_tokens": 229.6,
+      "mean_total_tokens": 823.4,
+      "token_reduction_percent": 23.32,
+      "hitl_reduction_percent": 50.62
+    },
+    "radg": {
+      "gda_percent": 73.83,
+      "fpr_percent": 0.0,
+      "hitl_interruption_rate_percent": 74.77,
+      "semantic_clarify_count": 80.0,
+      "physical_replan_count": 0.0
+    }
+  },
+  "llm_only": {
+    "baseline_id": "llm_only",
+    "sample_size": 107,
+    "semantic": {
+      "crr_percent": 0.0,
+      "cfg_pass_rate_percent": 0.0,
+      "syntax_error_rate_percent": 100.0,
+      "hallucination_rate_percent": 64.49,
+      "mean_semantic_agreement": 0.0
+    },
+    "physical": {
+      "uar_percent": 89.02,
+      "qfr_percent": 10.98,
+      "piir_percent": 0.0
+    },
+    "efficiency": {
+      "mean_latency_s": 0.001,
+      "median_latency_s": 0.001,
+      "p95_latency_s": 0.001,
+      "mean_prompt_tokens": 774.4,
+      "mean_completion_tokens": 45.3,
+      "mean_total_tokens": 819.7,
+      "token_reduction_percent": 0.0,
+      "hitl_reduction_percent": 100.0
+    },
+    "radg": {
+      "gda_percent": 26.17,
+      "fpr_percent": 68.35,
+      "hitl_interruption_rate_percent": 0.0,
+      "semantic_clarify_count": 0.0,
+      "physical_replan_count": 0.0
+    }
+  },
+  "always_on": {
+    "baseline_id": "always_on",
+    "sample_size": 107,
+    "semantic": {
+      "crr_percent": 55.0,
+      "cfg_pass_rate_percent": 51.4,
+      "syntax_error_rate_percent": 48.6,
+      "hallucination_rate_percent": 0.0,
+      "mean_semantic_agreement": 0.514
+    },
+    "physical": {
+      "uar_percent": 0.0,
+      "qfr_percent": 100.0,
+      "piir_percent": 100.0
+    },
+    "efficiency": {
+      "mean_latency_s": 0.002,
+      "median_latency_s": 0.001,
+      "p95_latency_s": 0.007,
+      "mean_prompt_tokens": 593.8,
+      "mean_completion_tokens": 33.0,
+      "mean_total_tokens": 626.8,
+      "token_reduction_percent": 23.32,
+      "hitl_reduction_percent": 0.0
+    },
+    "radg": {
+      "gda_percent": 99.07,
+      "fpr_percent": 0.0,
+      "hitl_interruption_rate_percent": 100.0,
+      "semantic_clarify_count": 52.0,
+      "physical_replan_count": 28.0
+    }
+  },
+  "always_off": {
+    "baseline_id": "always_off",
+    "sample_size": 107,
+    "semantic": {
+      "crr_percent": 55.0,
+      "cfg_pass_rate_percent": 51.4,
+      "syntax_error_rate_percent": 48.6,
+      "hallucination_rate_percent": 0.0,
+      "mean_semantic_agreement": 0.514
+    },
+    "physical": {
+      "uar_percent": 43.94,
+      "qfr_percent": 56.06,
+      "piir_percent": 3.7
+    },
+    "efficiency": {
+      "mean_latency_s": 0.003,
+      "median_latency_s": 0.002,
+      "p95_latency_s": 0.009,
+      "mean_prompt_tokens": 593.8,
+      "mean_completion_tokens": 33.0,
+      "mean_total_tokens": 626.8,
+      "token_reduction_percent": 23.32,
+      "hitl_reduction_percent": 100.0
+    },
+    "radg": {
+      "gda_percent": 26.17,
+      "fpr_percent": 48.1,
+      "hitl_interruption_rate_percent": 0.0,
+      "semantic_clarify_count": 0.0,
+      "physical_replan_count": 0.0
+    }
+  },
+  "traditional_sdon": {
+    "baseline_id": "traditional_sdon",
+    "sample_size": 107,
+    "semantic": {
+      "crr_percent": 81.25,
+      "cfg_pass_rate_percent": 0.0,
+      "syntax_error_rate_percent": 100.0,
+      "hallucination_rate_percent": 0.0,
+      "mean_semantic_agreement": 0.0
+    },
+    "physical": {
+      "uar_percent": 0.0,
+      "qfr_percent": 100.0,
+      "piir_percent": 100.0
+    },
+    "efficiency": {
+      "mean_latency_s": 0.002,
+      "median_latency_s": 0.0,
+      "p95_latency_s": 0.006,
+      "mean_prompt_tokens": 0,
+      "mean_completion_tokens": 0,
+      "mean_total_tokens": 0,
+      "token_reduction_percent": 100.0,
+      "hitl_reduction_percent": 33.95
+    },
+    "radg": {
+      "gda_percent": 44.86,
+      "fpr_percent": 0.0,
+      "hitl_interruption_rate_percent": 100.0,
+      "semantic_clarify_count": 0.0,
+      "physical_replan_count": 22.0
+    }
+  }
+}

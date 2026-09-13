@@ -157,20 +157,83 @@ The evaluation dataset contains **100 synthetic operator intents** structured in
 
 ---
 
-## 5. Running the Evaluation
+## 5. Running the Automated Evaluation Harness
 
-To validate the test corpus schema:
+The benchmark harness is executed using `uv run` and supports both **Live LLM API** runs and **Deterministic Offline Mock** runs for instant zero-cost reproducibility and CI testing.
+
+### 5.1 Quick Validation & Dry-Run (Mock Mode)
+
+To run the complete benchmark suite across all 107 test demands and all 5 comparative baselines offline without consuming API tokens:
+
 ```bash
-uv run python -c "
-import json
-with open('tests/evaluation/test_corpus.json') as f:
-    corpus = json.load(f)
-assert len(corpus) == 100
-print('Benchmark corpus verified: 100 intents across 4 balanced classes.')
-"
+uv run python tests/evaluation/scripts/run_benchmark.py --mock
 ```
 
-To run unit tests across all pipeline modules:
+To run a rapid subset (e.g., first 10 intents):
 ```bash
+uv run python tests/evaluation/scripts/run_benchmark.py --mock --limit 10
+```
+
+To run only specific baselines:
+```bash
+uv run python tests/evaluation/scripts/run_benchmark.py --mock --baselines proposed_radg,llm_only
+```
+
+To filter by intent risk category:
+```bash
+uv run python tests/evaluation/scripts/run_benchmark.py --mock --classes I_Nominal,III_Infeasible
+```
+
+### 5.2 Full Live LLM API Benchmark
+
+To execute the benchmark against the production Kimi LLM API endpoint:
+```bash
+uv run python tests/evaluation/scripts/run_benchmark.py
+```
+
+### 5.3 Regenerating Figures & Visual Artifacts
+
+To re-render all IEEE / PoliMi thesis figures from an existing `metrics.json`:
+```bash
+uv run python tests/evaluation/scripts/plotter.py --metrics-file tests/evaluation/results/metrics.json
+```
+
+### 5.4 Running Evaluation Unit Tests (Strict TDD)
+
+```bash
+# Test the deterministic metrics engine and plotter
+uv run pytest tests/unit/test_metrics.py -v
+
+# Test baseline abstractions and polymorphic registry
+uv run pytest tests/unit/test_baselines.py -v
+
+# Run the complete test suite (320+ unit tests)
 uv run pytest
 ```
+
+---
+
+## 6. Output Artifacts & Directory Structure
+
+All benchmark outputs are strictly encapsulated within `tests/evaluation/results/`:
+
+```
+tests/evaluation/results/
+├── summary_table.md             # Consolidated markdown summary table (ready for thesis/papers)
+├── metrics.json                 # Structured metrics dictionary across all 4 pillars
+├── raw/
+│   ├── raw_results.json         # Complete per-intent execution dictionary for all baselines
+│   ├── raw_results.csv          # Flat tabular CSV for pandas / R / statistical analysis
+│   ├── raw_results_<timestamp>.json
+│   └── raw_results_<timestamp>.csv
+└── figures/
+    ├── latency_vs_tokens.pdf    # Vector PDF: Orchestration latency vs. Prompt tokens
+    ├── latency_vs_tokens.png    # 300 DPI preview for slide decks and quick inspection
+    ├── success_vs_uar.pdf       # Vector PDF: QoT Feasibility vs. UAR (0% Invariant)
+    ├── success_vs_uar.png
+    ├── hitl_interruption_origin.pdf # Vector PDF: Phase 3b Semantic vs. Phase 6 Physical interrupts
+    ├── hitl_interruption_origin.png
+    ├── gate_decision_distribution.pdf # Vector PDF: Action breakdown across intent classes
+    └── gate_decision_distribution.png
+```
+

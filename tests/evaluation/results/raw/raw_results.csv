@@ -1,0 +1,536 @@
+timestamp,intent_id,baseline_id,action,qot_feasible,computed_gsnr_dB,pddl_valid,hitl_interrupts,prompt_tokens,completion_tokens,total_tokens,execution_time_s,selected_path,error
+20260913_095924,intent_nom_01,proposed_radg,approve,True,17.185,True,0,451,805,1256,0.03926799700002448,Hamburg -> Berlin,
+20260913_095924,intent_nom_02,proposed_radg,approve,True,17.185,True,0,471,825,1296,0.02794110200011346,Hamburg -> Berlin,
+20260913_095924,intent_nom_03,proposed_radg,approve,True,19.189,True,0,772,821,1593,0.037173951999648125,Frankfurt -> Cologne,
+20260913_095924,intent_nom_04,proposed_radg,approve,True,17.134,True,0,352,838,1190,0.026469348999853537,Munich -> Ulm -> Stuttgart,
+20260913_095924,intent_nom_05,proposed_radg,approve,True,20.019,True,0,573,829,1402,0.03527909200056456,Hannover -> Bremen,
+20260913_095924,intent_nom_06,proposed_radg,approve,True,18.93,True,0,555,803,1358,0.03293180400032725,Berlin -> Leipzig,
+20260913_095924,intent_nom_07,proposed_radg,approve,True,21.249,True,0,632,813,1445,0.03030492299967591,Dortmund -> Cologne,
+20260913_095924,intent_nom_08,proposed_radg,approve,True,19.05,True,0,502,877,1379,0.026675031000195304,Nuremberg -> Munich,
+20260913_095924,intent_nom_09,proposed_radg,approve,True,21.665,True,0,376,797,1173,0.029308823000064876,Karlsruhe -> Mannheim,
+20260913_095924,intent_nom_10,proposed_radg,approve,True,22.694,True,0,269,730,999,0.029037268000138283,Essen -> Dusseldorf,
+20260913_095924,intent_nom_11,proposed_radg,approve,True,21.546,True,0,340,847,1187,0.027641405999929702,Stuttgart -> Karlsruhe,
+20260913_095924,intent_nom_12,proposed_radg,approve,True,20.152,True,0,386,818,1204,0.027725211999495514,Bremen -> Hamburg,
+20260913_095924,intent_nom_13,proposed_radg,approve,True,21.249,True,0,645,850,1495,0.028783816000213847,Frankfurt -> Mannheim,
+20260913_095924,intent_nom_14,proposed_radg,approve,True,16.854,True,0,676,854,1530,0.03252843300015229,Leipzig -> Nuremberg,
+20260913_095924,intent_nom_15,proposed_radg,approve,True,22.454,True,0,434,854,1288,0.027278755999759596,Cologne -> Dusseldorf,
+20260913_095924,intent_nom_16,proposed_radg,approve,True,17.717,True,0,570,811,1381,0.031135688000176742,Hannover -> Hamburg,
+20260913_095924,intent_nom_17,proposed_radg,approve,True,18.799,True,0,283,671,954,0.02685661999930744,Munich -> Ulm,
+20260913_095924,intent_nom_18,proposed_radg,approve,True,16.914,True,0,638,833,1471,0.02913373200044589,Dortmund -> Hannover,
+20260913_095924,intent_nom_19,proposed_radg,approve,True,18.435,True,0,712,858,1570,0.027834726000037335,Frankfurt -> Nuremberg,
+20260913_095924,intent_nom_20,proposed_radg,approve,True,21.234,True,0,350,791,1141,0.028004220000184432,Ulm -> Stuttgart,
+20260913_095924,intent_nom_21,proposed_radg,approve,True,18.662,True,0,473,840,1313,0.029424275000565103,Norden -> Bremen,
+20260913_095924,intent_nom_22,proposed_radg,approve,True,17.332,True,0,575,804,1379,0.027827484000226832,Berlin -> Hannover,
+20260913_095924,intent_nom_23,proposed_radg,approve,True,21.249,True,0,649,855,1504,0.028233071000613563,Mannheim -> Frankfurt,
+20260913_095924,intent_nom_24,proposed_radg,approve,True,18.93,True,0,551,805,1356,0.02818578999995225,Leipzig -> Berlin,
+20260913_095924,intent_nom_25,proposed_radg,approve,True,18.321,True,0,495,862,1357,0.029722897999818088,Stuttgart -> Nuremberg,
+20260913_095924,intent_nom_26,proposed_radg,approve,True,22.551,True,0,538,833,1371,0.027704758000254515,Essen -> Dortmund,
+20260913_095924,intent_nom_27,proposed_radg,approve,True,15.764,True,0,706,888,1594,0.028224392000083753,Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_nom_28,proposed_radg,clarify,False,12.747,True,1,619,66,685,0.03209607299959316,Stuttgart -> Nuremberg -> Leipzig -> Berlin,
+20260913_095924,intent_amb_01,proposed_radg,clarify,False,,False,1,652,13,665,0.07837337100045261,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_02,proposed_radg,clarify,False,,False,1,641,12,653,0.02224352800021734,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_03,proposed_radg,clarify,False,,False,1,640,12,652,0.023740378999718814,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_04,proposed_radg,clarify,False,,False,1,638,12,650,0.023949630999595684,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_05,proposed_radg,clarify,False,,False,1,639,12,651,0.02319025400083774,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_06,proposed_radg,clarify,False,,False,1,640,13,653,0.023991486999875633,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_07,proposed_radg,clarify,False,,False,1,641,12,653,0.023726196000097843,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_08,proposed_radg,clarify,False,,False,1,639,12,651,0.02090641099948698,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_09,proposed_radg,clarify,False,,False,1,641,12,653,0.022502585000438557,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_10,proposed_radg,clarify,False,,False,1,638,12,650,0.02260208600000624,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_11,proposed_radg,clarify,False,,False,1,641,15,656,0.023303163000491622,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_12,proposed_radg,clarify,False,,False,1,639,13,652,0.023247079000611848,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_13,proposed_radg,clarify,False,,False,1,636,12,648,0.02366479200009053,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_14,proposed_radg,clarify,False,,False,1,637,13,650,0.022380935999535723,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_15,proposed_radg,clarify,False,,False,1,636,12,648,0.022827070999483112,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_16,proposed_radg,clarify,False,,False,1,639,13,652,0.022951744999772927,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_17,proposed_radg,clarify,False,,False,1,645,12,657,0.02278920000026119,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_18,proposed_radg,clarify,False,,False,1,644,14,658,0.02272743499997887,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_19,proposed_radg,clarify,False,,False,1,635,12,647,0.024285497999699146,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_20,proposed_radg,clarify,False,,False,1,639,13,652,0.02373129500028881,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_21,proposed_radg,clarify,False,,False,1,640,13,653,0.023240208000061102,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_22,proposed_radg,clarify,False,,False,1,638,12,650,0.021895443000175874,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_23,proposed_radg,clarify,False,,False,1,636,12,648,0.022547999000380514,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_24,proposed_radg,clarify,False,,False,1,641,13,654,0.02401433100021677,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_25,proposed_radg,clarify,False,,False,1,639,12,651,0.02244092700038891,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_26,proposed_radg,clarify,False,,False,1,662,17,679,0.02090669799963507,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_inf_01,proposed_radg,clarify,False,10.529,True,1,591,61,652,0.03067996800018591,Norden -> Dortmund -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_02,proposed_radg,clarify,False,10.859,True,1,583,57,640,0.02957951000007597,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_03,proposed_radg,clarify,False,13.714,True,1,655,57,712,0.02755178400002478,Berlin -> Leipzig -> Frankfurt,
+20260913_095924,intent_inf_04,proposed_radg,clarify,False,13.791,True,1,703,57,760,0.028539961999740626,Cologne -> Frankfurt -> Leipzig,
+20260913_095924,intent_inf_05,proposed_radg,clarify,False,11.239,True,1,583,61,644,0.031006412000351702,Bremen -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_06,proposed_radg,clarify,False,11.852,True,1,675,57,732,0.03425615200012544,Hamburg -> Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_07,proposed_radg,clarify,False,12.49,True,1,736,57,793,0.03507826699933503,Dortmund -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_08,proposed_radg,clarify,False,12.6,True,1,704,61,765,0.03180364399941027,Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_09,proposed_radg,clarify,False,13.414,True,1,643,61,704,0.0320555369999056,Norden -> Bremen -> Hannover -> Leipzig,
+20260913_095924,intent_inf_10,proposed_radg,clarify,False,11.535,True,1,530,57,587,0.0323732540000492,Essen -> Dusseldorf -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_11,proposed_radg,clarify,False,12.331,True,1,555,61,616,0.028945891999683226,Berlin -> Leipzig -> Frankfurt -> Mannheim -> Karlsruhe,
+20260913_095924,intent_inf_12,proposed_radg,clarify,False,12.641,True,1,402,65,467,0.030517158999828098,Dusseldorf -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_13,proposed_radg,clarify,False,12.006,True,1,738,69,807,0.03644466300011118,Hamburg -> Hannover -> Leipzig -> Nuremberg,
+20260913_095924,intent_inf_14,proposed_radg,clarify,False,12.337,True,1,678,61,739,0.034964429999490676,Bremen -> Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_15,proposed_radg,clarify,False,13.754,True,1,777,61,838,0.033086538999668846,Norden -> Dortmund -> Cologne -> Frankfurt,
+20260913_095924,intent_inf_16,proposed_radg,clarify,False,12.657,True,1,635,57,692,0.031486234000112745,Cologne -> Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_17,proposed_radg,clarify,False,15.764,True,1,707,57,764,0.039210245000504074,Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_18,proposed_radg,clarify,False,14.827,True,1,616,57,673,0.0446442800002842,Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_19,proposed_radg,clarify,False,13.814,True,1,770,61,831,0.05675755799984472,Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_20,proposed_radg,clarify,False,,True,1,432,65,497,0.04280589300014981,,
+20260913_095924,intent_inf_21,proposed_radg,clarify,False,15.499,True,1,616,61,677,0.04276912499972241,Bremen -> Hannover -> Leipzig,
+20260913_095924,intent_inf_22,proposed_radg,clarify,False,13.309,True,1,637,57,694,0.041612707000240334,Hamburg -> Hannover -> Dortmund -> Cologne,
+20260913_095924,intent_inf_23,proposed_radg,clarify,False,13.974,True,1,606,57,663,0.04569178100064164,Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_24,proposed_radg,clarify,False,13.332,True,1,681,69,750,0.0492995559998235,Essen -> Dusseldorf -> Cologne -> Frankfurt -> Nuremberg,
+20260913_095924,intent_inf_25,proposed_radg,clarify,False,11.707,True,1,546,65,611,0.03569373999926029,Dusseldorf -> Essen -> Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_26,proposed_radg,clarify,False,10.859,True,1,578,57,635,0.03815099400071631,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_27,proposed_radg,clarify,False,10.06,True,1,619,61,680,0.04567475600015314,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Stuttgart -> Ulm,
+20260913_095924,intent_adv_01,proposed_radg,clarify,False,,False,1,710,12,722,0.0310094520000348,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_02,proposed_radg,clarify,False,,False,1,447,12,459,0.03072734300076263,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_03,proposed_radg,clarify,False,,False,1,639,16,655,0.027964564000285463,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_04,proposed_radg,clarify,False,,False,1,251,12,263,0.026724059999651217,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_05,proposed_radg,clarify,False,,False,1,763,12,775,0.029741325000031793,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_06,proposed_radg,clarify,False,,False,1,546,12,558,0.028053087000444066,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_07,proposed_radg,clarify,False,,False,1,642,12,654,0.02771149599993805,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_08,proposed_radg,clarify,False,,False,1,571,13,584,0.0236929289994805,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_09,proposed_radg,clarify,False,,False,1,639,12,651,0.02439529500043136,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_10,proposed_radg,clarify,False,,False,1,642,12,654,0.026780848000271362,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_11,proposed_radg,clarify,False,,False,1,643,13,656,0.02632452000034391,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_12,proposed_radg,clarify,False,,False,1,344,12,356,0.0228504079996128,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_13,proposed_radg,clarify,False,,False,1,551,12,563,0.02457740699992428,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_14,proposed_radg,clarify,False,,False,1,638,12,650,0.025045238000529935,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_15,proposed_radg,clarify,False,,False,1,452,12,464,0.024134683000738733,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_16,proposed_radg,clarify,False,,False,1,641,14,655,0.024003379000532732,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_17,proposed_radg,clarify,False,,False,1,769,12,781,0.025964387000385614,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_18,proposed_radg,clarify,False,,False,1,567,13,580,0.02403140399928816,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_19,proposed_radg,clarify,False,,False,1,348,12,360,0.022105318999820156,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_20,proposed_radg,clarify,False,,False,1,574,14,588,0.02325806899989402,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_21,proposed_radg,clarify,False,,False,1,565,12,577,0.02264721899973665,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_22,proposed_radg,clarify,False,,False,1,770,12,782,0.04541630299991084,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_23,proposed_radg,clarify,False,,False,1,761,15,776,0.03621016699980828,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_24,proposed_radg,clarify,False,,False,1,547,12,559,0.023006802999589127,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_25,proposed_radg,clarify,False,,False,1,639,16,655,0.023067250000167405,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_26,proposed_radg,clarify,False,,False,1,632,13,645,0.024219175999860454,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_nom_01,llm_only,approve,False,14.376,,0,773,59,832,0.0007972479997988557,Hamburg -> Hannover -> Berlin,
+20260913_095924,intent_nom_02,llm_only,approve,False,14.376,,0,793,59,852,0.0006798019994675997,Hamburg -> Hannover -> Berlin,
+20260913_095924,intent_nom_03,llm_only,approve,False,,,0,777,61,838,0.0005386860002545291,Frankfurt -> Hannover -> Cologne,
+20260913_095924,intent_nom_04,llm_only,approve,False,,,0,781,63,844,0.0006256000006032991,Munich -> Hannover -> Stuttgart,
+20260913_095924,intent_nom_05,llm_only,approve,False,,,0,774,63,837,0.0006383170002663974,Hannover -> Hannover -> Bremen,
+20260913_095924,intent_nom_06,llm_only,approve,False,14.337,,0,778,59,837,0.0006200789994181832,Berlin -> Hannover -> Leipzig,
+20260913_095924,intent_nom_07,llm_only,approve,False,,,0,769,63,832,0.0005266560001473408,Dortmund -> Hannover -> Cologne,
+20260913_095924,intent_nom_08,llm_only,approve,False,,,0,781,67,848,0.0006106040000304347,Nuremberg -> Hannover -> Munich,
+20260913_095924,intent_nom_09,llm_only,approve,False,,,0,777,63,840,0.0007339309995586518,Karlsruhe -> Hannover -> Mannheim,
+20260913_095924,intent_nom_10,llm_only,approve,False,,,0,774,63,837,0.0007684760003030533,Essen -> Hannover -> Dusseldorf,
+20260913_095924,intent_nom_11,llm_only,approve,False,,,0,769,61,830,0.0005844070001330692,Stuttgart -> Hannover -> Karlsruhe,
+20260913_095924,intent_nom_12,llm_only,approve,True,15.545,,0,778,61,839,0.0006300409995674272,Bremen -> Hannover -> Hamburg,
+20260913_095924,intent_nom_13,llm_only,approve,False,,,0,771,63,834,0.0009546330002194736,Frankfurt -> Hannover -> Mannheim,
+20260913_095924,intent_nom_14,llm_only,approve,False,,,0,776,65,841,0.0006027270001141005,Leipzig -> Hannover -> Nuremberg,
+20260913_095924,intent_nom_15,llm_only,approve,False,,,0,777,63,840,0.0006451599992942647,Cologne -> Hannover -> Dusseldorf,
+20260913_095924,intent_nom_16,llm_only,approve,False,,,0,771,63,834,0.0005078459998912876,Hannover -> Hannover -> Hamburg,
+20260913_095924,intent_nom_17,llm_only,approve,False,,,0,776,63,839,0.000501120999615523,Munich -> Hannover -> Ulm,
+20260913_095924,intent_nom_18,llm_only,approve,False,,,0,775,65,840,0.0005339070003174129,Dortmund -> Hannover -> Hannover,
+20260913_095924,intent_nom_19,llm_only,approve,False,,,0,778,65,843,0.0006387060002452927,Frankfurt -> Hannover -> Nuremberg,
+20260913_095924,intent_nom_20,llm_only,approve,False,,,0,779,61,840,0.000630696999905922,Ulm -> Hannover -> Stuttgart,
+20260913_095924,intent_nom_21,llm_only,approve,False,,,0,777,61,838,0.00048499499916943023,Norden -> Hannover -> Bremen,
+20260913_095924,intent_nom_22,llm_only,approve,False,,,0,776,61,837,0.00047248600003513275,Berlin -> Hannover -> Hannover,
+20260913_095924,intent_nom_23,llm_only,approve,False,,,0,775,63,838,0.0010848199999600183,Mannheim -> Hannover -> Frankfurt,
+20260913_095924,intent_nom_24,llm_only,approve,False,14.329,,0,774,59,833,0.0007462570001735003,Leipzig -> Hannover -> Berlin,
+20260913_095924,intent_nom_25,llm_only,approve,False,,,0,774,65,839,0.0006575369998245151,Stuttgart -> Hannover -> Nuremberg,
+20260913_095924,intent_nom_26,llm_only,approve,False,,,0,778,63,841,0.0004982979999113013,Essen -> Hannover -> Dortmund,
+20260913_095924,intent_nom_27,llm_only,approve,False,,,0,772,63,835,0.0004794550004589837,Frankfurt -> Hannover -> Munich,
+20260913_095924,intent_nom_28,llm_only,approve,False,,,0,776,59,835,0.0008296249998238636,Stuttgart -> Hannover -> Berlin,
+20260913_095924,intent_amb_01,llm_only,approve,False,,,0,784,56,840,0.0005537340002774727,Bremen -> Frankfurt,
+20260913_095924,intent_amb_02,llm_only,reject,False,,,0,773,1,774,0.0005436350002128165,,No JSON object found in response
+20260913_095924,intent_amb_03,llm_only,reject,False,,,0,772,1,773,0.000569259000258171,,No JSON object found in response
+20260913_095924,intent_amb_04,llm_only,reject,False,,,0,770,1,771,0.0004364690003058058,,No JSON object found in response
+20260913_095924,intent_amb_05,llm_only,reject,False,,,0,771,1,772,0.0005581100003837491,,No JSON object found in response
+20260913_095924,intent_amb_06,llm_only,reject,False,,,0,772,1,773,0.00045047200001135934,,No JSON object found in response
+20260913_095924,intent_amb_07,llm_only,reject,False,,,0,773,1,774,0.000390707999940787,,No JSON object found in response
+20260913_095924,intent_amb_08,llm_only,reject,False,,,0,771,1,772,0.00039405499956046697,,No JSON object found in response
+20260913_095924,intent_amb_09,llm_only,reject,False,,,0,773,1,774,0.00039283299975068076,,No JSON object found in response
+20260913_095924,intent_amb_10,llm_only,reject,False,,,0,770,1,771,0.0010144309999304824,,No JSON object found in response
+20260913_095924,intent_amb_11,llm_only,reject,False,,,0,773,1,774,0.0005145510003785603,,No JSON object found in response
+20260913_095924,intent_amb_12,llm_only,reject,False,,,0,771,1,772,0.0004460949994609109,,No JSON object found in response
+20260913_095924,intent_amb_13,llm_only,reject,False,,,0,768,1,769,0.0004324080000515096,,No JSON object found in response
+20260913_095924,intent_amb_14,llm_only,reject,False,,,0,769,1,770,0.00045612099984282395,,No JSON object found in response
+20260913_095924,intent_amb_15,llm_only,reject,False,,,0,768,1,769,0.0006112850005592918,,No JSON object found in response
+20260913_095924,intent_amb_16,llm_only,reject,False,,,0,771,1,772,0.00050255099995411,,No JSON object found in response
+20260913_095924,intent_amb_17,llm_only,reject,False,,,0,777,1,778,0.0004335749999881955,,No JSON object found in response
+20260913_095924,intent_amb_18,llm_only,reject,False,,,0,776,1,777,0.00037879600040469086,,No JSON object found in response
+20260913_095924,intent_amb_19,llm_only,reject,False,,,0,767,1,768,0.0003848309997920296,,No JSON object found in response
+20260913_095924,intent_amb_20,llm_only,reject,False,,,0,771,1,772,0.0004073630007042084,,No JSON object found in response
+20260913_095924,intent_amb_21,llm_only,reject,False,,,0,772,1,773,0.0015612530005455483,,No JSON object found in response
+20260913_095924,intent_amb_22,llm_only,reject,False,,,0,770,1,771,0.000494801000058942,,No JSON object found in response
+20260913_095924,intent_amb_23,llm_only,reject,False,,,0,768,1,769,0.00046678900071128737,,No JSON object found in response
+20260913_095924,intent_amb_24,llm_only,reject,False,,,0,773,1,774,0.0004691910007750266,,No JSON object found in response
+20260913_095924,intent_amb_25,llm_only,reject,False,,,0,771,1,772,0.0004953699999532546,,No JSON object found in response
+20260913_095924,intent_amb_26,llm_only,approve,False,,,0,794,62,856,0.0007423059996654047,Dusseldorf -> Nuremberg,
+20260913_095924,intent_inf_01,llm_only,approve,False,,,0,781,58,839,0.0006070010003895732,Norden -> Munich,
+20260913_095924,intent_inf_02,llm_only,approve,False,,,0,776,58,834,0.0006046990001777885,Hamburg -> Munich,
+20260913_095924,intent_inf_03,llm_only,approve,False,,,0,781,54,835,0.0005629989991575712,Berlin -> Frankfurt,
+20260913_095924,intent_inf_04,llm_only,approve,False,,,0,771,56,827,0.0021265610002956237,Cologne -> Leipzig,
+20260913_095924,intent_inf_05,llm_only,approve,False,,,0,776,58,834,0.0006292890002441709,Bremen -> Munich,
+20260913_095924,intent_inf_06,llm_only,approve,False,,,0,772,56,828,0.0005276560004858766,Hamburg -> Stuttgart,
+20260913_095924,intent_inf_07,llm_only,approve,False,,,0,777,60,837,0.0005153339998287265,Dortmund -> Munich,
+20260913_095924,intent_inf_08,llm_only,approve,False,,,0,776,60,836,0.0007586359997731051,Hannover -> Munich,
+20260913_095924,intent_inf_09,llm_only,approve,False,,,0,775,56,831,0.000675767999382515,Norden -> Leipzig,
+20260913_095924,intent_inf_10,llm_only,approve,False,,,0,777,58,835,0.0005878259999008151,Essen -> Munich,
+20260913_095924,intent_inf_11,llm_only,approve,False,,,0,777,54,831,0.0008025739998629433,Berlin -> Karlsruhe,
+20260913_095924,intent_inf_12,llm_only,approve,False,,,0,773,60,833,0.0007198620005510747,Dusseldorf -> Munich,
+20260913_095924,intent_inf_13,llm_only,approve,False,,,0,777,60,837,0.000585998999667936,Hamburg -> Nuremberg,
+20260913_095924,intent_inf_14,llm_only,approve,False,,,0,775,56,831,0.0005212819996813778,Bremen -> Stuttgart,
+20260913_095924,intent_inf_15,llm_only,approve,False,,,0,782,56,838,0.0005710799996450078,Norden -> Frankfurt,
+20260913_095924,intent_inf_16,llm_only,approve,False,,,0,772,54,826,0.0009566479993736721,Cologne -> Berlin,
+20260913_095924,intent_inf_17,llm_only,approve,False,,,0,773,58,831,0.0005718060001527192,Frankfurt -> Munich,
+20260913_095924,intent_inf_18,llm_only,approve,False,,,0,779,58,837,0.0005271310001262464,Leipzig -> Munich,
+20260913_095924,intent_inf_19,llm_only,approve,False,,,0,779,58,837,0.0005700659994545276,Hannover -> Stuttgart,
+20260913_095924,intent_inf_20,llm_only,approve,False,,,0,774,56,830,0.0005212879996179254,Norden -> Ulm,
+20260913_095924,intent_inf_21,llm_only,approve,False,,,0,778,56,834,0.0007833379995645373,Bremen -> Leipzig,
+20260913_095924,intent_inf_22,llm_only,approve,False,,,0,774,56,830,0.0005886130002181744,Hamburg -> Cologne,
+20260913_095924,intent_inf_23,llm_only,approve,False,,,0,776,56,832,0.0005276780002532178,Dortmund -> Berlin,
+20260913_095924,intent_inf_24,llm_only,approve,False,,,0,774,60,834,0.0005471799995575566,Essen -> Nuremberg,
+20260913_095924,intent_inf_25,llm_only,approve,False,,,0,777,56,833,0.0007418089999191579,Dusseldorf -> Berlin,
+20260913_095924,intent_inf_26,llm_only,approve,False,,,0,771,58,829,0.0005831720000060159,Hamburg -> Munich,
+20260913_095924,intent_inf_27,llm_only,approve,False,,,0,780,56,836,0.0005910170002607629,Hamburg -> Ulm,
+20260913_095924,intent_adv_01,llm_only,approve,False,,,0,778,56,834,0.0005519229998753872,Leipzig -> Cologne,
+20260913_095924,intent_adv_02,llm_only,approve,True,17.185,,0,769,54,823,0.001149550999798521,Hamburg -> Berlin,
+20260913_095924,intent_adv_03,llm_only,approve,False,,,0,771,60,831,0.00058972500028176,node_99 -> node_999,
+20260913_095924,intent_adv_04,llm_only,approve,False,,,0,776,60,836,0.0006003279995638877,Munich -> Munich,
+20260913_095924,intent_adv_05,llm_only,approve,False,,,0,768,54,822,0.0005667310006174375,London -> Frankfurt,
+20260913_095924,intent_adv_06,llm_only,approve,False,,,0,769,54,823,0.0005208000002312474,Berlin -> Madrid,
+20260913_095924,intent_adv_07,llm_only,reject,False,,,0,775,1,776,0.0006966190003367956,,No JSON object found in response
+20260913_095924,intent_adv_08,llm_only,approve,True,17.332,,0,772,56,828,0.000642181999864988,Hannover -> Berlin,
+20260913_095924,intent_adv_09,llm_only,approve,False,,,0,776,56,832,0.0005500109991771751,Tokyo -> Cologne,
+20260913_095924,intent_adv_10,llm_only,approve,False,,,0,774,56,830,0.0005460009997477755,Amsterdam -> Vienna,
+20260913_095924,intent_adv_11,llm_only,approve,False,,,0,769,56,825,0.00097480899967195,Frankfurt -> NewYork,
+20260913_095924,intent_adv_12,llm_only,approve,False,,,0,773,58,831,0.0006487959999503801,Munich -> Stuttgart,
+20260913_095924,intent_adv_13,llm_only,approve,True,18.93,,0,774,54,828,0.000590994999583927,Berlin -> Leipzig,
+20260913_095924,intent_adv_14,llm_only,approve,False,,,0,770,56,826,0.0005216310000832891,Milan -> Rome,
+20260913_095924,intent_adv_15,llm_only,approve,True,17.185,,0,774,54,828,0.000596005000261357,Hamburg -> Berlin,
+20260913_095924,intent_adv_16,llm_only,approve,False,,,0,773,58,831,0.0006824169995525153,Atlantis -> ElDorado,
+20260913_095924,intent_adv_17,llm_only,approve,True,19.189,,0,774,56,830,0.0006307470002866467,Cologne -> Frankfurt,
+20260913_095924,intent_adv_18,llm_only,approve,False,,,0,768,56,824,0.0005366020004657912,Sydney -> Bremen,
+20260913_095924,intent_adv_19,llm_only,approve,False,,,0,777,58,835,0.0005162060006114189,Stuttgart -> Munich,
+20260913_095924,intent_adv_20,llm_only,approve,True,20.019,,0,775,58,833,0.0006576979994861176,Hannover -> Bremen,
+20260913_095924,intent_adv_21,llm_only,approve,False,,,0,766,54,820,0.0007835690003048512,Barcelona -> Berlin,
+20260913_095924,intent_adv_22,llm_only,approve,True,19.189,,0,775,56,831,0.0006217649997779517,Frankfurt -> Cologne,
+20260913_095924,intent_adv_23,llm_only,approve,False,,,0,770,60,830,0.0005281359999571578,Beijing -> Nuremberg,
+20260913_095924,intent_adv_24,llm_only,approve,True,22.551,,0,787,58,845,0.0005205540001043119,Dortmund -> Essen,
+20260913_095924,intent_adv_25,llm_only,approve,False,,,0,771,60,831,0.0008348330002263538,node_unknown_alpha -> node_unknown_beta,
+20260913_095924,intent_adv_26,llm_only,approve,False,,,0,768,56,824,0.0005809499998576939,Bremen -> Cologne,
+20260913_095924,intent_nom_01,always_on,approve,True,17.185,True,2,451,60,511,0.001486017999923206,Hamburg -> Berlin,
+20260913_095924,intent_nom_02,always_on,approve,True,17.185,True,2,471,60,531,0.0014019820000612526,Hamburg -> Berlin,
+20260913_095924,intent_nom_03,always_on,approve,True,19.189,True,2,772,60,832,0.010689669000385038,Frankfurt -> Cologne,
+20260913_095924,intent_nom_04,always_on,approve,True,17.134,True,2,352,60,412,0.0012202000007164315,Munich -> Ulm -> Stuttgart,
+20260913_095924,intent_nom_05,always_on,approve,True,20.019,True,2,573,66,639,0.002132470000105968,Hannover -> Bremen,
+20260913_095924,intent_nom_06,always_on,approve,True,18.93,True,2,555,60,615,0.0019780469992838334,Berlin -> Leipzig,
+20260913_095924,intent_nom_07,always_on,approve,True,21.249,True,2,632,60,692,0.005018304999794054,Dortmund -> Cologne,
+20260913_095924,intent_nom_08,always_on,approve,True,19.05,True,2,502,69,571,0.0016124490002766834,Nuremberg -> Munich,
+20260913_095924,intent_nom_09,always_on,approve,True,21.665,True,2,376,66,442,0.0013916190000600182,Karlsruhe -> Mannheim,
+20260913_095924,intent_nom_10,always_on,approve,True,22.694,True,2,269,66,335,0.0010229070003333618,Essen -> Dusseldorf,
+20260913_095924,intent_nom_11,always_on,approve,True,21.546,True,2,340,63,403,0.0012267689999134745,Stuttgart -> Karlsruhe,
+20260913_095924,intent_nom_12,always_on,approve,True,20.152,True,2,386,63,449,0.0014735079994352418,Bremen -> Hamburg,
+20260913_095924,intent_nom_13,always_on,approve,True,21.249,True,2,645,63,708,0.0020577650002451264,Frankfurt -> Mannheim,
+20260913_095924,intent_nom_14,always_on,approve,True,16.854,True,2,676,69,745,0.003482506999716861,Leipzig -> Nuremberg,
+20260913_095924,intent_nom_15,always_on,approve,True,22.454,True,2,434,66,500,0.0015040520002003177,Cologne -> Dusseldorf,
+20260913_095924,intent_nom_16,always_on,approve,True,17.717,True,2,570,63,633,0.0020911450001221965,Hannover -> Hamburg,
+20260913_095924,intent_nom_17,always_on,approve,True,18.799,True,2,283,63,346,0.0010433119996378082,Munich -> Ulm,
+20260913_095924,intent_nom_18,always_on,approve,True,16.914,True,2,638,63,701,0.0023186290000012377,Dortmund -> Hannover,
+20260913_095924,intent_nom_19,always_on,approve,True,18.435,True,2,712,69,781,0.0022051729993108893,Frankfurt -> Nuremberg,
+20260913_095924,intent_nom_20,always_on,approve,True,21.234,True,2,350,63,413,0.0011117360008938704,Ulm -> Stuttgart,
+20260913_095924,intent_nom_21,always_on,approve,True,18.662,True,2,473,66,539,0.0017356019998260308,Norden -> Bremen,
+20260913_095924,intent_nom_22,always_on,approve,True,17.332,True,2,575,63,638,0.0025514930002827896,Berlin -> Hannover,
+20260913_095924,intent_nom_23,always_on,approve,True,21.249,True,2,649,63,712,0.002126813999893784,Mannheim -> Frankfurt,
+20260913_095924,intent_nom_24,always_on,approve,True,18.93,True,2,551,60,611,0.002097241000228678,Leipzig -> Berlin,
+20260913_095924,intent_nom_25,always_on,approve,True,18.321,True,2,495,69,564,0.0013691850008399342,Stuttgart -> Nuremberg,
+20260913_095924,intent_nom_26,always_on,approve,True,22.551,True,2,538,60,598,0.003341726000144263,Essen -> Dortmund,
+20260913_095924,intent_nom_27,always_on,approve,True,15.764,True,2,706,60,766,0.0028367519998937496,Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_nom_28,always_on,replan,False,12.747,True,2,619,60,679,0.004514655000093626,Stuttgart -> Nuremberg -> Leipzig -> Berlin,
+20260913_095924,intent_amb_01,always_on,clarify,False,,False,1,652,6,658,0.0008484809995934484,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_02,always_on,clarify,False,,False,1,641,6,647,0.0009665830002631992,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_03,always_on,clarify,False,,False,1,640,6,646,0.0007797719999871333,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_04,always_on,clarify,False,,False,1,638,6,644,0.0007325650003622286,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_05,always_on,clarify,False,,False,1,639,6,645,0.0007634080002389965,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_06,always_on,clarify,False,,False,1,640,6,646,0.0015434379993166658,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_07,always_on,clarify,False,,False,1,641,6,647,0.0007892319999882602,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_08,always_on,clarify,False,,False,1,639,6,645,0.0008288110002467874,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_09,always_on,clarify,False,,False,1,641,6,647,0.0007060159996399307,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_10,always_on,clarify,False,,False,1,638,6,644,0.0009916939998220187,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_11,always_on,clarify,False,,False,1,641,6,647,0.0007733740003459388,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_12,always_on,clarify,False,,False,1,639,6,645,0.0007414929996230057,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_13,always_on,clarify,False,,False,1,636,6,642,0.0007013310005277162,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_14,always_on,clarify,False,,False,1,637,6,643,0.0008358599998246063,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_15,always_on,clarify,False,,False,1,636,6,642,0.0006573880000360077,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_16,always_on,clarify,False,,False,1,639,6,645,0.0007267950004461454,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_17,always_on,clarify,False,,False,1,645,6,651,0.0006750430002284702,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_18,always_on,clarify,False,,False,1,644,6,650,0.001287046000470582,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_19,always_on,clarify,False,,False,1,635,6,641,0.0008038919995669858,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_20,always_on,clarify,False,,False,1,639,6,645,0.0006620359999942593,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_21,always_on,clarify,False,,False,1,640,6,646,0.001598499000465381,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_22,always_on,clarify,False,,False,1,638,6,644,0.0010208980002062162,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_23,always_on,clarify,False,,False,1,636,6,642,0.0007045530001050793,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_24,always_on,clarify,False,,False,1,641,6,647,0.0006658090005657868,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_25,always_on,clarify,False,,False,1,639,6,645,0.0007149829998525092,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_amb_26,always_on,clarify,False,,False,1,662,6,668,0.0006646070005444926,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_inf_01,always_on,replan,False,10.529,True,2,591,54,645,0.0039672680004514405,Norden -> Dortmund -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_02,always_on,replan,False,10.859,True,2,583,51,634,0.005388444000345771,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_03,always_on,replan,False,13.714,True,2,655,51,706,0.0024785669993434567,Berlin -> Leipzig -> Frankfurt,
+20260913_095924,intent_inf_04,always_on,replan,False,13.791,True,2,703,51,754,0.004132737999498204,Cologne -> Frankfurt -> Leipzig,
+20260913_095924,intent_inf_05,always_on,replan,False,11.239,True,2,583,54,637,0.006174629000270215,Bremen -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_06,always_on,replan,False,11.852,True,2,675,51,726,0.0066722010005833,Hamburg -> Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_07,always_on,replan,False,12.49,True,2,736,51,787,0.00999910400059889,Dortmund -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_08,always_on,replan,False,12.6,True,2,704,54,758,0.005165218000001914,Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_09,always_on,replan,False,13.414,True,2,643,54,697,0.005145051999534189,Norden -> Bremen -> Hannover -> Leipzig,
+20260913_095924,intent_inf_10,always_on,replan,False,11.535,True,2,530,51,581,0.004562681999232154,Essen -> Dusseldorf -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_11,always_on,replan,False,12.331,True,2,555,54,609,0.0028445750003811554,Berlin -> Leipzig -> Frankfurt -> Mannheim -> Karlsruhe,
+20260913_095924,intent_inf_12,always_on,replan,False,12.641,True,2,402,57,459,0.0024439439994239365,Dusseldorf -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_13,always_on,replan,False,12.006,True,2,738,60,798,0.00905824199980998,Hamburg -> Hannover -> Leipzig -> Nuremberg,
+20260913_095924,intent_inf_14,always_on,replan,False,12.337,True,2,678,54,732,0.009873335000520456,Bremen -> Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_15,always_on,replan,False,13.754,True,2,777,54,831,0.00620931599951291,Norden -> Dortmund -> Cologne -> Frankfurt,
+20260913_095924,intent_inf_16,always_on,replan,False,12.657,True,2,635,51,686,0.005292421000376635,Cologne -> Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_17,always_on,replan,False,15.764,True,2,707,51,758,0.0033025740003722603,Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_18,always_on,replan,False,14.827,True,2,616,51,667,0.002891322000323271,Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_19,always_on,replan,False,13.814,True,2,770,54,824,0.006782274999750371,Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_20,always_on,replan,False,,True,2,432,57,489,0.001201413999297074,,
+20260913_095924,intent_inf_21,always_on,replan,False,15.499,True,2,616,54,670,0.0035666940002556657,Bremen -> Hannover -> Leipzig,
+20260913_095924,intent_inf_22,always_on,replan,False,13.309,True,2,637,51,688,0.005781898999885016,Hamburg -> Hannover -> Dortmund -> Cologne,
+20260913_095924,intent_inf_23,always_on,replan,False,13.974,True,2,606,51,657,0.00388708599984966,Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_24,always_on,replan,False,13.332,True,2,681,60,741,0.0048777049996715505,Essen -> Dusseldorf -> Cologne -> Frankfurt -> Nuremberg,
+20260913_095924,intent_inf_25,always_on,replan,False,11.707,True,2,546,57,603,0.003883458000018436,Dusseldorf -> Essen -> Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_26,always_on,replan,False,10.859,True,2,578,51,629,0.004999785000109114,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_27,always_on,replan,False,10.06,True,2,619,54,673,0.005430743000033544,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Stuttgart -> Ulm,
+20260913_095924,intent_adv_01,always_on,clarify,False,,False,1,710,6,716,0.0010271300006934325,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_02,always_on,clarify,False,,False,1,447,6,453,0.000897710999197443,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_03,always_on,clarify,False,,False,1,639,6,645,0.0007457640003849519,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_04,always_on,clarify,False,,False,1,251,6,257,0.0006780029998481041,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_05,always_on,clarify,False,,False,1,763,6,769,0.0009507579998171423,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_06,always_on,clarify,False,,False,1,546,6,552,0.001027455999974336,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_07,always_on,clarify,False,,False,1,642,6,648,0.0007705190000706352,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_08,always_on,clarify,False,,False,1,571,6,577,0.0019122700005027582,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_09,always_on,clarify,False,,False,1,639,6,645,0.0009879369999907794,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_10,always_on,clarify,False,,False,1,642,6,648,0.0008430060006503481,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_11,always_on,clarify,False,,False,1,643,6,649,0.0008334129997820128,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_12,always_on,clarify,False,,False,1,344,6,350,0.0009254860005967203,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_13,always_on,clarify,False,,False,1,551,6,557,0.0012333149998084991,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_14,always_on,clarify,False,,False,1,638,6,644,0.000965992999226728,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_15,always_on,clarify,False,,False,1,452,6,458,0.0012059410000802018,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_16,always_on,clarify,False,,False,1,641,6,647,0.0008502319997205632,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_17,always_on,clarify,False,,False,1,769,6,775,0.0009014540000862326,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_18,always_on,clarify,False,,False,1,567,6,573,0.0006674220003333176,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_19,always_on,clarify,False,,False,1,348,6,354,0.0020660449999923003,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_20,always_on,clarify,False,,False,1,574,6,580,0.000853640999594063,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_21,always_on,clarify,False,,False,1,565,6,571,0.000697415000104229,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_22,always_on,clarify,False,,False,1,770,6,776,0.0014644269995187642,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_23,always_on,clarify,False,,False,1,761,6,767,0.0011285330001555849,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_24,always_on,clarify,False,,False,1,547,6,553,0.000824119999379036,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_25,always_on,clarify,False,,False,1,639,6,645,0.0007602249997944455,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_26,always_on,clarify,False,,False,1,632,6,638,0.0012468980003177421,,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_nom_01,always_off,approve,True,17.185,True,0,451,60,511,0.001827699999921606,Hamburg -> Berlin,
+20260913_095924,intent_nom_02,always_off,approve,True,17.185,True,0,471,60,531,0.0019235999998272746,Hamburg -> Berlin,
+20260913_095924,intent_nom_03,always_off,approve,True,19.189,True,0,772,60,832,0.010008559000198147,Frankfurt -> Cologne,
+20260913_095924,intent_nom_04,always_off,approve,True,17.134,True,0,352,60,412,0.0014598520001527504,Munich -> Ulm -> Stuttgart,
+20260913_095924,intent_nom_05,always_off,approve,True,20.019,True,0,573,66,639,0.0022130429997559986,Hannover -> Bremen,
+20260913_095924,intent_nom_06,always_off,approve,True,18.93,True,0,555,60,615,0.0021221880006123683,Berlin -> Leipzig,
+20260913_095924,intent_nom_07,always_off,approve,True,21.249,True,0,632,60,692,0.0032897099999900092,Dortmund -> Cologne,
+20260913_095924,intent_nom_08,always_off,approve,True,19.05,True,0,502,69,571,0.0015433970002050046,Nuremberg -> Munich,
+20260913_095924,intent_nom_09,always_off,approve,True,21.665,True,0,376,66,442,0.0014505589997497736,Karlsruhe -> Mannheim,
+20260913_095924,intent_nom_10,always_off,approve,True,22.694,True,0,269,66,335,0.0011293309999018675,Essen -> Dusseldorf,
+20260913_095924,intent_nom_11,always_off,approve,True,21.546,True,0,340,63,403,0.0016997639995679492,Stuttgart -> Karlsruhe,
+20260913_095924,intent_nom_12,always_off,approve,True,20.152,True,0,386,63,449,0.001590746999681869,Bremen -> Hamburg,
+20260913_095924,intent_nom_13,always_off,approve,True,21.249,True,0,645,63,708,0.0021962869996059453,Frankfurt -> Mannheim,
+20260913_095924,intent_nom_14,always_off,approve,True,16.854,True,0,676,69,745,0.0036464369995883317,Leipzig -> Nuremberg,
+20260913_095924,intent_nom_15,always_off,approve,True,22.454,True,0,434,66,500,0.0019428360001256806,Cologne -> Dusseldorf,
+20260913_095924,intent_nom_16,always_off,approve,True,17.717,True,0,570,63,633,0.0027506099995662225,Hannover -> Hamburg,
+20260913_095924,intent_nom_17,always_off,approve,True,18.799,True,0,283,63,346,0.0011923030006073532,Munich -> Ulm,
+20260913_095924,intent_nom_18,always_off,approve,True,16.914,True,0,638,63,701,0.0026835489998120465,Dortmund -> Hannover,
+20260913_095924,intent_nom_19,always_off,approve,True,18.435,True,0,712,69,781,0.0023957910007084138,Frankfurt -> Nuremberg,
+20260913_095924,intent_nom_20,always_off,approve,True,21.234,True,0,350,63,413,0.001393045999975584,Ulm -> Stuttgart,
+20260913_095924,intent_nom_21,always_off,approve,True,18.662,True,0,473,66,539,0.0020466770001803525,Norden -> Bremen,
+20260913_095924,intent_nom_22,always_off,approve,True,17.332,True,0,575,63,638,0.0032887419993130607,Berlin -> Hannover,
+20260913_095924,intent_nom_23,always_off,approve,True,21.249,True,0,649,63,712,0.002274206000038248,Mannheim -> Frankfurt,
+20260913_095924,intent_nom_24,always_off,approve,True,18.93,True,0,551,60,611,0.0021956050004519057,Leipzig -> Berlin,
+20260913_095924,intent_nom_25,always_off,approve,True,18.321,True,0,495,69,564,0.0015351840002040262,Stuttgart -> Nuremberg,
+20260913_095924,intent_nom_26,always_off,approve,True,22.551,True,0,538,60,598,0.004308873000809399,Essen -> Dortmund,
+20260913_095924,intent_nom_27,always_off,approve,True,15.764,True,0,706,60,766,0.003284799999164534,Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_nom_28,always_off,approve,False,12.747,True,0,619,60,679,0.003984922000199731,Stuttgart -> Nuremberg -> Leipzig -> Berlin,
+20260913_095924,intent_amb_01,always_off,reject,False,,False,0,652,6,658,0.0016415449999840348,,Solver failed to find any path.
+20260913_095924,intent_amb_02,always_off,reject,False,,False,0,641,6,647,0.0009295930003645481,,Solver failed to find any path.
+20260913_095924,intent_amb_03,always_off,reject,False,,False,0,640,6,646,0.0008175869998012786,,Solver failed to find any path.
+20260913_095924,intent_amb_04,always_off,reject,False,,False,0,638,6,644,0.0008907889996407903,,Solver failed to find any path.
+20260913_095924,intent_amb_05,always_off,reject,False,,False,0,639,6,645,0.0015074090006237384,,Solver failed to find any path.
+20260913_095924,intent_amb_06,always_off,reject,False,,False,0,640,6,646,0.001342958000350336,,Solver failed to find any path.
+20260913_095924,intent_amb_07,always_off,reject,False,,False,0,641,6,647,0.0014211030002115876,,Solver failed to find any path.
+20260913_095924,intent_amb_08,always_off,reject,False,,False,0,639,6,645,0.0009757890002219938,,Solver failed to find any path.
+20260913_095924,intent_amb_09,always_off,reject,False,,False,0,641,6,647,0.0007752900000923546,,Solver failed to find any path.
+20260913_095924,intent_amb_10,always_off,reject,False,,False,0,638,6,644,0.0008282110002255649,,Solver failed to find any path.
+20260913_095924,intent_amb_11,always_off,reject,False,,False,0,641,6,647,0.0010356859993407852,,Solver failed to find any path.
+20260913_095924,intent_amb_12,always_off,reject,False,,False,0,639,6,645,0.0008379780001632753,,Solver failed to find any path.
+20260913_095924,intent_amb_13,always_off,reject,False,,False,0,636,6,642,0.0007637329999852227,,Solver failed to find any path.
+20260913_095924,intent_amb_14,always_off,reject,False,,False,0,637,6,643,0.0012285129996598698,,Solver failed to find any path.
+20260913_095924,intent_amb_15,always_off,reject,False,,False,0,636,6,642,0.0009479270001975237,,Solver failed to find any path.
+20260913_095924,intent_amb_16,always_off,reject,False,,False,0,639,6,645,0.0008559419993616757,,Solver failed to find any path.
+20260913_095924,intent_amb_17,always_off,reject,False,,False,0,645,6,651,0.000768077000429912,,Solver failed to find any path.
+20260913_095924,intent_amb_18,always_off,reject,False,,False,0,644,6,650,0.0015140169998630881,,Solver failed to find any path.
+20260913_095924,intent_amb_19,always_off,reject,False,,False,0,635,6,641,0.0010434740006530774,,Solver failed to find any path.
+20260913_095924,intent_amb_20,always_off,reject,False,,False,0,639,6,645,0.0008098259995676926,,Solver failed to find any path.
+20260913_095924,intent_amb_21,always_off,reject,False,,False,0,640,6,646,0.0007292950003829901,,Solver failed to find any path.
+20260913_095924,intent_amb_22,always_off,reject,False,,False,0,638,6,644,0.0011924219998036278,,Solver failed to find any path.
+20260913_095924,intent_amb_23,always_off,reject,False,,False,0,636,6,642,0.0009875629993985058,,Solver failed to find any path.
+20260913_095924,intent_amb_24,always_off,reject,False,,False,0,641,6,647,0.0010800460004247725,,Solver failed to find any path.
+20260913_095924,intent_amb_25,always_off,reject,False,,False,0,639,6,645,0.0012065350001648767,,Solver failed to find any path.
+20260913_095924,intent_amb_26,always_off,reject,False,,False,0,662,6,668,0.0011707470002875198,,Solver failed to find any path.
+20260913_095924,intent_inf_01,always_off,approve,False,10.529,True,0,591,54,645,0.00426628500008519,Norden -> Dortmund -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_02,always_off,approve,False,10.859,True,0,583,51,634,0.006339264000416733,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_03,always_off,approve,False,13.714,True,0,655,51,706,0.0025650489997133263,Berlin -> Leipzig -> Frankfurt,
+20260913_095924,intent_inf_04,always_off,approve,False,13.791,True,0,703,51,754,0.004659813000216673,Cologne -> Frankfurt -> Leipzig,
+20260913_095924,intent_inf_05,always_off,approve,False,11.239,True,0,583,54,637,0.006723968000187597,Bremen -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_06,always_off,approve,False,11.852,True,0,675,51,726,0.00739208699997107,Hamburg -> Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_07,always_off,approve,False,12.49,True,0,736,51,787,0.011639808000836638,Dortmund -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_08,always_off,approve,False,12.6,True,0,704,54,758,0.005530112999622361,Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_09,always_off,approve,False,13.414,True,0,643,54,697,0.0034364270004516584,Norden -> Bremen -> Hannover -> Leipzig,
+20260913_095924,intent_inf_10,always_off,approve,False,11.535,True,0,530,51,581,0.004143852000197512,Essen -> Dusseldorf -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_11,always_off,approve,False,12.331,True,0,555,54,609,0.0037200389997451566,Berlin -> Leipzig -> Frankfurt -> Mannheim -> Karlsruhe,
+20260913_095924,intent_inf_12,always_off,approve,False,12.641,True,0,402,57,459,0.0017359150006086566,Dusseldorf -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_13,always_off,approve,False,12.006,True,0,738,60,798,0.00869159200010472,Hamburg -> Hannover -> Leipzig -> Nuremberg,
+20260913_095924,intent_inf_14,always_off,approve,False,12.337,True,0,678,54,732,0.009208718999616394,Bremen -> Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_15,always_off,approve,False,13.754,True,0,777,54,831,0.006719954000800499,Norden -> Dortmund -> Cologne -> Frankfurt,
+20260913_095924,intent_inf_16,always_off,approve,False,12.657,True,0,635,51,686,0.00690047400075855,Cologne -> Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_17,always_off,approve,False,15.764,True,0,707,51,758,0.0032432970001536887,Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_18,always_off,approve,False,14.827,True,0,616,51,667,0.004261308999957691,Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_19,always_off,approve,False,13.814,True,0,770,54,824,0.007776385000397568,Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_20,always_off,reject,False,,True,0,432,57,489,0.001031971999509551,,Solver failed to find any path.
+20260913_095924,intent_inf_21,always_off,approve,False,15.499,True,0,616,54,670,0.004561089999697288,Bremen -> Hannover -> Leipzig,
+20260913_095924,intent_inf_22,always_off,approve,False,13.309,True,0,637,51,688,0.006649924000157625,Hamburg -> Hannover -> Dortmund -> Cologne,
+20260913_095924,intent_inf_23,always_off,approve,False,13.974,True,0,606,51,657,0.005350689999431779,Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_24,always_off,approve,False,13.332,True,0,681,60,741,0.004237529999954859,Essen -> Dusseldorf -> Cologne -> Frankfurt -> Nuremberg,
+20260913_095924,intent_inf_25,always_off,approve,False,11.707,True,0,546,57,603,0.0032400340005551698,Dusseldorf -> Essen -> Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_26,always_off,approve,False,10.859,True,0,578,51,629,0.005024573000810051,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_27,always_off,approve,False,10.06,True,0,619,54,673,0.0058989849994759425,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Stuttgart -> Ulm,
+20260913_095924,intent_adv_01,always_off,approve,True,14.17,False,0,710,6,716,0.004855073999351589,Leipzig -> Frankfurt -> Cologne,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_02,always_off,approve,True,17.185,False,0,447,6,453,0.0017512149997855886,Hamburg -> Berlin,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_03,always_off,reject,False,,False,0,639,6,645,0.0011025630001313402,,Solver failed to find any path.
+20260913_095924,intent_adv_04,always_off,reject,False,,False,0,251,6,257,0.0006063239998184144,,Solver failed to find any path.
+20260913_095924,intent_adv_05,always_off,reject,False,,False,0,763,6,769,0.0008171439994839602,,Solver failed to find any path.
+20260913_095924,intent_adv_06,always_off,reject,False,,False,0,546,6,552,0.001325661000009859,,Solver failed to find any path.
+20260913_095924,intent_adv_07,always_off,reject,False,,False,0,642,6,648,0.0009249779996025609,,Solver failed to find any path.
+20260913_095924,intent_adv_08,always_off,approve,True,17.332,False,0,571,6,577,0.0017863120001493371,Hannover -> Berlin,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_09,always_off,reject,False,,False,0,639,6,645,0.0011518820001583663,,Solver failed to find any path.
+20260913_095924,intent_adv_10,always_off,reject,False,,False,0,642,6,648,0.0010268710002492298,,Solver failed to find any path.
+20260913_095924,intent_adv_11,always_off,reject,False,,False,0,643,6,649,0.0008515589997841744,,Solver failed to find any path.
+20260913_095924,intent_adv_12,always_off,approve,True,17.134,False,0,344,6,350,0.0010289030005878885,Munich -> Ulm -> Stuttgart,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_13,always_off,approve,True,18.93,False,0,551,6,557,0.002098444000694144,Berlin -> Leipzig,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_14,always_off,reject,False,,False,0,638,6,644,0.0008241740006269538,,Solver failed to find any path.
+20260913_095924,intent_adv_15,always_off,approve,True,17.185,False,0,452,6,458,0.0015987520000635413,Hamburg -> Berlin,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_16,always_off,reject,False,,False,0,641,6,647,0.0008909660000426811,,Solver failed to find any path.
+20260913_095924,intent_adv_17,always_off,approve,True,19.189,False,0,769,6,775,0.008725220000087575,Cologne -> Frankfurt,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_18,always_off,reject,False,,False,0,567,6,573,0.0010222910004813457,,Solver failed to find any path.
+20260913_095924,intent_adv_19,always_off,approve,True,16.824,False,0,348,6,354,0.001219798000420269,Stuttgart -> Ulm -> Munich,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_20,always_off,approve,True,20.019,False,0,574,6,580,0.0017756580000423128,Hannover -> Bremen,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_21,always_off,reject,False,,False,0,565,6,571,0.0007840030002626008,,Solver failed to find any path.
+20260913_095924,intent_adv_22,always_off,approve,True,19.189,False,0,770,6,776,0.010313814999790338,Frankfurt -> Cologne,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_23,always_off,reject,False,,False,0,761,6,767,0.0009678100004748558,,Solver failed to find any path.
+20260913_095924,intent_adv_24,always_off,approve,True,22.551,False,0,547,6,553,0.002658569999766769,Dortmund -> Essen,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_adv_25,always_off,reject,False,,False,0,639,6,645,0.0016523969998161192,,Solver failed to find any path.
+20260913_095924,intent_adv_26,always_off,approve,True,14.007,False,0,632,6,638,0.004303058999539644,Bremen -> Hannover -> Dortmund -> Cologne,Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.
+20260913_095924,intent_nom_01,traditional_sdon,approve,True,17.185,,1,0,0,0,0.002612563000184309,Hamburg -> Berlin,
+20260913_095924,intent_nom_02,traditional_sdon,approve,True,17.185,,1,0,0,0,0.00048777299980429234,Hamburg -> Berlin,
+20260913_095924,intent_nom_03,traditional_sdon,approve,True,19.189,,1,0,0,0,0.004993696999918029,Frankfurt -> Cologne,
+20260913_095924,intent_nom_04,traditional_sdon,approve,True,17.134,,1,0,0,0,0.0011636230001386139,Munich -> Ulm -> Stuttgart,
+20260913_095924,intent_nom_05,traditional_sdon,approve,True,20.019,,1,0,0,0,0.0011427230001572752,Hannover -> Bremen,
+20260913_095924,intent_nom_06,traditional_sdon,approve,True,18.93,,1,0,0,0,0.0018850820006264257,Berlin -> Leipzig,
+20260913_095924,intent_nom_07,traditional_sdon,approve,True,21.249,,1,0,0,0,0.002402654000434268,Dortmund -> Cologne,
+20260913_095924,intent_nom_08,traditional_sdon,approve,True,19.05,,1,0,0,0,0.001104250000025786,Nuremberg -> Munich,
+20260913_095924,intent_nom_09,traditional_sdon,approve,True,21.665,,1,0,0,0,0.0005168139996385435,Karlsruhe -> Mannheim,
+20260913_095924,intent_nom_10,traditional_sdon,approve,True,22.694,,1,0,0,0,0.0003684129997054697,Essen -> Dusseldorf,
+20260913_095924,intent_nom_11,traditional_sdon,approve,True,21.546,,1,0,0,0,0.00047478000033152057,Stuttgart -> Karlsruhe,
+20260913_095924,intent_nom_12,traditional_sdon,approve,True,20.152,,1,0,0,0,0.0008536850000382401,Bremen -> Hamburg,
+20260913_095924,intent_nom_13,traditional_sdon,approve,True,21.249,,1,0,0,0,0.001196259999233007,Frankfurt -> Mannheim,
+20260913_095924,intent_nom_14,traditional_sdon,approve,True,16.854,,1,0,0,0,0.002804638000270643,Leipzig -> Nuremberg,
+20260913_095924,intent_nom_15,traditional_sdon,approve,True,22.454,,1,0,0,0,0.0005777669994131429,Cologne -> Dusseldorf,
+20260913_095924,intent_nom_16,traditional_sdon,approve,True,17.717,,1,0,0,0,0.001074116000381764,Hannover -> Hamburg,
+20260913_095924,intent_nom_17,traditional_sdon,approve,True,18.799,,1,0,0,0,0.0005083440000817063,Munich -> Ulm,
+20260913_095924,intent_nom_18,traditional_sdon,approve,True,16.914,,1,0,0,0,0.0022631189995081513,Dortmund -> Hannover,
+20260913_095924,intent_nom_19,traditional_sdon,approve,True,18.435,,1,0,0,0,0.000575494999793591,Frankfurt -> Nuremberg,
+20260913_095924,intent_nom_20,traditional_sdon,approve,True,21.234,,1,0,0,0,0.0004332830003477284,Ulm -> Stuttgart,
+20260913_095924,intent_nom_21,traditional_sdon,approve,True,18.662,,1,0,0,0,0.0011493980000523152,Norden -> Bremen,
+20260913_095924,intent_nom_22,traditional_sdon,approve,True,17.332,,1,0,0,0,0.0013291220002429327,Berlin -> Hannover,
+20260913_095924,intent_nom_23,traditional_sdon,approve,True,21.249,,1,0,0,0,0.000748049000321771,Mannheim -> Frankfurt,
+20260913_095924,intent_nom_24,traditional_sdon,approve,True,18.93,,1,0,0,0,0.0014686109998365282,Leipzig -> Berlin,
+20260913_095924,intent_nom_25,traditional_sdon,approve,True,18.321,,1,0,0,0,0.0006007640004099812,Stuttgart -> Nuremberg,
+20260913_095924,intent_nom_26,traditional_sdon,approve,True,22.551,,1,0,0,0,0.0013252589997136965,Essen -> Dortmund,
+20260913_095924,intent_nom_27,traditional_sdon,approve,True,15.764,,1,0,0,0,0.0022855869992781663,Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_nom_28,traditional_sdon,replan,False,10.34,,1,0,0,0,0.0018753869999272865,Stuttgart -> Karlsruhe -> Mannheim -> Frankfurt -> Hannover -> Berlin,
+20260913_095924,intent_amb_01,traditional_sdon,reject,False,,,1,0,0,0,4.925999746774323e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_02,traditional_sdon,reject,False,,,1,0,0,0,4.724999598693103e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_03,traditional_sdon,reject,False,,,1,0,0,0,2.8130007194704376e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_04,traditional_sdon,reject,False,,,1,0,0,0,4.213000465824734e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_05,traditional_sdon,reject,False,,,1,0,0,0,2.8160002329968847e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_06,traditional_sdon,reject,False,,,1,0,0,0,2.421999852231238e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_07,traditional_sdon,reject,False,,,1,0,0,0,2.427999788778834e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_08,traditional_sdon,reject,False,,,1,0,0,0,6.417000804503914e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_09,traditional_sdon,reject,False,,,1,0,0,0,3.268000000389293e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_10,traditional_sdon,reject,False,,,1,0,0,0,2.6050001906696707e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_11,traditional_sdon,reject,False,,,1,0,0,0,2.285999471496325e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_12,traditional_sdon,reject,False,,,1,0,0,0,2.7980004233540967e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_13,traditional_sdon,reject,False,,,1,0,0,0,2.0890001906082034e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_14,traditional_sdon,reject,False,,,1,0,0,0,2.7740006771637127e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_15,traditional_sdon,reject,False,,,1,0,0,0,2.061000486719422e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_16,traditional_sdon,reject,False,,,1,0,0,0,2.226000106020365e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_17,traditional_sdon,reject,False,,,1,0,0,0,7.684999218326993e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_18,traditional_sdon,reject,False,,,1,0,0,0,4.554999577521812e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_19,traditional_sdon,reject,False,,,1,0,0,0,3.7757999962195754e-05,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_20,traditional_sdon,reject,False,,,1,0,0,0,2.1619998733513057e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_21,traditional_sdon,reject,False,,,1,0,0,0,2.2549993445863947e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_22,traditional_sdon,reject,False,,,1,0,0,0,2.2300000637187622e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_23,traditional_sdon,reject,False,,,1,0,0,0,2.055000550171826e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_24,traditional_sdon,reject,False,,,1,0,0,0,2.1550004021264613e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_25,traditional_sdon,reject,False,,,1,0,0,0,2.081999809888657e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_amb_26,traditional_sdon,reject,False,,,1,0,0,0,3.149799977109069e-05,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_inf_01,traditional_sdon,reject,False,,,1,0,0,0,0.0010348920004616957,,
+20260913_095924,intent_inf_02,traditional_sdon,replan,False,10.859,,1,0,0,0,0.004268935999789392,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_03,traditional_sdon,reject,False,,,1,0,0,0,0.0012639099995794822,,
+20260913_095924,intent_inf_04,traditional_sdon,replan,False,13.791,,1,0,0,0,0.0036831150000580237,Cologne -> Frankfurt -> Leipzig,
+20260913_095924,intent_inf_05,traditional_sdon,replan,False,11.239,,1,0,0,0,0.007111390999853029,Bremen -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_06,traditional_sdon,reject,False,,,1,0,0,0,0.006035254000380519,,
+20260913_095924,intent_inf_07,traditional_sdon,replan,False,12.49,,1,0,0,0,0.009675209000306495,Dortmund -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_08,traditional_sdon,replan,False,12.6,,1,0,0,0,0.004778292999617406,Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_09,traditional_sdon,replan,False,13.414,,1,0,0,0,0.002501954999388545,Norden -> Bremen -> Hannover -> Leipzig,
+20260913_095924,intent_inf_10,traditional_sdon,replan,False,11.535,,1,0,0,0,0.0024982169998111203,Essen -> Dusseldorf -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_11,traditional_sdon,replan,False,12.331,,1,0,0,0,0.0028301310003371327,Berlin -> Leipzig -> Frankfurt -> Mannheim -> Karlsruhe,
+20260913_095924,intent_inf_12,traditional_sdon,replan,False,12.641,,1,0,0,0,0.001251780000529834,Dusseldorf -> Cologne -> Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_13,traditional_sdon,replan,False,12.006,,1,0,0,0,0.008441949000371096,Hamburg -> Hannover -> Leipzig -> Nuremberg,
+20260913_095924,intent_inf_14,traditional_sdon,replan,False,12.337,,1,0,0,0,0.008171761000085098,Bremen -> Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_15,traditional_sdon,reject,False,,,1,0,0,0,0.0035289070001454093,,
+20260913_095924,intent_inf_16,traditional_sdon,replan,False,12.657,,1,0,0,0,0.004089777000444883,Cologne -> Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_17,traditional_sdon,replan,False,15.764,,1,0,0,0,0.002097710999805713,Frankfurt -> Nuremberg -> Munich,
+20260913_095924,intent_inf_18,traditional_sdon,replan,False,14.827,,1,0,0,0,0.0021061750003354973,Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_19,traditional_sdon,replan,False,13.814,,1,0,0,0,0.0064159099993048585,Hannover -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart,
+20260913_095924,intent_inf_20,traditional_sdon,replan,False,10.241,,1,0,0,0,0.027635041000394267,Norden -> Dortmund -> Cologne -> Frankfurt -> Mannheim -> Karlsruhe -> Stuttgart -> Ulm,
+20260913_095924,intent_inf_21,traditional_sdon,reject,False,,,1,0,0,0,0.0018066749998979503,,
+20260913_095924,intent_inf_22,traditional_sdon,replan,False,13.309,,1,0,0,0,0.00373621299968363,Hamburg -> Hannover -> Dortmund -> Cologne,
+20260913_095924,intent_inf_23,traditional_sdon,replan,False,13.974,,1,0,0,0,0.0037116010007594014,Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_24,traditional_sdon,replan,False,13.332,,1,0,0,0,0.0032996599993566633,Essen -> Dusseldorf -> Cologne -> Frankfurt -> Nuremberg,
+20260913_095924,intent_inf_25,traditional_sdon,replan,False,11.707,,1,0,0,0,0.002723411000260967,Dusseldorf -> Essen -> Dortmund -> Hannover -> Berlin,
+20260913_095924,intent_inf_26,traditional_sdon,replan,False,10.859,,1,0,0,0,0.00420110899995052,Hamburg -> Hannover -> Leipzig -> Nuremberg -> Munich,
+20260913_095924,intent_inf_27,traditional_sdon,reject,False,,,1,0,0,0,0.0046255219995146035,,
+20260913_095924,intent_adv_01,traditional_sdon,reject,False,,,1,0,0,0,3.5690000004251488e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_02,traditional_sdon,reject,False,,,1,0,0,0,3.094000021519605e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_03,traditional_sdon,reject,False,,,1,0,0,0,2.6010002329712734e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_04,traditional_sdon,reject,False,,,1,0,0,0,2.271000084874686e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_05,traditional_sdon,reject,False,,,1,0,0,0,2.4020000637392513e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_06,traditional_sdon,reject,False,,,1,0,0,0,6.182000106491614e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_07,traditional_sdon,reject,False,,,1,0,0,0,3.977999767812435e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_08,traditional_sdon,reject,False,,,1,0,0,0,2.8839995138696395e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_09,traditional_sdon,reject,False,,,1,0,0,0,2.2849999368190765e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_10,traditional_sdon,reject,False,,,1,0,0,0,2.761999894573819e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_11,traditional_sdon,reject,False,,,1,0,0,0,2.1830001060152426e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_12,traditional_sdon,reject,False,,,1,0,0,0,2.4540004233131185e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_13,traditional_sdon,reject,False,,,1,0,0,0,2.1770001694676466e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_14,traditional_sdon,reject,False,,,1,0,0,0,2.560999746492598e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_15,traditional_sdon,reject,False,,,1,0,0,0,4.5079996198182926e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_16,traditional_sdon,reject,False,,,1,0,0,0,2.832000063790474e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_17,traditional_sdon,reject,False,,,1,0,0,0,2.4839991965563968e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_18,traditional_sdon,reject,False,,,1,0,0,0,2.531000063754618e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_19,traditional_sdon,reject,False,,,1,0,0,0,2.478999704180751e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_20,traditional_sdon,reject,False,,,1,0,0,0,2.1860005290363915e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_21,traditional_sdon,reject,False,,,1,0,0,0,2.4410001060459763e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_22,traditional_sdon,reject,False,,,1,0,0,0,1.1356999493727926e-05,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_23,traditional_sdon,reject,False,,,1,0,0,0,2.826000127242878e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_24,traditional_sdon,reject,False,,,1,0,0,0,2.992000190715771e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_25,traditional_sdon,reject,False,,,1,0,0,0,2.600000698294025e-06,,Missing or invalid optical endpoint parameters in YANG request.
+20260913_095924,intent_adv_26,traditional_sdon,reject,False,,,1,0,0,0,2.859000233002007e-06,,Missing or invalid optical endpoint parameters in YANG request.
