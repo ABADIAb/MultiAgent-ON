@@ -43,7 +43,7 @@ The pipeline enforces a strict "LLMs reason, tools calculate" separation:
 1. **Intent Ingestion + Optical RAG.** The natural language request is semantically enriched with domain standards (e.g., ITU-T specifications, transponder data) before LLM processing.
 2. **PDDL Intent Parsing.** The LLM translates the enriched intent into formal PDDL constraints.
 3. **Semantic Uncertainty Gate ($U_{sem}$).** Before complex computation, the system checks structural (CFG) and semantic (Reverse Prompting) validity. If uncertainty is high, it immediately requests the operator to clarify missing data.
-4. **Symbolic Solver + GraphRAG.** A Python-based symbolic solver fetches only the necessary $k$-hop sub-graph from the topology (Mock GraphRAG) and extracts 3–5 structurally valid candidate paths.
+4. **Symbolic Solver + Context Bounding.** A Python-based symbolic solver dynamically extracts a localized $k$-hop subtopology to bound LLM context, and then mathematically computes 3–5 structurally valid candidate paths.
 5. **QoT Validation.** Candidate paths are evaluated by a deterministic Python QoT Tool (GN-model port) to compute precise GSNR and receiver power feasibility.
 6. **Physical Risk Gate.** Evaluates the binary QoT feasibility to decide if the plan should be auto-approved or if the operator must be engaged to relax constraints via HITL.
 
@@ -144,7 +144,7 @@ To ensure a rigorous, multidimensional assessment beyond mere latency and token 
 #### Pillar 3: Orchestration & Resource Efficiency (Computational & Operational Friction)
 - **Objective:** Quantify computational savings in prompt tokens and runtime, alongside operator fatigue reduction through selective human engagement.
 - **Metrics:**
-  - **Prompt Token Reduction ($\Delta T_{tokens}$):** Percentage of input tokens eliminated by Scoped GraphRAG ($G_{sub} \subseteq G$) compared to full-topology JSON injection. Target: $> 75\%$.
+  - **Prompt Token Reduction ($\Delta T_{tokens}$):** Percentage of input tokens eliminated by Neurosymbolic Context Bounding ($G_{sub} \subseteq G$) compared to monolithic full-topology JSON injection. Target: $> 75\%$.
   - **Human Intervention Reduction ($\Delta N_{hitl}$):** Reduction in operator interruptions compared to the Always-HITL baseline ($1 - \frac{N_{hitl,\text{ours}}}{N_{hitl,\text{always}}}$). Target: $> 70\%$.
   - **Sub-Second Deterministic Compute Latency ($T_{det}$):** Wall-clock execution time of symbolic routing ($T_{solver} < 10\text{ ms}$) and GN-model physics ($T_{phys} < 5\text{ ms}$).
   - **End-to-End Orchestration Latency ($T_{E2E}$):** Total wall-clock turnaround from NL submission to final planning report.

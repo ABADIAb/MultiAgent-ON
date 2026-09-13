@@ -91,9 +91,8 @@ The evolution through V4 to V5 establishes a highly focused, academically novel 
 
 1. **Risk-Adaptive Pre-Deployment Decision Gate (RADG).** Unlike post-deployment retry systems (PoliMi/CNSM 2025) or always-on HITL approaches, V5 jointly evaluates semantic uncertainty and QoT risk margin BEFORE deployment to determine the minimally invasive corrective action. This is the core novelty.
 2. **Neurosymbolic Constraint Isolation.** The LLM is restricted to linguistics (Intent → PDDL). A deterministic Symbolic Solver and GN-model tool handle the physics, guaranteeing 100% physically viable route proposals in the approved set.
-3. **Optical GraphRAG for Token Efficiency.** A $k$-hop compressed topological GraphRAG provides localized network context, solving the context window bottleneck.
-4. **Formal HITL via Reverse Prompting.** When the RADG determines clarification is needed, the Reverse Prompting mechanism mathematically bounds the operator's approval to the exact logical constraints the system will execute.
-5. **Formal Evaluation Framework.** V5 includes a structured comparison against No-HITL, Always-HITL, and Fixed-Retry baselines using five metrics (UAR, HIC, QFR, E2EL, TC) — ensuring the contribution is measurably validated.
+3. **Formal HITL via Reverse Prompting.** When the RADG determines clarification is needed, the Reverse Prompting mechanism mathematically bounds the operator's approval to the exact logical constraints the system will execute.
+4. **Formal Evaluation Framework.** V5 includes a structured comparison against No-HITL, Always-HITL, and Fixed-Retry baselines using five metrics (UAR, HIC, QFR, E2EL, TC) — ensuring the contribution is measurably validated.
 
 ## 6. MVP Roadmap Constraint
 

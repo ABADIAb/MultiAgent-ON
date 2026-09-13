@@ -116,6 +116,10 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Generated the structured Excel workbook [`docs/LLM_Wiki/raw/test_corpus_summary.xlsx`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/raw/test_corpus_summary.xlsx) with color-coded taxonomy.
     - Normalized the benchmark corpus action space, strictly eliminating erroneous `reject` labels and aligning with the formal RADG ternary action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$.
     - Verified full test suite under Strict TDD with 294 passing unit tests (100% success rate).
+12. **Thesis Scope Refinement (RADG over GraphRAG):**
+    - Refactored architecture documentation (`ProblemStatement_v5.md`, `Scope_Pivot_20260706.md`, `Architecture_v5.md`) to demote Mock GraphRAG from a core scientific contribution to a "Context Bounding Optimization" implementation detail.
+    - Updated Chapter 3 thesis drafts (`chapter_3_system_model.txt`, `3_3_Strict_Neurosymbolic_Separation.md`) replacing formal mentions of GraphRAG with "topological context extractor".
+    - Preserved the Token Economy ($\Delta T_{tokens}$) metric and optimization objective as a measurable operational benefit of the decoupled Neurosymbolic architecture without risking the need for massive topological JSON validation.
 
 ---
 
@@ -137,4 +141,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I formalized Baseline C, mapped bandwidth/capacity SLA constraints into PDDL and GN-model physics with a 21.5 dB 400G threshold, expanded and balanced the synthetic benchmark corpus to 107 intents with normalized ternary RADG actions, and generated the comprehensive Excel dataset while maintaining a 100% test pass rate across 294 unit tests.
+I formalized Baseline C, mapped bandwidth/capacity SLA constraints into PDDL and GN-model physics with a 21.5 dB 400G threshold, expanded and balanced the synthetic benchmark corpus to 107 intents, generated the comprehensive Excel dataset, and formally refactored the thesis scope to strictly focus on the RADG contribution (demoting GraphRAG to an implementation detail), maintaining a 100% test pass rate across 294 unit tests.

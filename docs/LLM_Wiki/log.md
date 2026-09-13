@@ -513,3 +513,7 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Bandwidth SLA constraint mapping, 400G SNR threshold calibration, Reverse Prompting prompt alignment, benchmark corpus expansion and sequential re-indexing (107 intents across 4 classes), Excel workbook generation, RADG action normalization, and debrief maintenance.
 - Testing & Verification: Full unit test suite passing with 100% success across 294 tests (`uv run pytest`).
 
+## [2026-09-13] debrief2 | Thesis Scope Refinement (RADG over GraphRAG)
+- Wiki Deep Lint: Audited and verified `Weekly_Report_20260915_Felipe_Abadia.md`, `ProblemStatement_v5.md`, `Scope_Pivot_20260706.md`, `Architecture_v5.md`, `MVP_Roadmap.md` for consistent scope refinement.
+- Consistency Audit: Demoted Mock GraphRAG to a "Context Bounding Optimization" across architecture docs and Chapter 3 drafts (`chapter_3_system_model.txt`, `3_3_Strict_Neurosymbolic_Separation.md`). Formalized the core thesis contribution around the Risk-Adaptive Decision Gate (RADG). Preserved Token Economy ($\Delta T_{tokens}$) metric.
+- Session focus: Refactored thesis scope to avoid defending GraphRAG as a core novelty. Cleaned up architecture docs and drafts, updated weekly report.

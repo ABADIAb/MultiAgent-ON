@@ -130,7 +130,7 @@ The V5 evolution (see [[Scope_Pivot_20260706]]) adds two critical deliverables b
 | | CFG Pass Rate | CFG-PR | Syntactic validity of PDDL AST ($v_{struct} \in \{0, 1\}$) | 100% |
 | **2. Physical Feasibility** | Unsafe Approval Rate | UAR | Fraction of intents producing unfeasible lightpaths that get approved | 0% |
 | | QoT Feasibility Rate | QFR | Fraction of final approved plans that pass GN-model QoT validation | 100% |
-| **3. Orchestration Efficiency** | Token Reduction | $\Delta T_{tokens}$ | Prompt token savings via Scoped GraphRAG ($G_{sub} \subseteq G$) | > 75% |
+| **3. Orchestration Efficiency** | Token Reduction | $\Delta T_{tokens}$ | Prompt token savings via Neurosymbolic Context Bounding ($G_{sub} \subseteq G$) | > 75% |
 | | Human Interaction Reduction | $\Delta N_{hitl}$ | Reduction in operator interrupts compared to Always-HITL | > 70% |
 | | Deterministic Compute Latency | $T_{det}$ | Wall-clock time for Yen's $K$-SP ($<10$ ms) and GN model ($<5$ ms) | < 15 ms |
 | **4. RADG Robustness** | Gate Decision Accuracy | GDA | Classification accuracy into {approve, clarify, replan} | > 98% |
