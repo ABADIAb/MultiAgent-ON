@@ -176,3 +176,170 @@ class TestCreateKimiLLM:
         llm_custom = create_kimi_llm(api_key="test-key", model="kimi-for-coding-highspeed", max_tokens=4000)
         assert llm_custom.max_tokens == 4000
 
+
+class TestCreateOpenRouterLLM:
+    """Test the OpenRouter LLM factory and wrapper class."""
+
+    def test_create_openrouter_llm_returns_instance(self):
+        """Factory returns an OpenRouterChatOpenAI instance."""
+        from src.core.llm import OpenRouterChatOpenAI, create_openrouter_llm
+
+        llm = create_openrouter_llm(api_key="test-key")
+        assert isinstance(llm, OpenRouterChatOpenAI)
+        assert isinstance(llm, BaseChatModel)
+
+    def test_create_openrouter_llm_defaults(self, monkeypatch):
+        """Factory uses expected default values for OpenRouter."""
+        from src.core.llm import (
+            DEFAULT_OPENROUTER_BASE_URL,
+            DEFAULT_OPENROUTER_MODEL,
+            create_openrouter_llm,
+        )
+
+        monkeypatch.delenv("OPENROUTER_MODEL", raising=False)
+        monkeypatch.delenv("OP_LING_MODEL", raising=False)
+        monkeypatch.delenv("OPENROUTER_BASE_URL", raising=False)
+
+        llm = create_openrouter_llm(api_key="test-key")
+        assert llm.model_name == DEFAULT_OPENROUTER_MODEL
+        assert llm.model_name == "inclusionai/ling-3.0-flash-vl:free"
+        assert str(llm.openai_api_base).rstrip("/") == DEFAULT_OPENROUTER_BASE_URL
+        assert llm.temperature == 0.2
+        assert llm.max_tokens == 2000
+
+    def test_create_openrouter_llm_custom_params(self):
+        """Explicit parameters override defaults."""
+        from src.core.llm import create_openrouter_llm
+
+        llm = create_openrouter_llm(
+            api_key="test-key",
+            base_url="https://custom.openrouter.ai/v1",
+            model="custom/model:free",
+            temperature=0.7,
+            max_tokens=3500,
+        )
+        assert llm.model_name == "custom/model:free"
+        assert str(llm.openai_api_base).rstrip("/") == "https://custom.openrouter.ai/v1"
+        assert llm.temperature == 0.7
+        assert llm.max_tokens == 3500
+
+    def test_create_openrouter_llm_default_headers(self):
+        """Headers for ranking and attribution are properly configured."""
+        from src.core.llm import create_openrouter_llm
+
+        llm = create_openrouter_llm(
+            api_key="test-key",
+            http_referer="https://myrepo.com",
+            title="MySpecialApp",
+        )
+        assert llm.default_headers.get("HTTP-Referer") == "https://myrepo.com"
+        assert llm.default_headers.get("X-Title") == "MySpecialApp"
+
+    def test_openrouter_chat_openai_structured_output_defaults_to_function_calling(self, monkeypatch):
+        """with_structured_output injects method='function_calling' by default."""
+        from pydantic import BaseModel
+        from src.core.llm import OpenRouterChatOpenAI
+
+        class DummySchema(BaseModel):
+            query: str
+
+        llm = OpenRouterChatOpenAI(api_key="test-key")
+
+        # Mock super().with_structured_output
+        mock_super_call = MagicMock()
+        monkeypatch.setattr(
+            "langchain_openai.ChatOpenAI.with_structured_output",
+            mock_super_call,
+        )
+
+        llm.with_structured_output(DummySchema)
+        mock_super_call.assert_called_once_with(DummySchema, method="function_calling")
+
+        # Verify explicit method is preserved
+        mock_super_call.reset_mock()
+        llm.with_structured_output(DummySchema, method="json_mode")
+        mock_super_call.assert_called_once_with(DummySchema, method="json_mode")
+
+
+class TestCreateOllamaLLM:
+    """Test the local Ollama LLM factory function."""
+
+    def test_create_ollama_llm_returns_ollama_chat_openai(self):
+        """Factory returns an OllamaChatOpenAI instance."""
+        from src.core.llm import OllamaChatOpenAI, create_ollama_llm
+
+        llm = create_ollama_llm(base_url="http://localhost:11434/v1")
+        assert isinstance(llm, OllamaChatOpenAI)
+        assert llm.model_name == "qwen2.5:3b"
+        assert llm.temperature == 0.2
+
+    def test_create_ollama_llm_custom_params(self):
+        """Custom parameters are respected."""
+        from src.core.llm import create_ollama_llm
+
+        llm = create_ollama_llm(
+            model="custom-model:latest",
+            base_url="http://10.0.0.1:11434/v1",
+            temperature=0.7,
+            max_tokens=1500,
+        )
+        assert llm.model_name == "custom-model:latest"
+        assert llm.temperature == 0.7
+        assert llm.max_tokens == 1500
+
+    def test_resolve_ollama_base_url_env(self, monkeypatch):
+        """OLLAMA_BASE_URL env var overrides default resolution."""
+        from src.core.llm import resolve_ollama_base_url
+
+        monkeypatch.setenv("OLLAMA_BASE_URL", "http://my-host:11434/v1")
+        assert resolve_ollama_base_url() == "http://my-host:11434/v1"
+
+
+class TestCreateConfiguredLLM:
+    """Test the multi-provider LLM dispatcher."""
+
+    def test_create_configured_llm_ollama(self, monkeypatch):
+        """create_configured_llm creates OllamaChatOpenAI when provider is ollama."""
+        from src.core.llm import OllamaChatOpenAI, create_configured_llm
+
+        monkeypatch.setenv("LLM_PROVIDER", "ollama")
+        llm = create_configured_llm(provider="ollama")
+        assert isinstance(llm, OllamaChatOpenAI)
+
+    def test_create_configured_llm_openrouter(self, monkeypatch):
+        """create_configured_llm creates OpenRouterChatOpenAI when provider is openrouter."""
+        from src.core.llm import OpenRouterChatOpenAI, create_configured_llm
+
+        monkeypatch.setenv("OPENROUTER_API_KEY", "test-or-key")
+        llm = create_configured_llm(provider="openrouter")
+        assert isinstance(llm, OpenRouterChatOpenAI)
+
+    def test_create_configured_llm_kimi(self, monkeypatch):
+        """create_configured_llm creates ChatOpenAI when provider is kimi."""
+        from langchain_openai import ChatOpenAI
+        from src.core.llm import OpenRouterChatOpenAI, create_configured_llm
+
+        monkeypatch.setenv("KIMI_API_KEY", "test-kimi-key")
+        monkeypatch.setenv("KIMI_BASE_URL", "https://api.kimi.com/coding/v1")
+        llm = create_configured_llm(provider="kimi")
+        assert isinstance(llm, ChatOpenAI)
+        assert not isinstance(llm, OpenRouterChatOpenAI)
+
+    def test_create_configured_llm_from_env_provider(self, monkeypatch):
+        """create_configured_llm reads LLM_PROVIDER from environment."""
+        from src.core.llm import OpenRouterChatOpenAI, create_configured_llm
+
+        monkeypatch.setenv("LLM_PROVIDER", "openrouter")
+        monkeypatch.setenv("OPENROUTER_API_KEY", "test-or-key")
+        llm = create_configured_llm()
+        assert isinstance(llm, OpenRouterChatOpenAI)
+
+    def test_create_configured_llm_unsupported_provider_raises(self):
+        """Unsupported provider raises ValueError with helpful message."""
+        from src.core.llm import create_configured_llm
+
+        with pytest.raises(ValueError, match="Unsupported LLM provider"):
+            create_configured_llm(provider="unsupported_provider")
+
+
+

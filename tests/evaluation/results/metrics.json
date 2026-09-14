@@ -1,13 +1,13 @@
 {
   "proposed_radg": {
     "baseline_id": "proposed_radg",
-    "sample_size": 20,
+    "sample_size": 1,
     "semantic": {
-      "crr_percent": 45.0,
-      "cfg_pass_rate_percent": 50.0,
-      "syntax_error_rate_percent": 50.0,
+      "crr_percent": 0.0,
+      "cfg_pass_rate_percent": 100.0,
+      "syntax_error_rate_percent": 0.0,
       "hallucination_rate_percent": 0.0,
-      "mean_semantic_agreement": 0.475
+      "mean_semantic_agreement": 0.95
     },
     "physical": {
       "uar_percent": 0.0,
@@ -15,51 +15,51 @@
       "piir_percent": 100.0
     },
     "efficiency": {
-      "mean_latency_s": 0.061,
-      "median_latency_s": 0.058,
-      "p95_latency_s": 0.123,
-      "mean_prompt_tokens": 587.7,
-      "mean_completion_tokens": 226.8,
-      "mean_total_tokens": 814.5,
-      "token_reduction_percent": 23.95,
-      "hitl_reduction_percent": 50.0
+      "mean_latency_s": 0.046,
+      "median_latency_s": 0.046,
+      "p95_latency_s": 0.046,
+      "mean_prompt_tokens": 451,
+      "mean_completion_tokens": 805,
+      "mean_total_tokens": 1256,
+      "token_reduction_percent": 41.43,
+      "hitl_reduction_percent": 100.0
     },
     "radg": {
-      "gda_percent": 75.0,
+      "gda_percent": 100.0,
       "fpr_percent": 0.0,
-      "hitl_interruption_rate_percent": 75.0,
-      "semantic_clarify_count": 15.0,
+      "hitl_interruption_rate_percent": 0.0,
+      "semantic_clarify_count": 0.0,
       "physical_replan_count": 0.0
     }
   },
   "llm_only": {
     "baseline_id": "llm_only",
-    "sample_size": 20,
+    "sample_size": 1,
     "semantic": {
       "crr_percent": 0.0,
       "cfg_pass_rate_percent": 0.0,
       "syntax_error_rate_percent": 100.0,
-      "hallucination_rate_percent": 65.0,
+      "hallucination_rate_percent": 0.0,
       "mean_semantic_agreement": 0.0
     },
     "physical": {
-      "uar_percent": 93.75,
-      "qfr_percent": 6.25,
-      "piir_percent": 0.0
+      "uar_percent": 100.0,
+      "qfr_percent": 0.0,
+      "piir_percent": 100.0
     },
     "efficiency": {
-      "mean_latency_s": 0.002,
-      "median_latency_s": 0.002,
-      "p95_latency_s": 0.006,
-      "mean_prompt_tokens": 772.8,
-      "mean_completion_tokens": 46.6,
-      "mean_total_tokens": 819.4,
+      "mean_latency_s": 0.001,
+      "median_latency_s": 0.001,
+      "p95_latency_s": 0.001,
+      "mean_prompt_tokens": 770,
+      "mean_completion_tokens": 59,
+      "mean_total_tokens": 829,
       "token_reduction_percent": 0.0,
       "hitl_reduction_percent": 100.0
     },
     "radg": {
-      "gda_percent": 25.0,
-      "fpr_percent": 73.33,
+      "gda_percent": 100.0,
+      "fpr_percent": 0.0,
       "hitl_interruption_rate_percent": 0.0,
       "semantic_clarify_count": 0.0,
       "physical_replan_count": 0.0
@@ -67,13 +67,13 @@
   },
   "always_on": {
     "baseline_id": "always_on",
-    "sample_size": 20,
+    "sample_size": 1,
     "semantic": {
-      "crr_percent": 45.0,
-      "cfg_pass_rate_percent": 50.0,
-      "syntax_error_rate_percent": 50.0,
+      "crr_percent": 0.0,
+      "cfg_pass_rate_percent": 100.0,
+      "syntax_error_rate_percent": 0.0,
       "hallucination_rate_percent": 0.0,
-      "mean_semantic_agreement": 0.5
+      "mean_semantic_agreement": 1.0
     },
     "physical": {
       "uar_percent": 0.0,
@@ -81,65 +81,32 @@
       "piir_percent": 100.0
     },
     "efficiency": {
-      "mean_latency_s": 0.005,
+      "mean_latency_s": 0.002,
       "median_latency_s": 0.002,
-      "p95_latency_s": 0.017,
-      "mean_prompt_tokens": 587.7,
-      "mean_completion_tokens": 31.4,
-      "mean_total_tokens": 619.0,
-      "token_reduction_percent": 23.95,
+      "p95_latency_s": 0.002,
+      "mean_prompt_tokens": 451,
+      "mean_completion_tokens": 60,
+      "mean_total_tokens": 511,
+      "token_reduction_percent": 41.43,
       "hitl_reduction_percent": 0.0
     },
     "radg": {
       "gda_percent": 100.0,
       "fpr_percent": 0.0,
       "hitl_interruption_rate_percent": 100.0,
-      "semantic_clarify_count": 10.0,
-      "physical_replan_count": 5.0
-    }
-  },
-  "always_off": {
-    "baseline_id": "always_off",
-    "sample_size": 20,
-    "semantic": {
-      "crr_percent": 45.0,
-      "cfg_pass_rate_percent": 50.0,
-      "syntax_error_rate_percent": 50.0,
-      "hallucination_rate_percent": 0.0,
-      "mean_semantic_agreement": 0.5
-    },
-    "physical": {
-      "uar_percent": 50.0,
-      "qfr_percent": 50.0,
-      "piir_percent": 0.0
-    },
-    "efficiency": {
-      "mean_latency_s": 0.005,
-      "median_latency_s": 0.003,
-      "p95_latency_s": 0.019,
-      "mean_prompt_tokens": 587.7,
-      "mean_completion_tokens": 31.4,
-      "mean_total_tokens": 619.0,
-      "token_reduction_percent": 23.95,
-      "hitl_reduction_percent": 100.0
-    },
-    "radg": {
-      "gda_percent": 25.0,
-      "fpr_percent": 46.67,
-      "hitl_interruption_rate_percent": 0.0,
       "semantic_clarify_count": 0.0,
       "physical_replan_count": 0.0
     }
   },
-  "traditional_sdon": {
-    "baseline_id": "traditional_sdon",
-    "sample_size": 20,
+  "always_off": {
+    "baseline_id": "always_off",
+    "sample_size": 1,
     "semantic": {
-      "crr_percent": 80.0,
-      "cfg_pass_rate_percent": 0.0,
-      "syntax_error_rate_percent": 100.0,
+      "crr_percent": 0.0,
+      "cfg_pass_rate_percent": 100.0,
+      "syntax_error_rate_percent": 0.0,
       "hallucination_rate_percent": 0.0,
-      "mean_semantic_agreement": 0.0
+      "mean_semantic_agreement": 1.0
     },
     "physical": {
       "uar_percent": 0.0,
@@ -148,20 +115,53 @@
     },
     "efficiency": {
       "mean_latency_s": 0.003,
-      "median_latency_s": 0.0,
-      "p95_latency_s": 0.015,
+      "median_latency_s": 0.003,
+      "p95_latency_s": 0.003,
+      "mean_prompt_tokens": 451,
+      "mean_completion_tokens": 60,
+      "mean_total_tokens": 511,
+      "token_reduction_percent": 41.43,
+      "hitl_reduction_percent": 100.0
+    },
+    "radg": {
+      "gda_percent": 100.0,
+      "fpr_percent": 0.0,
+      "hitl_interruption_rate_percent": 0.0,
+      "semantic_clarify_count": 0.0,
+      "physical_replan_count": 0.0
+    }
+  },
+  "traditional_sdon": {
+    "baseline_id": "traditional_sdon",
+    "sample_size": 1,
+    "semantic": {
+      "crr_percent": 100.0,
+      "cfg_pass_rate_percent": 0.0,
+      "syntax_error_rate_percent": 100.0,
+      "hallucination_rate_percent": 0.0,
+      "mean_semantic_agreement": 0.0
+    },
+    "physical": {
+      "uar_percent": 0.0,
+      "qfr_percent": 100.0,
+      "piir_percent": 100.0
+    },
+    "efficiency": {
+      "mean_latency_s": 0.002,
+      "median_latency_s": 0.002,
+      "p95_latency_s": 0.002,
       "mean_prompt_tokens": 0,
       "mean_completion_tokens": 0,
       "mean_total_tokens": 0,
       "token_reduction_percent": 100.0,
-      "hitl_reduction_percent": 33.33
+      "hitl_reduction_percent": 50.0
     },
     "radg": {
-      "gda_percent": 50.0,
+      "gda_percent": 100.0,
       "fpr_percent": 0.0,
       "hitl_interruption_rate_percent": 100.0,
       "semantic_clarify_count": 0.0,
-      "physical_replan_count": 15.0
+      "physical_replan_count": 0.0
     }
   }
 }

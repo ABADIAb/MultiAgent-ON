@@ -5,11 +5,11 @@
 
 | Baseline | CRR (%) | CFG-PR (%) | UAR (%) | QFR (%) | PIIR (%) | Latency (s) | Prompt Tokens | Total Tokens | ΔTokens (%) | ΔHITL (%) | GDA (%) | FPR (%) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Proposed (Neurosymbolic RADG)** | 45.0% | 50.0% | 0.0% | 100.0% | 100.0% | 0.06s | 587 | 814 | 23.9% | 50.0% | 75.0% | 0.0% |
-| Baseline A (Monolithic LLM) | 0.0% | 0.0% | 93.8% | 6.2% | 0.0% | 0.00s | 772 | 819 | 0.0% | 100.0% | 25.0% | 73.3% |
-| Baseline B (Always-On HITL) | 45.0% | 50.0% | 0.0% | 100.0% | 100.0% | 0.01s | 587 | 619 | 23.9% | 0.0% | 100.0% | 0.0% |
-| Baseline C (Always-Off HITL) | 45.0% | 50.0% | 50.0% | 50.0% | 0.0% | 0.01s | 587 | 619 | 23.9% | 100.0% | 25.0% | 46.7% |
-| Baseline D (Traditional SDON) | 80.0% | 0.0% | 0.0% | 100.0% | 100.0% | 0.00s | 0 | 0 | 100.0% | 33.3% | 50.0% | 0.0% |
+| **Proposed (Neurosymbolic RADG)** | 0.0% | 100.0% | 0.0% | 100.0% | 100.0% | 0.05s | 451 | 1256 | 41.4% | 100.0% | 100.0% | 0.0% |
+| Baseline A (Monolithic LLM) | 0.0% | 0.0% | 100.0% | 0.0% | 100.0% | 0.00s | 770 | 829 | 0.0% | 100.0% | 100.0% | 0.0% |
+| Baseline B (Always-On HITL) | 0.0% | 100.0% | 0.0% | 100.0% | 100.0% | 0.00s | 451 | 511 | 41.4% | 0.0% | 100.0% | 0.0% |
+| Baseline C (Always-Off HITL) | 0.0% | 100.0% | 0.0% | 100.0% | 100.0% | 0.00s | 451 | 511 | 41.4% | 100.0% | 100.0% | 0.0% |
+| Baseline D (Traditional SDON) | 100.0% | 0.0% | 0.0% | 100.0% | 100.0% | 0.00s | 0 | 0 | 100.0% | 50.0% | 100.0% | 0.0% |
 
 ### Metric Definitions & Target Invariants
 - **CRR (Constraint Retention Rate):** Percentage of operator constraints preserved in PDDL. (Target: 100%)

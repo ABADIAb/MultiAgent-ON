@@ -32,7 +32,13 @@ from rich.table import Table
 from rich.text import Text
 
 from src.core.graph import compile_graph
-from src.core.llm import DEFAULT_KIMI_MODEL, create_kimi_llm, set_llm
+from src.core.llm import (
+    DEFAULT_KIMI_MODEL,
+    DEFAULT_OLLAMA_MODEL,
+    DEFAULT_OPENROUTER_MODEL,
+    create_configured_llm,
+    set_llm,
+)
 from src.core.state import ALLOWED_MSGPACK_MODULES
 from src.services.testbed_client import MockTestbedClient
 
@@ -94,9 +100,168 @@ def print_banner() -> None:
 
 
 def interactive_configuration() -> dict[str, Any]:
-    """Interactively prompt operator for LLM model and execution settings."""
+    """Interactively prompt operator for LLM provider, model, and execution settings."""
+    env_provider = os.getenv("LLM_PROVIDER", "").lower().strip()
+    if env_provider in ("ollama", "openrouter", "kimi"):
+        default_provider = env_provider
+    elif os.getenv("OLLAMA_MODEL") or os.getenv("LLM_PROVIDER") == "ollama":
+        default_provider = "ollama"
+    elif os.getenv("OPENROUTER_API_KEY"):
+        default_provider = "openrouter"
+    else:
+        default_provider = "kimi"
+
+    provider = questionary.select(
+        "Select LLM Provider:",
+        choices=[
+            questionary.Choice(
+                title="💻 Local Ollama (qwen2.5:3b | RTX 3050 Laptop GPU | 0.2 temp | 2000 max tokens)",
+                value="ollama",
+            ),
+            questionary.Choice(
+                title="🌐 OpenRouter (inclusionai/ling-3.0-flash-vl:free | 0.2 temp | 2000 max tokens)",
+                value="openrouter",
+            ),
+            questionary.Choice(
+                title="⚡ Kimi Coding API (kimi-for-coding-highspeed | 1.0 temp | 8000 max tokens)",
+                value="kimi",
+            ),
+        ],
+        default=default_provider,
+        style=QUESTIONARY_STYLE,
+    ).ask()
+
+    if provider is None:
+        console.print("[yellow]Setup cancelled by operator.[/yellow]")
+        sys.exit(0)
+
+    if provider == "ollama":
+        profile_choice = questionary.select(
+            "Select Execution Profile for Ollama:",
+            choices=[
+                questionary.Choice(
+                    title="⚡ Recommended Default (qwen2.5:3b | 2000 max tokens | temp=0.2)",
+                    value="default",
+                ),
+                questionary.Choice(
+                    title="🛠️  Custom Settings (Select model name, temperature, max tokens)",
+                    value="custom",
+                ),
+            ],
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        if profile_choice is None:
+            console.print("[yellow]Setup cancelled by operator.[/yellow]")
+            sys.exit(0)
+
+        if profile_choice == "default":
+            model = os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
+            return {
+                "provider": "ollama",
+                "model": model,
+                "temperature": 0.2,
+                "max_tokens": 2000,
+                "think_effort": None,
+                "thinking_disabled": False,
+            }
+
+        custom_model = questionary.text(
+            "Enter Ollama Model Name:",
+            default=os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL,
+            style=QUESTIONARY_STYLE,
+        ).ask()
+        if custom_model is None:
+            sys.exit(0)
+
+        temp_str = questionary.text(
+            "Sampling Temperature (0.0 to 1.0):",
+            default="0.2",
+            validate=lambda val: True if 0.0 <= float(val) <= 1.0 else "Must be between 0.0 and 1.0",
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        tokens_str = questionary.text(
+            "Max Completion Tokens:",
+            default="2000",
+            validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        return {
+            "provider": "ollama",
+            "model": custom_model,
+            "temperature": float(temp_str or "0.2"),
+            "max_tokens": int(tokens_str or "2000"),
+            "think_effort": None,
+            "thinking_disabled": False,
+        }
+
+    if provider == "openrouter":
+        profile_choice = questionary.select(
+            "Select Execution Profile for OpenRouter:",
+            choices=[
+                questionary.Choice(
+                    title="⚡ Recommended Default (inclusionai/ling-3.0-flash-vl:free | 2000 max tokens | temp=0.2)",
+                    value="default",
+                ),
+                questionary.Choice(
+                    title="🛠️  Custom Settings (Select model slug, temperature, max tokens)",
+                    value="custom",
+                ),
+            ],
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        if profile_choice is None:
+            console.print("[yellow]Setup cancelled by operator.[/yellow]")
+            sys.exit(0)
+
+        if profile_choice == "default":
+            model = os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL
+            return {
+                "provider": "openrouter",
+                "model": model,
+                "temperature": 0.2,
+                "max_tokens": 2000,
+                "think_effort": None,
+                "thinking_disabled": False,
+            }
+
+        custom_model = questionary.text(
+            "Enter OpenRouter Model Slug:",
+            default=os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL,
+            style=QUESTIONARY_STYLE,
+        ).ask()
+        if custom_model is None:
+            sys.exit(0)
+
+        temp_str = questionary.text(
+            "Sampling Temperature (0.0 to 1.0):",
+            default="0.2",
+            validate=lambda val: True if 0.0 <= float(val) <= 1.0 else "Must be between 0.0 and 1.0",
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        tokens_str = questionary.text(
+            "Max Completion Tokens:",
+            default="2000",
+            validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        return {
+            "provider": "openrouter",
+            "model": custom_model,
+            "temperature": float(temp_str or "0.2"),
+            "max_tokens": int(tokens_str or "2000"),
+            "think_effort": None,
+            "thinking_disabled": False,
+        }
+
+    # Kimi provider flow
     profile_choice = questionary.select(
-        "Select Execution Profile:",
+        "Select Execution Profile for Kimi:",
         choices=[
             questionary.Choice(
                 title="⚡ Recommended Default (kimi-for-coding-highspeed | 8000 max tokens | temp=1.0)",
@@ -116,6 +281,7 @@ def interactive_configuration() -> dict[str, Any]:
 
     if profile_choice == "default":
         return {
+            "provider": "kimi",
             "model": DEFAULT_KIMI_MODEL,
             "temperature": 1.0,
             "max_tokens": 8000,
@@ -123,7 +289,6 @@ def interactive_configuration() -> dict[str, Any]:
             "thinking_disabled": False,
         }
 
-    # Custom configuration flow
     model = questionary.select(
         "Select Kimi LLM Model:",
         choices=[
@@ -171,6 +336,7 @@ def interactive_configuration() -> dict[str, Any]:
     ).ask()
 
     return {
+        "provider": "kimi",
         "model": model,
         "temperature": float(temp_str or default_temp),
         "max_tokens": int(tokens_str or default_tokens),
@@ -380,22 +546,29 @@ def parse_args() -> argparse.Namespace:
         help="Optional natural language intent string. If omitted, starts in interactive mode.",
     )
     parser.add_argument(
+        "--provider",
+        type=str,
+        choices=["ollama", "openrouter", "kimi"],
+        default=os.getenv("LLM_PROVIDER", "ollama" if os.getenv("OLLAMA_MODEL") else ("openrouter" if os.getenv("OPENROUTER_API_KEY") else "kimi")),
+        help="Active LLM provider ('ollama', 'openrouter' or 'kimi', default from LLM_PROVIDER or auto-detected)",
+    )
+    parser.add_argument(
         "--model",
         type=str,
         default=None,
-        help=f"Kimi LLM model identifier (default: {DEFAULT_KIMI_MODEL})",
+        help="LLM model identifier (default depends on provider)",
     )
     parser.add_argument(
         "--temperature",
         type=float,
         default=None,
-        help="Sampling temperature (default: 1.0 for reasoning, 0.6 if disabled)",
+        help="Sampling temperature (default: 0.2 for ollama/openrouter, 1.0 for kimi)",
     )
     parser.add_argument(
         "--max-tokens",
         type=int,
         default=None,
-        help="Maximum completion tokens (default: 8000 for highspeed, 2500 for k3)",
+        help="Maximum completion tokens (default: 2000 for ollama/openrouter, 8000 for kimi)",
     )
     parser.add_argument(
         "--no-interactive",
@@ -410,22 +583,41 @@ def main() -> None:
     load_dotenv()
     args = parse_args()
 
-    api_key = os.getenv("KIMI_API_KEY", "")
-    base_url = os.getenv("KIMI_BASE_URL", "")
+    provider = (args.provider or os.getenv("LLM_PROVIDER", "")).lower().strip()
+    if not provider:
+        provider = "ollama" if os.getenv("OLLAMA_MODEL") else ("openrouter" if os.getenv("OPENROUTER_API_KEY") else "kimi")
 
-    if not api_key:
-        console.print(
-            Panel(
-                "[bold red]ERROR: KIMI_API_KEY is not set in your environment or .env file.[/bold red]\n\n"
-                "Please configure your .env file with:\n"
-                '  KIMI_API_KEY="your-api-key-here"\n'
-                '  KIMI_BASE_URL="https://api.kimi.com/coding/v1"\n'
-                f'  KIMI_MODEL="{DEFAULT_KIMI_MODEL}"',
-                title="[bold red]Missing API Credentials[/bold red]",
-                border_style="red",
+    # Validate provider credentials
+    if provider == "openrouter":
+        api_key = os.getenv("OPENROUTER_API_KEY", "")
+        if not api_key:
+            console.print(
+                Panel(
+                    "[bold red]ERROR: OPENROUTER_API_KEY is not set in your environment or .env file.[/bold red]\n\n"
+                    "Please configure your .env file with:\n"
+                    '  OPENROUTER_API_KEY="your-api-key-here"\n'
+                    '  OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"\n'
+                    f'  OPENROUTER_MODEL="{DEFAULT_OPENROUTER_MODEL}"',
+                    title="[bold red]Missing OpenRouter API Credentials[/bold red]",
+                    border_style="red",
+                )
             )
-        )
-        sys.exit(1)
+            sys.exit(1)
+    elif provider == "kimi":
+        api_key = os.getenv("KIMI_API_KEY", "")
+        if not api_key:
+            console.print(
+                Panel(
+                    "[bold red]ERROR: KIMI_API_KEY is not set in your environment or .env file.[/bold red]\n\n"
+                    "Please configure your .env file with:\n"
+                    '  KIMI_API_KEY="your-api-key-here"\n'
+                    '  KIMI_BASE_URL="https://api.kimi.com/coding/v1"\n'
+                    f'  KIMI_MODEL="{DEFAULT_KIMI_MODEL}"',
+                    title="[bold red]Missing Kimi API Credentials[/bold red]",
+                    border_style="red",
+                )
+            )
+            sys.exit(1)
 
     print_banner()
 
@@ -433,10 +625,25 @@ def main() -> None:
     query_from_args = " ".join(args.query).strip() if args.query else None
 
     if query_from_args or args.no_interactive:
+        if provider == "ollama":
+            default_model = os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
+            default_temp = 0.2
+            default_tokens = 2000
+        elif provider == "openrouter":
+            default_model = (
+                os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL
+            )
+            default_temp = 0.2
+            default_tokens = 2000
+        else:
+            default_model = os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL)
+            default_temp = 1.0
+            default_tokens = 8000
         llm_config = {
-            "model": args.model or os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL),
-            "temperature": args.temperature if args.temperature is not None else 1.0,
-            "max_tokens": args.max_tokens or (8000 if (args.model or DEFAULT_KIMI_MODEL) == DEFAULT_KIMI_MODEL else 2500),
+            "provider": provider,
+            "model": args.model or default_model,
+            "temperature": args.temperature if args.temperature is not None else default_temp,
+            "max_tokens": args.max_tokens or default_tokens,
             "think_effort": None,
             "thinking_disabled": False,
         }
@@ -454,10 +661,9 @@ def main() -> None:
             sys.exit(0)
         user_input = raw_input.strip() or example_intent
 
-    # Initialize LLM
-    llm = create_kimi_llm(
-        api_key=api_key,
-        base_url=base_url or None,
+    # Initialize LLM via multi-provider factory
+    llm = create_configured_llm(
+        provider=llm_config["provider"],
         model=str(llm_config["model"]) if llm_config.get("model") else None,
         temperature=float(llm_config["temperature"]) if llm_config.get("temperature") is not None else None,
         max_tokens=int(llm_config["max_tokens"]) if llm_config.get("max_tokens") is not None else None,
@@ -468,7 +674,7 @@ def main() -> None:
 
     console.print()
     console.print(
-        f"[dim]Engine configured:[/dim] [bold cyan]{llm_config['model']}[/bold cyan] "
+        f"[dim]Engine configured:[/dim] [bold cyan]{llm_config['provider']} / {llm_config['model']}[/bold cyan] "
         f"[dim](max_tokens={llm_config['max_tokens']}, temp={llm_config['temperature']})[/dim]"
     )
     console.print(f"[dim]Processing Intent:[/dim] [bold white]\"{user_input}\"[/bold white]")

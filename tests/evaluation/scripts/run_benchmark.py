@@ -44,7 +44,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.core.llm import create_kimi_llm, set_llm  # noqa: E402
+from src.core.llm import create_configured_llm, set_llm  # noqa: E402
 from src.nodes.intent_ingest import IntentSummary  # noqa: E402
 from tests.evaluation.baselines import (  # noqa: E402
     BaselineResult,
@@ -307,26 +307,19 @@ def run_benchmark(
     # 3. Setup LLM if live mode
     if not use_mock:
         load_dotenv()
-        api_key = os.getenv("KIMI_API_KEY") or os.getenv("OPENAI_API_KEY")
-        if not api_key:
+        try:
+            llm = create_configured_llm()
+            set_llm(llm)
+            provider = os.getenv("LLM_PROVIDER", "openrouter" if os.getenv("OPENROUTER_API_KEY") else "kimi")
+            model = getattr(llm, "model_name", "configured")
             console.print(
-                "[yellow]Warning: No API key found in environment. Defaulting to --mock mode.[/yellow]"
+                f"[bold green]✓[/bold green] Live LLM configured: [cyan]{provider} / {model}[/cyan]"
+            )
+        except Exception as e:
+            console.print(
+                f"[yellow]Warning: Could not configure live LLM ({e}). Defaulting to --mock mode.[/yellow]"
             )
             use_mock = True
-        else:
-            base_url = os.getenv("KIMI_BASE_URL")
-            model = os.getenv("KIMI_MODEL", "kimi-for-coding-highspeed")
-            llm = create_kimi_llm(
-                api_key=api_key,
-                base_url=base_url or None,
-                model=model,
-                temperature=1.0,
-                max_tokens=8000,
-            )
-            set_llm(llm)
-            console.print(
-                f"[bold green]✓[/bold green] Live LLM configured: [cyan]{model}[/cyan]"
-            )
 
     # 4. Execute Benchmark Loop
     results_by_baseline: dict[str, list[BaselineResult]] = {

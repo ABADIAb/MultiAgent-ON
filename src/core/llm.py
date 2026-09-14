@@ -16,6 +16,14 @@ from langchain_openai import ChatOpenAI
 # Default model on the Kimi Coding endpoint
 DEFAULT_KIMI_MODEL = "kimi-for-coding-highspeed"
 
+# Default model and endpoint on OpenRouter
+DEFAULT_OPENROUTER_MODEL = "inclusionai/ling-3.0-flash-vl:free"
+DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
+# Default model and endpoint on Ollama
+DEFAULT_OLLAMA_MODEL = "qwen2.5:3b"
+DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434/v1"
+
 # Module-level LLM reference, set during graph initialization.
 _llm: BaseChatModel | None = None
 
@@ -35,6 +43,73 @@ def get_llm() -> BaseChatModel:
         )
         raise RuntimeError(msg)
     return _llm
+
+
+class OpenRouterChatOpenAI(ChatOpenAI):
+    """ChatOpenAI specialization for OpenRouter models.
+
+    Ensures structured outputs default to 'function_calling' because many OpenRouter
+    providers (including Novita hosting ling-3.0-flash-vl) do not support the
+    native OpenAI 'json_schema' response format.
+    """
+
+    def with_structured_output(self, schema: Any, **kwargs: Any) -> Any:
+        if "method" not in kwargs:
+            kwargs["method"] = "function_calling"
+        return super().with_structured_output(schema, **kwargs)
+
+
+class OllamaChatOpenAI(ChatOpenAI):
+    """ChatOpenAI specialization for local Ollama models.
+
+    Uses schema prompt formatting and robust JSON parsing for local models
+    where strict tool_choice is not natively supported by Ollama's OpenAI endpoint.
+    """
+
+    def with_structured_output(self, schema: Any, **kwargs: Any) -> Any:
+        from pydantic import BaseModel
+
+        if isinstance(schema, type) and issubclass(schema, BaseModel):
+            from langchain_core.messages import SystemMessage
+            from langchain_core.output_parsers import PydanticOutputParser
+            from langchain_core.runnables import RunnableLambda
+
+            parser = PydanticOutputParser(pydantic_object=schema)
+            instructions = parser.get_format_instructions()
+
+            def _inject_instructions(messages: Any) -> Any:
+                if isinstance(messages, list):
+                    updated = list(messages)
+                    for idx, msg in enumerate(updated):
+                        if getattr(msg, "type", None) == "system":
+                            updated[idx] = SystemMessage(
+                                content=f"{msg.content}\n\n{instructions}"
+                            )
+                            return updated
+                    return [SystemMessage(content=instructions), *updated]
+                elif isinstance(messages, str):
+                    return f"{messages}\n\n{instructions}"
+                return messages
+
+            def _parse_pydantic(ai_message: Any) -> Any:
+                import re
+
+                raw_text = getattr(ai_message, "content", str(ai_message))
+                # Extract outermost JSON object to ignore any preambles or code fences
+                json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+                if json_match:
+                    clean = json_match.group(0).strip()
+                else:
+                    lines = [
+                        line for line in raw_text.splitlines()
+                        if not line.strip().startswith("```")
+                    ]
+                    clean = "\n".join(lines).strip()
+                return parser.parse(clean)
+
+            return RunnableLambda(_inject_instructions) | self | RunnableLambda(_parse_pydantic)
+
+        return super().with_structured_output(schema, **kwargs)
 
 
 def create_kimi_llm(
@@ -89,4 +164,177 @@ def create_kimi_llm(
         kwargs["extra_body"] = body_params
 
     return ChatOpenAI(**kwargs)
+
+
+def create_openrouter_llm(
+    *,
+    api_key: str,
+    base_url: str | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    max_tokens: int | None = None,
+    http_referer: str | None = None,
+    title: str | None = None,
+    extra_body: dict[str, Any] | None = None,
+    **_ignored_kwargs: Any,
+) -> OpenRouterChatOpenAI:
+    """Create an OpenRouterChatOpenAI instance configured for OpenRouter.
+
+    Args:
+        api_key: API key for OpenRouter.
+        base_url: Custom base URL (defaults to OPENROUTER_BASE_URL or 'https://openrouter.ai/api/v1').
+        model: Model identifier (defaults to OPENROUTER_MODEL, OP_LING_MODEL, or ling-3.0-flash-vl:free).
+        temperature: Sampling temperature. Defaults to 0.2 for deterministic planning.
+        max_tokens: Maximum tokens for completion. Defaults to 2000.
+        http_referer: Optional site URL for ranking on openrouter.ai.
+        title: Optional site/app name for ranking on openrouter.ai.
+        extra_body: Additional raw payload attributes.
+        **_ignored_kwargs: Safely absorbs provider-specific kwargs (e.g. think_effort, thinking_disabled).
+
+    Returns:
+        A configured OpenRouterChatOpenAI instance with function_calling fallback.
+    """
+    resolved_base_url = base_url or os.getenv("OPENROUTER_BASE_URL", DEFAULT_OPENROUTER_BASE_URL)
+    resolved_model = (
+        model
+        or os.getenv("OPENROUTER_MODEL")
+        or os.getenv("OP_LING_MODEL")
+        or DEFAULT_OPENROUTER_MODEL
+    )
+    resolved_temp = 0.2 if temperature is None else temperature
+    resolved_max_tokens = 2000 if max_tokens is None else max_tokens
+
+    referer = (
+        http_referer
+        or os.getenv("OPENROUTER_HTTP_REFERER", "https://github.com/ABADIAb/MultiAgent-ON")
+    )
+    app_title = title or os.getenv("OPENROUTER_TITLE", "MultiAgentON")
+
+    default_headers: dict[str, str] = {
+        "HTTP-Referer": referer,
+        "X-Title": app_title,
+    }
+
+    kwargs: dict[str, Any] = {
+        "model": resolved_model,
+        "api_key": api_key,
+        "base_url": resolved_base_url,
+        "temperature": resolved_temp,
+        "max_tokens": resolved_max_tokens,
+        "default_headers": default_headers,
+    }
+    if extra_body:
+        kwargs["extra_body"] = extra_body
+
+    return OpenRouterChatOpenAI(**kwargs)
+
+
+def resolve_ollama_base_url(base_url: str | None = None) -> str:
+    """Resolve the base URL for the Ollama API, handling WSL2 host resolution if needed."""
+    if base_url:
+        return base_url.rstrip("/")
+    if env_url := os.getenv("OLLAMA_BASE_URL"):
+        return env_url.rstrip("/")
+
+    # Check if localhost:11434 is directly reachable
+    default_url = "http://localhost:11434/v1"
+    try:
+        import urllib.request
+        with urllib.request.urlopen("http://localhost:11434/api/tags", timeout=0.3):
+            return default_url
+    except Exception:
+        pass
+
+    # If in WSL2, attempt gateway host IP
+    try:
+        import subprocess
+        route_out = subprocess.check_output(["ip", "route"], text=True, timeout=0.5)
+        for line in route_out.splitlines():
+            if "default via" in line:
+                host_ip = line.split()[2]
+                return f"http://{host_ip}:11434/v1"
+    except Exception:
+        pass
+
+    return default_url
+
+
+def create_ollama_llm(
+    *,
+    base_url: str | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    max_tokens: int | None = None,
+    extra_body: dict[str, Any] | None = None,
+    **_ignored_kwargs: Any,
+) -> OllamaChatOpenAI:
+    """Create an OllamaChatOpenAI instance configured for local Ollama models.
+
+    Args:
+        base_url: Base URL for Ollama OpenAI endpoint (auto-resolves WSL host if omitted).
+        model: Model identifier (defaults to OLLAMA_MODEL or 'qwen2.5:3b').
+        temperature: Sampling temperature. Defaults to 0.2.
+        max_tokens: Maximum tokens for completion. Defaults to 2000.
+        extra_body: Additional raw payload attributes.
+        **_ignored_kwargs: Safely absorbs provider-specific kwargs.
+
+    Returns:
+        A configured OllamaChatOpenAI instance with function_calling structured output.
+    """
+    resolved_base_url = resolve_ollama_base_url(base_url)
+    resolved_model = model or os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
+    resolved_temp = 0.2 if temperature is None else temperature
+    resolved_max_tokens = 2000 if max_tokens is None else max_tokens
+
+    kwargs: dict[str, Any] = {
+        "model": resolved_model,
+        "api_key": "ollama",
+        "base_url": resolved_base_url,
+        "temperature": resolved_temp,
+        "max_tokens": resolved_max_tokens,
+    }
+    if extra_body:
+        kwargs["extra_body"] = extra_body
+
+    return OllamaChatOpenAI(**kwargs)
+
+
+def create_configured_llm(
+    provider: str | None = None,
+    **kwargs: Any,
+) -> BaseChatModel:
+    """Create an LLM instance based on provider selection ('ollama', 'openrouter', or 'kimi').
+
+    If provider is not explicitly passed, resolves from LLM_PROVIDER env var.
+    Defaults to 'ollama' if LLM_PROVIDER is 'ollama', 'openrouter' if OPENROUTER_API_KEY is present,
+    otherwise falls back to 'kimi'.
+    """
+    active_provider = (provider or os.getenv("LLM_PROVIDER", "")).lower().strip()
+    if not active_provider:
+        if os.getenv("LLM_PROVIDER") == "ollama":
+            active_provider = "ollama"
+        elif os.getenv("OPENROUTER_API_KEY"):
+            active_provider = "openrouter"
+        else:
+            active_provider = "kimi"
+
+    if active_provider == "ollama":
+        return create_ollama_llm(**kwargs)
+    elif active_provider == "openrouter":
+        api_key = kwargs.pop("api_key", None) or os.getenv("OPENROUTER_API_KEY", "")
+        if not api_key:
+            raise ValueError("OPENROUTER_API_KEY is not set in environment or arguments.")
+        return create_openrouter_llm(api_key=api_key, **kwargs)
+    elif active_provider == "kimi":
+        api_key = kwargs.pop("api_key", None) or os.getenv("KIMI_API_KEY", "")
+        if not api_key:
+            raise ValueError("KIMI_API_KEY is not set in environment or arguments.")
+        base_url = kwargs.pop("base_url", None) or os.getenv("KIMI_BASE_URL", "")
+        return create_kimi_llm(api_key=api_key, base_url=base_url or None, **kwargs)
+    else:
+        raise ValueError(
+            f"Unsupported LLM provider: '{active_provider}'. Supported options: 'ollama', 'openrouter', 'kimi'."
+        )
+
+
 

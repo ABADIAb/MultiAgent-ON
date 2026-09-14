@@ -140,6 +140,13 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Formalized and strictly enforced the ternary RADG action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$, completely purging legacy `"reject"` branches across baseline implementations ([`llm_only.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/llm_only.py), [`always_off_hitl.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_off_hitl.py), [`traditional_sdon.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/traditional_sdon.py)), schemas ([`base.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/base.py)), pipeline node logic ([`radg_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/radg_node.py)), metrics, and plotting routines ([`plotter.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/plotter.py)).
     - Diagnosed and resolved the Phase 6 HITL interruption origin misattribution in [`tests/evaluation/scripts/metrics.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/metrics.py), conditioning categorized replan counting on `interrupts > 0` so autonomous baselines (A & C) accurately reflect zero human interventions in publication plots.
     - Recompiled all publication figures and verified 100% test pass rate across 324 unit tests under Strict TDD.
+16. **Local Ollama GPU Inference, Multi-Provider Engine & Semantic Gate Tolerance:**
+    - Integrated local open-weights LLM inference via Ollama, deploying `qwen2.5:3b` on the local NVIDIA GeForce RTX 3050 Laptop GPU (consuming only 2.1 GB of VRAM out of 4 GB).
+    - Configured Ollama network binding (`0.0.0.0:11434`) and implemented automatic WSL2 host gateway detection in `resolve_ollama_base_url()`.
+    - Engineered `OllamaChatOpenAI` in [`src/core/llm.py`](file:///home/felipeab/MultiAgentON/src/core/llm.py) with robust schema prompt injection and JSON parsing to overcome forced tool-choice limitations in local LLM endpoints.
+    - Updated `create_configured_llm` and `interactive_configuration()` in [`src/main.py`](file:///home/felipeab/MultiAgentON/src/main.py) allowing seamless toggling between local Ollama, OpenRouter, and Kimi.
+    - Refined Phase 3 Semantic Gate prompt (`_AGREEMENT_SYSTEM_PROMPT` in [`src/nodes/semantic_gate_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/semantic_gate_node.py)) to evaluate semantic equivalence instead of literal string equivalence, tolerating typos and canonical node mappings.
+    - Authored integration benchmark [`tests/integration/test_ollama_configurations.py`](file:///home/felipeab/MultiAgentON/tests/integration/test_ollama_configurations.py) achieving 100% pass rate (5/5 tests in 8.68s, ~1.7s latency, 100% valid PDDL) and expanded test suite to 333 passing unit tests under Strict TDD.
 
 ---
 
@@ -160,5 +167,6 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I completed and optimized the Sprint 4 Automated Evaluation Harness by engineering a 20-demand compact benchmark corpus, strictly enforcing the ternary RADG action space ($\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$), and resolving HITL metric attribution with 324 passing unit tests under Strict TDD.
+I integrated local GPU-accelerated Ollama inference (`qwen2.5:3b`) on an RTX 3050, refined the Semantic Gate for typo-tolerant semantic equivalence, and validated 100% PDDL validity across multi-provider engines with 333 unit and 5 integration tests under Strict TDD.
+
 
