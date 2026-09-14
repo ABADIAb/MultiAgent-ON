@@ -41,15 +41,13 @@ BASELINE_LABELS = {
     "proposed_radg": "Proposed\n(RADG)",
     "llm_only": "Baseline A\n(LLM-Only)",
     "always_on": "Baseline B\n(Always-On)",
-    "always_off": "Baseline C\n(Always-Off)",
-    "traditional_sdon": "Baseline D\n(Trad. SDON)",
+    "traditional_sdon": "Baseline C\n(Trad. SDON)",
 }
 
 BASELINE_COLORS = {
     "proposed_radg": POLIMI_NAVY,
     "llm_only": POLIMI_BURGUNDY,
     "always_on": POLIMI_SLATE,
-    "always_off": POLIMI_AMBER,
     "traditional_sdon": POLIMI_GREEN,
 }
 
@@ -105,17 +103,19 @@ def plot_latency_vs_tokens(
     metrics_summary: dict[str, dict[str, Any]],
     output_dir: Path,
 ) -> list[Path]:
-    """Plot comparative dual-panel chart: Latency and Token Consumption across baselines."""
+    """Plot comparative dual-panel chart: Latency and Token Consumption across automated baselines."""
     apply_publication_style()
 
-    baselines = [b for b in BASELINE_LABELS.keys() if b in metrics_summary]
+    # Exclude non-automated static reference (traditional_sdon) from runtime second plots
+    automated_baselines = ["proposed_radg", "always_on", "llm_only"]
+    baselines = [b for b in automated_baselines if b in metrics_summary]
     labels = [BASELINE_LABELS[b] for b in baselines]
 
     latencies = [
         metrics_summary[b]["efficiency"].get("mean_latency_s", 0.0) for b in baselines
     ]
     tokens = [
-        metrics_summary[b]["efficiency"].get("mean_prompt_tokens", 0.0)
+        metrics_summary[b]["efficiency"].get("mean_total_tokens", 0.0)
         for b in baselines
     ]
     colors = [BASELINE_COLORS[b] for b in baselines]
@@ -144,39 +144,14 @@ def plot_latency_vs_tokens(
             fontweight="semibold",
         )
 
-    # Panel 2: Prompt Token Consumption
+    # Panel 2: Total Token Consumption
     bars2 = ax2.bar(
         labels, tokens, color=colors, width=0.55, edgecolor="#222222", linewidth=0.8
     )
-    ax2.set_ylabel("Prompt Tokens ($T_{tokens}$)")
-    ax2.set_title("Prompt Token Budget Saturation")
+    ax2.set_ylabel("Total Tokens ($T_{tokens}$)")
+    ax2.set_title("Total Token Consumption per Intent")
     ax2.grid(axis="y")
     ax2.set_axisbelow(True)
-
-    # Highlight Scoped Optical GraphRAG savings
-    if "proposed_radg" in baselines and "llm_only" in baselines:
-        p_tokens = metrics_summary["proposed_radg"]["efficiency"].get(
-            "mean_prompt_tokens", 0
-        )
-        l_tokens = metrics_summary["llm_only"]["efficiency"].get(
-            "mean_prompt_tokens", 1
-        )
-        if l_tokens > 0:
-            reduction = ((l_tokens - p_tokens) / l_tokens) * 100.0
-            ax2.annotate(
-                f"Scoped GraphRAG\n>{reduction:.0f}% Savings",
-                xy=(0, p_tokens),
-                xytext=(0.4, max(tokens) * 0.45),
-                arrowprops=dict(
-                    facecolor=POLIMI_NAVY, shrink=0.08, width=1.5, headwidth=6
-                ),
-                bbox=dict(
-                    boxstyle="round,pad=0.3", fc="#F8FAFC", ec=POLIMI_NAVY, lw=1.2
-                ),
-                fontsize=8.5,
-                fontweight="bold",
-                color=POLIMI_NAVY,
-            )
 
     for bar in bars2:
         yval = bar.get_height()
@@ -191,7 +166,7 @@ def plot_latency_vs_tokens(
         )
 
     fig.suptitle(
-        "Orchestration Efficiency: Latency vs. Prompt Token Overhead",
+        "Orchestration Efficiency: E2E Latency vs. Token Footprint",
         fontsize=13,
         y=1.02,
     )
@@ -200,7 +175,7 @@ def plot_latency_vs_tokens(
 
 
 # ---------------------------------------------------------------------------
-# Figure 2: Success Rate vs Unsafe Approval Rate (UAR)
+# Figure 2: Interception (PIIR) vs Unsafe Approval Rate (UAR)
 # ---------------------------------------------------------------------------
 
 
@@ -208,14 +183,14 @@ def plot_success_vs_uar(
     metrics_summary: dict[str, dict[str, Any]],
     output_dir: Path,
 ) -> list[Path]:
-    """Plot grouped bar chart comparing Optical Feasibility (QFR) vs Unsafe Approval Rate (UAR)."""
+    """Plot grouped bar chart comparing Physical Interception (PIIR) vs Unsafe Approval Rate (UAR)."""
     apply_publication_style()
 
     baselines = [b for b in BASELINE_LABELS.keys() if b in metrics_summary]
     labels = [BASELINE_LABELS[b] for b in baselines]
 
-    qfr_values = [
-        metrics_summary[b]["physical"].get("qfr_percent", 0.0) for b in baselines
+    piir_values = [
+        metrics_summary[b]["physical"].get("piir_percent", 100.0) for b in baselines
     ]
     uar_values = [
         metrics_summary[b]["physical"].get("uar_percent", 0.0) for b in baselines
@@ -228,9 +203,9 @@ def plot_success_vs_uar(
 
     rects1 = ax.bar(
         x - width / 2,
-        qfr_values,
+        piir_values,
         width,
-        label="QoT Feasibility Rate (QFR %)",
+        label="Physical Interception Rate (PIIR %)",
         color=POLIMI_NAVY,
         edgecolor="#222222",
         linewidth=0.8,
@@ -246,7 +221,7 @@ def plot_success_vs_uar(
     )
 
     ax.set_ylabel("Rate (%)")
-    ax.set_title("Physical Feasibility vs. Safety Invariant (UAR) by Baseline")
+    ax.set_title("Physical Feasibility: Interception Rate (PIIR) vs. Safety Violation (UAR)")
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.set_ylim(0, 115)

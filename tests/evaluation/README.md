@@ -46,12 +46,7 @@ Guarantees that all approved lightpaths strictly satisfy physical-layer transmis
    - **Target:** **$0\%$ (Absolute Safety Invariant)**.
    - **Measurement:** Compare RADG verdict against physical GN-model calculation (`assess_qot()`).
 
-2. **QoT Feasibility Rate (QFR):**
-   $$\text{QFR} = \frac{|\{\text{plan} \in \text{Approved} \mid \text{QoT}_{valid} = 1\}|}{|\text{Approved}|} \times 100\%$$
-   - **Definition:** Fraction of deployed lightpaths that satisfy required transmission margins under analytical GN-model validation.
-   - **Target:** $100\%$.
-
-3. **Physical Infeasibility Interception Rate (PIIR):**
+2. **Physical Infeasibility Interception Rate (PIIR):**
    $$\text{PIIR} = \frac{|\{\text{intent} \in \text{Class III} \mid \text{Action} = \text{replan}\}|}{|\text{Class III}|} \times 100\%$$
    - **Definition:** Fraction of demands requesting physically impossible optical reaches that are successfully intercepted and flagged for replanning rather than approved.
    - **Target:** $100\%$.
@@ -59,34 +54,24 @@ Guarantees that all approved lightpaths strictly satisfy physical-layer transmis
 ---
 
 ### Pillar 3: Orchestration & Resource Efficiency (Friction Minimization)
-Quantifies computational savings in prompt tokens and runtime, alongside operator fatigue reduction through selective human engagement.
+Quantifies computational savings in runtime latency and total token consumption, alongside operator fatigue reduction through selective human engagement.
 
-1. **Prompt Token Reduction ($\Delta T_{tokens}$):**
-   $$\Delta T_{tokens} = \frac{T_{\text{full\_JSON}} - T_{\text{scoped\_GraphRAG}}}{T_{\text{full\_JSON}}} \times 100\%$$
-   - **Definition:** Percentage of input tokens eliminated by Scoped Optical GraphRAG ($k=2$ neighborhood) compared to full RFC 8345 / RFC 9093 RESTCONF JSON topology injection.
-   - **Target:** $> 75\%$ (Empirically measured: **$> 93\%$** on Nobel-Germany).
-   - **Measurement:** `tiktoken` (`cl100k_base`) token counter comparing serialized full topology vs. `graph_to_context_string()`.
+1. **End-to-End Orchestration Latency ($T_{E2E}$):**
+   - **Definition:** Total turnaround duration from natural language submission to final planning report synthesis.
+   - **Multi-Turn Follow-Up Contract:** For intents intercepted at Phase 3b (`clarify`) or Phase 6 (`replan`), the benchmark automatically supplies a standardized nominal follow-up intent (`"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR."`), allowing the pipeline to recover and complete through to Phase 7. This captures the true E2E completion latency across all risk classes.
 
-2. **Baseline Token Consumption ($T_{tokens}$):**
-   - **Definition:** Raw number of prompt and completion tokens consumed per intent by each baseline architecture.
-   - **Purpose:** Compares the absolute computational footprint and LLM API cost across different planning approaches.
-   - **Measurement:** `tiktoken` (`cl100k_base`) token counter across all LLM calls per intent execution.
+2. **Token Footprint ($T_{tokens}$):**
+   - **Definition:** Cumulative prompt, completion, and total tokens consumed per intent across all conversational and refinement turns.
 
 3. **Human Intervention Reduction ($\Delta N_{hitl}$):**
    $$\Delta N_{hitl} = \left( 1 - \frac{N_{hitl,\text{ours}}}{N_{hitl,\text{always}}} \right) \times 100\%$$
-   - **Definition:** Reduction in operator interruptions compared to the mandatory Always-HITL baseline ($N_{hitl} = 100\%$).
+   - **Definition:** Reduction in operator interruptions compared to the mandatory Always-HITL baseline ($N_{hitl} \ge 2$).
    - **Target:** $> 70\%$.
-   - **Measurement:** Count of `interrupt()` events triggered across the 20 test demands.
 
 4. **Deterministic Compute Latency ($T_{det}$):**
    $$T_{det} = T_{solver} + T_{phys}$$
-   - **Definition:** Wall-clock execution time of symbolic routing (Yen's $K$-SP, $T_{solver} < 10\\text{ ms}$) and GN-model physics ($T_{phys} < 5\\text{ ms}$).
-   - **Target:** $< 15\\text{ ms}$.
-   - **Measurement:** `time.perf_counter()` inside `symbolic_solver_node` and `qot_validation_node`.
-
-5. **End-to-End Orchestration Latency ($T_{E2E}$):**
-   - **Definition:** Total wall-clock turnaround from NL submission to final planning report generation.
-   - **Measurement:** Overall invocation duration excluding human pause time in `interrupt()`.
+   - **Definition:** Wall-clock execution time of symbolic routing (Yen's $K$-SP, $T_{solver} < 10\text{ ms}$) and GN-model physics ($T_{phys} < 5\text{ ms}$).
+   - **Target:** $< 15\text{ ms}$.
 
 ---
 
@@ -95,7 +80,7 @@ Stress-tests the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ ac
 
 1. **Gate Decision Accuracy (GDA):**
    $$\text{GDA} = \frac{\sum_{i=1}^{N} \mathbb{I}(D(U_{sem}^{(i)}, \text{QoT}_{valid}^{(i)}) = \text{Action}_{\text{ground\_truth}}^{(i)})}{N} \times 100\%$$
-   - **Definition:** Overall accuracy of the RADG in routing intents to the optimal action state (`approve`, `clarify`, `replan`).
+   - **Definition:** Overall accuracy of the RADG in routing intents to the optimal action state (`approve`, `clarify`, `replan`). Evaluated on the *initial gate interception* before follow-up recovery.
    - **Target:** $> 98\%$.
 
 2. **False Positive Rate (FPR):**
@@ -114,9 +99,8 @@ Stress-tests the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ ac
 | Baseline | Architecture | Operational Mode | Evaluation Role |
 |----------|--------------|------------------|-----------------|
 | **Baseline A (Monolithic LLM)** | Direct Prompting (NL $\to$ JSON/CLI) | Unconstrained autonomous execution with zero deterministic tools | Evaluates neural failure modes: hallucinated physics, topological invalidity, and high $UAR$ |
-| **Baseline B (Always-On HITL)** | Full Neurosymbolic Pipeline | Mandatory human review at Phase 3b and Phase 6 for every intent | Evaluates operational friction: operator fatigue ($N_{hitl} = 100\%$), inflated token cost, and execution latency |
-| **Baseline C (Always-Off HITL)** | Full Neurosymbolic Pipeline | Autonomous execution with decision gates bypassed (no HITL) | Evaluates safety failure modes: unhandled ambiguity, high service blocking, and deployment of unfeasible paths |
-| **Baseline D (Traditional SDON)** | Non-LLM imperative YANG / RESTCONF RPC + PCE | Manual payload authoring by expert operator + deterministic Yen's $K$-SP / GN-model | Evaluates industrial standard: zero NL translation error, absolute safety ($UAR=0\%$), but $100\%$ human setup effort |
+| **Baseline B (Always-On HITL)** | Full Neurosymbolic Pipeline | Mandatory human review at Phase 3b and Phase 6 for every intent | Evaluates operational friction: operator fatigue ($N_{hitl} \ge 2$), inflated token cost, and execution latency |
+| **Baseline C (Traditional SDON)** | Static Industrial Reference | Manual YANG RPC authoring by expert operator + PCE | Evaluates industrial standard: zero NL translation error, absolute safety ($UAR=0\%$), non-LLM, manual provisioning taking hours to days |
 | **Proposed (Neurosymbolic RADG)** | Decoupled LangGraph pipeline (LLM translator + Yen's $K$-SP + GN-model) | Pre-deployment sequential risk gates ($U_{sem} \to \text{QoT}_{valid}$) with selective HITL | Evaluates proposed thesis hypothesis: pre-deployment safety ($UAR = 0\%$) with minimal operational friction ($N_{hitl} \le 1$) and high NL expressiveness |
 
 ### 3.1 Polymorphic Baseline Contract (`tests/evaluation/baselines/`)

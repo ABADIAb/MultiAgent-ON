@@ -146,3 +146,50 @@ class TestSemanticGateNode:
         assert "Route Berlin to Frankfurt with 12 dB GSNR avoiding Munich" in human_msg_content
         # Should not duplicate with an extra refinements block when active_intent is supplied
         assert "Operator Clarifications & Refinements:" not in human_msg_content
+
+
+class TestScoreSemanticAgreement:
+    """Validate _score_semantic_agreement parsing and robustness."""
+
+    def test_parses_clean_float(self) -> None:
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content="0.2")
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.2)
+
+    def test_parses_with_think_tags(self) -> None:
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(
+            content="<think>Comparing intent and reconstruction... divergence is low.</think>\n0.15"
+        )
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.15)
+
+    def test_parses_with_markdown_or_text(self) -> None:
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content="Score: 0.0\nFaithful match.")
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.0)
+
+    def test_fallback_on_unparseable_text(self) -> None:
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content="Uncertain result with no numbers.")
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.5)
+

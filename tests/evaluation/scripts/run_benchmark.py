@@ -54,6 +54,10 @@ from src.core.llm import (  # noqa: E402
     set_llm,
 )
 from src.nodes.intent_ingest import IntentSummary  # noqa: E402
+from src.nodes.intent_reconciler import (  # noqa: E402
+    IntentUpdateType,
+    RefinedIntentAnalysis,
+)
 from tests.evaluation.baselines import (  # noqa: E402
     BaselineResult,
     list_baselines,
@@ -62,6 +66,7 @@ from tests.evaluation.baselines import (  # noqa: E402
 from tests.evaluation.baselines.llm_only import LLMOnlyOutput  # noqa: E402
 from tests.evaluation.scripts.metrics import (  # noqa: E402
     compute_all_baselines_metrics,
+    compute_per_class_metrics,
     generate_summary_markdown,
 )
 from tests.evaluation.scripts.plotter import generate_all_figures  # noqa: E402
@@ -367,6 +372,15 @@ def setup_mock_llm(active_intent: dict[str, Any]) -> None:
         llm_only_action = "approve"
         est_gsnr = 14.0
 
+    nominal_recovery_pddl = (
+        "(define (problem route-nominal)\n"
+        "  (:domain optical-network)\n"
+        "  (:objects Berlin Frankfurt Hannover - node)\n"
+        "  (:init (connected Berlin Hannover) (connected Hannover Frankfurt))\n"
+        "  (:goal (and (route Berlin Frankfurt) (min-gsnr 12.0)))\n"
+        ")"
+    )
+
     mock_llm = MagicMock()
 
     def _structured_side_effect(schema: Any, *args: Any, **kwargs: Any):
@@ -380,6 +394,15 @@ def setup_mock_llm(active_intent: dict[str, Any]) -> None:
                 action=llm_only_action,
                 reasoning="Direct prompt routing estimation",
             )
+        elif schema == RefinedIntentAnalysis:
+            sub_mock.invoke.return_value = RefinedIntentAnalysis(
+                update_type=IntentUpdateType.FULL_REPLACEMENT,
+                reasoning="Operator provided clean nominal recovery intent",
+                updated_intent="Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.",
+                source_node="Berlin",
+                target_node="Frankfurt",
+                modified_constraints=["min_gsnr 12.0"],
+            )
         else:
             sub_mock.invoke.return_value = summary_obj
         return sub_mock
@@ -389,6 +412,25 @@ def setup_mock_llm(active_intent: dict[str, Any]) -> None:
     def _dispatcher(messages: Any, *args: Any, **kwargs: Any) -> AIMessage:
         first_msg = messages[0] if messages else None
         prompt_text = getattr(first_msg, "content", "")
+        all_text = " ".join(
+            getattr(m, "content", "") for m in messages if hasattr(m, "content")
+        )
+
+        # Detect follow-up recovery turns
+        if (
+            "refinement feedback" in all_text.lower()
+            or "operator clarified" in all_text.lower()
+            or "active operational intent" in all_text.lower()
+        ):
+            if "PDDL Parser module" in all_text or "optical-network" in all_text:
+                return AIMessage(content=nominal_recovery_pddl)
+            elif "Reverse Prompting module" in all_text:
+                return AIMessage(
+                    content="Route traffic from Berlin to Frankfurt with minimum 12 dB GSNR."
+                )
+            elif "semantic similarity evaluator" in all_text:
+                return AIMessage(content="0.05")
+
         if "PDDL Parser module" in prompt_text:
             return AIMessage(content=pddl_str)
         elif "Reverse Prompting module" in prompt_text:
@@ -631,16 +673,26 @@ def run_benchmark(
         f"    • CSV:  [dim]{csv_path}[/dim]"
     )
 
-    # 6. Calculate Metrics for All 4 Pillars
+    # 6. Calculate Metrics for All 4 Pillars & Per-Class Breakdown
     metrics_summary = compute_all_baselines_metrics(
         results_by_baseline, filtered_intents
     )
+    per_class_metrics = compute_per_class_metrics(
+        results_by_baseline, filtered_intents
+    )
+
+    metrics_export = {
+        "summary": metrics_summary,
+        "per_class": per_class_metrics,
+    }
     metrics_json_path = output_dir / "metrics.json"
     with open(metrics_json_path, "w", encoding="utf-8") as f:
-        json.dump(metrics_summary, f, indent=2)
+        json.dump(metrics_export, f, indent=2)
 
     # 7. Generate & Save Markdown Summary
-    summary_md = generate_summary_markdown(metrics_summary)
+    summary_md = generate_summary_markdown(
+        metrics_summary, per_class_breakdown=per_class_metrics
+    )
     summary_path = output_dir / "summary_table.md"
     with open(summary_path, "w", encoding="utf-8") as f:
         f.write(summary_md)
@@ -665,8 +717,8 @@ def run_benchmark(
             exts = ", ".join(p.suffix for p in paths)
             console.print(f"    • [bold white]{fig_name}[/bold white] ({exts})")
 
-    # 9. Print Rich Table to Terminal
-    display_terminal_summary(metrics_summary)
+    # 9. Print Rich Tables to Terminal
+    display_terminal_summary(metrics_summary, per_class_metrics=per_class_metrics)
 
     return {
         "timestamp": timestamp,
@@ -674,6 +726,7 @@ def run_benchmark(
         "baselines_evaluated": valid_baselines,
         "execution_time_s": total_duration,
         "metrics_summary": metrics_summary,
+        "per_class_metrics": per_class_metrics,
         "provider": resolved_provider,
         "model": resolved_model,
         "raw_json": str(json_path),
@@ -682,7 +735,10 @@ def run_benchmark(
     }
 
 
-def display_terminal_summary(metrics_summary: dict[str, dict[str, Any]]) -> None:
+def display_terminal_summary(
+    metrics_summary: dict[str, dict[str, Any]],
+    per_class_metrics: dict[str, dict[str, dict[str, float]]] | None = None,
+) -> None:
     """Print consolidated evaluation table to terminal with Rich styling."""
     table = Table(
         title="Sprint 4 Evaluation Benchmark: 4 Core Validation Pillars",
@@ -694,11 +750,10 @@ def display_terminal_summary(metrics_summary: dict[str, dict[str, Any]]) -> None
     table.add_column("CRR", justify="right")
     table.add_column("CFG-PR", justify="right")
     table.add_column("UAR (Target: 0%)", justify="right")
-    table.add_column("QFR", justify="right")
+    table.add_column("PIIR", justify="right")
     table.add_column("Latency", justify="right")
     table.add_column("Tokens (P)", justify="right")
     table.add_column("Tokens (T)", justify="right")
-    table.add_column("ΔTokens", justify="right")
     table.add_column("ΔHITL", justify="right")
     table.add_column("GDA", justify="right")
 
@@ -711,22 +766,74 @@ def display_terminal_summary(metrics_summary: dict[str, dict[str, Any]]) -> None
         uar_val = phys.get("uar_percent", 0.0)
         uar_style = "bold green" if uar_val == 0.0 else "bold red"
 
-        table.add_row(
-            b_id,
-            f"{sem.get('crr_percent', 0.0):.1f}%",
-            f"{sem.get('cfg_pass_rate_percent', 0.0):.1f}%",
-            f"[{uar_style}]{uar_val:.1f}%[/{uar_style}]",
-            f"{phys.get('qfr_percent', 0.0):.1f}%",
-            f"{eff.get('mean_latency_s', 0.0):.2f}s",
-            f"{int(eff.get('mean_prompt_tokens', 0))}",
-            f"{int(eff.get('mean_total_tokens', 0))}",
-            f"{eff.get('token_reduction_percent', 0.0):.1f}%",
-            f"{eff.get('hitl_reduction_percent', 0.0):.1f}%",
-            f"{radg.get('gda_percent', 0.0):.1f}%",
-        )
+        if b_id == "traditional_sdon":
+            table.add_row(
+                "traditional_sdon (Ref)",
+                "[dim]N/A[/dim]",
+                "[dim]N/A[/dim]",
+                f"[{uar_style}]{uar_val:.1f}%[/{uar_style}]",
+                f"{phys.get('piir_percent', 100.0):.1f}%",
+                "[dim]Hours/Days[/dim]",
+                "[dim]N/A[/dim]",
+                "[dim]N/A[/dim]",
+                "[dim]N/A[/dim]",
+                "[dim]N/A[/dim]",
+            )
+        else:
+            table.add_row(
+                b_id,
+                f"{sem.get('crr_percent', 0.0):.1f}%",
+                f"{sem.get('cfg_pass_rate_percent', 0.0):.1f}%",
+                f"[{uar_style}]{uar_val:.1f}%[/{uar_style}]",
+                f"{phys.get('piir_percent', 0.0):.1f}%",
+                f"{eff.get('mean_latency_s', 0.0):.2f}s",
+                f"{int(eff.get('mean_prompt_tokens', 0))}",
+                f"{int(eff.get('mean_total_tokens', 0))}",
+                f"{eff.get('hitl_reduction_percent', 0.0):.1f}%",
+                f"{radg.get('gda_percent', 0.0):.1f}%",
+            )
 
     console.print()
     console.print(table)
+
+    # Secondary Table: Per-Class Breakdown
+    if per_class_metrics:
+        class_table = Table(
+            title="End-to-End Latency & Token Footprint by Intent Category",
+            box=box.ROUNDED,
+            header_style="bold magenta",
+        )
+        class_table.add_column("Baseline System", style="bold white")
+        class_table.add_column("Class I (Nominal)", justify="center")
+        class_table.add_column("Class II (Ambiguous)", justify="center")
+        class_table.add_column("Class III (Infeasible)", justify="center")
+        class_table.add_column("Class IV (Adversarial)", justify="center")
+
+        for b_id, c_data in per_class_metrics.items():
+            if b_id == "traditional_sdon":
+                class_table.add_row(
+                    b_id,
+                    "[dim]Hours/Days[/dim]",
+                    "[dim]Hours/Days[/dim]",
+                    "[dim]Hours/Days[/dim]",
+                    "[dim]Hours/Days[/dim]",
+                )
+            else:
+                nom = c_data.get("I_Nominal", {})
+                amb = c_data.get("II_Ambiguous", {})
+                inf = c_data.get("III_Infeasible", {})
+                adv = c_data.get("IV_Adversarial", {})
+
+                class_table.add_row(
+                    b_id,
+                    f"{nom.get('mean_latency_s', 0.0):.2f}s ({int(nom.get('mean_tokens', 0))}t)",
+                    f"{amb.get('mean_latency_s', 0.0):.2f}s ({int(amb.get('mean_tokens', 0))}t)",
+                    f"{inf.get('mean_latency_s', 0.0):.2f}s ({int(inf.get('mean_tokens', 0))}t)",
+                    f"{adv.get('mean_latency_s', 0.0):.2f}s ({int(adv.get('mean_tokens', 0))}t)",
+                )
+
+        console.print(class_table)
+
     console.print()
 
 
@@ -749,7 +856,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--baselines",
         type=str,
-        default="proposed_radg,llm_only,always_on,always_off,traditional_sdon",
+        default="proposed_radg,llm_only,always_on,traditional_sdon",
         help="Comma-separated list of baselines to evaluate",
     )
     parser.add_argument(

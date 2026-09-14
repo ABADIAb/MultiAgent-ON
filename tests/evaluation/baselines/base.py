@@ -20,6 +20,11 @@ from src.core.qot_calculator import assess_qot
 from src.services.testbed_client import MockTestbedClient
 
 
+STANDARD_FOLLOW_UP_INTENT: str = (
+    "Route traffic from Berlin to Frankfurt with at least 12 dB GSNR."
+)
+
+
 # ---------------------------------------------------------------------------
 # Output Schema Contract
 # ---------------------------------------------------------------------------
@@ -31,6 +36,8 @@ class BaselineResult(TypedDict, total=False):
     intent_id: str
     baseline_id: str
     action: Literal["approve", "clarify", "replan"]
+    initial_action: Literal["approve", "clarify", "replan"] | None
+    final_action: Literal["approve", "clarify", "replan"] | None
     selected_path: list[str] | None
     computed_gsnr_dB: float | None
     qot_feasible: bool | None

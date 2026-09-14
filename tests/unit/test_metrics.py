@@ -20,6 +20,7 @@ from tests.evaluation.baselines.base import BaselineResult
 from tests.evaluation.scripts.metrics import (
     compute_baseline_metrics,
     compute_efficiency_metrics,
+    compute_per_class_metrics,
     compute_physical_metrics,
     compute_radg_metrics,
     compute_semantic_metrics,
@@ -349,8 +350,6 @@ class TestPhysicalMetrics:
         metrics = compute_physical_metrics(perfect_radg_results, sample_intents)
         # The core thesis invariant: UAR MUST be strictly 0.0%
         assert metrics["uar_percent"] == 0.0
-        # QFR: 100% of approved plans are physically feasible
-        assert metrics["qfr_percent"] == pytest.approx(100.0)
         # PIIR: 100% of Class III infeasible intents are intercepted and replanned
         assert metrics["piir_percent"] == pytest.approx(100.0)
 
@@ -362,7 +361,6 @@ class TestPhysicalMetrics:
         metrics = compute_physical_metrics(flawed_llm_only_results, sample_intents)
         # LLM-only approved all 5 intents, but only 1 was feasible -> 4/5 unsafe approvals (80% UAR)
         assert metrics["uar_percent"] == pytest.approx(80.0)
-        assert metrics["qfr_percent"] == pytest.approx(20.0)
         # PIIR: 0% interception of Class III (it approved the infeasible intent)
         assert metrics["piir_percent"] == pytest.approx(0.0)
 
@@ -379,7 +377,7 @@ class TestPhysicalMetrics:
         ]
         metrics = compute_physical_metrics(results, sample_intents)
         assert metrics["uar_percent"] == 0.0
-        assert metrics["qfr_percent"] == 0.0
+        assert metrics["piir_percent"] == 100.0
 
 
 # ---------------------------------------------------------------------------
@@ -410,12 +408,46 @@ class TestEfficiencyMetrics:
 
         # Mean tokens for proposed should be ~209 vs ~2346 for llm_only
         assert metrics["mean_prompt_tokens"] < 200
-        # Prompt token savings vs LLM-Only should be > 90%
-        assert metrics["token_reduction_percent"] > 90.0
+        assert metrics["mean_total_tokens"] < 300
 
         # Human intervention reduction vs Always-On (which has 2 per intent = 10 total)
         # Proposed had 3 interrupts total across 5 intents -> 70% reduction
         assert metrics["hitl_reduction_percent"] == pytest.approx(70.0)
+
+
+# ---------------------------------------------------------------------------
+# Per-Class Metrics Tests
+# ---------------------------------------------------------------------------
+
+
+class TestPerClassMetrics:
+    def test_compute_per_class_metrics_breakdown(
+        self,
+        perfect_radg_results: list[BaselineResult],
+        flawed_llm_only_results: list[BaselineResult],
+        sample_intents: list[dict[str, Any]],
+    ):
+        all_baselines = {
+            "proposed_radg": perfect_radg_results,
+            "llm_only": flawed_llm_only_results,
+        }
+        breakdown = compute_per_class_metrics(all_baselines, sample_intents)
+
+        assert "proposed_radg" in breakdown
+        assert "llm_only" in breakdown
+
+        # Check all 4 risk classes exist
+        for c in ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]:
+            assert c in breakdown["proposed_radg"]
+            assert "mean_latency_s" in breakdown["proposed_radg"][c]
+            assert "mean_tokens" in breakdown["proposed_radg"][c]
+            assert "count" in breakdown["proposed_radg"][c]
+
+        # In sample_intents: 2 nominal, 1 ambiguous, 1 infeasible, 1 adversarial
+        assert breakdown["proposed_radg"]["I_Nominal"]["count"] == 2
+        assert breakdown["proposed_radg"]["II_Ambiguous"]["count"] == 1
+        assert breakdown["proposed_radg"]["III_Infeasible"]["count"] == 1
+        assert breakdown["proposed_radg"]["IV_Adversarial"]["count"] == 1
 
 
 # ---------------------------------------------------------------------------

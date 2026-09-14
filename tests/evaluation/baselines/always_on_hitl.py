@@ -25,6 +25,7 @@ from src.nodes.intent_ingest import intent_ingest_node
 from src.nodes.pddl_parser import pddl_parser_node
 from src.nodes.qot_validation import qot_validation_node
 from tests.evaluation.baselines.base import (
+    STANDARD_FOLLOW_UP_INTENT,
     BaseBaseline,
     BaselineResult,
     register_baseline,
@@ -47,6 +48,7 @@ class AlwaysOnHITLBaseline(BaseBaseline):
         prompt_tokens = 0
         completion_tokens = 0
         hitl_interrupts = 0
+        initial_action = "approve"
 
         # State setup
         state: dict[str, Any] = {
@@ -80,32 +82,24 @@ class AlwaysOnHITLBaseline(BaseBaseline):
         # In Always-On HITL, the operator is ALWAYS queried to verify the PDDL
         hitl_interrupts += 1
 
-        # Simulate operator verification response
+        # Handle ambiguous, malformed, or adversarial intent via operator clarification follow-up
         if (
             not pddl_valid
             or "Ambiguous" in intent_class
             or "Adversarial" in intent_class
         ):
-            # Ambiguous or malformed intent requires clarification
-            action = "clarify"
-            return {
-                "intent_id": intent_id,
-                "baseline_id": self.baseline_id,
-                "action": action,
-                "selected_path": None,
-                "computed_gsnr_dB": None,
-                "qot_feasible": False,
-                "pddl_valid": pddl_valid,
-                "parsed_constraints": state.get("pddl_parsed_constraints"),
-                "hitl_interrupts": hitl_interrupts,
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-                "total_tokens": prompt_tokens + completion_tokens,
-                "execution_time_s": time.perf_counter() - start_time,
-                "planning_report": f"Always-On HITL Interrupted at Phase 3 (Clarify required for {intent_class})",
-                "error": state.get("error_context"),
-                "metadata": {"checkpoints_triggered": ["phase_3_semantic"]},
-            }
+            initial_action = "clarify"
+            # Operator clarifies by injecting clean, unambiguous intent
+            state["active_intent"] = STANDARD_FOLLOW_UP_INTENT
+            state["enriched_intent"] = STANDARD_FOLLOW_UP_INTENT
+            state["error_context"] = f"Operator clarified: {STANDARD_FOLLOW_UP_INTENT}"
+
+            prompt_tokens += self.count_tokens(STANDARD_FOLLOW_UP_INTENT)
+            re_parser_res = pddl_parser_node(state)  # type: ignore
+            state.update(re_parser_res)
+            re_pddl = state.get("pddl_constraints") or ""
+            pddl_valid = state.get("pddl_valid", False)
+            completion_tokens += self.count_tokens(re_pddl)
 
         # 3. Phase 4: Symbolic Solver
         solver_res = symbolic_solver_node(state)  # type: ignore
@@ -131,10 +125,29 @@ class AlwaysOnHITLBaseline(BaseBaseline):
             selected_path = best.get("path")
             computed_gsnr = best.get("snr_dB")
             qot_feasible = True
-            action = "approve"
         else:
-            action = "replan"
-            if qot_results:
+            # Physical infeasibility (Class III) triggers replan
+            if initial_action == "approve":
+                initial_action = "replan"
+            # Operator relaxes constraints via follow-up replan
+            hitl_interrupts += 1
+            state["active_intent"] = STANDARD_FOLLOW_UP_INTENT
+            state["enriched_intent"] = STANDARD_FOLLOW_UP_INTENT
+            prompt_tokens += self.count_tokens(STANDARD_FOLLOW_UP_INTENT)
+            re_parser_res = pddl_parser_node(state)  # type: ignore
+            state.update(re_parser_res)
+            re_solver_res = symbolic_solver_node(state)  # type: ignore
+            state.update(re_solver_res)
+            re_qot_res = qot_validation_node(state)  # type: ignore
+            state.update(re_qot_res)
+            re_qot_results = state.get("qot_results") or []
+            re_feasible = [p for p in re_qot_results if p.get("feasible")]
+            if re_feasible:
+                best = re_feasible[0]
+                selected_path = best.get("path")
+                computed_gsnr = best.get("snr_dB")
+                qot_feasible = True
+            elif qot_results:
                 selected_path = qot_results[0].get("path")
                 computed_gsnr = qot_results[0].get("snr_dB")
 
@@ -143,7 +156,9 @@ class AlwaysOnHITLBaseline(BaseBaseline):
         return {
             "intent_id": intent_id,
             "baseline_id": self.baseline_id,
-            "action": action,
+            "action": initial_action,  # type: ignore
+            "initial_action": initial_action,  # type: ignore
+            "final_action": "approve" if qot_feasible else initial_action,  # type: ignore
             "selected_path": selected_path,
             "computed_gsnr_dB": computed_gsnr,
             "qot_feasible": qot_feasible,
@@ -157,6 +172,7 @@ class AlwaysOnHITLBaseline(BaseBaseline):
             "planning_report": f"Always-On HITL completed with {hitl_interrupts} mandatory operator interventions.",
             "error": state.get("error_context"),
             "metadata": {
-                "checkpoints_triggered": ["phase_3_semantic", "phase_6_physical"]
+                "checkpoints_triggered": ["phase_3_semantic", "phase_6_physical"],
+                "initial_action": initial_action,
             },
         }

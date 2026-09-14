@@ -16,6 +16,7 @@ Placement: nodes/ — LangGraph node function with conditional routing.
 from __future__ import annotations
 
 import logging
+import re
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
@@ -38,10 +39,11 @@ Key evaluation rules:
 - Focus on meaning: Do NOT penalize the reconstruction for fixing obvious typos (e.g., "Rout" -> "Route") or mapping misspelled locations to their canonical topological names (e.g., "Frankort" -> "Frankfurt"). This is a desired behavior of the parser.
 - If the operator provided clarifications, constraint adjustments, or relaxations (e.g., avoiding specific nodes/links, relaxing GSNR, or modifying endpoints), the reconstruction MUST reflect those adjustments. This is faithful adherence to operator instructions, NOT divergence (score near 0.0).
 - Penalize ONLY unprompted hallucinations (constraints neither in the base intent nor in the operator's refinements) or omitted constraints that were explicitly requested.
+- If the reconstruction explicitly flags an inconsistency, error, or missing endpoint, you MUST score it as highly divergent (1.0) so the system pauses for operator clarification.
 
 Output ONLY a single decimal number between 0.0 and 1.0, where:
   0.0 = The reconstruction faithfully matches the operator's semantic intent and refinements (even if words changed or typos were fixed).
-  1.0 = The reconstruction is completely wrong, contradicts operator feedback, or has severe hallucinated constraints.
+  1.0 = The reconstruction is completely wrong, contradicts operator feedback, has severe hallucinated constraints, or flags an unresolved inconsistency.
   0.2 = Minor paraphrasing differences but all active constraints match operator intent.
   0.5 = Some requested constraints are missing or contradictory constraints were introduced.
 
@@ -71,8 +73,17 @@ def _score_semantic_agreement(intent: str, reconstruction: str) -> float:
     response = llm.invoke(messages)
     raw = response.content.strip() if isinstance(response.content, str) else "0.5"
 
+    # Strip reasoning blocks (<think>...</think>) from reasoning models
+    cleaned = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+
+    # Extract first valid decimal or integer float in [0.0, 1.0]
+    match = re.search(r"\b(0(?:\.\d+)?|1(?:\.0+)?)\b", cleaned)
+    if match:
+        score = float(match.group(1))
+        return max(0.0, min(1.0, score))
+
     try:
-        score = float(raw)
+        score = float(cleaned)
         # Clamp to [0, 1] in case LLM returns out-of-range value
         return max(0.0, min(1.0, score))
     except ValueError:

@@ -25,13 +25,21 @@ Your job is to read a PDDL problem string that describes an optical \
 network routing request, and rewrite it as a clear, human-readable \
 English paragraph that a network operator can verify.
 
-Rules:
+CRITICAL INSTRUCTIONS:
+- Focus ONLY on the (:goal ...) section of the PDDL to identify the routing request and operator constraints.
+- NEVER mention or list topology facts, available links, or connected nodes from (:init ...) or (:objects ...). Do not discuss network infrastructure.
 - Start with "I understand you want to..."
-- Mention source and target nodes explicitly.
-- List ALL constraints (GSNR, bandwidth/capacity, avoid links, etc.) clearly.
-- Do NOT add information that is not in the PDDL.
-- Do NOT include the PDDL syntax itself — only plain English.
-- Be concise but complete.\
+- Mention the source and target nodes explicitly.
+- State all active constraints (e.g., minimum GSNR in dB, required bandwidth, avoided nodes, avoided links) clearly.
+- Flag any evident inconsistencies or missing endpoints in the PDDL.
+- Output ONLY plain English — no PDDL syntax, no code blocks, no filler.
+
+Target format:
+"I understand you want to route traffic from <source> to <target> with <constraints>."
+
+Example:
+PDDL goal: (and (route Berlin Munich) (min-gsnr 15) (avoid-node Leipzig))
+Reconstruction: I understand you want to route traffic from Berlin to Munich with a minimum GSNR of 15 dB, avoiding node Leipzig.\
 """
 
 

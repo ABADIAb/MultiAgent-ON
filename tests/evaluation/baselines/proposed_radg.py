@@ -23,6 +23,7 @@ from langgraph.types import Command
 from src.core.graph import compile_graph
 from src.core.state import ALLOWED_MSGPACK_MODULES
 from tests.evaluation.baselines.base import (
+    STANDARD_FOLLOW_UP_INTENT,
     BaseBaseline,
     BaselineResult,
     register_baseline,
@@ -40,7 +41,6 @@ class ProposedRADGBaseline(BaseBaseline):
         start_time = time.perf_counter()
         intent_id = intent_data.get("id", "unknown")
         intent_text = intent_data.get("intent_text", "")
-        intent_class = intent_data.get("class", "")
 
         checkpointer = InMemorySaver(
             serde=JsonPlusSerializer(allowed_msgpack_modules=ALLOWED_MSGPACK_MODULES)
@@ -76,15 +76,16 @@ class ProposedRADGBaseline(BaseBaseline):
         }
 
         hitl_interrupts = 0
+        initial_action: str | None = None
         stream_input: Any = initial_state
-        max_turns = 5
+        max_turns = 4
         turn = 0
         final_values: dict[str, Any] = {}
 
         while turn < max_turns:
             turn += 1
             # Execute until completion or interrupt
-            for event in graph.stream(
+            for _ in graph.stream(
                 stream_input, config=config, stream_mode="updates"
             ):
                 pass
@@ -92,7 +93,7 @@ class ProposedRADGBaseline(BaseBaseline):
             state = graph.get_state(config)
             final_values = state.values
 
-            # If graph reached an interrupt
+            # Check if graph reached an interrupt
             if state.next:
                 hitl_interrupts += 1
                 interrupt_val: dict[str, Any] = {}
@@ -104,48 +105,60 @@ class ProposedRADGBaseline(BaseBaseline):
 
                 decision_type = interrupt_val.get("decision", "")
 
-                # In benchmark mode, simulate operator response:
-                # 1. Phase 3b Clarification
-                if "usem_score" in interrupt_val or decision_type == "clarify":
-                    # If it's ambiguous or adversarial, the operator clarifies
-                    if "Ambiguous" in intent_class or "Adversarial" in intent_class:
-                        # Return early recording that clarification was triggered
-                        action = "clarify"
-                        break
+                # Record the initial gate action on the first interruption
+                if initial_action is None:
+                    if (
+                        "usem_score" in interrupt_val
+                        or decision_type == "clarify"
+                        or interrupt_val.get("status") == "clarification_required"
+                    ):
+                        initial_action = "clarify"
+                    elif decision_type == "replan":
+                        initial_action = "replan"
                     else:
-                        # If pddl is valid, approve
-                        stream_input = Command(resume={"action": "approve"})
-                        continue
+                        initial_action = "clarify"
 
-                # 2. Phase 6 Replan (QoT infeasible)
+                # Automated recovery follow-up response for E2E benchmarking:
+                # Provide a clean, nominal intent so execution continues to synthesis
+                if "usem_score" in interrupt_val or decision_type == "clarify" or interrupt_val.get("status") == "clarification_required":
+                    stream_input = Command(
+                        resume={
+                            "action": "refine",
+                            "feedback": STANDARD_FOLLOW_UP_INTENT,
+                        }
+                    )
+                    continue
                 elif decision_type == "replan":
-                    action = "replan"
-                    break
-
-                # Generic fallback
-                action = "clarify"
-                break
+                    stream_input = Command(
+                        resume={
+                            "action": "replan",
+                            "feedback": STANDARD_FOLLOW_UP_INTENT,
+                        }
+                    )
+                    continue
+                else:
+                    stream_input = Command(
+                        resume={
+                            "action": "refine",
+                            "feedback": STANDARD_FOLLOW_UP_INTENT,
+                        }
+                    )
+                    continue
             else:
-                # Execution finished cleanly
+                # Execution reached terminal state without interrupts
+                if initial_action is None:
+                    radg_dec = final_values.get("radg_decision")
+                    initial_action = "approve" if radg_dec == "approve" else (radg_dec or "approve")
                 break
 
-        # Extract results
+        # If loop exited while still in interrupt state (exceeded max_turns)
+        if initial_action is None:
+            initial_action = "clarify"
+
         pddl_valid = final_values.get("pddl_valid")
         radg_decision = final_values.get("radg_decision")
         qot_results = final_values.get("qot_results") or []
         planning_report = final_values.get("planning_report")
-
-        if state.next:
-            # Stopped at an interrupt
-            action = (
-                "replan" if final_values.get("radg_decision") == "replan" else "clarify"
-            )
-        else:
-            action = (
-                "approve"
-                if radg_decision == "approve"
-                else (radg_decision or "approve")
-            )
 
         selected_path: list[str] | None = None
         computed_gsnr: float | None = None
@@ -161,21 +174,39 @@ class ProposedRADGBaseline(BaseBaseline):
             computed_gsnr = qot_results[0].get("snr_dB")
             qot_feasible = False
 
-        # Token counting across pipeline artifacts
-        topo_context = final_values.get("topology_context", "")
-        pddl_str = final_values.get("pddl_constraints", "")
-        recon_str = final_values.get("hitl_reconstruction", "")
-        report_str = planning_report or ""
+        # Cumulative token counting across all messages and state artifacts
+        messages = final_values.get("messages", [])
+        prompt_tokens = 0
+        completion_tokens = 0
 
-        prompt_tokens = self.count_tokens(topo_context + intent_text)
-        completion_tokens = self.count_tokens(pddl_str + recon_str + report_str)
+        for msg in messages:
+            content = getattr(msg, "content", "")
+            if isinstance(content, str):
+                if getattr(msg, "type", "") == "human" or getattr(msg, "name", "") == "human":
+                    prompt_tokens += self.count_tokens(content)
+                else:
+                    completion_tokens += self.count_tokens(content)
+
+        topo_context = final_values.get("topology_context", "")
+        if topo_context:
+            prompt_tokens += self.count_tokens(topo_context)
+
+        pddl_str = final_values.get("pddl_constraints", "")
+        if pddl_str:
+            completion_tokens += self.count_tokens(pddl_str)
+
+        if planning_report:
+            completion_tokens += self.count_tokens(planning_report)
 
         exec_time = time.perf_counter() - start_time
+        final_action = "approve" if (not state.next and radg_decision == "approve") else initial_action
 
         return {
             "intent_id": intent_id,
             "baseline_id": self.baseline_id,
-            "action": action,  # type: ignore
+            "action": initial_action,  # type: ignore
+            "initial_action": initial_action,  # type: ignore
+            "final_action": final_action,  # type: ignore
             "selected_path": selected_path,
             "computed_gsnr_dB": computed_gsnr,
             "qot_feasible": qot_feasible,
@@ -192,5 +223,8 @@ class ProposedRADGBaseline(BaseBaseline):
                 "usem_score": final_values.get("usem_score"),
                 "usem_passed": final_values.get("usem_passed"),
                 "radg_decision": radg_decision,
+                "initial_action": initial_action,
+                "final_action": final_action,
+                "turns": turn,
             },
         }

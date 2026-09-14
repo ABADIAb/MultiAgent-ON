@@ -22,12 +22,11 @@ from langchain_core.messages import AIMessage
 from src.core.llm import set_llm
 from src.nodes.intent_ingest import IntentSummary
 from tests.evaluation.baselines import (
-    AlwaysOffHITLBaseline,
-    AlwaysOnHITLBaseline,
     BaselineResult,
     LLMOnlyBaseline,
     ProposedRADGBaseline,
     TraditionalSDONBaseline,
+    AlwaysOnHITLBaseline,
     get_baseline,
     list_baselines,
     run_baseline,
@@ -105,7 +104,6 @@ class TestBaselineRegistry:
         expected = [
             "llm_only",
             "always_on",
-            "always_off",
             "traditional_sdon",
             "proposed_radg",
         ]
@@ -115,7 +113,6 @@ class TestBaselineRegistry:
     def test_get_baseline_instantiates_correct_classes(self):
         assert isinstance(get_baseline("llm_only"), LLMOnlyBaseline)
         assert isinstance(get_baseline("always_on"), AlwaysOnHITLBaseline)
-        assert isinstance(get_baseline("always_off"), AlwaysOffHITLBaseline)
         assert isinstance(get_baseline("traditional_sdon"), TraditionalSDONBaseline)
         assert isinstance(get_baseline("proposed_radg"), ProposedRADGBaseline)
 
@@ -159,36 +156,37 @@ class TestBaseBaselineUtilities:
 
 
 class TestTraditionalSDONBaseline:
-    """Validate Baseline D (Traditional SDON / PCE without LLM)."""
+    """Validate Baseline D (Traditional SDON / PCE static industrial reference)."""
 
-    def test_traditional_sdon_nominal_intent(self, sample_nominal_intent):
+    def test_traditional_sdon_static_reference(self, sample_nominal_intent):
         baseline = get_baseline("traditional_sdon")
         result = baseline.run(sample_nominal_intent)
 
         assert result["baseline_id"] == "traditional_sdon"
         assert result["action"] == "approve"
+        assert result["initial_action"] == "approve"
+        assert result["final_action"] == "approve"
         assert result["qot_feasible"] is True
         assert result["prompt_tokens"] == 0
         assert result["completion_tokens"] == 0
+        assert result["total_tokens"] == 0
         assert result["hitl_interrupts"] == 1  # 100% manual authoring setup
-        assert result["selected_path"] is not None
-        assert result["selected_path"][0] == "Berlin"
-        assert result["selected_path"][-1] == "Frankfurt"
+        assert result["selected_path"] is None
+        assert result["metadata"]["mode"] == "static_reference"
+        assert result["metadata"]["provisioning_latency"] == "Hours to Days"
+        assert result["metadata"]["uar_percent"] == 0.0
 
-    def test_traditional_sdon_ambiguous_intent(self, sample_ambiguous_intent):
+    def test_traditional_sdon_non_nominal_intent_also_static(
+        self, sample_ambiguous_intent
+    ):
         baseline = get_baseline("traditional_sdon")
         result = baseline.run(sample_ambiguous_intent)
 
-        assert result["action"] == "replan"
-        assert result["selected_path"] is None
-        assert "underspecified" in (result["planning_report"] or "")
-
-    def test_traditional_sdon_adversarial_intent(self, sample_adversarial_intent):
-        baseline = get_baseline("traditional_sdon")
-        result = baseline.run(sample_adversarial_intent)
-
-        assert result["action"] == "replan"
-        assert result["selected_path"] is None
+        assert result["baseline_id"] == "traditional_sdon"
+        assert result["action"] == "approve"
+        assert result["prompt_tokens"] == 0
+        assert result["total_tokens"] == 0
+        assert result["metadata"]["mode"] == "static_reference"
 
 
 # ---------------------------------------------------------------------------
@@ -306,43 +304,7 @@ class TestAlwaysOnHITLBaseline:
 
 
 # ---------------------------------------------------------------------------
-# 6. Baseline C: Always-Off HITL Tests
-# ---------------------------------------------------------------------------
-
-
-class TestAlwaysOffHITLBaseline:
-    """Validate Baseline C (Decision gates bypassed, strictly zero interrupts)."""
-
-    def test_always_off_bypasses_gates_zero_hitl(self, sample_nominal_intent):
-        valid_pddl = (
-            "(define (problem route-berlin-frankfurt)\n"
-            "  (:domain optical-network)\n"
-            "  (:objects Berlin Frankfurt Hannover - node)\n"
-            "  (:init (connected Berlin Hannover) (connected Hannover Frankfurt))\n"
-            "  (:goal (and (route Berlin Frankfurt) (min-gsnr 12.0)))\n"
-            ")"
-        )
-        mock_llm = MagicMock()
-        mock_structured = MagicMock()
-        mock_structured.invoke.return_value = IntentSummary(
-            summary="Route from Berlin to Frankfurt with min GSNR 12 dB",
-            source_node="Berlin",
-            target_node="Frankfurt",
-        )
-        mock_llm.with_structured_output.return_value = mock_structured
-        mock_llm.invoke.return_value = AIMessage(content=valid_pddl)
-        set_llm(mock_llm)
-
-        baseline = get_baseline("always_off")
-        result = baseline.run(sample_nominal_intent)
-
-        assert result["baseline_id"] == "always_off"
-        assert result["hitl_interrupts"] == 0  # Strictly zero
-        assert result["metadata"].get("gates_bypassed") is True
-
-
-# ---------------------------------------------------------------------------
-# 7. Proposed RADG Baseline Tests
+# 6. Proposed RADG Baseline Tests
 # ---------------------------------------------------------------------------
 
 
@@ -394,9 +356,81 @@ class TestProposedRADGBaseline:
         assert result["qot_feasible"] is True
         assert result["selected_path"] is not None
 
+    def test_proposed_radg_ambiguous_intent_recovery_via_follow_up(
+        self, sample_ambiguous_intent
+    ):
+        """Ambiguous intent triggers HITL clarify, and recovers via follow-up intent."""
+        from src.nodes.intent_reconciler import IntentUpdateType, RefinedIntentAnalysis
+
+        valid_pddl = (
+            "(define (problem route-berlin-frankfurt)\n"
+            "  (:domain optical-network)\n"
+            "  (:objects Berlin Frankfurt Hannover - node)\n"
+            "  (:init (connected Berlin Hannover) (connected Hannover Frankfurt))\n"
+            "  (:goal (and (route Berlin Frankfurt) (min-gsnr 12.0)))\n"
+            ")"
+        )
+        mock_llm = MagicMock()
+
+        def _structured_dispatcher(schema, *args, **kwargs):
+            mock_struct = MagicMock()
+            if schema == RefinedIntentAnalysis:
+                mock_struct.invoke.return_value = RefinedIntentAnalysis(
+                    update_type=IntentUpdateType.FULL_REPLACEMENT,
+                    reasoning="Clarified route from Berlin to Frankfurt",
+                    updated_intent="Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.",
+                )
+            else:
+                mock_struct.invoke.return_value = IntentSummary(
+                    summary="Connect Berlin to ambiguous region",
+                    source_node="Berlin",
+                    target_node=None,  # Missing target triggers clarify
+                )
+            return mock_struct
+
+        mock_llm.with_structured_output.side_effect = _structured_dispatcher
+
+        def _dispatcher(messages, *args, **kwargs):
+            first_msg = messages[0] if messages else None
+            system_prompt = getattr(first_msg, "content", "")
+            last_msg = messages[-1] if messages else None
+            user_content = getattr(last_msg, "content", "")
+
+            if (
+                "refinement feedback" in user_content.lower()
+                or "operator clarifications" in user_content.lower()
+                or "standard_follow_up" in user_content.lower()
+                or "frankfurt with at least 12 db" in user_content.lower()
+            ):
+                return AIMessage(content=valid_pddl)
+            elif "PDDL Parser module" in system_prompt:
+                # First pass: incomplete problem lacking mandatory sections
+                return AIMessage(content="(define (problem incomplete))")
+            elif "Reverse Prompting module" in system_prompt:
+                return AIMessage(
+                    content="Route from Berlin to Frankfurt with min GSNR 12.0 dB"
+                )
+            elif "semantic similarity evaluator" in system_prompt:
+                return AIMessage(content="0.05")
+            return AIMessage(content=valid_pddl)
+
+        mock_llm.invoke.side_effect = _dispatcher
+        set_llm(mock_llm)
+
+        baseline = get_baseline("proposed_radg")
+        result = baseline.run(sample_ambiguous_intent)
+
+        assert result["baseline_id"] == "proposed_radg"
+        assert result["initial_action"] == "clarify"
+        assert result["action"] == "clarify"  # Preserved for gate metric evaluation
+        assert result["final_action"] == "approve"  # Recovered to approval
+        assert result["hitl_interrupts"] == 1
+        assert result["qot_feasible"] is True
+        assert result["selected_path"] is not None
+
 
 # ---------------------------------------------------------------------------
-# 8. Polymorphic Runner Contract Verification
+# 7. Polymorphic Runner Contract Verification
 # ---------------------------------------------------------------------------
 
 
@@ -405,7 +439,7 @@ class TestPolymorphicContract:
 
     @pytest.mark.parametrize(
         "baseline_id",
-        ["traditional_sdon", "llm_only", "always_on", "always_off", "proposed_radg"],
+        ["traditional_sdon", "llm_only", "always_on", "proposed_radg"],
     )
     def test_standardized_keys_present_in_result(
         self, baseline_id, sample_nominal_intent

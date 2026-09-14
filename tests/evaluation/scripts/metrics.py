@@ -131,23 +131,27 @@ def compute_physical_metrics(
 
     Metrics:
       - uar_percent: Unsafe Approval Rate (%) -> STRICT 0% FOR PROPOSED
-      - qfr_percent: QoT Feasibility Rate (%) -> 100% when UAR=0%
       - piir_percent: Physical Infeasibility Interception Rate (%)
     """
     if not results:
         return {
             "uar_percent": 0.0,
-            "qfr_percent": 0.0,
+            "piir_percent": 100.0,
+        }
+
+    # Special handling for static reference traditional SDON
+    if results and results[0].get("baseline_id") == "traditional_sdon":
+        return {
+            "uar_percent": 0.0,
             "piir_percent": 100.0,
         }
 
     intents_by_id = {item.get("id"): item for item in intents}
     approved = [r for r in results if r.get("action") == "approve"]
 
-    # 1. UAR and QFR
+    # 1. UAR
     if not approved:
         uar = 0.0
-        qfr = 0.0
     else:
         unsafe_count = 0
         for res in approved:
@@ -167,7 +171,6 @@ def compute_physical_metrics(
                 unsafe_count += 1
 
         uar = (unsafe_count / len(approved)) * 100.0
-        qfr = ((len(approved) - unsafe_count) / len(approved)) * 100.0
 
     # 2. PIIR (Physical Infeasibility Interception Rate for Class III)
     class_3_intents = [
@@ -196,7 +199,6 @@ def compute_physical_metrics(
 
     return {
         "uar_percent": round(uar, 2),
-        "qfr_percent": round(qfr, 2),
         "piir_percent": round(piir, 2),
     }
 
@@ -216,7 +218,6 @@ def compute_efficiency_metrics(
     Metrics:
       - mean_latency_s, median_latency_s, p95_latency_s
       - mean_prompt_tokens, mean_completion_tokens, mean_total_tokens
-      - token_reduction_percent (vs llm_only baseline)
       - hitl_reduction_percent (vs always_on baseline)
     """
     if not results:
@@ -227,7 +228,18 @@ def compute_efficiency_metrics(
             "mean_prompt_tokens": 0.0,
             "mean_completion_tokens": 0.0,
             "mean_total_tokens": 0.0,
-            "token_reduction_percent": 0.0,
+            "hitl_reduction_percent": 0.0,
+        }
+
+    # Traditional SDON has non-applicable execution runtime (hours/days) and 0 LLM tokens
+    if baseline_id == "traditional_sdon":
+        return {
+            "mean_latency_s": 0.0,
+            "median_latency_s": 0.0,
+            "p95_latency_s": 0.0,
+            "mean_prompt_tokens": 0.0,
+            "mean_completion_tokens": 0.0,
+            "mean_total_tokens": 0.0,
             "hitl_reduction_percent": 0.0,
         }
 
@@ -245,17 +257,6 @@ def compute_efficiency_metrics(
     mean_prompt = statistics.mean(prompt_tokens)
     mean_comp = statistics.mean(completion_tokens)
     mean_tot = statistics.mean(total_tokens)
-
-    # Token reduction vs LLM-Only baseline
-    token_reduction = 0.0
-    if all_results and "llm_only" in all_results:
-        ref_prompts = [r.get("prompt_tokens", 0) for r in all_results["llm_only"]]
-        ref_mean_prompt = statistics.mean(ref_prompts) if ref_prompts else 0.0
-        if ref_mean_prompt > 0:
-            token_reduction = max(
-                0.0,
-                ((ref_mean_prompt - mean_prompt) / ref_mean_prompt) * 100.0,
-            )
 
     # HITL reduction vs Always-On baseline
     hitl_reduction = 0.0
@@ -275,7 +276,6 @@ def compute_efficiency_metrics(
         "mean_prompt_tokens": round(mean_prompt, 1),
         "mean_completion_tokens": round(mean_comp, 1),
         "mean_total_tokens": round(mean_tot, 1),
-        "token_reduction_percent": round(token_reduction, 2),
         "hitl_reduction_percent": round(hitl_reduction, 2),
     }
 
@@ -403,23 +403,79 @@ def compute_all_baselines_metrics(
 
 
 # ---------------------------------------------------------------------------
+# Per-Class Metrics Calculation (E2E Latency & Tokens by Intent Risk Class)
+# ---------------------------------------------------------------------------
+
+
+def compute_per_class_metrics(
+    results_by_baseline: dict[str, list[BaselineResult]],
+    intents: list[dict[str, Any]],
+) -> dict[str, dict[str, dict[str, float]]]:
+    """Calculate mean E2E latency and total token consumption broken down by intent risk class.
+
+    Returns:
+        {baseline_id: {class_name: {"mean_latency_s": ..., "mean_tokens": ..., "count": ...}}}
+    """
+    intents_by_id = {item.get("id"): item for item in intents}
+    classes = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
+
+    breakdown: dict[str, dict[str, dict[str, float]]] = {}
+
+    for b_id, results in results_by_baseline.items():
+        breakdown[b_id] = {}
+        for c in classes:
+            c_results = [
+                r
+                for r in results
+                if intents_by_id.get(r.get("intent_id"), {}).get("class") == c
+            ]
+            if not c_results:
+                breakdown[b_id][c] = {
+                    "mean_latency_s": 0.0,
+                    "mean_tokens": 0.0,
+                    "count": 0,
+                }
+                continue
+
+            latencies = [r.get("execution_time_s", 0.0) for r in c_results]
+            tokens = [r.get("total_tokens", 0) for r in c_results]
+
+            breakdown[b_id][c] = {
+                "mean_latency_s": (
+                    round(statistics.mean(latencies), 3)
+                    if b_id != "traditional_sdon"
+                    else 0.0
+                ),
+                "mean_tokens": (
+                    round(statistics.mean(tokens), 1)
+                    if b_id != "traditional_sdon"
+                    else 0.0
+                ),
+                "count": len(c_results),
+            }
+
+    return breakdown
+
+
+# ---------------------------------------------------------------------------
 # Markdown Table Generation
 # ---------------------------------------------------------------------------
 
 
-def generate_summary_markdown(metrics_by_baseline: dict[str, dict[str, Any]]) -> str:
+def generate_summary_markdown(
+    metrics_by_baseline: dict[str, dict[str, Any]],
+    per_class_breakdown: dict[str, dict[str, dict[str, float]]] | None = None,
+) -> str:
     """Generate a clean, publication-ready markdown summary table across all baselines."""
     headers = [
         "Baseline",
         "CRR (%)",
         "CFG-PR (%)",
         "UAR (%)",
-        "QFR (%)",
         "PIIR (%)",
         "Latency (s)",
         "Prompt Tokens",
         "Total Tokens",
-        "ΔTokens (%)",
         "ΔHITL (%)",
         "GDA (%)",
         "FPR (%)",
@@ -429,8 +485,7 @@ def generate_summary_markdown(metrics_by_baseline: dict[str, dict[str, Any]]) ->
         "proposed_radg": "**Proposed (Neurosymbolic RADG)**",
         "llm_only": "Baseline A (Monolithic LLM)",
         "always_on": "Baseline B (Always-On HITL)",
-        "always_off": "Baseline C (Always-Off HITL)",
-        "traditional_sdon": "Baseline D (Traditional SDON)",
+        "traditional_sdon": "Baseline C (Traditional SDON / PCE)",
     }
 
     rows: list[list[str]] = []
@@ -441,21 +496,35 @@ def generate_summary_markdown(metrics_by_baseline: dict[str, dict[str, Any]]) ->
         eff = data.get("efficiency", {})
         radg = data.get("radg", {})
 
-        row = [
-            label,
-            f"{sem.get('crr_percent', 0.0):.1f}%",
-            f"{sem.get('cfg_pass_rate_percent', 0.0):.1f}%",
-            f"{phys.get('uar_percent', 0.0):.1f}%",
-            f"{phys.get('qfr_percent', 0.0):.1f}%",
-            f"{phys.get('piir_percent', 0.0):.1f}%",
-            f"{eff.get('mean_latency_s', 0.0):.2f}s",
-            f"{int(eff.get('mean_prompt_tokens', 0))}",
-            f"{int(eff.get('mean_total_tokens', 0))}",
-            f"{eff.get('token_reduction_percent', 0.0):.1f}%",
-            f"{eff.get('hitl_reduction_percent', 0.0):.1f}%",
-            f"{radg.get('gda_percent', 0.0):.1f}%",
-            f"{radg.get('fpr_percent', 0.0):.1f}%",
-        ]
+        if b_id == "traditional_sdon":
+            # Traditional SDON is a non-LLM static industrial reference
+            row = [
+                label,
+                "N/A",
+                "N/A",
+                "0.0%",
+                "100.0%",
+                "Hours / Days",
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A",
+                "N/A",
+            ]
+        else:
+            row = [
+                label,
+                f"{sem.get('crr_percent', 0.0):.1f}%",
+                f"{sem.get('cfg_pass_rate_percent', 0.0):.1f}%",
+                f"{phys.get('uar_percent', 0.0):.1f}%",
+                f"{phys.get('piir_percent', 0.0):.1f}%",
+                f"{eff.get('mean_latency_s', 0.0):.2f}s",
+                f"{int(eff.get('mean_prompt_tokens', 0))}",
+                f"{int(eff.get('mean_total_tokens', 0))}",
+                f"{eff.get('hitl_reduction_percent', 0.0):.1f}%",
+                f"{radg.get('gda_percent', 0.0):.1f}%",
+                f"{radg.get('fpr_percent', 0.0):.1f}%",
+            ]
         rows.append(row)
 
     md_lines = [
@@ -470,6 +539,37 @@ def generate_summary_markdown(metrics_by_baseline: dict[str, dict[str, Any]]) ->
     for r in rows:
         md_lines.append("| " + " | ".join(r) + " |")
 
+    # If per-class breakdown is provided, append the detailed category table
+    if per_class_breakdown:
+        md_lines.extend(
+            [
+                "",
+                "## End-to-End Latency & Token Footprint by Intent Risk Category",
+                "",
+                "| Baseline | Class I (Nominal) | Class II (Ambiguous) | Class III (Infeasible) | Class IV (Adversarial) |",
+                "|:---|:---:|:---:|:---:|:---:|",
+            ]
+        )
+        for b_id, c_data in per_class_breakdown.items():
+            label = baseline_labels.get(b_id, b_id)
+            if b_id == "traditional_sdon":
+                md_lines.append(
+                    f"| {label} | Hours/Days (0 tok) | Hours/Days (0 tok) | Hours/Days (0 tok) | Hours/Days (0 tok) |"
+                )
+            else:
+                nom = c_data.get("I_Nominal", {})
+                amb = c_data.get("II_Ambiguous", {})
+                inf = c_data.get("III_Infeasible", {})
+                adv = c_data.get("IV_Adversarial", {})
+
+                md_lines.append(
+                    f"| {label} | "
+                    f"{nom.get('mean_latency_s', 0.0):.2f}s ({int(nom.get('mean_tokens', 0))} tok) | "
+                    f"{amb.get('mean_latency_s', 0.0):.2f}s ({int(amb.get('mean_tokens', 0))} tok) | "
+                    f"{inf.get('mean_latency_s', 0.0):.2f}s ({int(inf.get('mean_tokens', 0))} tok) | "
+                    f"{adv.get('mean_latency_s', 0.0):.2f}s ({int(adv.get('mean_tokens', 0))} tok) |"
+                )
+
     md_lines.extend(
         [
             "",
@@ -477,12 +577,11 @@ def generate_summary_markdown(metrics_by_baseline: dict[str, dict[str, Any]]) ->
             "- **CRR (Constraint Retention Rate):** Percentage of operator constraints preserved in PDDL. (Target: 100%)",
             "- **CFG-PR (Context-Free Grammar Pass Rate):** PDDL AST structural validity. (Target: 100% on valid, 0% on adversarial)",
             "- **UAR (Unsafe Approval Rate):** Physically infeasible paths receiving `approve`. (**Absolute Target: 0.0%**)",
-            "- **QFR (QoT Feasibility Rate):** Ratio of approved paths that satisfy GSNR threshold under GN-model physics. (Target: 100%)",
             "- **PIIR (Physical Infeasibility Interception Rate):** Class III infeasible demands routed to `replan`. (Target: 100%)",
-            "- **ΔTokens (%):** Prompt token reduction achieved by Scoped Optical GraphRAG vs Baseline A. (Target: > 75%)",
             "- **ΔHITL (%):** Operator interruption reduction vs Always-On HITL baseline. (Target: > 70%)",
             "- **GDA (Gate Decision Accuracy):** Alignment with optimal RADG decision state. (Target: > 98%)",
             "- **FPR (False Positive Rate):** Unsafe or ambiguous intents approved. (Target: 0.0%)",
+            "- **Baseline C (Traditional SDON / PCE):** Static industrial reference. Manual setup latency (hours to days), 0 LLM tokens, UAR = 0.0%.",
             "",
         ]
     )
