@@ -33,6 +33,7 @@ This is the "System 2" deterministic engine — the LLM is strictly forbidden fr
 - `(avoid-link <id>)` → list of prohibited link IDs
 - `(max-hops <n>)` → maximum hop count constraint
 - `(min-gsnr <val>)` → minimum GSNR threshold
+- `(bandwidth <val>)` → optical capacity demand in Gbps (e.g., 100, 200, 400)
 
 ### Step 2 — Sub-Topology Reuse & Mock GraphRAG
 `symbolic_solver_node` reuses `subtopology_snapshot` directly if already extracted by Phase 1 (`intent_ingest_node` via Mock GraphRAG), avoiding redundant sub-graph extraction and preventing re-querying the full testbed graph.

@@ -32,14 +32,15 @@ You will be given:
 1. OPERATOR INTENT: The operator's natural language request, including any subsequent clarifications or refinements provided by the operator.
 2. RECONSTRUCTION: A system's reverse-prompting reconstruction of what it parsed.
 
-Your task: Rate how faithfully the reconstruction captures the OPERATOR INTENT.
+Your task: Rate how faithfully the reconstruction captures the OPERATOR INTENT semantically, NOT literally.
 
 Key evaluation rules:
+- Focus on meaning: Do NOT penalize the reconstruction for fixing obvious typos (e.g., "Rout" -> "Route") or mapping misspelled locations to their canonical topological names (e.g., "Frankort" -> "Frankfurt"). This is a desired behavior of the parser.
 - If the operator provided clarifications, constraint adjustments, or relaxations (e.g., avoiding specific nodes/links, relaxing GSNR, or modifying endpoints), the reconstruction MUST reflect those adjustments. This is faithful adherence to operator instructions, NOT divergence (score near 0.0).
 - Penalize ONLY unprompted hallucinations (constraints neither in the base intent nor in the operator's refinements) or omitted constraints that were explicitly requested.
 
 Output ONLY a single decimal number between 0.0 and 1.0, where:
-  0.0 = The reconstruction faithfully matches the operator's current intent and refinements.
+  0.0 = The reconstruction faithfully matches the operator's semantic intent and refinements (even if words changed or typos were fixed).
   1.0 = The reconstruction is completely wrong, contradicts operator feedback, or has severe hallucinated constraints.
   0.2 = Minor paraphrasing differences but all active constraints match operator intent.
   0.5 = Some requested constraints are missing or contradictory constraints were introduced.
@@ -98,12 +99,15 @@ def semantic_gate_node(state: AgentState) -> dict:
     """
     v_struct: bool = state.get("pddl_valid") or False
     intent: str = state.get("enriched_intent") or ""
+    active_intent: str | None = state.get("active_intent")
     reconstruction: str = state.get("hitl_reconstruction") or ""
     refinement_history: list[str] = state.get("refinement_history") or []
 
     # Layer 2: only meaningful if Layer 1 passed and we have a reconstruction
     if v_struct and reconstruction:
-        if refinement_history:
+        if active_intent:
+            effective_intent = active_intent
+        elif refinement_history:
             refinements_block = "\n".join(f"- {r}" for r in refinement_history)
             effective_intent = (
                 f"{intent}\n\n"

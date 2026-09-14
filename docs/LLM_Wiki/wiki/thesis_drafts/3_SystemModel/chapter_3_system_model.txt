@@ -341,7 +341,7 @@ If $v_{\text{struct}} = 0$, the plan fails the structural audit. The system assi
 \subsection{Deterministic Symbolic Solver and Graph Traversal}
 \label{subsec:symbolic_solver}
 
-Upon validation by the CFG gate, the system translates the PDDL predicates into topological graph pruning and constraint filtering operations. These execute over the $k$-hop subtopology $G_{\text{sub}}(V_{\text{sub}}, E_{\text{sub}})$ extracted by the Mock GraphRAG:
+Upon validation by the CFG gate, the system translates the PDDL predicates into topological graph pruning and constraint filtering operations. These execute over the $k$-hop subtopology $G_{\text{sub}}(V_{\text{sub}}, E_{\text{sub}})$ extracted by the topological context extractor:
 \begin{enumerate}
     \item \textbf{Topological Vertex Pruning:}
     The solver constructs a filtered vertex set $\widetilde{V}_{\text{sub}}$ by strictly subtracting any node $u$ designated by an $\text{avoid-node}$ predicate within the validated PDDL structure $\mathcal{S}_{\text{PDDL}}$. This guarantees the topological removal of prohibited entities prior to routing:

@@ -111,7 +111,7 @@ class TestONCAPIConnectivity:
         from src.core.state import TopologySnapshot
 
         topology = client.get_topology()
-        print(f"\n[ONC] Assembled topology:")
+        print("\n[ONC] Assembled topology:")
         print(f"  Nodes ({len(topology.nodes)}):")
         for node in topology.nodes:
             print(f"    - {node.name} ({node.node_id})")

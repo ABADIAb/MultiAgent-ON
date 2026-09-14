@@ -28,7 +28,7 @@ English paragraph that a network operator can verify.
 Rules:
 - Start with "I understand you want to..."
 - Mention source and target nodes explicitly.
-- List ALL constraints (GSNR, latency, avoid links, etc.) clearly.
+- List ALL constraints (GSNR, bandwidth/capacity, avoid links, etc.) clearly.
 - Do NOT add information that is not in the PDDL.
 - Do NOT include the PDDL syntax itself — only plain English.
 - Be concise but complete.\

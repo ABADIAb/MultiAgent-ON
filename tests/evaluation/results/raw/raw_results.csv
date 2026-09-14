@@ -1,0 +1,6 @@
+timestamp,intent_id,baseline_id,action,qot_feasible,computed_gsnr_dB,pddl_valid,hitl_interrupts,prompt_tokens,completion_tokens,total_tokens,execution_time_s,selected_path,error
+20260914_103006,intent_nom_01,proposed_radg,approve,True,17.185,True,0,451,805,1256,0.04607091900106752,Hamburg -> Berlin,
+20260914_103006,intent_nom_01,llm_only,approve,False,14.376,,0,770,59,829,0.0010025330011558253,Hamburg -> Hannover -> Berlin,
+20260914_103006,intent_nom_01,always_on,approve,True,17.185,True,2,451,60,511,0.001970977999008028,Hamburg -> Berlin,
+20260914_103006,intent_nom_01,always_off,approve,True,17.185,True,0,451,60,511,0.002817577000314486,Hamburg -> Berlin,
+20260914_103006,intent_nom_01,traditional_sdon,approve,True,17.185,,1,0,0,0,0.001577889001055155,Hamburg -> Berlin,

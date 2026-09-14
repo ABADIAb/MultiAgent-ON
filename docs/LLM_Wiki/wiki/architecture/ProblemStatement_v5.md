@@ -43,7 +43,7 @@ The pipeline enforces a strict "LLMs reason, tools calculate" separation:
 1. **Intent Ingestion + Optical RAG.** The natural language request is semantically enriched with domain standards (e.g., ITU-T specifications, transponder data) before LLM processing.
 2. **PDDL Intent Parsing.** The LLM translates the enriched intent into formal PDDL constraints.
 3. **Semantic Uncertainty Gate ($U_{sem}$).** Before complex computation, the system checks structural (CFG) and semantic (Reverse Prompting) validity. If uncertainty is high, it immediately requests the operator to clarify missing data.
-4. **Symbolic Solver + GraphRAG.** A Python-based symbolic solver fetches only the necessary $k$-hop sub-graph from the topology (Mock GraphRAG) and extracts 3–5 structurally valid candidate paths.
+4. **Symbolic Solver + Context Bounding.** A Python-based symbolic solver dynamically extracts a localized $k$-hop subtopology to bound LLM context, and then mathematically computes 3–5 structurally valid candidate paths.
 5. **QoT Validation.** Candidate paths are evaluated by a deterministic Python QoT Tool (GN-model port) to compute precise GSNR and receiver power feasibility.
 6. **Physical Risk Gate.** Evaluates the binary QoT feasibility to decide if the plan should be auto-approved or if the operator must be engaged to relax constraints via HITL.
 
@@ -85,7 +85,7 @@ This formalization enforces the **pre-deployment fail-fast** mechanism.
 ## 5. Given
 
 The planning system receives:
-1. **The Natural Language Intent.** A high-level, unstructured semantic request from a human operator (e.g., "Route traffic from Milano-A to Milano-C with at least 20 dB GSNR, avoiding link L2").
+1. **The Natural Language Intent.** A high-level, unstructured semantic request from a human operator (e.g., "Route traffic from Hamburg to Munich with at least 15 dB GSNR, avoiding Frankfurt").
 2. **The Physical Network Graph $G(V,E)$.** Extracted from the SDON testbed via RESTConf/SSH.
 3. **QoT Physical Parameters.** Fiber attenuation coefficients, optical amplifier gains, and channel configurations for deterministic GN-model computation.
 
@@ -118,9 +118,11 @@ Where:
 
 | Baseline | Architecture | Operational Mode | Evaluation Role |
 |----------|--------------|------------------|-----------------|
-| **Baseline A (LLM-Only)** | Monolithic LLM (Direct NL $\to$ JSON/CLI) | Unconstrained autonomous execution with reactive post-deployment retry | Evaluates failure modes: hallucinated physics, attention degradation, and high recovery latency |
-| **Baseline B (Static Rule-Based)** | Deterministic regex / CFG parser | Always-on human review (mandatory human validation on every intent) | Evaluates operational friction: operator fatigue, low expressiveness, and configuration rigidity |
-| **Proposed (Neurosymbolic RADG)** | Decoupled LangGraph pipeline (LLM translator + Yen's $K$-SP + GN-model) | Pre-deployment sequential risk gates ($U_{sem} \to \text{QoT}_{valid}$) with selective HITL | Evaluates proposed thesis hypothesis: pre-deployment safety ($UAR = 0\%$) with minimal operational friction |
+| **Baseline A (Monolithic LLM)** | Direct Prompting (NL $\to$ JSON/CLI) | Unconstrained autonomous execution with zero deterministic tools | Evaluates neural failure modes: hallucinated physics, topological invalidity, and high $UAR$ |
+| **Baseline B (Always-On HITL)** | Full Neurosymbolic Pipeline | Mandatory human review at Phase 3b and Phase 6 for every intent | Evaluates operational friction: operator fatigue ($N_{hitl} = 100\%$), inflated token cost, and execution latency |
+| **Baseline C (Always-Off HITL)** | Full Neurosymbolic Pipeline | Autonomous execution with decision gates bypassed (no HITL) | Evaluates safety failure modes: unhandled ambiguity, high service blocking, and deployment of unfeasible paths |
+| **Baseline D (Traditional SDON)** | Non-LLM imperative YANG / RESTCONF RPC + PCE | Manual payload authoring by expert operator + deterministic Yen's $K$-SP / GN-model | Evaluates industrial standard: zero NL translation error, absolute safety ($UAR=0\%$), but $100\%$ human setup effort |
+| **Proposed (Neurosymbolic RADG)** | Decoupled LangGraph pipeline (LLM translator + Yen's $K$-SP + GN-model) | Pre-deployment sequential risk gates ($U_{sem} \to \text{QoT}_{valid}$) with selective HITL | Evaluates proposed thesis hypothesis: pre-deployment safety ($UAR = 0\%$) with minimal operational friction ($N_{hitl} \le 1$) and high NL expressiveness |
 
 ### 8.2 The Four Core Validation Pillars & Performance Metrics
 
@@ -143,7 +145,7 @@ To ensure a rigorous, multidimensional assessment beyond mere latency and token 
 #### Pillar 3: Orchestration & Resource Efficiency (Computational & Operational Friction)
 - **Objective:** Quantify computational savings in prompt tokens and runtime, alongside operator fatigue reduction through selective human engagement.
 - **Metrics:**
-  - **Prompt Token Reduction ($\Delta T_{tokens}$):** Percentage of input tokens eliminated by Scoped GraphRAG ($G_{sub} \subseteq G$) compared to full-topology JSON injection. Target: $> 75\%$.
+  - **Prompt Token Reduction ($\Delta T_{tokens}$):** Percentage of input tokens eliminated by Neurosymbolic Context Bounding ($G_{sub} \subseteq G$) compared to monolithic full-topology JSON injection. Target: $> 75\%$.
   - **Human Intervention Reduction ($\Delta N_{hitl}$):** Reduction in operator interruptions compared to the Always-HITL baseline ($1 - \frac{N_{hitl,\text{ours}}}{N_{hitl,\text{always}}}$). Target: $> 70\%$.
   - **Sub-Second Deterministic Compute Latency ($T_{det}$):** Wall-clock execution time of symbolic routing ($T_{solver} < 10\text{ ms}$) and GN-model physics ($T_{phys} < 5\text{ ms}$).
   - **End-to-End Orchestration Latency ($T_{E2E}$):** Total wall-clock turnaround from NL submission to final planning report.
@@ -157,14 +159,14 @@ To ensure a rigorous, multidimensional assessment beyond mere latency and token 
 
 ### 8.3 Benchmark Corpus: 100 Test Demands (4 Risk Classes)
 
-The evaluation suite executes on the standardized **17-Node Nobel-Germany Core Backbone Topology** ($|V| = 17, |E| = 26$ bidirectional SMF-28 links, dual-stage EDFAs, span lengths $L \in [45, 350]\text{ km}$):
+The evaluation suite executes on the standardized **17-Node Nobel-Germany Core Backbone Topology** ($|V| = 17, |E| = 26$ bidirectional SMF-28 links, dual-stage EDFAs, span lengths $L \in [45, 350]\text{ km}$), balanced across four equal cohorts (25 demands each):
 
 | Class | Intent Category | Sample Size | Intent Characteristics | Expected RADG Action | Target Outcome |
 |:-----:|-----------------|:-----------:|------------------------|:---------------------:|:--------------:|
-| **I** | **Nominal Intents** | 40 | Unambiguous source-destination requests with feasible physical paths | Auto-Approve | Zero human intervention, $U_{sem} \le \tau_{sem}$, $\text{QoT}_{valid} = 1$ |
-| **II** | **Ambiguous Intents** | 20 | Under-specified constraints, missing endpoints, or underspecified SLAs | Clarify Intent | Early fail-fast pause in Phase 3b via `interrupt()`, $U_{sem} > \tau_{sem}$ |
-| **III** | **Physically Infeasible** | 25 | Demands requiring high-order modulation formats over unamplified ultra-long spans | Suggest Replan | Intercepted in Phase 6, $\text{QoT}_{valid} = 0$, human invited to relax constraints |
-| **IV** | **Adversarial Prompts** | 15 | Hallucinated node names, syntax injection, or contradictory topological constraints | Reject / Clarify | Intercepted by Layer 1 CFG validator ($v_{struct} = 0 \to U_{sem} = 1.0$) |
+| **I** | **Nominal Intents** | 25 | Unambiguous source-destination requests with feasible physical paths | Auto-Approve | Zero human intervention, $U_{sem} \le \tau_{sem}$, $\text{QoT}_{valid} = 1$ |
+| **II** | **Ambiguous Intents** | 25 | Under-specified constraints, missing endpoints, or underspecified SLAs | Clarify Intent | Early fail-fast pause in Phase 3b via `interrupt()`, $U_{sem} > \tau_{sem}$ |
+| **III** | **Physically Infeasible** | 25 | Demands requiring unachievable GSNR targets over ultra-long unregenerated reaches | Suggest Replan | Intercepted in Phase 6, $\text{QoT}_{valid} = 0$, human invited to relax constraints |
+| **IV** | **Adversarial Prompts** | 25 | Hallucinated node names, syntax injection, or contradictory topological constraints | Reject / Clarify | Intercepted by Layer 1 CFG validator ($v_{struct} = 0 \to U_{sem} = 1.0$) |
 
 ## 9. Cross-References
 

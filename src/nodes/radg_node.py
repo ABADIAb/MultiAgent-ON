@@ -76,7 +76,7 @@ def radg_node(state: AgentState) -> dict:
             fb = response.get("feedback") or response.get("refinement")
             if fb:
                 feedback = str(fb).strip()
-            elif "action" in response and response["action"] not in ("refine", "replan", "approve", "reject"):
+            elif "action" in response and response["action"] not in ("refine", "replan", "approve"):
                 feedback = str(response["action"]).strip()
 
         resolved_fb = feedback if feedback else summary

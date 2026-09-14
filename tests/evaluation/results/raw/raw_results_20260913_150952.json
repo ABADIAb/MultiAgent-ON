@@ -1,0 +1,2686 @@
+{
+  "proposed_radg": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Berlin",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 451,
+      "completion_tokens": 805,
+      "total_tokens": 1256,
+      "execution_time_s": 0.12268590500025311,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Establish an optical connection from Hamburg to Berlin with 100G capacity.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Route from Hamburg to Berlin | Source: Hamburg | Target: Berlin\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.050 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Hamburg ] \u2500\u2500\u2500\u2500( 330.9 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Berlin ]\n```\n- **Cumulative Metrics:** 1 Spans (Hop) \u2022 330.9 km Total Fiber \u2022 6 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Hamburg \u2794 Berlin` (330.9 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Hamburg \u2192 Berlin` | 17.18 dB | 15.0 dB | +2.18 dB | -12.03 dBm | **\u2713 FEASIBLE** |\n| 2 | `Hamburg \u2192 Hannover \u2192 Berlin` | 14.38 dB | 15.0 dB | -0.62 dB | -13.02 dBm | **\u2717 INFEASIBLE** |\n| 3 | `Hamburg \u2192 Bremen \u2192 Hannover \u2192 Berlin` | 13.64 dB | 15.0 dB | -1.36 dB | -14.03 dBm | **\u2717 INFEASIBLE** |\n| 4 | `Hamburg \u2192 Hannover \u2192 Leipzig \u2192 Berlin` | 12.94 dB | 15.0 dB | -2.06 dB | -13.98 dBm | **\u2717 INFEASIBLE** |\n| 5 | `Hamburg \u2192 Bremen \u2192 Hannover \u2192 Leipzig \u2192 Berlin` | 12.12 dB | 15.0 dB | -2.88 dB | -14.99 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Hamburg \u2192 Berlin**\n- **Physical Layer Parameters:** Computed GSNR = 17.18 dB | $P_{rx}$ = -12.03 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Berlin",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 471,
+      "completion_tokens": 825,
+      "total_tokens": 1296,
+      "execution_time_s": 0.06371067399959429,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Establish an optical connection from Hamburg to Berlin avoiding both Bremen and Hannover, with a minimum of 15 dB GSNR and a maximum of 3 hops.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Route from Hamburg to Berlin | Source: Hamburg | Target: Berlin\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.050 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Hamburg ] \u2500\u2500\u2500\u2500( 330.9 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Berlin ]\n```\n- **Cumulative Metrics:** 1 Spans (Hop) \u2022 330.9 km Total Fiber \u2022 6 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Hamburg \u2794 Berlin` (330.9 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Hamburg \u2192 Berlin` | 17.18 dB | 15.0 dB | +2.18 dB | -12.03 dBm | **\u2713 FEASIBLE** |\n| 2 | `Hamburg \u2192 Hannover \u2192 Berlin` | 14.38 dB | 15.0 dB | -0.62 dB | -13.02 dBm | **\u2717 INFEASIBLE** |\n| 3 | `Hamburg \u2192 Bremen \u2192 Hannover \u2192 Berlin` | 13.64 dB | 15.0 dB | -1.36 dB | -14.03 dBm | **\u2717 INFEASIBLE** |\n| 4 | `Hamburg \u2192 Hannover \u2192 Leipzig \u2192 Berlin` | 12.94 dB | 15.0 dB | -2.06 dB | -13.98 dBm | **\u2717 INFEASIBLE** |\n| 5 | `Hamburg \u2192 Bremen \u2192 Hannover \u2192 Leipzig \u2192 Berlin` | 12.12 dB | 15.0 dB | -2.88 dB | -14.99 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Hamburg \u2192 Berlin**\n- **Physical Layer Parameters:** Computed GSNR = 17.18 dB | $P_{rx}$ = -12.03 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "selected_path": [
+        "Frankfurt",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": 19.189,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Frankfurt",
+        "destination": "Cologne",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 14.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 772,
+      "completion_tokens": 821,
+      "total_tokens": 1593,
+      "execution_time_s": 0.07921933800025727,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Route traffic from Frankfurt to Cologne avoiding Mannheim with minimum 14 dB GSNR.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Route from Frankfurt to Cologne | Source: Frankfurt | Target: Cologne\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.050 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Frankfurt ] \u2500\u2500\u2500\u2500( 188.9 km | 4 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Cologne ]\n```\n- **Cumulative Metrics:** 1 Spans (Hop) \u2022 188.9 km Total Fiber \u2022 4 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Frankfurt \u2794 Cologne` (188.9 km, 4 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Frankfurt \u2192 Cologne` | 19.19 dB | 14.0 dB | +5.19 dB | -12.01 dBm | **\u2713 FEASIBLE** |\n| 2 | `Frankfurt \u2192 Hannover \u2192 Dortmund \u2192 Cologne` | 13.00 dB | 14.0 dB | -1.00 dB | -14.02 dBm | **\u2717 INFEASIBLE** |\n| 3 | `Frankfurt \u2192 Hannover \u2192 Dortmund \u2192 Essen \u2192 Dusseldorf \u2192 Cologne` | 12.18 dB | 14.0 dB | -1.82 dB | -16.00 dBm | **\u2717 INFEASIBLE** |\n| 4 | `Frankfurt \u2192 Leipzig \u2192 Hannover \u2192 Dortmund \u2192 Cologne` | 10.85 dB | 14.0 dB | -3.15 dB | -15.04 dBm | **\u2717 INFEASIBLE** |\n| 5 | `Frankfurt \u2192 Hannover \u2192 Bremen \u2192 Norden \u2192 Dortmund \u2192 Cologne` | 10.21 dB | 14.0 dB | -3.79 dB | -15.99 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Frankfurt \u2192 Cologne**\n- **Physical Layer Parameters:** Computed GSNR = 19.19 dB | $P_{rx}$ = -12.01 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "selected_path": [
+        "Munich",
+        "Ulm",
+        "Stuttgart"
+      ],
+      "computed_gsnr_dB": 17.134,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Munich",
+        "destination": "Stuttgart",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 352,
+      "completion_tokens": 838,
+      "total_tokens": 1190,
+      "execution_time_s": 0.05314747600004921,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Provision an optical channel from Munich to Stuttgart via Ulm with GSNR at least 15 dB.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Route from Munich to Stuttgart | Source: Munich | Target: Stuttgart\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.050 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Munich ] \u2500\u2500\u2500\u2500( 154.4 km | 3 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Ulm ] \u2500\u2500\u2500\u2500( 95.9 km | 3 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Stuttgart ]\n```\n- **Cumulative Metrics:** 2 Spans (Hops) \u2022 250.3 km Total Fiber \u2022 6 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Munich \u2794 Ulm` (154.4 km, 3 EDFAs)\n  - Hop 2: `Ulm \u2794 Stuttgart` (95.9 km, 3 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Munich \u2192 Ulm \u2192 Stuttgart` | 17.13 dB | 15.0 dB | +2.13 dB | -12.99 dBm | **\u2713 FEASIBLE** |\n| 2 | `Munich \u2192 Nuremberg \u2192 Stuttgart` | 15.60 dB | 15.0 dB | +0.60 dB | -13.02 dBm | **\u2713 FEASIBLE** |\n| 3 | `Munich \u2192 Nuremberg \u2192 Frankfurt \u2192 Mannheim \u2192 Karlsruhe \u2192 Stuttgart` | 12.72 dB | 15.0 dB | -2.28 dB | -15.99 dBm | **\u2717 INFEASIBLE** |\n| 4 | `Munich \u2192 Nuremberg \u2192 Leipzig \u2192 Frankfurt \u2192 Mannheim \u2192 Karlsruhe \u2192 Stuttgart` | 9.76 dB | 15.0 dB | -5.24 dB | -17.05 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Munich \u2192 Ulm \u2192 Stuttgart**\n- **Physical Layer Parameters:** Computed GSNR = 17.13 dB | $P_{rx}$ = -12.99 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Bremen"
+      ],
+      "computed_gsnr_dB": 20.019,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hannover",
+        "destination": "Bremen",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 16.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 573,
+      "completion_tokens": 829,
+      "total_tokens": 1402,
+      "execution_time_s": 0.05098198500036233,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Connect Hannover to Bremen with minimum 16 dB GSNR.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Route from Hannover to Bremen | Source: Hannover | Target: Bremen\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.050 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Hannover ] \u2500\u2500\u2500\u2500( 132.7 km | 3 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Bremen ]\n```\n- **Cumulative Metrics:** 1 Spans (Hop) \u2022 132.7 km Total Fiber \u2022 3 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Hannover \u2794 Bremen` (132.7 km, 3 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Hannover \u2192 Bremen` | 20.02 dB | 16.0 dB | +4.02 dB | -11.99 dBm | **\u2713 FEASIBLE** |\n| 2 | `Hannover \u2192 Hamburg \u2192 Bremen` | 15.90 dB | 16.0 dB | -0.10 dB | -12.99 dBm | **\u2717 INFEASIBLE** |\n| 3 | `Hannover \u2192 Dortmund \u2192 Norden \u2192 Bremen` | 12.14 dB | 16.0 dB | -3.86 dB | -14.01 dBm | **\u2717 INFEASIBLE** |\n| 4 | `Hannover \u2192 Berlin \u2192 Hamburg \u2192 Bremen` | 13.00 dB | 16.0 dB | -3.00 dB | -14.05 dBm | **\u2717 INFEASIBLE** |\n| 5 | `Hannover \u2192 Leipzig \u2192 Berlin \u2192 Hamburg \u2192 Bremen` | 11.60 dB | 16.0 dB | -4.40 dB | -15.03 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Hannover \u2192 Bremen**\n- **Physical Layer Parameters:** Computed GSNR = 20.02 dB | $P_{rx}$ = -11.99 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 652,
+      "completion_tokens": 13,
+      "total_tokens": 665,
+      "execution_time_s": 0.03766065299987531,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 641,
+      "completion_tokens": 12,
+      "total_tokens": 653,
+      "execution_time_s": 0.041419172000132676,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 640,
+      "completion_tokens": 12,
+      "total_tokens": 652,
+      "execution_time_s": 0.04447591999996803,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 638,
+      "completion_tokens": 12,
+      "total_tokens": 650,
+      "execution_time_s": 0.038400452000132645,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 639,
+      "completion_tokens": 12,
+      "total_tokens": 651,
+      "execution_time_s": 0.0606978590003564,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": [
+        "Norden",
+        "Dortmund",
+        "Cologne",
+        "Frankfurt",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.529,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Norden",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 30.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 591,
+      "completion_tokens": 61,
+      "total_tokens": 652,
+      "execution_time_s": 0.085098965000725,
+      "planning_report": null,
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": [
+        "Hamburg",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.859,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 30.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 583,
+      "completion_tokens": 57,
+      "total_tokens": 640,
+      "execution_time_s": 0.0778444910001781,
+      "planning_report": null,
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 28.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 655,
+      "completion_tokens": 57,
+      "total_tokens": 712,
+      "execution_time_s": 0.0599805980000383,
+      "planning_report": null,
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": [
+        "Cologne",
+        "Frankfurt",
+        "Leipzig"
+      ],
+      "computed_gsnr_dB": 13.791,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Cologne",
+        "destination": "Leipzig",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 35.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 703,
+      "completion_tokens": 57,
+      "total_tokens": 760,
+      "execution_time_s": 0.05676348700035305,
+      "planning_report": null,
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": [
+        "Bremen",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 11.239,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Bremen",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 29.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 583,
+      "completion_tokens": 61,
+      "total_tokens": 644,
+      "execution_time_s": 0.06884824200005824,
+      "planning_report": null,
+      "error": null,
+      "metadata": {
+        "usem_score": 0.05,
+        "usem_passed": true,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 710,
+      "completion_tokens": 12,
+      "total_tokens": 722,
+      "execution_time_s": 0.04758384999968257,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 447,
+      "completion_tokens": 12,
+      "total_tokens": 459,
+      "execution_time_s": 0.05654141700051696,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 639,
+      "completion_tokens": 16,
+      "total_tokens": 655,
+      "execution_time_s": 0.04880036300073698,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 251,
+      "completion_tokens": 12,
+      "total_tokens": 263,
+      "execution_time_s": 0.05870407200018235,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 763,
+      "completion_tokens": 12,
+      "total_tokens": 775,
+      "execution_time_s": 0.06366063699988445,
+      "planning_report": null,
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null
+      }
+    }
+  ],
+  "llm_only": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Hannover",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 14.376,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 770,
+      "completion_tokens": 59,
+      "total_tokens": 829,
+      "execution_time_s": 0.00211159399987082,
+      "planning_report": "LLM-Only Route: ['Hamburg', 'Hannover', 'Berlin'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Hannover",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 14.376,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 790,
+      "completion_tokens": 59,
+      "total_tokens": 849,
+      "execution_time_s": 0.003491369999210292,
+      "planning_report": "LLM-Only Route: ['Hamburg', 'Hannover', 'Berlin'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Frankfurt",
+        "Hannover",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 774,
+      "completion_tokens": 61,
+      "total_tokens": 835,
+      "execution_time_s": 0.002004510000006121,
+      "planning_report": "LLM-Only Route: ['Frankfurt', 'Hannover', 'Cologne'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 14.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Munich",
+        "Hannover",
+        "Stuttgart"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 778,
+      "completion_tokens": 63,
+      "total_tokens": 841,
+      "execution_time_s": 0.0056787240000630845,
+      "planning_report": "LLM-Only Route: ['Munich', 'Hannover', 'Stuttgart'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Hannover",
+        "Bremen"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 771,
+      "completion_tokens": 63,
+      "total_tokens": 834,
+      "execution_time_s": 0.0018217079996247776,
+      "planning_report": "LLM-Only Route: ['Hannover', 'Hannover', 'Bremen'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 16.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Bremen",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 781,
+      "completion_tokens": 56,
+      "total_tokens": 837,
+      "execution_time_s": 0.0017245560002265847,
+      "planning_report": "LLM-Only Route: ['Bremen', 'Frankfurt'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "llm_only",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 770,
+      "completion_tokens": 1,
+      "total_tokens": 771,
+      "execution_time_s": 0.0022657190002064453,
+      "planning_report": "LLM-Only Route: None | Action: replan",
+      "error": "No JSON object found in response",
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "llm_only",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 769,
+      "completion_tokens": 1,
+      "total_tokens": 770,
+      "execution_time_s": 0.001688475999799266,
+      "planning_report": "LLM-Only Route: None | Action: replan",
+      "error": "No JSON object found in response",
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "llm_only",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 767,
+      "completion_tokens": 1,
+      "total_tokens": 768,
+      "execution_time_s": 0.0014146359999358538,
+      "planning_report": "LLM-Only Route: None | Action: replan",
+      "error": "No JSON object found in response",
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "llm_only",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 768,
+      "completion_tokens": 1,
+      "total_tokens": 769,
+      "execution_time_s": 0.0013037219996476779,
+      "planning_report": "LLM-Only Route: None | Action: replan",
+      "error": "No JSON object found in response",
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Norden",
+        "Munich"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 778,
+      "completion_tokens": 58,
+      "total_tokens": 836,
+      "execution_time_s": 0.0017217690001416486,
+      "planning_report": "LLM-Only Route: ['Norden', 'Munich'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 30.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 773,
+      "completion_tokens": 58,
+      "total_tokens": 831,
+      "execution_time_s": 0.002536717000111821,
+      "planning_report": "LLM-Only Route: ['Hamburg', 'Munich'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 30.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 778,
+      "completion_tokens": 54,
+      "total_tokens": 832,
+      "execution_time_s": 0.001987558000109857,
+      "planning_report": "LLM-Only Route: ['Berlin', 'Frankfurt'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 28.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Cologne",
+        "Leipzig"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 768,
+      "completion_tokens": 56,
+      "total_tokens": 824,
+      "execution_time_s": 0.0029944180005259113,
+      "planning_report": "LLM-Only Route: ['Cologne', 'Leipzig'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 35.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Bremen",
+        "Munich"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 773,
+      "completion_tokens": 58,
+      "total_tokens": 831,
+      "execution_time_s": 0.0016121380003824015,
+      "planning_report": "LLM-Only Route: ['Bremen', 'Munich'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 29.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Leipzig",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 775,
+      "completion_tokens": 56,
+      "total_tokens": 831,
+      "execution_time_s": 0.0019696420004038373,
+      "planning_report": "LLM-Only Route: ['Leipzig', 'Cologne'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 766,
+      "completion_tokens": 54,
+      "total_tokens": 820,
+      "execution_time_s": 0.0018352730003243778,
+      "planning_report": "LLM-Only Route: ['Hamburg', 'Berlin'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "node_99",
+        "node_999"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 768,
+      "completion_tokens": 60,
+      "total_tokens": 828,
+      "execution_time_s": 0.0016039599995565368,
+      "planning_report": "LLM-Only Route: ['node_99', 'node_999'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Munich",
+        "Munich"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 773,
+      "completion_tokens": 60,
+      "total_tokens": 833,
+      "execution_time_s": 0.0014633230002800701,
+      "planning_report": "LLM-Only Route: ['Munich', 'Munich'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 16.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "London",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 765,
+      "completion_tokens": 54,
+      "total_tokens": 819,
+      "execution_time_s": 0.0013146649998816429,
+      "planning_report": "LLM-Only Route: ['London', 'Frankfurt'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    }
+  ],
+  "always_on": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Berlin",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 451,
+      "completion_tokens": 60,
+      "total_tokens": 511,
+      "execution_time_s": 0.003365386000041326,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Berlin",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 471,
+      "completion_tokens": 60,
+      "total_tokens": 531,
+      "execution_time_s": 0.0025705480002216063,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "selected_path": [
+        "Frankfurt",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": 19.189,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Frankfurt",
+        "destination": "Cologne",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 14.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 772,
+      "completion_tokens": 60,
+      "total_tokens": 832,
+      "execution_time_s": 0.01695758499954536,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "selected_path": [
+        "Munich",
+        "Ulm",
+        "Stuttgart"
+      ],
+      "computed_gsnr_dB": 17.134,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Munich",
+        "destination": "Stuttgart",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 352,
+      "completion_tokens": 60,
+      "total_tokens": 412,
+      "execution_time_s": 0.002049611000074947,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Bremen"
+      ],
+      "computed_gsnr_dB": 20.019,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hannover",
+        "destination": "Bremen",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 16.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 573,
+      "completion_tokens": 66,
+      "total_tokens": 639,
+      "execution_time_s": 0.0038201890001801075,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 652,
+      "completion_tokens": 6,
+      "total_tokens": 658,
+      "execution_time_s": 0.0024149990003934363,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for II_Ambiguous)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 641,
+      "completion_tokens": 6,
+      "total_tokens": 647,
+      "execution_time_s": 0.002675744000043778,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for II_Ambiguous)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 640,
+      "completion_tokens": 6,
+      "total_tokens": 646,
+      "execution_time_s": 0.0013781749994450365,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for II_Ambiguous)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 638,
+      "completion_tokens": 6,
+      "total_tokens": 644,
+      "execution_time_s": 0.001190420999591879,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for II_Ambiguous)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 639,
+      "completion_tokens": 6,
+      "total_tokens": 645,
+      "execution_time_s": 0.0011886259999300819,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for II_Ambiguous)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "always_on",
+      "action": "replan",
+      "selected_path": [
+        "Norden",
+        "Dortmund",
+        "Cologne",
+        "Frankfurt",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.529,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Norden",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 30.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 591,
+      "completion_tokens": 54,
+      "total_tokens": 645,
+      "execution_time_s": 0.007868274000429665,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "always_on",
+      "action": "replan",
+      "selected_path": [
+        "Hamburg",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.859,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 30.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 583,
+      "completion_tokens": 51,
+      "total_tokens": 634,
+      "execution_time_s": 0.011711266999554937,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "always_on",
+      "action": "replan",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 28.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 655,
+      "completion_tokens": 51,
+      "total_tokens": 706,
+      "execution_time_s": 0.0059718490001614555,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "always_on",
+      "action": "replan",
+      "selected_path": [
+        "Cologne",
+        "Frankfurt",
+        "Leipzig"
+      ],
+      "computed_gsnr_dB": 13.791,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Cologne",
+        "destination": "Leipzig",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 35.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 703,
+      "completion_tokens": 51,
+      "total_tokens": 754,
+      "execution_time_s": 0.01090651100003015,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "always_on",
+      "action": "replan",
+      "selected_path": [
+        "Bremen",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 11.239,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Bremen",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 29.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 583,
+      "completion_tokens": 54,
+      "total_tokens": 637,
+      "execution_time_s": 0.017483738000009907,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 710,
+      "completion_tokens": 6,
+      "total_tokens": 716,
+      "execution_time_s": 0.0023212839996631374,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for IV_Adversarial)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 447,
+      "completion_tokens": 6,
+      "total_tokens": 453,
+      "execution_time_s": 0.0019706960001713014,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for IV_Adversarial)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 639,
+      "completion_tokens": 6,
+      "total_tokens": 645,
+      "execution_time_s": 0.002133594000042649,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for IV_Adversarial)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 251,
+      "completion_tokens": 6,
+      "total_tokens": 257,
+      "execution_time_s": 0.001443877999918186,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for IV_Adversarial)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 763,
+      "completion_tokens": 6,
+      "total_tokens": 769,
+      "execution_time_s": 0.0020272760002626455,
+      "planning_report": "Always-On HITL Interrupted at Phase 3 (Clarify required for IV_Adversarial)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic"
+        ]
+      }
+    }
+  ],
+  "always_off": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Berlin",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 451,
+      "completion_tokens": 60,
+      "total_tokens": 511,
+      "execution_time_s": 0.004258268000739918,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Berlin",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 471,
+      "completion_tokens": 60,
+      "total_tokens": 531,
+      "execution_time_s": 0.0066424159995222,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Frankfurt",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": 19.189,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Frankfurt",
+        "destination": "Cologne",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 14.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 772,
+      "completion_tokens": 60,
+      "total_tokens": 832,
+      "execution_time_s": 0.01916361300027347,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Munich",
+        "Ulm",
+        "Stuttgart"
+      ],
+      "computed_gsnr_dB": 17.134,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Munich",
+        "destination": "Stuttgart",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 15.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 352,
+      "completion_tokens": 60,
+      "total_tokens": 412,
+      "execution_time_s": 0.0020042530004502623,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Bremen"
+      ],
+      "computed_gsnr_dB": 20.019,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hannover",
+        "destination": "Bremen",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 16.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 573,
+      "completion_tokens": 66,
+      "total_tokens": 639,
+      "execution_time_s": 0.003206944999874395,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "always_off",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": null,
+        "destination": null,
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 652,
+      "completion_tokens": 6,
+      "total_tokens": 658,
+      "execution_time_s": 0.0017350680000163266,
+      "planning_report": "Always-Off execution complete. Action: replan (Gates bypassed)",
+      "error": "Solver failed to find any path.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "always_off",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": null,
+        "destination": null,
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 641,
+      "completion_tokens": 6,
+      "total_tokens": 647,
+      "execution_time_s": 0.0011401179999666056,
+      "planning_report": "Always-Off execution complete. Action: replan (Gates bypassed)",
+      "error": "Solver failed to find any path.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "always_off",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": null,
+        "destination": null,
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 640,
+      "completion_tokens": 6,
+      "total_tokens": 646,
+      "execution_time_s": 0.0014187050001055468,
+      "planning_report": "Always-Off execution complete. Action: replan (Gates bypassed)",
+      "error": "Solver failed to find any path.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "always_off",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": null,
+        "destination": null,
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 638,
+      "completion_tokens": 6,
+      "total_tokens": 644,
+      "execution_time_s": 0.001182900999992853,
+      "planning_report": "Always-Off execution complete. Action: replan (Gates bypassed)",
+      "error": "Solver failed to find any path.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "always_off",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": null,
+        "destination": null,
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 639,
+      "completion_tokens": 6,
+      "total_tokens": 645,
+      "execution_time_s": 0.0011722710005415138,
+      "planning_report": "Always-Off execution complete. Action: replan (Gates bypassed)",
+      "error": "Solver failed to find any path.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Norden",
+        "Dortmund",
+        "Cologne",
+        "Frankfurt",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.529,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Norden",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 30.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 591,
+      "completion_tokens": 54,
+      "total_tokens": 645,
+      "execution_time_s": 0.0061078489998180885,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.859,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 30.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 583,
+      "completion_tokens": 51,
+      "total_tokens": 634,
+      "execution_time_s": 0.008602490000157559,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 28.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 655,
+      "completion_tokens": 51,
+      "total_tokens": 706,
+      "execution_time_s": 0.003621324000050663,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Cologne",
+        "Frankfurt",
+        "Leipzig"
+      ],
+      "computed_gsnr_dB": 13.791,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Cologne",
+        "destination": "Leipzig",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 35.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 703,
+      "completion_tokens": 51,
+      "total_tokens": 754,
+      "execution_time_s": 0.009262261000003491,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Bremen",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 11.239,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Bremen",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 29.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 583,
+      "completion_tokens": 54,
+      "total_tokens": 637,
+      "execution_time_s": 0.010299302999555948,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": null,
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Leipzig",
+        "Frankfurt",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": 14.17,
+      "qot_feasible": true,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": "Leipzig",
+        "destination": "Cologne",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 710,
+      "completion_tokens": 6,
+      "total_tokens": 716,
+      "execution_time_s": 0.007476816000234976,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "always_off",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Berlin",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 447,
+      "completion_tokens": 6,
+      "total_tokens": 453,
+      "execution_time_s": 0.00267814000017097,
+      "planning_report": "Always-Off execution complete. Action: approve (Gates bypassed)",
+      "error": "Missing required section ':domain'.; Missing required section ':goal'.; Missing required section ':init'.; Missing required section ':objects'.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "always_off",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": "node_99",
+        "destination": "node_999",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 639,
+      "completion_tokens": 6,
+      "total_tokens": 645,
+      "execution_time_s": 0.0012785750004695728,
+      "planning_report": "Always-Off execution complete. Action: replan (Gates bypassed)",
+      "error": "Solver failed to find any path.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "always_off",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": "Munich",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 251,
+      "completion_tokens": 6,
+      "total_tokens": 257,
+      "execution_time_s": 0.0027214030005779932,
+      "planning_report": "Always-Off execution complete. Action: replan (Gates bypassed)",
+      "error": "Solver failed to find any path.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "always_off",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": {
+        "source": "London",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 763,
+      "completion_tokens": 6,
+      "total_tokens": 769,
+      "execution_time_s": 0.0017238009995708126,
+      "planning_report": "Always-Off execution complete. Action: replan (Gates bypassed)",
+      "error": "Solver failed to find any path.",
+      "metadata": {
+        "gates_bypassed": true
+      }
+    }
+  ],
+  "traditional_sdon": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "bandwidth": 100
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0020410719998835702,
+      "planning_report": "Traditional SDON PCE: Route ['Hamburg', 'Berlin'] | Feasible: True",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 15.0,
+        "avoid_nodes": [
+          "Bremen",
+          "Hannover"
+        ],
+        "max_hops": 3
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0007764160000078846,
+      "planning_report": "Traditional SDON PCE: Route ['Hamburg', 'Berlin'] | Feasible: True",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "selected_path": [
+        "Frankfurt",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": 19.189,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 14.0,
+        "avoid_nodes": [
+          "Mannheim"
+        ]
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.008511973999702604,
+      "planning_report": "Traditional SDON PCE: Route ['Frankfurt', 'Cologne'] | Feasible: True",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "selected_path": [
+        "Munich",
+        "Ulm",
+        "Stuttgart"
+      ],
+      "computed_gsnr_dB": 17.134,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 15.0
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0014178800001900527,
+      "planning_report": "Traditional SDON PCE: Route ['Munich', 'Ulm', 'Stuttgart'] | Feasible: True",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Bremen"
+      ],
+      "computed_gsnr_dB": 20.019,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 16.0
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0023774090004735626,
+      "planning_report": "Traditional SDON PCE: Route ['Hannover', 'Bremen'] | Feasible: True",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 7.943999662529677e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 5.949999831500463e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 5.070000042906031e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 7.835000360500999e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 6.920000487298239e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 30.0,
+        "avoid_nodes": [
+          "Leipzig"
+        ],
+        "max_hops": 1
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0025797359994612634,
+      "planning_report": "Traditional SDON PCE: Route None | Feasible: False",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": [
+        "Hamburg",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.859,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 30.0
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.009549536000122316,
+      "planning_report": "Traditional SDON PCE: Route ['Hamburg', 'Hannover', 'Leipzig', 'Nuremberg', 'Munich'] | Feasible: False",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 28.0,
+        "max_hops": 1
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.002833640000062587,
+      "planning_report": "Traditional SDON PCE: Route None | Feasible: False",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": [
+        "Cologne",
+        "Frankfurt",
+        "Leipzig"
+      ],
+      "computed_gsnr_dB": 13.791,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 35.0
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.012194071000521944,
+      "planning_report": "Traditional SDON PCE: Route ['Cologne', 'Frankfurt', 'Leipzig'] | Feasible: False",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": [
+        "Bremen",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 11.239,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": {
+        "min_gsnr": 29.0
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.015328249000049254,
+      "planning_report": "Traditional SDON PCE: Route ['Bremen', 'Hannover', 'Leipzig', 'Nuremberg', 'Munich'] | Feasible: False",
+      "error": null,
+      "metadata": {
+        "traditional_pce": true,
+        "static_margin_dB": 3.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 9.06000059330836e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 9.684000360721257e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 6.835000021965243e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 7.96999938756926e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "traditional_sdon",
+      "action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 7.2699995143921115e-06,
+      "planning_report": "Traditional PCE: RPC compilation failed due to underspecified or invalid endpoints.",
+      "error": "Missing or invalid optical endpoint parameters in YANG request.",
+      "metadata": {
+        "traditional_pce": true
+      }
+    }
+  ]
+}

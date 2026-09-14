@@ -72,6 +72,9 @@ class AgentState(TypedDict, total=False):
         topology_context: Serialized k-hop topology subgraph text from Optical RAG.
         refinement_history: Accumulated list of operator clarifications/refinements across turns.
         refinement_count: Number of HITL refinement / replan iterations executed (bounded by N_max=3).
+        active_intent: Current unified operational natural language intent (reconciled by LLM).
+        intent_update_reasoning: Detailed reasoning explaining intent differences and constraint modifications.
+        intent_update_type: Classification of the intent update scope ("full_replacement" | "partial_update").
     """
 
     messages: Annotated[list, operator.add]
@@ -93,6 +96,9 @@ class AgentState(TypedDict, total=False):
     subtopology_snapshot: TopologySnapshot | None
     refinement_history: list[str] | None
     refinement_count: int | None
+    active_intent: str | None
+    intent_update_reasoning: str | None
+    intent_update_type: str | None
 
 
 # Custom domain classes whitelisted for LangGraph msgpack/jsonplus state checkpointing

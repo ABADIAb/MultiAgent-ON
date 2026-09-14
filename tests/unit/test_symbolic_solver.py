@@ -272,6 +272,25 @@ class TestSymbolicSolverConstraints:
         constraints = _parse_pddl_constraints(pddl)
         assert constraints["min_gsnr"] == 40.0
 
+    def test_bandwidth_constraint_parsed(self) -> None:
+        """Verify _parse_pddl_constraints extracts bandwidth."""
+        from src.core.symbolic_solver import _parse_pddl_constraints
+
+        pddl = """
+        (define (problem optical-routing)
+          (:domain optical-network)
+          (:objects node_src - node node_dst - node)
+          (:init
+            (source Node-A)
+            (destination Node-C)
+            (bandwidth 400)
+          )
+          (:goal (and (routed Node-A Node-C)))
+        )
+        """
+        constraints = _parse_pddl_constraints(pddl)
+        assert constraints["bandwidth"] == 400
+
 
 class TestNobelGermanySymbolicSolver:
     """Validate pathfinding and constraints directly on the 17-node German topology."""

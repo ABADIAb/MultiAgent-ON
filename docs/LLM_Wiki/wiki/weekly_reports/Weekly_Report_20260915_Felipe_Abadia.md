@@ -90,26 +90,94 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
      - Diagnosed and fixed DrawingML text run color inheritance where white theme styling overrode paragraph defaults, locking text runs to bold Navy (`#0F2C53`).
      - Converted the 100 Test Demands benchmark corpus into a structured, color-coded 3-column table (`Class & Size`, `Intent Characteristics`, `RADG Action`).
      - Cleaned right column by letting the 4 validation pillar cards float directly on the canvas without outer container bounding boxes.
-   - Verified 0 discrepancies across all 16 slides via `inspect_deck.py --diff`, regenerated vector `thesis_defense.pdf` and 1080p slide PNGs, and confirmed 100% test pass rate (278 tests).
+    - Verified 0 discrepancies across all 16 slides via `inspect_deck.py --diff`, regenerated vector `thesis_defense.pdf` and 1080p slide PNGs, and confirmed 100% test pass rate (278 tests).
+
+9. **Benchmark Corpus Balancing, Baseline C Formalization & Evaluation Scaffolding:**
+   - In response to advisor inquiries regarding non-LLM baselines, formalized **Baseline C (Traditional SDON / PCE without LLM)** grounded in RFC 8231, standard YANG models, and static design margins.
+   - Analytically validated the JSON topology of the 17-node German backbone network (Nobel-Germany) and confirmed that Scoped Optical GraphRAG ($k=2$ hop neighborhood extraction) achieves $>90\%$ prompt token reduction compared to full topology injection.
+   - Rebalanced the 100-demand synthetic evaluation benchmark into an equiprobable $25 \times 4$ distribution across all four intent risk categories (Class I Nominal [25], Class II Ambiguous [25], Class III Infeasible [25], Class IV Adversarial [25]) to prevent class-imbalance bias.
+   - Scaffolded the automated evaluation environment under [`tests/evaluation/`](file:///home/felipeab/MultiAgentON/tests/evaluation/):
+     - Generated [`test_corpus.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus.json) containing all 100 validated intent demands with ground truth mappings and expected actions.
+     - Authored [`README.md`](file:///home/felipeab/MultiAgentON/tests/evaluation/README.md) documenting the Four Validation Pillars, formal metric equations, comparative baseline matrix, and runner execution contracts.
+   - Synchronized Slide 13 in [`build_defense_deck.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/build_defense_deck.py) and [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md), recompiled the presentation deck, and updated system architecture documentation (`ProblemStatement_v5.md`, `MVP_Roadmap.md`, `Architecture_v5.md`).
+
+10. **LLM-Assisted Intent Reconciliation & Refinement Reasoning Engine:**
+    - Resolved semantic contradictions caused by naive string concatenation (`base_intent + "\n" + feedback`) during Phase 3b (clarify) and Phase 6 (replan) HITL loops.
+    - Implemented [`src/nodes/intent_reconciler.py`](file:///home/felipeab/MultiAgentON/src/nodes/intent_reconciler.py), applying Chain-of-Thought prompt engineering and Pydantic structured output to classify the refinement scope into `FULL_REPLACEMENT` (complete request reset) vs `PARTIAL_UPDATE` (delta constraint adjustment).
+    - Added `active_intent`, `intent_update_reasoning`, and `intent_update_type` to `AgentState` in [`src/core/state.py`](file:///home/felipeab/MultiAgentON/src/core/state.py), ensuring a single, non-contradictory operational truth.
+    - Integrated Mock GraphRAG dynamic rescoping: re-extracts the $k$-hop subtopology neighborhood whenever operator refinement changes routing endpoints.
+    - Updated Phase 2 (`pddl_parser.py`), Semantic Gate (`semantic_gate_node.py`), and Plan Synthesizer (`plan_synthesizer.py`) to consume `active_intent` directly.
+11. **Bandwidth SLA Constraint Mapping, 400G Physical SNR Threshold & Synthetic Corpus Rebalancing:**
+    - Integrated formal optical bandwidth/capacity constraints into the neurosymbolic pipeline to support real-world operator SLAs (e.g., 100G, 200G, 400G).
+    - Extended the PDDL Context-Free Grammar (CFG) in [`src/core/pddl_validator.py`](file:///home/felipeab/MultiAgentON/src/core/pddl_validator.py) with the production rule `(bandwidth <int>)` and updated [`src/core/symbolic_solver.py`](file:///home/felipeab/MultiAgentON/src/core/symbolic_solver.py) to preserve bandwidth demands.
+    - Updated the physical layer constants in [`src/core/constants.py`](file:///home/felipeab/MultiAgentON/src/core/constants.py) by calibrating `snr_threshold_400g_dB = 21.5` and wired dynamic SNR threshold selection into [`src/nodes/qot_validation.py`](file:///home/felipeab/MultiAgentON/src/nodes/qot_validation.py), enabling realistic physical infeasibility detection on long multi-hop optical paths.
+    - Enhanced LLM prompt definitions in [`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py) and [`src/nodes/reverse_prompt.py`](file:///home/felipeab/MultiAgentON/src/nodes/reverse_prompt.py) to eliminate false-alarm semantic divergences during reverse prompting.
+    - Expanded [`tests/evaluation/test_corpus.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus.json) to 107 intents, sequentially categorized across four classes (28 Nominal, 26 Ambiguous, 27 Infeasible, 26 Adversarial).
+    - Generated the structured Excel workbook [`docs/LLM_Wiki/raw/test_corpus_summary.xlsx`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/raw/test_corpus_summary.xlsx) with color-coded taxonomy.
+    - Normalized the benchmark corpus action space, strictly eliminating erroneous `reject` labels and aligning with the formal RADG ternary action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$.
+    - Verified full test suite under Strict TDD with 294 passing unit tests (100% success rate).
+12. **Thesis Scope Refinement (RADG over GraphRAG):**
+    - Refactored architecture documentation (`ProblemStatement_v5.md`, `Scope_Pivot_20260706.md`, `Architecture_v5.md`) to demote Mock GraphRAG from a core scientific contribution to a "Context Bounding Optimization" implementation detail.
+    - Updated Chapter 3 thesis drafts (`chapter_3_system_model.txt`, `3_3_Strict_Neurosymbolic_Separation.md`) replacing formal mentions of GraphRAG with "topological context extractor".
+    - Preserved the Token Economy ($\Delta T_{tokens}$) metric and optimization objective as a measurable operational benefit of the decoupled Neurosymbolic architecture without risking the need for massive topological JSON validation.
+13. **Comparative Evaluation Baselines Redesign & Polymorphic Harness Implementation:**
+    - Redesigned and formalized the 4 evaluation baselines plus the Proposed system to conduct an ablation study of the neurosymbolic separation and risk-adaptive decision mechanisms:
+      - *Baseline A (Monolithic LLM-Only):* Direct prompting with the full 17-node Nobel-Germany topology ($N_{hitl}=0$), assessing physics hallucinations and route invalidity ($UAR$).
+      - *Baseline B (Always-On HITL):* Full neurosymbolic pipeline with mandatory human reviews at Phase 3b and Phase 6 ($N_{hitl} \ge 2$), evaluating worst-case operational friction and latency.
+      - *Baseline C (Always-Off HITL):* Full neurosymbolic pipeline with decision gates bypassed ($N_{hitl}=0$), proving that unconstrained autonomous execution leads to severe safety breaches on ambiguous and infeasible demands ($UAR > 0\%$).
+      - *Baseline D (Traditional SDON / PCE):* Expert-crafted YANG RPC with deterministic Yen's $K$-SP and conservative $+3\text{ dB}$ static design margins ($0$ tokens, $N_{hitl}=1$, $UAR=0\%$).
+      - *Proposed Architecture (Neurosymbolic RADG):* Production LangGraph pipeline wrapped for automated benchmarking with selective human engagement ($N_{hitl} \le 1$).
+    - Built the decoupled package under [`tests/evaluation/baselines/`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/) with standardized `BaselineResult` schema and polymorphic `BaseBaseline` interface.
+    - Verified all baselines and contracts under Strict TDD in [`tests/unit/test_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_baselines.py) with 100% success rate across 314 unit tests.
+
+14. **Automated Evaluation Harness, Deterministic Metrics Engine & IEEE/PoliMi Plotting Suite (Sprint 4):**
+    - Implemented the deterministic mathematical metrics engine in [`tests/evaluation/scripts/metrics.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/metrics.py) calculating the Four Core Validation Pillars (CRR, CFG-PR, UAR, QFR, PIIR, $\Delta T_{tokens}$, $\Delta N_{hitl}$, GDA, FPR) and authored 10 unit tests under Strict TDD in [`tests/unit/test_metrics.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_metrics.py) (324 total passing tests, 0 regressions).
+    - Engineered the academic publication plotting suite in [`tests/evaluation/scripts/plotter.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/plotter.py) adhering to IEEE Transactions and PoliMi thesis standards, exporting both vector PDF and 300+ DPI PNG figures (`latency_vs_tokens`, `success_vs_uar`, `hitl_interruption_origin`, `gate_decision_distribution`).
+    - Developed the automated CLI benchmark runner in [`tests/evaluation/scripts/run_benchmark.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/run_benchmark.py) with Rich progress telemetry, supporting both live LLM API execution and offline deterministic `--mock` dry-runs across all 107 intent demands and 5 baselines (535 runs in under 5s).
+    - Automated generation of raw telemetry (JSON and flat CSV) in [`tests/evaluation/results/raw/`](file:///home/felipeab/MultiAgentON/tests/evaluation/results/raw/) and consolidated markdown summaries in [`tests/evaluation/results/summary_table.md`](file:///home/felipeab/MultiAgentON/tests/evaluation/results/summary_table.md), validating the strict safety invariant of the Proposed Neurosymbolic RADG ($UAR = 0.0\%$, $QFR = 100.0\%$, $PIIR = 100.0\%$, and $>50\%$ human intervention reduction).
+15. **Evaluation Harness Optimization (Compact Corpus), RADG Action Space Formalization & HITL Metrics Bugfix:**
+    - Constructed [`tests/evaluation/test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json) containing an equiprobable 20-demand subset (5 per risk class) to mitigate token consumption and API quota exhaustion during live LLM benchmarking while preserving full mathematical rigor.
+    - Formalized and strictly enforced the ternary RADG action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$, completely purging legacy `"reject"` branches across baseline implementations ([`llm_only.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/llm_only.py), [`always_off_hitl.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_off_hitl.py), [`traditional_sdon.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/traditional_sdon.py)), schemas ([`base.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/base.py)), pipeline node logic ([`radg_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/radg_node.py)), metrics, and plotting routines ([`plotter.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/plotter.py)).
+    - Diagnosed and resolved the Phase 6 HITL interruption origin misattribution in [`tests/evaluation/scripts/metrics.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/metrics.py), conditioning categorized replan counting on `interrupts > 0` so autonomous baselines (A & C) accurately reflect zero human interventions in publication plots.
+    - Recompiled all publication figures and verified 100% test pass rate across 324 unit tests under Strict TDD.
+16. **Local Ollama GPU Inference, Multi-Provider Engine & Semantic Gate Tolerance:**
+    - Integrated local open-weights LLM inference via Ollama, deploying `qwen2.5:3b` on the local NVIDIA GeForce RTX 3050 Laptop GPU (consuming only 2.1 GB of VRAM out of 4 GB).
+    - Configured Ollama network binding (`0.0.0.0:11434`) and implemented automatic WSL2 host gateway detection in `resolve_ollama_base_url()`.
+    - Engineered `OllamaChatOpenAI` in [`src/core/llm.py`](file:///home/felipeab/MultiAgentON/src/core/llm.py) with robust schema prompt injection and JSON parsing to overcome forced tool-choice limitations in local LLM endpoints.
+    - Updated `create_configured_llm` and `interactive_configuration()` in [`src/main.py`](file:///home/felipeab/MultiAgentON/src/main.py) allowing seamless toggling between local Ollama, OpenRouter, and Kimi.
+    - Refined Phase 3 Semantic Gate prompt (`_AGREEMENT_SYSTEM_PROMPT` in [`src/nodes/semantic_gate_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/semantic_gate_node.py)) to evaluate semantic equivalence instead of literal string equivalence, tolerating typos and canonical node mappings.
+    - Authored integration benchmark [`tests/integration/test_ollama_configurations.py`](file:///home/felipeab/MultiAgentON/tests/integration/test_ollama_configurations.py) achieving 100% pass rate (5/5 tests in 8.68s, ~1.7s latency, 100% valid PDDL) and expanded test suite to 333 passing unit tests under Strict TDD.
+17. **Multi-Model Local Ollama Profiling, Hardware Architecture Audit & Native Reasoning Support:**
+    - Executed a hardware architecture audit and empirical latency profiling across local Ollama models (`qwen2.5:3b`, `qwen3.5:4b`, `gemma4:e4b`) on an RTX 3050 Laptop GPU (4 GB VRAM) with 8 GB system RAM.
+    - Empirically proved that `qwen2.5:3b` is the optimal default engine because it fits 100% in VRAM (2.15 GB), achieving ~1.5s latency at 70 tok/s with zero RAM swapping, whereas `qwen3.5:4b` (3.4 GB) and `gemma4:e4b` (9.6 GB) require 1.85 GB and 8.04 GB of CPU RAM offload, respectively.
+    - Resolved thinking-tag failures for reasoning models by engineering `<think>.*?</think>` regex sanitization in `OllamaChatOpenAI._parse_pydantic` ([`src/core/llm.py`](file:///home/felipeab/MultiAgentON/src/core/llm.py)) and `_strip_code_fences` ([`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py)), guaranteeing valid Pydantic JSON extraction and 100% AST CFG PDDL compliance.
+    - Integrated multi-model profiles into the interactive CLI ([`src/main.py`](file:///home/felipeab/MultiAgentON/src/main.py)), benchmark harness ([`tests/evaluation/scripts/run_benchmark.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/run_benchmark.py)), and environment configuration ([`.env`](file:///home/felipeab/MultiAgentON/.env)).
+    - Expanded [`tests/integration/test_ollama_configurations.py`](file:///home/felipeab/MultiAgentON/tests/integration/test_ollama_configurations.py) with dynamic model comparison and automatic post-test memory unloading (`_unload_model`), maintaining 347 passing unit tests under Strict TDD.
+18. **Expanded Local Model Integration: Microsoft Phi-4 Mini and Alibaba Qwen 3 (Dynamic Token Budgeting & End-to-End Verification):**
+    - Integrated the newly pulled local models `phi4-mini:latest` (3.8B parameters, 2.49 GB) and `qwen3:4b` (4.0B parameters, 2.50 GB, native reasoning) into `src/core/llm.py`, `.env`, `src/main.py`, and `tests/evaluation/scripts/run_benchmark.py`.
+    - Implemented dynamic token budgeting in `create_ollama_llm()`: allocating 3000 max completion tokens for reasoning models (`qwen3`, `qwen3.5`, `gemma4`) and 2000 tokens for direct models (`qwen2.5`, `phi4-mini`).
+    - Verified `phi4-mini:latest` live through all 7 neurosymbolic pipeline phases in `src/main.py`, successfully validating Pydantic intent parsing, 100% AST CFG PDDL compliance, semantic uncertainty gating ($U_{sem}=0.50$), physical RADG replanning loop, operator constraint relaxation, and auditable planning report generation with GN-model feasibility verification (+1.93 dB margin on Berlin → Hannover → Frankfurt).
+    - Preserved 100% unit test pass rate across 347 tests with zero regressions.
 
 ---
 
 ## 3. What do I plan to accomplish next week?
 
 1. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and narrative structure to Prof. Massimo Tornatore for formal academic review and feedback.
-2. **Execute Sprint 4 Benchmark Evaluation:** Run the full 100-demand evaluation suite on the 17-node German backbone network across Baseline A (LLM-only), Baseline B (Rule-based), and Proposed (Neurosymbolic RADG).
-3. **Populate Empirical Figures into Slide Deck:** Ingest the empirical benchmark plots (blocking probability, latency distributions, and HITL reduction curves) directly into Slide 14 and backup slides.
-4. **Thesis Chapter 4 & 5 Drafting:** Begin drafting Chapter 4 (*Experimental Evaluation & Numerical Results*) using `thesis-coauthor` and Overleaf integration.
+2. **Slide 14 Presentation Integration:** Integrate the newly generated empirical figures (`latency_vs_tokens.png`, `success_vs_uar.png`, `hitl_interruption_origin.png`) into Slide 14 of the thesis defense presentation deck.
+3. **Thesis Chapter 4 Drafting:** Begin drafting Chapter 4 (*Experimental Evaluation & Numerical Results*) using `thesis-coauthor`, leveraging the vector PDFs and `summary_table.md`.
 
 ---
 
 ## 4. Do You Need Support?
 
-- **Current Status:** No external blockers. The PowerPoint co-authoring workflow and export automation are fully operational under WSL and Windows.
-- **Advisor Review:** I will schedule a checkpoint to present the 15-minute defense deck draft and collect feedback on slide emphasis and result presentation.
+- **Current Status:** No external blockers. The automated evaluation harness, baseline definitions, metrics calculation, publication figures, and local multi-model inference engine are fully completed, verified, and operational.
+- **Advisor Review:** I will schedule a checkpoint to present the 15-minute defense deck draft and discuss empirical benchmark results.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I structured the thesis evaluation around Four Core Validation Pillars and comparative baselines, synchronized Slide 13 manual improvements with tabular benchmark flows, and validated zero-discrepancy 16-slide compilation to vector PDF and 1080p previews.
+I integrated and empirically profiled local Ollama models (`phi4-mini:latest` and `qwen3:4b`), verified end-to-end 7-phase neurosymbolic pipeline execution with interactive replanning, established `qwen2.5:3b` as the optimal 100% VRAM default engine, and verified 347 passing unit tests under Strict TDD.
+
+

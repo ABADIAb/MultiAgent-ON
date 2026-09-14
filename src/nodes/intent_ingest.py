@@ -82,6 +82,7 @@ def intent_ingest_node(state: AgentState) -> dict:
 
     if not user_messages:
         return {
+            "active_intent": None,
             "enriched_intent": None,
             "topology_context": None,
             "messages": [
@@ -139,18 +140,21 @@ def intent_ingest_node(state: AgentState) -> dict:
             timestamp=topology_snapshot.timestamp,
         )
 
-    # Build enriched intent string
+    # Build clean active intent string
     parts = [f"Intent: {intent.summary}"]
     if intent.source_node:
         parts.append(f"Source: {intent.source_node}")
     if intent.target_node:
         parts.append(f"Target: {intent.target_node}")
-    enriched = " | ".join(parts)
+    clean_active = " | ".join(parts)
 
     if topology_context:
-        enriched = f"{enriched}\nTopology Context:\n{topology_context}"
+        enriched = f"{clean_active}\nTopology Context:\n{topology_context}"
+    else:
+        enriched = clean_active
 
     return {
+        "active_intent": clean_active,
         "enriched_intent": enriched,
         "topology_context": topology_context,
         "subtopology_snapshot": subtopology_snapshot,
