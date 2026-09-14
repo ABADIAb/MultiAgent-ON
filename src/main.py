@@ -140,8 +140,16 @@ def interactive_configuration() -> dict[str, Any]:
             "Select Execution Profile for Ollama:",
             choices=[
                 questionary.Choice(
-                    title="⚡ Recommended Default (qwen2.5:3b | 2000 max tokens | temp=0.2)",
-                    value="default",
+                    title="⚡ Recommended Default (qwen2.5:3b | 100% GPU VRAM | ~1.5s latency | temp=0.2)",
+                    value="qwen2.5:3b",
+                ),
+                questionary.Choice(
+                    title="🧠 Qwen 3.5 4B (qwen3.5:4b | Hybrid GPU/CPU | Native Reasoning | temp=0.2)",
+                    value="qwen3.5:4b",
+                ),
+                questionary.Choice(
+                    title="🐘 Gemma 4 e4B (gemma4:e4b | 8.0B Params | Heavy CPU Offload | temp=0.2)",
+                    value="gemma4:e4b",
                 ),
                 questionary.Choice(
                     title="🛠️  Custom Settings (Select model name, temperature, max tokens)",
@@ -155,13 +163,13 @@ def interactive_configuration() -> dict[str, Any]:
             console.print("[yellow]Setup cancelled by operator.[/yellow]")
             sys.exit(0)
 
-        if profile_choice == "default":
-            model = os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
+        if profile_choice in ("qwen2.5:3b", "qwen3.5:4b", "gemma4:e4b"):
+            max_tokens = 3000 if profile_choice in ("qwen3.5:4b", "gemma4:e4b") else 2000
             return {
                 "provider": "ollama",
-                "model": model,
+                "model": profile_choice,
                 "temperature": 0.2,
-                "max_tokens": 2000,
+                "max_tokens": max_tokens,
                 "think_effort": None,
                 "thinking_disabled": False,
             }
@@ -181,9 +189,10 @@ def interactive_configuration() -> dict[str, Any]:
             style=QUESTIONARY_STYLE,
         ).ask()
 
+        default_tok = "3000" if ("3.5" in custom_model or "gemma4" in custom_model) else "2000"
         tokens_str = questionary.text(
             "Max Completion Tokens:",
-            default="2000",
+            default=default_tok,
             validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
             style=QUESTIONARY_STYLE,
         ).ask()
@@ -192,7 +201,7 @@ def interactive_configuration() -> dict[str, Any]:
             "provider": "ollama",
             "model": custom_model,
             "temperature": float(temp_str or "0.2"),
-            "max_tokens": int(tokens_str or "2000"),
+            "max_tokens": int(tokens_str or default_tok),
             "think_effort": None,
             "thinking_disabled": False,
         }
@@ -556,7 +565,7 @@ def parse_args() -> argparse.Namespace:
         "--model",
         type=str,
         default=None,
-        help="LLM model identifier (default depends on provider)",
+        help="LLM model identifier (e.g. 'qwen2.5:3b', 'qwen3.5:4b', 'gemma4:e4b' for ollama, or cloud model slug)",
     )
     parser.add_argument(
         "--temperature",

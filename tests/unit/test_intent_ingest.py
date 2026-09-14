@@ -6,11 +6,9 @@ calls the LLM for structured output, and populates enriched_intent in state.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from langchain_core.messages import AIMessage, HumanMessage
-from pydantic import BaseModel
 
 from src.core.state import AgentState
 

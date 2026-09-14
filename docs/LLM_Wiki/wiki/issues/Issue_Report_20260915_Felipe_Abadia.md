@@ -196,9 +196,23 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ---
 
+#### Solved Issue 13: Local Reasoning Model Thinking Tokens Disrupting Pydantic Parsing and PDDL CFG Validation
+
+- **Issue:** Newly integrated local Ollama models with native reasoning capabilities (`qwen3.5:4b` and `gemma4:e4b`) output internal monologues wrapped in `<think>...</think>` tags prior to generating final responses. This corrupted structured JSON output in `OllamaChatOpenAI.with_structured_output` (causing `IntentSummary` validation crashes) and contaminated PDDL translations, causing deterministic CFG AST validation to fail ($v_{struct}=0$) and falsely triggering Semantic Gate rejections.
+- **What has already been tried:** Tested standard Ollama completions with tight token budgets (e.g. 50-100 tokens), which resulted in empty responses because reasoning tokens consumed the entire completion budget.
+- **Result:** Reasoning models could not reliably produce valid PDDL or parse structured operator intent without errors or truncations.
+- **Estimated possible solution / Resolution:**
+  1. Updated `OllamaChatOpenAI._parse_pydantic` in [`src/core/llm.py`](file:///home/felipeab/MultiAgentON/src/core/llm.py) to strip `<think>.*?</think>` tags using `re.sub(..., flags=re.DOTALL)` before extracting the outermost JSON payload.
+  2. Enhanced `_strip_code_fences` in [`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py) to remove `<think>` tags before extracting PDDL code fences, ensuring clean AST parsing.
+  3. Tuned `create_ollama_llm` to automatically allocate a 3000-token ceiling for thinking models to prevent token starvation.
+  4. Conducted empirical hardware profiling proving that `qwen2.5:3b` remains the optimal default (100% in 4GB VRAM, ~1.5s latency, zero RAM swapping) on the deployment laptop, while supporting `qwen3.5:4b` and `gemma4:e4b` as fully functional, selectable engines.
+  5. Expanded [`tests/integration/test_ollama_configurations.py`](file:///home/felipeab/MultiAgentON/tests/integration/test_ollama_configurations.py) with automated post-test memory unloading (`_unload_model`), maintaining 347 passing unit tests under Strict TDD.
+
+---
+
 ### Pending Issues
 
-> None. The presentation authoring pipeline, benchmark corpus, intent reconciliation engine, and full 7-phase neurosymbolic pipeline are complete, verified, and passing all unit tests.
+> None. The presentation authoring pipeline, benchmark corpus, intent reconciliation engine, multi-provider local LLM infrastructure, and full 7-phase neurosymbolic pipeline are complete, verified, and passing all unit tests.
 
 ---
 

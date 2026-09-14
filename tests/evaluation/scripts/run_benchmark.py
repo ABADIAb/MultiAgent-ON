@@ -27,6 +27,7 @@ from unittest.mock import MagicMock
 
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage
+import questionary
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
@@ -44,7 +45,14 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.core.llm import create_configured_llm, set_llm  # noqa: E402
+from src.core.llm import (  # noqa: E402
+    DEFAULT_KIMI_MODEL,
+    DEFAULT_OLLAMA_MODEL,
+    DEFAULT_OPENROUTER_MODEL,
+    create_configured_llm,
+    resolve_ollama_base_url,
+    set_llm,
+)
 from src.nodes.intent_ingest import IntentSummary  # noqa: E402
 from tests.evaluation.baselines import (  # noqa: E402
     BaselineResult,
@@ -59,6 +67,240 @@ from tests.evaluation.scripts.metrics import (  # noqa: E402
 from tests.evaluation.scripts.plotter import generate_all_figures  # noqa: E402
 
 console = Console()
+
+QUESTIONARY_STYLE = questionary.Style(
+    [
+        ("qmark", "fg:#00ffff bold"),
+        ("question", "bold white"),
+        ("answer", "fg:#00ff88 bold"),
+        ("pointer", "fg:#00ffff bold"),
+        ("highlighted", "fg:#00ffff bold"),
+        ("selected", "fg:#00ff88"),
+        ("placeholder", "fg:#666666 italic"),
+    ]
+)
+
+
+def fetch_available_ollama_models() -> list[str]:
+    """Query the local or WSL Ollama instance for installed models."""
+    import urllib.request
+
+    base_url = resolve_ollama_base_url()
+    tags_url = base_url.replace("/v1", "/api/tags")
+    try:
+        with urllib.request.urlopen(tags_url, timeout=1.5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return [m.get("name", "") for m in data.get("models", []) if m.get("name")]
+    except Exception:
+        return []
+
+
+def interactive_model_selection() -> dict[str, Any]:
+    """Prompt operator interactively to select the evaluation mode, provider, and model."""
+    provider_choice = questionary.select(
+        "Select Benchmark Execution Mode / LLM Provider:",
+        choices=[
+            questionary.Choice(
+                title="💻 Local Ollama (GPU-Accelerated | RTX 3050 | Zero API Cost)",
+                value="ollama",
+            ),
+            questionary.Choice(
+                title="🌐 OpenRouter (Cloud API | ling-3.0-flash-vl:free | Rate-Limited)",
+                value="openrouter",
+            ),
+            questionary.Choice(
+                title="⚡ Kimi Coding API (Cloud API | kimi-for-coding-highspeed)",
+                value="kimi",
+            ),
+            questionary.Choice(
+                title="🧪 Offline Mock (Deterministic Dry-Run | Zero API Tokens)",
+                value="mock",
+            ),
+        ],
+        style=QUESTIONARY_STYLE,
+    ).ask()
+
+    if provider_choice is None:
+        console.print("[yellow]Benchmark setup cancelled by operator.[/yellow]")
+        sys.exit(0)
+
+    if provider_choice == "mock":
+        return {
+            "use_mock": True,
+            "provider": None,
+            "model": None,
+            "temperature": None,
+        }
+
+    if provider_choice == "ollama":
+        installed_models = fetch_available_ollama_models()
+        choices = []
+        if installed_models:
+            for m in installed_models:
+                if m == "qwen2.5:3b":
+                    title = f"⚡ {m} (Recommended Default | 100% GPU VRAM)"
+                elif m == "qwen3.5:4b":
+                    title = f"🧠 {m} (Hybrid GPU/CPU | Native Reasoning)"
+                elif m == "gemma4:e4b":
+                    title = f"🐘 {m} (8.0B Params | Heavy CPU Offload)"
+                else:
+                    title = f"📦 {m} (Installed)"
+                choices.append(questionary.Choice(title=title, value=m))
+        else:
+            choices.append(
+                questionary.Choice(
+                    title=f"⚡ Recommended Default ({DEFAULT_OLLAMA_MODEL})",
+                    value=DEFAULT_OLLAMA_MODEL,
+                )
+            )
+        choices.append(
+            questionary.Choice(title="🛠️  Custom Model Name", value="custom")
+        )
+
+        model_choice = questionary.select(
+            "Select Local Ollama Model:",
+            choices=choices,
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        if model_choice is None:
+            sys.exit(0)
+
+        if model_choice == "custom":
+            custom_name = questionary.text(
+                "Enter Ollama Model Name:",
+                default=DEFAULT_OLLAMA_MODEL,
+                style=QUESTIONARY_STYLE,
+            ).ask()
+            if not custom_name:
+                sys.exit(0)
+            selected_model = custom_name.strip()
+        else:
+            selected_model = model_choice
+
+        return {
+            "use_mock": False,
+            "provider": "ollama",
+            "model": selected_model,
+            "temperature": 0.2,
+        }
+
+    if provider_choice == "openrouter":
+        model_choice = questionary.select(
+            "Select OpenRouter Model:",
+            choices=[
+                questionary.Choice(
+                    title=f"⚡ Recommended Default ({DEFAULT_OPENROUTER_MODEL})",
+                    value=DEFAULT_OPENROUTER_MODEL,
+                ),
+                questionary.Choice(
+                    title="🛠️  Custom Model Slug",
+                    value="custom",
+                ),
+            ],
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        if model_choice is None:
+            sys.exit(0)
+
+        if model_choice == "custom":
+            custom_slug = questionary.text(
+                "Enter OpenRouter Model Slug:",
+                default=DEFAULT_OPENROUTER_MODEL,
+                style=QUESTIONARY_STYLE,
+            ).ask()
+            if not custom_slug:
+                sys.exit(0)
+            selected_model = custom_slug.strip()
+        else:
+            selected_model = model_choice
+
+        return {
+            "use_mock": False,
+            "provider": "openrouter",
+            "model": selected_model,
+            "temperature": 0.2,
+        }
+
+    if provider_choice == "kimi":
+        model_choice = questionary.select(
+            "Select Kimi Model:",
+            choices=[
+                questionary.Choice(
+                    title=f"⚡ Recommended Default ({DEFAULT_KIMI_MODEL})",
+                    value=DEFAULT_KIMI_MODEL,
+                ),
+                questionary.Choice(
+                    title="🛠️  Custom Model Name",
+                    value="custom",
+                ),
+            ],
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        if model_choice is None:
+            sys.exit(0)
+
+        if model_choice == "custom":
+            custom_name = questionary.text(
+                "Enter Kimi Model Name:",
+                default=DEFAULT_KIMI_MODEL,
+                style=QUESTIONARY_STYLE,
+            ).ask()
+            if not custom_name:
+                sys.exit(0)
+            selected_model = custom_name.strip()
+        else:
+            selected_model = model_choice
+
+        return {
+            "use_mock": False,
+            "provider": "kimi",
+            "model": selected_model,
+            "temperature": 1.0,
+        }
+
+    return {"use_mock": True, "provider": None, "model": None, "temperature": None}
+
+
+def setup_benchmark_llm(
+    provider: str | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    use_mock: bool = False,
+) -> tuple[str, str, bool]:
+    """Configure shared LLM singleton or activate mock fallback.
+
+    Returns:
+        (resolved_provider, resolved_model, active_use_mock)
+    """
+    if use_mock:
+        return "mock", "mock", True
+
+    load_dotenv()
+    try:
+        llm = create_configured_llm(
+            provider=provider,
+            model=model,
+            temperature=temperature,
+        )
+        set_llm(llm)
+        resolved_provider = (
+            provider
+            or os.getenv("LLM_PROVIDER")
+            or ("openrouter" if os.getenv("OPENROUTER_API_KEY") else "kimi")
+        ).lower()
+        resolved_model = model or getattr(llm, "model_name", "configured")
+        console.print(
+            f"[bold green]✓[/bold green] Live LLM configured: [cyan]{resolved_provider} / {resolved_model}[/cyan]"
+        )
+        return resolved_provider, resolved_model, False
+    except Exception as e:
+        console.print(
+            f"[yellow]Warning: Could not configure live LLM ({e}). Defaulting to --mock mode.[/yellow]"
+        )
+        return "mock", "mock", True
 
 
 # ---------------------------------------------------------------------------
@@ -270,6 +512,9 @@ def run_benchmark(
     classes: list[str] | None = None,
     limit: int | None = None,
     use_mock: bool = False,
+    provider: str | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
     output_dir: Path = Path("tests/evaluation/results"),
     skip_plots: bool = False,
 ) -> dict[str, Any]:
@@ -277,15 +522,28 @@ def run_benchmark(
     start_total_time = time.perf_counter()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+    # 1. Setup LLM or Mock Engine
+    resolved_provider, resolved_model, use_mock = setup_benchmark_llm(
+        provider=provider,
+        model=model,
+        temperature=temperature,
+        use_mock=use_mock,
+    )
+
     console.print()
+    eval_mode_desc = (
+        "[bold yellow]OFFLINE MOCK (Zero API Cost)[/bold yellow]"
+        if use_mock
+        else f"[bold green]LIVE LLM API ({resolved_provider} / {resolved_model})[/bold green]"
+    )
     banner_text = (
         f"[bold cyan]⚡ MultiAgentON Sprint 4: Automated Evaluation Harness[/bold cyan]\n"
         f"[dim]Optical Backbone:[/dim] Nobel-Germany 17-Node Network (|V|=17, |E|=26)\n"
-        f"[dim]Evaluation Mode:[/dim] [bold {'yellow' if use_mock else 'green'}]{'OFFLINE MOCK (Zero API Cost)' if use_mock else 'LIVE LLM API'}[/bold {'yellow' if use_mock else 'green'}]"
+        f"[dim]Evaluation Mode:[/dim] {eval_mode_desc}"
     )
     console.print(Panel(banner_text, border_style="cyan", box=box.ROUNDED))
 
-    # 1. Load corpus
+    # 2. Load corpus
     corpus = load_test_corpus(corpus_path)
     filtered_intents = filter_corpus(corpus, classes=classes, limit=limit)
     console.print(
@@ -293,7 +551,7 @@ def run_benchmark(
         f"across risk categories from [dim]{corpus_path}[/dim]"
     )
 
-    # 2. Verify registered baselines
+    # 3. Verify registered baselines
     registered = list_baselines()
     valid_baselines = [b for b in selected_baselines if b in registered]
     if not valid_baselines:
@@ -303,23 +561,6 @@ def run_benchmark(
     console.print(
         f"[bold green]✓[/bold green] Evaluated systems ({len(valid_baselines)}): [cyan]{', '.join(valid_baselines)}[/cyan]"
     )
-
-    # 3. Setup LLM if live mode
-    if not use_mock:
-        load_dotenv()
-        try:
-            llm = create_configured_llm()
-            set_llm(llm)
-            provider = os.getenv("LLM_PROVIDER", "openrouter" if os.getenv("OPENROUTER_API_KEY") else "kimi")
-            model = getattr(llm, "model_name", "configured")
-            console.print(
-                f"[bold green]✓[/bold green] Live LLM configured: [cyan]{provider} / {model}[/cyan]"
-            )
-        except Exception as e:
-            console.print(
-                f"[yellow]Warning: Could not configure live LLM ({e}). Defaulting to --mock mode.[/yellow]"
-            )
-            use_mock = True
 
     # 4. Execute Benchmark Loop
     results_by_baseline: dict[str, list[BaselineResult]] = {
@@ -429,6 +670,8 @@ def run_benchmark(
         "baselines_evaluated": valid_baselines,
         "execution_time_s": total_duration,
         "metrics_summary": metrics_summary,
+        "provider": resolved_provider,
+        "model": resolved_model,
         "raw_json": str(json_path),
         "raw_csv": str(csv_path),
         "summary_table_md": str(summary_path),
@@ -488,7 +731,8 @@ def display_terminal_summary(metrics_summary: dict[str, dict[str, Any]]) -> None
 # ---------------------------------------------------------------------------
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
+    """Construct CLI argument parser for benchmark execution."""
     parser = argparse.ArgumentParser(
         description="Automated Evaluation Harness for MultiAgentON (Sprint 4)."
     )
@@ -522,6 +766,30 @@ def main() -> None:
         help="Run benchmark using deterministic offline mock responses",
     )
     parser.add_argument(
+        "--provider",
+        type=str,
+        default=None,
+        choices=["ollama", "openrouter", "kimi"],
+        help="Explicit LLM provider ('ollama', 'openrouter', 'kimi')",
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help="Explicit model name or slug (e.g. 'qwen2.5:3b', 'qwen3.5:4b', 'gemma4:e4b', 'kimi-for-coding-highspeed')",
+    )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature for LLM execution",
+    )
+    parser.add_argument(
+        "--non-interactive",
+        action="store_true",
+        help="Run without interactive prompts, strictly using CLI args or .env defaults",
+    )
+    parser.add_argument(
         "--output-dir",
         type=str,
         default="tests/evaluation/results",
@@ -532,8 +800,26 @@ def main() -> None:
         action="store_true",
         help="Skip generation of publication figures",
     )
+    return parser
 
+
+def main() -> None:
+    parser = build_parser()
     args = parser.parse_args()
+
+    use_mock = args.mock
+    provider = args.provider
+    model = args.model
+    temperature = args.temperature
+
+    # If neither mock nor explicit provider/model is given, prompt interactively if in a TTY
+    if not use_mock and not provider and not model and not args.non_interactive:
+        if sys.stdin.isatty():
+            selection = interactive_model_selection()
+            use_mock = selection["use_mock"]
+            provider = selection["provider"]
+            model = selection["model"]
+            temperature = selection["temperature"]
 
     corpus_path = Path(args.corpus)
     selected_baselines = [b.strip() for b in args.baselines.split(",") if b.strip()]
@@ -549,7 +835,10 @@ def main() -> None:
         selected_baselines=selected_baselines,
         classes=selected_classes,
         limit=args.limit,
-        use_mock=args.mock,
+        use_mock=use_mock,
+        provider=provider,
+        model=model,
+        temperature=temperature,
         output_dir=output_dir,
         skip_plots=args.skip_plots,
     )

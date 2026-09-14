@@ -47,8 +47,10 @@ Links:
 
 
 def _strip_fences(text: str) -> str:
-    """Helper to strip markdown code blocks if emitted."""
-    lines = [line for line in text.splitlines() if not line.strip().startswith("```")]
+    """Helper to strip markdown code blocks and internal reasoning tags if emitted."""
+    import re
+    cleaned = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+    lines = [line for line in cleaned.splitlines() if not line.strip().startswith("```")]
     return "\n".join(lines).strip()
 
 
@@ -61,6 +63,33 @@ def _is_ollama_available() -> bool:
             return resp.status == 200
     except Exception:
         return False
+
+
+def _get_installed_models() -> list[str]:
+    """Retrieve list of pulled models from Ollama."""
+    import json
+    import urllib.request
+    url = resolve_ollama_base_url().replace("/v1", "") + "/api/tags"
+    try:
+        with urllib.request.urlopen(url, timeout=1.5) as resp:
+            data = json.loads(resp.read().decode())
+            return [m.get("name", "") for m in data.get("models", []) if m.get("name")]
+    except Exception:
+        return []
+
+
+def _unload_model(model_name: str) -> None:
+    """Unload a model from Ollama memory to release VRAM and system RAM."""
+    import json
+    import urllib.request
+    url = resolve_ollama_base_url().replace("/v1", "") + "/api/generate"
+    req_data = json.dumps({"model": model_name, "keep_alive": 0}).encode("utf-8")
+    req = urllib.request.Request(url, data=req_data, headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=5.0):
+            pass
+    except Exception:
+        pass
 
 
 @pytest.mark.integration
@@ -166,3 +195,48 @@ class TestOllamaConfigurations:
         assert summary.target_node == "Frankfurt"
         assert summary.source_node == "Berlin"
         assert summary.summary != ""
+
+    @pytest.mark.parametrize("model_name", ["qwen2.5:3b", "qwen3.5:4b", "gemma4:e4b"])
+    def test_ollama_multi_model_pddl_comparison(self, model_name: str) -> None:
+        """Compare PDDL generation across all installed local models."""
+        installed = _get_installed_models()
+        if model_name not in installed:
+            pytest.skip(f"Model '{model_name}' is not installed in local Ollama.")
+
+        # Allocate token budget
+        max_tokens = 3000 if ("3.5" in model_name or "gemma4" in model_name) else 2000
+        llm = create_ollama_llm(
+            model=model_name,
+            temperature=0.2,
+            max_tokens=max_tokens,
+        )
+
+        messages = [
+            SystemMessage(content=PDDL_SYSTEM_PROMPT),
+            HumanMessage(content=BENCHMARK_INTENT),
+        ]
+
+        start_time = time.perf_counter()
+        try:
+            response = llm.invoke(messages)
+            latency = time.perf_counter() - start_time
+
+            raw_content = response.content if isinstance(response.content, str) else str(response.content)
+            clean_pddl = _strip_fences(raw_content)
+
+            is_valid, errors = validate_pddl_syntax(clean_pddl)
+
+            print(f"\n{'='*20} Multi-Model Comparison: {model_name} {'='*20}")
+            print(f"Model:            {model_name}")
+            print(f"Latency:          {latency:.2f}s")
+            print(f"PDDL Valid:       {is_valid}")
+            if errors:
+                print(f"Validation Errs:  {errors}")
+            print(f"{'='*65}")
+
+            assert len(clean_pddl) > 0, f"Empty output for {model_name}"
+            assert is_valid, f"PDDL syntax invalid for {model_name}: {errors}"
+        finally:
+            # Unload heavy models (qwen3.5:4b, gemma4:e4b) after testing so system RAM is freed
+            if model_name in ("qwen3.5:4b", "gemma4:e4b"):
+                _unload_model(model_name)

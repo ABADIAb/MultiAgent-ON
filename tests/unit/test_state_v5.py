@@ -8,9 +8,8 @@ topology models that survive from V3.
 from __future__ import annotations
 
 import operator
-from typing import get_type_hints, Annotated
+from typing import get_type_hints
 
-import pytest
 
 from src.core.state import (
     AgentState,

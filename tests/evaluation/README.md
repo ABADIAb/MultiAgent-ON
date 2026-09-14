@@ -164,9 +164,44 @@ The evaluation dataset contains **107 synthetic operator intents** structured in
 
 ## 5. Running the Automated Evaluation Harness
 
-The benchmark harness is executed using `uv run` and supports both **Live LLM API** runs and **Deterministic Offline Mock** runs for instant zero-cost reproducibility and CI testing.
+The benchmark harness is executed using `uv run` and supports interactive selection, explicit CLI flags, and **Deterministic Offline Mock** runs for instant zero-cost reproducibility and CI testing.
 
-### 5.1 Quick Validation & Dry-Run (Mock Mode)
+### 5.1 Interactive Model & Execution Selection
+
+When executing `run_benchmark.py` directly in an interactive terminal without flags:
+```bash
+uv run python tests/evaluation/scripts/run_benchmark.py
+```
+An interactive menu (powered by `questionary`) prompts you to select:
+1. **Execution Mode / LLM Provider:**
+   - 💻 **Local Ollama** (GPU-Accelerated on RTX 3050 Laptop GPU, zero token cost)
+   - 🌐 **OpenRouter** (Cloud API, e.g. `inclusionai/ling-3.0-flash-vl:free`)
+   - ⚡ **Kimi Coding API** (Cloud API, `kimi-for-coding-highspeed`)
+   - 🧪 **Offline Mock** (Deterministic dry-run, zero API tokens)
+2. **Model Selection:**
+   - For **Ollama**: auto-detects locally installed models (e.g. `qwen2.5:3b`) via the Ollama tags API, with an option for custom model names.
+   - For **OpenRouter / Kimi**: allows choosing the recommended default or entering a custom model identifier.
+
+### 5.2 Direct CLI Model Selection (Scripted Runs)
+
+To run non-interactively with an explicit provider and model:
+
+```bash
+# Run with local Ollama on RTX 3050 GPU (Recommended Default)
+uv run python tests/evaluation/scripts/run_benchmark.py --provider ollama --model qwen2.5:3b
+
+# Run with alternative local models
+uv run python tests/evaluation/scripts/run_benchmark.py --provider ollama --model qwen3.5:4b
+uv run python tests/evaluation/scripts/run_benchmark.py --provider ollama --model gemma4:e4b
+
+# Run with OpenRouter free model
+uv run python tests/evaluation/scripts/run_benchmark.py --provider openrouter --model inclusionai/ling-3.0-flash-vl:free
+
+# Run with Kimi API
+uv run python tests/evaluation/scripts/run_benchmark.py --provider kimi --model kimi-for-coding-highspeed
+```
+
+### 5.3 Quick Validation & Dry-Run (Mock Mode)
 
 To run the complete benchmark suite across all 107 test demands and all 5 comparative baselines offline without consuming API tokens:
 
@@ -187,13 +222,6 @@ uv run python tests/evaluation/scripts/run_benchmark.py --mock --baselines propo
 To filter by intent risk category:
 ```bash
 uv run python tests/evaluation/scripts/run_benchmark.py --mock --classes I_Nominal,III_Infeasible
-```
-
-### 5.2 Full Live LLM API Benchmark
-
-To execute the benchmark against the production Kimi LLM API endpoint:
-```bash
-uv run python tests/evaluation/scripts/run_benchmark.py
 ```
 
 ### 5.3 Regenerating Figures & Visual Artifacts

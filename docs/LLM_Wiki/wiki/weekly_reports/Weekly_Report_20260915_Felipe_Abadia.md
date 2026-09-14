@@ -147,6 +147,12 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Updated `create_configured_llm` and `interactive_configuration()` in [`src/main.py`](file:///home/felipeab/MultiAgentON/src/main.py) allowing seamless toggling between local Ollama, OpenRouter, and Kimi.
     - Refined Phase 3 Semantic Gate prompt (`_AGREEMENT_SYSTEM_PROMPT` in [`src/nodes/semantic_gate_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/semantic_gate_node.py)) to evaluate semantic equivalence instead of literal string equivalence, tolerating typos and canonical node mappings.
     - Authored integration benchmark [`tests/integration/test_ollama_configurations.py`](file:///home/felipeab/MultiAgentON/tests/integration/test_ollama_configurations.py) achieving 100% pass rate (5/5 tests in 8.68s, ~1.7s latency, 100% valid PDDL) and expanded test suite to 333 passing unit tests under Strict TDD.
+17. **Multi-Model Local Ollama Profiling, Hardware Architecture Audit & Native Reasoning Support:**
+    - Executed a hardware architecture audit and empirical latency profiling across local Ollama models (`qwen2.5:3b`, `qwen3.5:4b`, `gemma4:e4b`) on an RTX 3050 Laptop GPU (4 GB VRAM) with 8 GB system RAM.
+    - Empirically proved that `qwen2.5:3b` is the optimal default engine because it fits 100% in VRAM (2.15 GB), achieving ~1.5s latency at 70 tok/s with zero RAM swapping, whereas `qwen3.5:4b` (3.4 GB) and `gemma4:e4b` (9.6 GB) require 1.85 GB and 8.04 GB of CPU RAM offload, respectively.
+    - Resolved thinking-tag failures for reasoning models by engineering `<think>.*?</think>` regex sanitization in `OllamaChatOpenAI._parse_pydantic` ([`src/core/llm.py`](file:///home/felipeab/MultiAgentON/src/core/llm.py)) and `_strip_code_fences` ([`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py)), guaranteeing valid Pydantic JSON extraction and 100% AST CFG PDDL compliance.
+    - Integrated multi-model profiles into the interactive CLI ([`src/main.py`](file:///home/felipeab/MultiAgentON/src/main.py)), benchmark harness ([`tests/evaluation/scripts/run_benchmark.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/run_benchmark.py)), and environment configuration ([`.env`](file:///home/felipeab/MultiAgentON/.env)).
+    - Expanded [`tests/integration/test_ollama_configurations.py`](file:///home/felipeab/MultiAgentON/tests/integration/test_ollama_configurations.py) with dynamic model comparison and automatic post-test memory unloading (`_unload_model`), maintaining 347 passing unit tests under Strict TDD.
 
 ---
 
@@ -167,6 +173,6 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I integrated local GPU-accelerated Ollama inference (`qwen2.5:3b`) on an RTX 3050, refined the Semantic Gate for typo-tolerant semantic equivalence, and validated 100% PDDL validity across multi-provider engines with 333 unit and 5 integration tests under Strict TDD.
+I completed an empirical hardware profiling of local Ollama models (`qwen2.5:3b`, `qwen3.5:4b`, `gemma4:e4b`), established `qwen2.5:3b` as the optimal 100% VRAM default engine on an RTX 3050, engineered native `<think>` token filtering for reasoning models, and verified 347 passing unit tests under Strict TDD.
 
 

@@ -21,7 +21,6 @@ from src.core.constants import (
     ChannelConstants,
     FiberConstants,
     NodeConstants,
-    ThresholdConstants,
 )
 from src.core.models import Amplifier, FiberLink, QoTResult
 

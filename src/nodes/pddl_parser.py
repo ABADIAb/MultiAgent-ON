@@ -60,13 +60,15 @@ Rules:
 
 
 def _strip_code_fences(text: str) -> str:
-    """Remove markdown code fences if the LLM wraps the output."""
+    """Remove markdown code fences and internal reasoning tags if the LLM wraps the output."""
+    # Strip internal <think>...</think> blocks emitted by reasoning models
+    cleaned = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
     # Match ```pddl\n...\n``` or ```\n...\n```
     pattern = r"```(?:\w+)?\s*\n(.*?)\n```"
-    match = re.search(pattern, text, re.DOTALL)
+    match = re.search(pattern, cleaned, re.DOTALL)
     if match:
         return match.group(1).strip()
-    return text.strip()
+    return cleaned.strip()
 
 
 def pddl_parser_node(state: AgentState) -> dict:

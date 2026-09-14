@@ -95,6 +95,31 @@ class TestPddlParserNode:
         assert result["pddl_constraints"] is not None
 
     @patch("src.nodes.pddl_parser.get_llm")
+    def test_thinking_tags_stripped_from_pddl_response(self, mock_get_llm):
+        from src.nodes.pddl_parser import pddl_parser_node
+
+        thinking_content = (
+            "<think>\n"
+            "Analyzing the intent: route from Milano-A to Milano-D.\n"
+            "Will generate formal PDDL problem definition.\n"
+            "</think>\n"
+            "```pddl\n"
+            f"{VALID_PDDL_RESPONSE}\n"
+            "```"
+        )
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content=thinking_content)
+        mock_get_llm.return_value = mock_llm
+
+        state = _make_state(enriched_intent="Route from Milano-A to Milano-D")
+        result = pddl_parser_node(state)
+
+        assert result["pddl_valid"] is True
+        assert "<think>" not in result["pddl_constraints"]
+        assert "</think>" not in result["pddl_constraints"]
+        assert "(define (problem" in result["pddl_constraints"]
+
+    @patch("src.nodes.pddl_parser.get_llm")
     def test_valid_response_contains_pddl_structure(self, mock_get_llm):
         from src.nodes.pddl_parser import pddl_parser_node
 

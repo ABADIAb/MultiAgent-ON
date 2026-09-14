@@ -23,6 +23,11 @@ DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 # Default model and endpoint on Ollama
 DEFAULT_OLLAMA_MODEL = "qwen2.5:3b"
 DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434/v1"
+SUPPORTED_OLLAMA_MODELS: tuple[str, ...] = (
+    "qwen2.5:3b",
+    "qwen3.5:4b",
+    "gemma4:e4b",
+)
 
 # Module-level LLM reference, set during graph initialization.
 _llm: BaseChatModel | None = None
@@ -95,6 +100,8 @@ class OllamaChatOpenAI(ChatOpenAI):
                 import re
 
                 raw_text = getattr(ai_message, "content", str(ai_message))
+                # Strip internal reasoning blocks <think>...</think> from reasoning models
+                raw_text = re.sub(r"<think>.*?</think>", "", raw_text, flags=re.DOTALL).strip()
                 # Extract outermost JSON object to ignore any preambles or code fences
                 json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
                 if json_match:
@@ -284,7 +291,9 @@ def create_ollama_llm(
     resolved_base_url = resolve_ollama_base_url(base_url)
     resolved_model = model or os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
     resolved_temp = 0.2 if temperature is None else temperature
-    resolved_max_tokens = 2000 if max_tokens is None else max_tokens
+    # Thinking models (qwen3.5:4b, gemma4:e4b) need a larger token ceiling so internal reasoning doesn't truncate output
+    default_tokens = 3000 if ("3.5" in resolved_model or "gemma4" in resolved_model) else 2000
+    resolved_max_tokens = default_tokens if max_tokens is None else max_tokens
 
     kwargs: dict[str, Any] = {
         "model": resolved_model,
