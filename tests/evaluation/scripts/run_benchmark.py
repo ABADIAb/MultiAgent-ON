@@ -139,6 +139,10 @@ def interactive_model_selection() -> dict[str, Any]:
             for m in installed_models:
                 if m == "qwen2.5:3b":
                     title = f"⚡ {m} (Recommended Default | 100% GPU VRAM)"
+                elif "phi4" in m:
+                    title = f"🔬 {m} (3.8B Params | Fast & Structured)"
+                elif m in ("qwen3:4b", "qwen3"):
+                    title = f"🧠 {m} (4.0B Params | Native Reasoning)"
                 elif m == "qwen3.5:4b":
                     title = f"🧠 {m} (Hybrid GPU/CPU | Native Reasoning)"
                 elif m == "gemma4:e4b":

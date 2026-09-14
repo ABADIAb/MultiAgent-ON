@@ -196,7 +196,10 @@ class TestOllamaConfigurations:
         assert summary.source_node == "Berlin"
         assert summary.summary != ""
 
-    @pytest.mark.parametrize("model_name", ["qwen2.5:3b", "qwen3.5:4b", "gemma4:e4b"])
+    @pytest.mark.parametrize(
+        "model_name",
+        ["qwen2.5:3b", "phi4-mini:latest", "qwen3:4b", "qwen3.5:4b", "gemma4:e4b"],
+    )
     def test_ollama_multi_model_pddl_comparison(self, model_name: str) -> None:
         """Compare PDDL generation across all installed local models."""
         installed = _get_installed_models()
@@ -204,7 +207,12 @@ class TestOllamaConfigurations:
             pytest.skip(f"Model '{model_name}' is not installed in local Ollama.")
 
         # Allocate token budget
-        max_tokens = 3000 if ("3.5" in model_name or "gemma4" in model_name) else 2000
+        is_thinking = (
+            "qwen3" in model_name
+            or "3.5" in model_name
+            or "gemma4" in model_name
+        ) and "qwen2" not in model_name
+        max_tokens = 3000 if is_thinking else 2000
         llm = create_ollama_llm(
             model=model_name,
             temperature=0.2,
@@ -237,6 +245,6 @@ class TestOllamaConfigurations:
             assert len(clean_pddl) > 0, f"Empty output for {model_name}"
             assert is_valid, f"PDDL syntax invalid for {model_name}: {errors}"
         finally:
-            # Unload heavy models (qwen3.5:4b, gemma4:e4b) after testing so system RAM is freed
-            if model_name in ("qwen3.5:4b", "gemma4:e4b"):
+            # Unload non-default models after testing so VRAM and system RAM are freed
+            if model_name != "qwen2.5:3b":
                 _unload_model(model_name)

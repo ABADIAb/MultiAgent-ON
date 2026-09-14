@@ -548,3 +548,10 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Local multi-model empirical profiling, hardware architecture audit, reasoning token filtering, interactive CLI questionary update (`src/main.py`), benchmark runner model choices (`tests/evaluation/scripts/run_benchmark.py`), integration testing with safe memory cleanup (`tests/integration/test_ollama_configurations.py`), and debrief maintenance.
 - Testing & Verification: Full unit test suite expanded to 347 passing unit tests (`uv run pytest tests/unit/`), live integration tests passing for Ollama models, successful non-interactive CLI end-to-end execution (`src/main.py`), and clean linter checks (`uv run ruff check .`).
 
+## [2026-09-14] debrief2 | Local Ollama Phi-4 Mini and Qwen 3 Integration, Profiling & Live Verification
+- Wiki Deep Lint: Audited and verified `Weekly_Report_20260915_Felipe_Abadia.md` (Item 18), `Issue_Report_20260915_Felipe_Abadia.md` (Solved Issue 14), `session_20260914_Local_Ollama_Multi_Model_Profiling_and_Thinking_Support.md`, and `index.md`.
+- Consistency Audit: Verified expansion of local Ollama provider to support `phi4-mini:latest` (3.8B) and `qwen3:4b` (4.0B). Dynamic token budgeting (2000 tokens for standard models, 3000 tokens for reasoning models). Verified `phi4-mini:latest` live end-to-end through all 7 neurosymbolic pipeline phases including interactive HITL clarify and RADG replanning. Confirmed `qwen2.5:3b` as the optimal default for 4GB VRAM.
+- Session focus: Integration of `phi4-mini:latest` and `qwen3:4b`, dynamic token ceilings, CLI flags in `src/main.py` and `tests/evaluation/scripts/run_benchmark.py`, integration test suite updates with post-test memory reclamation, and debrief documentation.
+- Testing & Verification: 347 passing unit tests (`uv run pytest tests/unit/`), live integration tests passing, live 7-phase CLI pipeline execution verified, and clean linter checks (`uv run ruff check .`).
+
+

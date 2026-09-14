@@ -25,6 +25,8 @@ DEFAULT_OLLAMA_MODEL = "qwen2.5:3b"
 DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434/v1"
 SUPPORTED_OLLAMA_MODELS: tuple[str, ...] = (
     "qwen2.5:3b",
+    "qwen3:4b",
+    "phi4-mini:latest",
     "qwen3.5:4b",
     "gemma4:e4b",
 )
@@ -83,17 +85,23 @@ class OllamaChatOpenAI(ChatOpenAI):
             instructions = parser.get_format_instructions()
 
             def _inject_instructions(messages: Any) -> Any:
+                strong_directive = (
+                    "CRITICAL WARNING: You must output the ACTUAL JSON DATA that conforms to the schema. "
+                    "DO NOT output the JSON schema definition itself! Return a valid JSON object."
+                )
+                full_instructions = f"{instructions}\n\n{strong_directive}"
+
                 if isinstance(messages, list):
                     updated = list(messages)
                     for idx, msg in enumerate(updated):
                         if getattr(msg, "type", None) == "system":
                             updated[idx] = SystemMessage(
-                                content=f"{msg.content}\n\n{instructions}"
+                                content=f"{msg.content}\n\n{full_instructions}"
                             )
                             return updated
-                    return [SystemMessage(content=instructions), *updated]
+                    return [SystemMessage(content=full_instructions), *updated]
                 elif isinstance(messages, str):
-                    return f"{messages}\n\n{instructions}"
+                    return f"{messages}\n\n{full_instructions}"
                 return messages
 
             def _parse_pydantic(ai_message: Any) -> Any:
@@ -114,7 +122,8 @@ class OllamaChatOpenAI(ChatOpenAI):
                     clean = "\n".join(lines).strip()
                 return parser.parse(clean)
 
-            return RunnableLambda(_inject_instructions) | self | RunnableLambda(_parse_pydantic)
+            bound_llm = self.bind(response_format={"type": "json_object"})
+            return RunnableLambda(_inject_instructions) | bound_llm | RunnableLambda(_parse_pydantic)
 
         return super().with_structured_output(schema, **kwargs)
 
@@ -291,8 +300,13 @@ def create_ollama_llm(
     resolved_base_url = resolve_ollama_base_url(base_url)
     resolved_model = model or os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
     resolved_temp = 0.2 if temperature is None else temperature
-    # Thinking models (qwen3.5:4b, gemma4:e4b) need a larger token ceiling so internal reasoning doesn't truncate output
-    default_tokens = 3000 if ("3.5" in resolved_model or "gemma4" in resolved_model) else 2000
+    # Thinking models (qwen3, qwen3.5, gemma4) need a larger token ceiling so internal reasoning doesn't truncate output
+    is_thinking_model = (
+        "qwen3" in resolved_model
+        or "3.5" in resolved_model
+        or "gemma4" in resolved_model
+    ) and "qwen2" not in resolved_model
+    default_tokens = 3000 if is_thinking_model else 2000
     resolved_max_tokens = default_tokens if max_tokens is None else max_tokens
 
     kwargs: dict[str, Any] = {
@@ -301,6 +315,7 @@ def create_ollama_llm(
         "base_url": resolved_base_url,
         "temperature": resolved_temp,
         "max_tokens": resolved_max_tokens,
+        "timeout": 120.0,
     }
     if extra_body:
         kwargs["extra_body"] = extra_body

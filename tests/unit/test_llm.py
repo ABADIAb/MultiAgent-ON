@@ -288,11 +288,17 @@ class TestCreateOllamaLLM:
         assert llm.max_tokens == 1500
 
     def test_create_ollama_llm_thinking_model_default_tokens(self):
-        """Reasoning models (qwen3.5, gemma4) get 3000 default tokens, standard get 2000."""
+        """Reasoning models (qwen3, qwen3.5, gemma4) get 3000 default tokens, standard (qwen2.5, phi4-mini) get 2000."""
         from src.core.llm import create_ollama_llm
 
         llm_qwen25 = create_ollama_llm(model="qwen2.5:3b", base_url="http://localhost:11434/v1")
         assert llm_qwen25.max_tokens == 2000
+
+        llm_phi4 = create_ollama_llm(model="phi4-mini:latest", base_url="http://localhost:11434/v1")
+        assert llm_phi4.max_tokens == 2000
+
+        llm_qwen3 = create_ollama_llm(model="qwen3:4b", base_url="http://localhost:11434/v1")
+        assert llm_qwen3.max_tokens == 3000
 
         llm_qwen35 = create_ollama_llm(model="qwen3.5:4b", base_url="http://localhost:11434/v1")
         assert llm_qwen35.max_tokens == 3000
@@ -301,10 +307,12 @@ class TestCreateOllamaLLM:
         assert llm_gemma4.max_tokens == 3000
 
     def test_supported_ollama_models_contains_expected(self):
-        """SUPPORTED_OLLAMA_MODELS contains all three evaluated local models."""
+        """SUPPORTED_OLLAMA_MODELS contains all evaluated local models."""
         from src.core.llm import SUPPORTED_OLLAMA_MODELS
 
         assert "qwen2.5:3b" in SUPPORTED_OLLAMA_MODELS
+        assert "qwen3:4b" in SUPPORTED_OLLAMA_MODELS
+        assert "phi4-mini:latest" in SUPPORTED_OLLAMA_MODELS
         assert "qwen3.5:4b" in SUPPORTED_OLLAMA_MODELS
         assert "gemma4:e4b" in SUPPORTED_OLLAMA_MODELS
 

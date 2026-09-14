@@ -210,6 +210,20 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ---
 
+#### Solved Issue 14: Local Multi-Model Expansion and Latency Offload Characterization (`phi4-mini:latest` & `qwen3:4b`)
+
+- **Issue:** Expanding the local Ollama LLM provider to support newly downloaded models (`phi4-mini:latest` 3.8B and `qwen3:4b` 4.0B) required verifying parameter budgeting, JSON schema compliance, and memory allocation constraints on local laptop hardware (RTX 3050 Laptop GPU with 4 GB VRAM).
+- **What has already been tried:** Tested `qwen3:4b` under tight request timeouts (120s) with 3000-token completion limits and concurrent process execution.
+- **Result:** Reasoning models exceeding VRAM capacity trigger memory bandwidth bottlenecks and timeouts due to hybrid CPU/system RAM offloading (~3-4 tok/s vs 70 tok/s in VRAM). Conversely, `phi4-mini:latest` executes with direct output (~12.8s) but has higher VRAM footprint (~2.8 GB) than `qwen2.5:3b`.
+- **Estimated possible solution / Resolution:**
+  1. Updated `SUPPORTED_OLLAMA_MODELS` and `create_ollama_llm()` in [`src/core/llm.py`](file:///home/felipeab/MultiAgentON/src/core/llm.py) with dynamic token ceilings (3000 tokens for reasoning models, 2000 for standard models).
+  2. Integrated both models into [`src/main.py`](file:///home/felipeab/MultiAgentON/src/main.py) and [`tests/evaluation/scripts/run_benchmark.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/run_benchmark.py).
+  3. Empirically confirmed `qwen2.5:3b` as the optimal default (100% in VRAM, ~1.5s latency), with `phi4-mini:latest` serving as the best direct non-reasoning alternative.
+  4. Successfully verified `phi4-mini:latest` live end-to-end through all 7 neurosymbolic pipeline phases, including interactive HITL clarify, RADG replanning, and GN-model physics feasibility verification.
+  5. Expanded [`tests/integration/test_ollama_configurations.py`](file:///home/felipeab/MultiAgentON/tests/integration/test_ollama_configurations.py) with automated post-test unloading (`keep_alive=0`) to ensure system RAM is immediately reclaimed.
+
+---
+
 ### Pending Issues
 
 > None. The presentation authoring pipeline, benchmark corpus, intent reconciliation engine, multi-provider local LLM infrastructure, and full 7-phase neurosymbolic pipeline are complete, verified, and passing all unit tests.

@@ -76,7 +76,7 @@ Quantifies computational savings in prompt tokens and runtime, alongside operato
    $$\Delta N_{hitl} = \left( 1 - \frac{N_{hitl,\text{ours}}}{N_{hitl,\text{always}}} \right) \times 100\%$$
    - **Definition:** Reduction in operator interruptions compared to the mandatory Always-HITL baseline ($N_{hitl} = 100\%$).
    - **Target:** $> 70\%$.
-   - **Measurement:** Count of `interrupt()` events triggered across the 107 test demands.
+   - **Measurement:** Count of `interrupt()` events triggered across the 20 test demands.
 
 4. **Deterministic Compute Latency ($T_{det}$):**
    $$T_{det} = T_{solver} + T_{phys}$$
@@ -149,16 +149,21 @@ The output `BaselineResult` standardizes metrics for downstream comparative plot
 
 ---
 
-## 4. Benchmark Corpus: `test_corpus.json`
+## 4. Benchmark Corpus: `test_corpus_compact.json`
 
-The evaluation dataset contains **107 synthetic operator intents** structured into four classes tailored for the 17-node German backbone topology:
+The evaluation dataset utilizes a **20-intent compact corpus** structured into four equal classes (5 demands each) tailored for the 17-node German backbone topology.
+
+**Corpus Design & Validation Methodology:**
+1. **How were the intents generated?** Intents were synthetically generated to systematically stress-test specific parsing and reasoning capabilities over the 17-node Nobel-Germany topology (e.g., node combinations, hop limits, GSNR requirements).
+2. **Why were these categories selected?** The four classes map directly to the edge cases of the RADG decision boundaries: nominal (auto-approve), semantic ambiguity (early HITL clarify), physical infeasibility (late HITL replan), and adversarial/hallucination (CFG rejection / early clarify).
+3. **How were the reference labels validated?** The ground-truth constraints and expected outcomes (`expected_pddl_valid`, `expected_radg_action`) were manually verified against the deterministic Python GN-model and graph topology properties to ensure absolute baseline correctness.
 
 | Class | Name | Size | Key Characteristics | Target RADG Action |
 |:-----:|:-----|:----:|:-------------------|:------------------:|
-| **Class I** | **Nominal** | 28 | Clear source-destination pairs, feasible optical paths, realistic GSNR requirements ($\le 18\text{ dB}$). | `approve` (0 interrupts) |
-| **Class II** | **Ambiguous** | 26 | Underspecified endpoints ("to the north region"), colloquial SLA ("ultra-fast link"), missing constraints. | `clarify` (Phase 3b HITL) |
-| **Class III** | **Physically Infeasible** | 27 | Impossible physical constraints on Nobel-Germany ($>30\text{ dB}$ GSNR on multi-hop routes, 0 hops). | `replan` (Phase 6 RADG) |
-| **Class IV** | **Adversarial** | 26 | Hallucinated non-German nodes ("Paris to Rome"), contradictory constraints, PDDL syntax injection. | `clarify` (Phase 3b HITL / CFG) |
+| **Class I** | **Nominal** | 5 | Clear source-destination pairs, feasible optical paths, realistic GSNR requirements ($\le 18\text{ dB}$). | `approve` (0 interrupts) |
+| **Class II** | **Ambiguous** | 5 | Underspecified endpoints ("to the north region"), colloquial SLA ("ultra-fast link"), missing constraints. | `clarify` (Phase 3b HITL) |
+| **Class III** | **Physically Infeasible** | 5 | Impossible physical constraints on Nobel-Germany ($>30\text{ dB}$ GSNR on multi-hop routes, 0 hops). | `replan` (Phase 6 RADG) |
+| **Class IV** | **Adversarial** | 5 | Hallucinated non-German nodes ("Paris to Rome"), contradictory constraints, PDDL syntax injection. | `clarify` (Phase 3b HITL / CFG) |
 
 ---
 
@@ -203,7 +208,7 @@ uv run python tests/evaluation/scripts/run_benchmark.py --provider kimi --model 
 
 ### 5.3 Quick Validation & Dry-Run (Mock Mode)
 
-To run the complete benchmark suite across all 107 test demands and all 5 comparative baselines offline without consuming API tokens:
+To run the complete benchmark suite across all 20 test demands and all 5 comparative baselines offline without consuming API tokens:
 
 ```bash
 uv run python tests/evaluation/scripts/run_benchmark.py --mock

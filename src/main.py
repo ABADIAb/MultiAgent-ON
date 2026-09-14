@@ -144,6 +144,14 @@ def interactive_configuration() -> dict[str, Any]:
                     value="qwen2.5:3b",
                 ),
                 questionary.Choice(
+                    title="🔬 Phi-4 Mini (phi4-mini:latest | 3.8B Params | Fast & Structured | temp=0.2)",
+                    value="phi4-mini:latest",
+                ),
+                questionary.Choice(
+                    title="🧠 Qwen 3 4B (qwen3:4b | 4.0B Params | Native Reasoning | temp=0.2)",
+                    value="qwen3:4b",
+                ),
+                questionary.Choice(
                     title="🧠 Qwen 3.5 4B (qwen3.5:4b | Hybrid GPU/CPU | Native Reasoning | temp=0.2)",
                     value="qwen3.5:4b",
                 ),
@@ -163,8 +171,13 @@ def interactive_configuration() -> dict[str, Any]:
             console.print("[yellow]Setup cancelled by operator.[/yellow]")
             sys.exit(0)
 
-        if profile_choice in ("qwen2.5:3b", "qwen3.5:4b", "gemma4:e4b"):
-            max_tokens = 3000 if profile_choice in ("qwen3.5:4b", "gemma4:e4b") else 2000
+        if profile_choice in ("qwen2.5:3b", "phi4-mini:latest", "qwen3:4b", "qwen3.5:4b", "gemma4:e4b"):
+            is_thinking = (
+                "qwen3" in profile_choice
+                or "3.5" in profile_choice
+                or "gemma4" in profile_choice
+            ) and "qwen2" not in profile_choice
+            max_tokens = 3000 if is_thinking else 2000
             return {
                 "provider": "ollama",
                 "model": profile_choice,
@@ -189,7 +202,12 @@ def interactive_configuration() -> dict[str, Any]:
             style=QUESTIONARY_STYLE,
         ).ask()
 
-        default_tok = "3000" if ("3.5" in custom_model or "gemma4" in custom_model) else "2000"
+        is_thinking = (
+            "qwen3" in custom_model
+            or "3.5" in custom_model
+            or "gemma4" in custom_model
+        ) and "qwen2" not in custom_model
+        default_tok = "3000" if is_thinking else "2000"
         tokens_str = questionary.text(
             "Max Completion Tokens:",
             default=default_tok,
@@ -565,7 +583,7 @@ def parse_args() -> argparse.Namespace:
         "--model",
         type=str,
         default=None,
-        help="LLM model identifier (e.g. 'qwen2.5:3b', 'qwen3.5:4b', 'gemma4:e4b' for ollama, or cloud model slug)",
+        help="LLM model identifier (e.g. 'qwen2.5:3b', 'phi4-mini:latest', 'qwen3:4b', 'qwen3.5:4b' for ollama, or cloud model slug)",
     )
     parser.add_argument(
         "--temperature",
@@ -636,8 +654,14 @@ def main() -> None:
     if query_from_args or args.no_interactive:
         if provider == "ollama":
             default_model = os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
+            resolved_m = args.model or default_model
+            is_thinking = (
+                "qwen3" in resolved_m
+                or "3.5" in resolved_m
+                or "gemma4" in resolved_m
+            ) and "qwen2" not in resolved_m
             default_temp = 0.2
-            default_tokens = 2000
+            default_tokens = 3000 if is_thinking else 2000
         elif provider == "openrouter":
             default_model = (
                 os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL
