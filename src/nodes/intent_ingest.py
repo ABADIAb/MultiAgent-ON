@@ -141,7 +141,11 @@ def intent_ingest_node(state: AgentState) -> dict:
         )
 
     # Build clean active intent string
-    parts = [f"Intent: {intent.summary}"]
+    # Preserve raw user message if available to avoid lossy summarization of numerical constraints
+    raw_user_text = user_messages[-1].content if user_messages else intent.summary
+    base_statement = raw_user_text.strip() if isinstance(raw_user_text, str) and raw_user_text.strip() else intent.summary
+
+    parts = [f"Intent: {base_statement}"]
     if intent.source_node:
         parts.append(f"Source: {intent.source_node}")
     if intent.target_node:

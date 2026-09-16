@@ -259,47 +259,59 @@ def main():
         res = evaluate_single_intent(item, timeout=resolved_timeout)
         results.append(res)
 
-    # Save JSON
+    # Export results with timestamp to preserve history across runs
+    run_timestamp = time.strftime("%Y%m%d_%H%M%S")
+
+    # 1. JSON Export
     json_path = RESULTS_DIR / "nominal_results.json"
+    ts_json_path = RESULTS_DIR / f"nominal_results_{run_timestamp}.json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
+    with open(ts_json_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
     print(f"\n[✓] Raw telemetry exported: {json_path}")
+    print(f"[✓] Run telemetry snapshot: {ts_json_path}")
 
-    # Save CSV
+    # 2. CSV Export
     csv_path = RESULTS_DIR / "nominal_results.csv"
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            "id",
-            "intent_text",
-            "expected_action",
-            "initial_action",
-            "final_action",
-            "passed_first_try",
-            "hitl_count",
-            "elapsed_seconds",
-            "usem_score",
-            "pddl_valid",
-            "radg_decision",
-        ])
-        for r in results:
-            writer.writerow([
-                r["id"],
-                r["intent_text"],
-                r["expected_radg_action"],
-                r["initial_action"],
-                r["final_action"],
-                r["passed_first_try"],
-                r["hitl_count"],
-                r["total_elapsed_seconds"],
-                r["usem_score"],
-                r["pddl_valid"],
-                r["radg_decision"],
-            ])
+    ts_csv_path = RESULTS_DIR / f"nominal_results_{run_timestamp}.csv"
+    csv_headers = [
+        "id",
+        "intent_text",
+        "expected_action",
+        "initial_action",
+        "final_action",
+        "passed_first_try",
+        "hitl_count",
+        "elapsed_seconds",
+        "usem_score",
+        "pddl_valid",
+        "radg_decision",
+    ]
+    for target_csv in (csv_path, ts_csv_path):
+        with open(target_csv, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(csv_headers)
+            for r in results:
+                writer.writerow([
+                    r["id"],
+                    r["intent_text"],
+                    r["expected_radg_action"],
+                    r["initial_action"],
+                    r["final_action"],
+                    r["passed_first_try"],
+                    r["hitl_count"],
+                    r["total_elapsed_seconds"],
+                    r["usem_score"],
+                    r["pddl_valid"],
+                    r["radg_decision"],
+                ])
     print(f"[✓] Tabular CSV exported: {csv_path}")
+    print(f"[✓] Run CSV snapshot: {ts_csv_path}")
 
-    # Save Markdown Summary
+    # 3. Markdown Summary Export
     md_path = RESULTS_DIR / "nominal_summary.md"
+    ts_md_path = RESULTS_DIR / f"nominal_summary_{run_timestamp}.md"
     passed_count = sum(1 for r in results if r["passed_first_try"])
     total_count = len(results)
     avg_latency = sum(r["total_elapsed_seconds"] for r in results) / max(1, total_count)
@@ -308,6 +320,7 @@ def main():
         "# Nominal Intents Evaluation Summary (V5 Neurosymbolic Pipeline)",
         "",
         f"- **Date:** {time.strftime('%Y-%m-%d %H:%M:%S')}",
+        f"- **Run ID:** `{run_timestamp}`",
         f"- **LLM Provider:** `{args.provider}`",
         f"- **Model Evaluated:** `{args.model}`",
         f"- **Total Nominal Demands:** {total_count}",
@@ -333,9 +346,13 @@ def main():
             f"{r['hitl_count']} | {r['total_elapsed_seconds']:.2f}s | {usem_val} | {cfg_badge} | `{radg_val}` |"
         )
 
+    summary_text = "\n".join(md_content) + "\n"
     with open(md_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(md_content) + "\n")
+        f.write(summary_text)
+    with open(ts_md_path, "w", encoding="utf-8") as f:
+        f.write(summary_text)
     print(f"[✓] Summary Markdown exported: {md_path}")
+    print(f"[✓] Run Markdown snapshot: {ts_md_path}")
 
 
 if __name__ == "__main__":

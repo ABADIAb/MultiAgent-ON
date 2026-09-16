@@ -42,7 +42,7 @@ PDDL problem string. Use this exact structure:
   (:goal
     (and
       <routing goal: (route <source> <target>)>
-      <constraints: (min-gsnr <value>), (bandwidth <value>), (max-hops <value>), (avoid-node <node>), (avoid-link <src> <dst>)>
+      <constraints: (min-gsnr <value>), (bandwidth <value>), (max-hops <value>), (avoid-node <node>), (avoid-link <src> <dst>), (via <node>)>
     )
   )
 )
@@ -53,15 +53,91 @@ the nodes and links described there for :objects and :init sections.
 RULES:
 1. Output ONLY the PDDL string, no explanations or markdown code blocks.
 2. Always use the human-readable node names (e.g. Berlin, Frankfurt, Munich, Hamburg) for node objects and routing goals in PDDL, NOT internal IDs like node_1.
-3. STRICT CONSTRAINT EXTRACTION:
+3. ALL CONSTRAINTS BELONG IN (:goal (and ...)):
+   - ALL operator constraints ((min-gsnr ...), (bandwidth ...), (max-hops ...), (avoid-node ...), (avoid-link ...), (via ...)) MUST be placed inside the (:goal (and ...)) section!
+   - The (:init ...) section is STRICTLY for network topology predicates ((connected ...) and (link-active ...)). NEVER place constraints in (:init ...)!
+4. NO PLACEHOLDERS OR DUMMY VALUES:
    - ONLY emit constraint predicates if they are EXPLICITLY requested in the operator intent.
-   - NEVER invent default or placeholder values! E.g. if the operator does NOT specify GSNR, DO NOT emit (min-gsnr 0). If the operator only requests bandwidth, emit ONLY (bandwidth <val>).
+   - NEVER invent default or placeholder values! E.g. if the operator does NOT specify GSNR, DO NOT emit (min-gsnr 0).
+   - NEVER emit (bandwidth ...) or (bandwidth 1) unless the operator explicitly mentions bandwidth, capacity, or bitrate (e.g., '100G', '400G'). If bandwidth is not mentioned, omit (bandwidth ...).
    - If no specific constraints are mentioned, the (:goal ...) section MUST contain ONLY (route <source> <target>).
-4. AVOIDANCE CONSTRAINTS:
+5. AVOIDANCE CONSTRAINTS:
    - NEVER emit (avoid-node ...) or (avoid-link ...) unless the operator explicitly used negative words like 'avoid', 'avoiding', 'bypass', 'excluding', or 'without'.
    - NEVER invent node or link exclusions to steer routes.
-5. WAYPOINTS ('via <node>'):
-   - If the intent specifies traversing 'via <node>', that is an inclusion preference handled by the path search. DO NOT generate (avoid-node ...) or (avoid-link ...) to simulate 'via'.\
+6. WAYPOINTS ('via <node>'):
+   - If the intent specifies traversing 'via <node>', emit (via <node>) inside the (:goal (and ...)) block. DO NOT generate (avoid-node ...) or (avoid-link ...) to simulate 'via'.
+
+EXAMPLES:
+
+Example 1: Intent "Establish an optical connection from Hamburg to Berlin with 100G capacity."
+(define (problem optical-connection)
+  (:domain optical-network)
+  (:objects
+    Hamburg - node
+    Berlin - node
+  )
+  (:init
+    (connected Hamburg Berlin)
+    (link-active Hamburg Berlin)
+  )
+  (:goal
+    (and
+      (route Hamburg Berlin)
+      (bandwidth 100)
+    )
+  )
+)
+
+Example 2: Intent "Establish an optical connection from Hamburg to Berlin avoiding both Bremen and Hannover, with a minimum of 15 dB GSNR and a maximum of 3 hops."
+(define (problem optical-connection)
+  (:domain optical-network)
+  (:objects
+    Hamburg - node
+    Berlin - node
+    Bremen - node
+    Hannover - node
+  )
+  (:init
+    (connected Hamburg Bremen)
+    (connected Bremen Hannover)
+    (connected Hannover Berlin)
+    (link-active Hamburg Bremen)
+    (link-active Bremen Hannover)
+    (link-active Hannover Berlin)
+  )
+  (:goal
+    (and
+      (route Hamburg Berlin)
+      (min-gsnr 15)
+      (max-hops 3)
+      (avoid-node Bremen)
+      (avoid-node Hannover)
+    )
+  )
+)
+
+Example 3: Intent "Provision an optical channel from Munich to Stuttgart via Ulm with GSNR at least 15 dB."
+(define (problem optical-channel)
+  (:domain optical-network)
+  (:objects
+    Munich - node
+    Stuttgart - node
+    Ulm - node
+  )
+  (:init
+    (connected Munich Ulm)
+    (connected Ulm Stuttgart)
+    (link-active Munich Ulm)
+    (link-active Ulm Stuttgart)
+  )
+  (:goal
+    (and
+      (route Munich Stuttgart)
+      (min-gsnr 15)
+      (via Ulm)
+    )
+  )
+)\
 """
 
 

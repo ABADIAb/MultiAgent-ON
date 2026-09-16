@@ -1,0 +1,804 @@
+[
+  {
+    "id": "intent_nom_01",
+    "intent_text": "Establish an optical connection from Hamburg to Berlin with 100G capacity.",
+    "class": "I_Nominal",
+    "expected_radg_action": "approve",
+    "initial_action": "approve",
+    "final_action": "approve",
+    "passed_first_try": true,
+    "hitl_count": 0,
+    "total_elapsed_seconds": 7.83,
+    "usem_score": 0.1,
+    "usem_passed": true,
+    "pddl_valid": true,
+    "radg_decision": "approve",
+    "turn_telemetry": [
+      {
+        "turn": 1,
+        "active_intent": "Intent: Establish an optical connection from Hamburg to Berlin with 100G capacity. | Source: Hamburg | Target: Berlin",
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n  )\n  (:init\n    (connected Hamburg Berlin)\n    (link-active Hamburg Berlin)\n    (link-capacity Hamburg Berlin 6)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (bandwidth 100)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Hamburg to Berlin with a required bandwidth of 100.",
+        "usem_score": 0.1,
+        "usem_passed": true,
+        "error_context": null,
+        "num_candidates": 5,
+        "qot_results": [
+          {
+            "path": [
+              "Hamburg",
+              "Berlin"
+            ],
+            "feasible": true,
+            "snr_dB": 17.185,
+            "power_dBm": -12.025,
+            "snr_threshold_dB": 8.6,
+            "error": null
+          },
+          {
+            "path": [
+              "Hamburg",
+              "Hannover",
+              "Berlin"
+            ],
+            "feasible": true,
+            "snr_dB": 14.376,
+            "power_dBm": -13.015,
+            "snr_threshold_dB": 8.6,
+            "error": null
+          },
+          {
+            "path": [
+              "Hamburg",
+              "Bremen",
+              "Hannover",
+              "Berlin"
+            ],
+            "feasible": true,
+            "snr_dB": 13.636,
+            "power_dBm": -14.025,
+            "snr_threshold_dB": 8.6,
+            "error": null
+          },
+          {
+            "path": [
+              "Hamburg",
+              "Hannover",
+              "Leipzig",
+              "Berlin"
+            ],
+            "feasible": true,
+            "snr_dB": 12.937,
+            "power_dBm": -13.985,
+            "snr_threshold_dB": 8.6,
+            "error": null
+          },
+          {
+            "path": [
+              "Hamburg",
+              "Bremen",
+              "Hannover",
+              "Leipzig",
+              "Berlin"
+            ],
+            "feasible": true,
+            "snr_dB": 12.123,
+            "power_dBm": -14.995,
+            "snr_threshold_dB": 8.6,
+            "error": null
+          }
+        ],
+        "radg_decision": "approve",
+        "elapsed_s": 7.83
+      }
+    ],
+    "diagnostics": {
+      "pddl_valid": true,
+      "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n  )\n  (:init\n    (connected Hamburg Berlin)\n    (link-active Hamburg Berlin)\n    (link-capacity Hamburg Berlin 6)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (bandwidth 100)\n    )\n  )\n)",
+      "reconstruction": "I understand you want to route traffic from Hamburg to Berlin with a required bandwidth of 100.",
+      "usem_score": 0.1,
+      "usem_passed": true,
+      "error_context": null,
+      "num_candidates": 5,
+      "qot_results": [
+        {
+          "path": [
+            "Hamburg",
+            "Berlin"
+          ],
+          "feasible": true,
+          "snr_dB": 17.185,
+          "power_dBm": -12.025,
+          "snr_threshold_dB": 8.6,
+          "error": null
+        },
+        {
+          "path": [
+            "Hamburg",
+            "Hannover",
+            "Berlin"
+          ],
+          "feasible": true,
+          "snr_dB": 14.376,
+          "power_dBm": -13.015,
+          "snr_threshold_dB": 8.6,
+          "error": null
+        },
+        {
+          "path": [
+            "Hamburg",
+            "Bremen",
+            "Hannover",
+            "Berlin"
+          ],
+          "feasible": true,
+          "snr_dB": 13.636,
+          "power_dBm": -14.025,
+          "snr_threshold_dB": 8.6,
+          "error": null
+        },
+        {
+          "path": [
+            "Hamburg",
+            "Hannover",
+            "Leipzig",
+            "Berlin"
+          ],
+          "feasible": true,
+          "snr_dB": 12.937,
+          "power_dBm": -13.985,
+          "snr_threshold_dB": 8.6,
+          "error": null
+        },
+        {
+          "path": [
+            "Hamburg",
+            "Bremen",
+            "Hannover",
+            "Leipzig",
+            "Berlin"
+          ],
+          "feasible": true,
+          "snr_dB": 12.123,
+          "power_dBm": -14.995,
+          "snr_threshold_dB": 8.6,
+          "error": null
+        }
+      ],
+      "radg_decision": "approve",
+      "has_report": true
+    }
+  },
+  {
+    "id": "intent_nom_02",
+    "intent_text": "Establish an optical connection from Hamburg to Berlin avoiding both Bremen and Hannover, with a minimum of 15 dB GSNR and a maximum of 3 hops.",
+    "class": "I_Nominal",
+    "expected_radg_action": "approve",
+    "initial_action": "replan",
+    "final_action": "failed",
+    "passed_first_try": false,
+    "hitl_count": 3,
+    "total_elapsed_seconds": 20.7,
+    "usem_score": 0.5,
+    "usem_passed": false,
+    "pddl_valid": true,
+    "radg_decision": "replan",
+    "turn_telemetry": [
+      {
+        "turn": 1,
+        "active_intent": "Intent: Establish an optical connection from Hamburg to Berlin avoiding Bremen and Hannover with a minimum of 15 dB GSNR and a maximum of 3 hops. | Source: Hamburg | Target: Berlin",
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Frankfurt - node\n    Bremen - node\n    Leipzig - node\n    Nuremberg - node\n    Dortmund - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hannover Bremen)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Hamburg Berlin)\n    (connected Hamburg Bremen)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (link-active Hamburg Hannover)\n    (link-active Hannover Berlin)\n    (link-active Hannover Bremen)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Leipzig)\n    (link-active Hamburg Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Nuremberg Leipzig)\n    (min-gsnr 15)\n    (bandwidth 1)\n    (max-hops 3)\n    (avoid-node Bremen)\n    (avoid-node Hannover)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Hamburg to Berlin with a minimum GSNR of 15 dB, avoiding nodes Bremen and Hannover.",
+        "usem_score": 0.1,
+        "usem_passed": true,
+        "error_context": null,
+        "num_candidates": 1,
+        "qot_results": [
+          {
+            "path": [
+              "Hamburg",
+              "Berlin"
+            ],
+            "feasible": false,
+            "snr_dB": 0.0,
+            "power_dBm": -99.0,
+            "snr_threshold_dB": 0.0,
+            "error": "Unsupported bitrate: 1G. Supported: [10, 100, 200, 400]"
+          }
+        ],
+        "elapsed_s": 6.95
+      },
+      {
+        "turn": 2,
+        "radg_decision": "replan",
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Frankfurt - node\n    Bremen - node\n    Leipzig - node\n    Nuremberg - node\n    Dortmund - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hannover Bremen)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Hamburg Berlin)\n    (connected Hamburg Bremen)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (min-gsnr 12)\n    (bandwidth 1)\n    (max-hops 3)\n    (avoid-node Bremen)\n    (avoid-node Hannover)\n  )\n  (:goal\n    (and\n      (route Hamburg Frankfurt)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Hamburg to Frankfurt with a minimum GSNR of 12 dB, avoiding nodes Bremen and Hannover.",
+        "usem_score": 0.5,
+        "usem_passed": false,
+        "error_context": "High semantic divergence (d_sem=0.50 > tau=0.3).",
+        "elapsed_s": 7.47
+      },
+      {
+        "turn": 3,
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Berlin - node\n    Frankfurt - node\n    Hannover - node\n    Hamburg - node\n    Bremen - node\n    Leipzig - node\n    Nuremberg - node\n    Dortmund - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hannover Bremen)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Hamburg Berlin)\n    (connected Hamburg Bremen)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (min-gsnr 12)\n    (bandwidth 1)\n    (max-hops 3)\n  )\n  (:goal\n    (and\n      (route Berlin Frankfurt)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Berlin to Frankfurt with a minimum GSNR of 12 dB and a maximum of 3 hops.",
+        "usem_score": 0.5,
+        "usem_passed": false,
+        "error_context": "High semantic divergence (d_sem=0.50 > tau=0.3).",
+        "elapsed_s": 6.27
+      }
+    ],
+    "diagnostics": {
+      "pddl_valid": true,
+      "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Berlin - node\n    Frankfurt - node\n    Hannover - node\n    Hamburg - node\n    Bremen - node\n    Leipzig - node\n    Nuremberg - node\n    Dortmund - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hannover Bremen)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Hamburg Berlin)\n    (connected Hamburg Bremen)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (min-gsnr 12)\n    (bandwidth 1)\n    (max-hops 3)\n  )\n  (:goal\n    (and\n      (route Berlin Frankfurt)\n    )\n  )\n)",
+      "reconstruction": "I understand you want to route traffic from Berlin to Frankfurt with a minimum GSNR of 12 dB and a maximum of 3 hops.",
+      "usem_score": 0.5,
+      "usem_passed": false,
+      "error_context": "High semantic divergence (d_sem=0.50 > tau=0.3).",
+      "num_candidates": 1,
+      "qot_results": [
+        {
+          "path": [
+            "Hamburg",
+            "Berlin"
+          ],
+          "feasible": false,
+          "snr_dB": 0.0,
+          "power_dBm": -99.0,
+          "snr_threshold_dB": 0.0,
+          "error": "Unsupported bitrate: 1G. Supported: [10, 100, 200, 400]"
+        }
+      ],
+      "radg_decision": "replan"
+    }
+  },
+  {
+    "id": "intent_nom_03",
+    "intent_text": "Route traffic from Frankfurt to Cologne avoiding Mannheim with minimum 14 dB GSNR.",
+    "class": "I_Nominal",
+    "expected_radg_action": "approve",
+    "initial_action": "approve",
+    "final_action": "approve",
+    "passed_first_try": true,
+    "hitl_count": 0,
+    "total_elapsed_seconds": 9.26,
+    "usem_score": 0.1,
+    "usem_passed": true,
+    "pddl_valid": true,
+    "radg_decision": "approve",
+    "turn_telemetry": [
+      {
+        "turn": 1,
+        "active_intent": "Intent: Route traffic from Frankfurt to Cologne avoiding Mannheim with minimum 14 dB GSNR. | Source: Frankfurt | Target: Cologne",
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem route_traffic)\n  (:domain optical-network)\n  (:objects\n    Frankfurt - node\n    Hamburg - node\n    Hannover - node\n    Munich - node\n    Nuremberg - node\n    Stuttgart - node\n    Karlsruhe - node\n    Mannheim - node\n    Essen - node\n    Dortmund - node\n    Dusseldorf - node\n    Cologne - node\n    Leipzig - node\n  )\n  (:init\n    (connected Frankfurt Hannover)\n    (connected Hannover Hamburg)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Cologne)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Mannheim)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Hamburg Bremen)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Munich Nuremberg)\n    (connected Nuremberg Leipzig)\n    (connected Nuremberg Stuttgart)\n    (connected Stuttgart Karlsruhe)\n    (connected Karlsruhe Mannheim)\n    (connected Essen Dortmund)\n    (connected Essen Dusseldorf)\n    (connected Dortmund Cologne)\n    (connected Dusseldorf Cologne)\n    (link-active Frankfurt Hannover)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Cologne)\n    (link-active Frankfurt Leipzig)\n    (link-active Frankfurt Mannheim)\n    (link-active Frankfurt Nuremberg)\n    (link-active Hamburg Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Munich Nuremberg)\n    (link-active Nuremberg Leipzig)\n    (link-active Nuremberg Stuttgart)\n    (link-active Stuttgart Karlsruhe)\n    (link-active Karlsruhe Mannheim)\n    (link-active Essen Dortmund)\n    (link-active Essen Dusseldorf)\n    (link-active Dortmund Cologne)\n    (link-active Dusseldorf Cologne)\n  )\n  (:goal\n    (and\n      (route Frankfurt Cologne)\n      (min-gsnr 14)\n      (avoid-node Mannheim)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Frankfurt to Cologne with a minimum GSNR of 14 dB, avoiding node Mannheim.",
+        "usem_score": 0.1,
+        "usem_passed": true,
+        "error_context": null,
+        "num_candidates": 5,
+        "qot_results": [
+          {
+            "path": [
+              "Frankfurt",
+              "Cologne"
+            ],
+            "feasible": true,
+            "snr_dB": 19.189,
+            "power_dBm": -12.005,
+            "snr_threshold_dB": 14.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Frankfurt",
+              "Hannover",
+              "Dortmund",
+              "Cologne"
+            ],
+            "feasible": false,
+            "snr_dB": 13.004,
+            "power_dBm": -14.02,
+            "snr_threshold_dB": 14.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Frankfurt",
+              "Hannover",
+              "Dortmund",
+              "Essen",
+              "Dusseldorf",
+              "Cologne"
+            ],
+            "feasible": false,
+            "snr_dB": 12.182,
+            "power_dBm": -16.005,
+            "snr_threshold_dB": 14.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Frankfurt",
+              "Leipzig",
+              "Hannover",
+              "Dortmund",
+              "Cologne"
+            ],
+            "feasible": false,
+            "snr_dB": 10.848,
+            "power_dBm": -15.035,
+            "snr_threshold_dB": 14.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Frankfurt",
+              "Hannover",
+              "Bremen",
+              "Norden",
+              "Dortmund",
+              "Cologne"
+            ],
+            "feasible": false,
+            "snr_dB": 10.21,
+            "power_dBm": -15.995,
+            "snr_threshold_dB": 14.0,
+            "error": null
+          }
+        ],
+        "radg_decision": "approve",
+        "elapsed_s": 9.26
+      }
+    ],
+    "diagnostics": {
+      "pddl_valid": true,
+      "pddl_constraints": "(define (problem route_traffic)\n  (:domain optical-network)\n  (:objects\n    Frankfurt - node\n    Hamburg - node\n    Hannover - node\n    Munich - node\n    Nuremberg - node\n    Stuttgart - node\n    Karlsruhe - node\n    Mannheim - node\n    Essen - node\n    Dortmund - node\n    Dusseldorf - node\n    Cologne - node\n    Leipzig - node\n  )\n  (:init\n    (connected Frankfurt Hannover)\n    (connected Hannover Hamburg)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Cologne)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Mannheim)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Hamburg Bremen)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Munich Nuremberg)\n    (connected Nuremberg Leipzig)\n    (connected Nuremberg Stuttgart)\n    (connected Stuttgart Karlsruhe)\n    (connected Karlsruhe Mannheim)\n    (connected Essen Dortmund)\n    (connected Essen Dusseldorf)\n    (connected Dortmund Cologne)\n    (connected Dusseldorf Cologne)\n    (link-active Frankfurt Hannover)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Cologne)\n    (link-active Frankfurt Leipzig)\n    (link-active Frankfurt Mannheim)\n    (link-active Frankfurt Nuremberg)\n    (link-active Hamburg Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Munich Nuremberg)\n    (link-active Nuremberg Leipzig)\n    (link-active Nuremberg Stuttgart)\n    (link-active Stuttgart Karlsruhe)\n    (link-active Karlsruhe Mannheim)\n    (link-active Essen Dortmund)\n    (link-active Essen Dusseldorf)\n    (link-active Dortmund Cologne)\n    (link-active Dusseldorf Cologne)\n  )\n  (:goal\n    (and\n      (route Frankfurt Cologne)\n      (min-gsnr 14)\n      (avoid-node Mannheim)\n    )\n  )\n)",
+      "reconstruction": "I understand you want to route traffic from Frankfurt to Cologne with a minimum GSNR of 14 dB, avoiding node Mannheim.",
+      "usem_score": 0.1,
+      "usem_passed": true,
+      "error_context": null,
+      "num_candidates": 5,
+      "qot_results": [
+        {
+          "path": [
+            "Frankfurt",
+            "Cologne"
+          ],
+          "feasible": true,
+          "snr_dB": 19.189,
+          "power_dBm": -12.005,
+          "snr_threshold_dB": 14.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Frankfurt",
+            "Hannover",
+            "Dortmund",
+            "Cologne"
+          ],
+          "feasible": false,
+          "snr_dB": 13.004,
+          "power_dBm": -14.02,
+          "snr_threshold_dB": 14.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Frankfurt",
+            "Hannover",
+            "Dortmund",
+            "Essen",
+            "Dusseldorf",
+            "Cologne"
+          ],
+          "feasible": false,
+          "snr_dB": 12.182,
+          "power_dBm": -16.005,
+          "snr_threshold_dB": 14.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Frankfurt",
+            "Leipzig",
+            "Hannover",
+            "Dortmund",
+            "Cologne"
+          ],
+          "feasible": false,
+          "snr_dB": 10.848,
+          "power_dBm": -15.035,
+          "snr_threshold_dB": 14.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Frankfurt",
+            "Hannover",
+            "Bremen",
+            "Norden",
+            "Dortmund",
+            "Cologne"
+          ],
+          "feasible": false,
+          "snr_dB": 10.21,
+          "power_dBm": -15.995,
+          "snr_threshold_dB": 14.0,
+          "error": null
+        }
+      ],
+      "radg_decision": "approve",
+      "has_report": true
+    }
+  },
+  {
+    "id": "intent_nom_04",
+    "intent_text": "Provision an optical channel from Munich to Stuttgart via Ulm with GSNR at least 15 dB.",
+    "class": "I_Nominal",
+    "expected_radg_action": "approve",
+    "initial_action": "clarify",
+    "final_action": "approve",
+    "passed_first_try": false,
+    "hitl_count": 2,
+    "total_elapsed_seconds": 18.54,
+    "usem_score": 0.1,
+    "usem_passed": true,
+    "pddl_valid": true,
+    "radg_decision": "approve",
+    "turn_telemetry": [
+      {
+        "turn": 1,
+        "active_intent": "Intent: Provision an optical channel from Munich to Stuttgart with GSNR at least 15 dB via Ulm. | Source: Munich | Target: Stuttgart",
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem optical-channel-provisioning)\n  (:domain optical-network)\n  (:objects\n    Munich - node\n    Stuttgart - node\n    Ulm - node\n  )\n  (:init\n    (connected Munich Frankfurt)\n    (connected Stuttgart Ulm)\n    (connected Ulm Munich)\n    (connected Ulm Stuttgart)\n    (connected Stuttgart Nuremberg)\n    (connected Nuremberg Munich)\n    (link-active link_frankfurt_mannheim)\n    (link-active link_karlsruhe_mannheim)\n    (link-active link_ulm_stuttgart)\n    (link-active link_nuremberg_stuttgart)\n    (link-active link_stuttgart_karlsruhe)\n    (link-active link_frankfurt_leipzig)\n    (link-active link_nuremberg_leipzig)\n    (link-active link_frankfurt_nuremberg)\n    (link-active link_munich_nuremberg)\n    (link-active link_munich_ulm)\n  )\n  (:goal\n    (and\n      (route Munich Stuttgart)\n      (min-gsnr 15)\n      (via Ulm)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Munich to Stuttgart with a minimum GSNR of 15 dB, avoiding node Leipzig and using Ulm as a transit node.",
+        "usem_score": 0.5,
+        "usem_passed": false,
+        "error_context": "High semantic divergence (d_sem=0.50 > tau=0.3).",
+        "elapsed_s": 5.19
+      },
+      {
+        "turn": 2,
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem optical-channel-provisioning)\n  (:domain optical-network)\n  (:objects\n    Berlin - node\n    Frankfurt - node\n    Munich - node\n    Stuttgart - node\n    Ulm - node\n  )\n  (:init\n    (connected Berlin Frankfurt)\n    (connected Berlin Munich)\n    (connected Berlin Stuttgart)\n    (connected Munich Frankfurt)\n    (connected Stuttgart Frankfurt)\n    (link-active link_frankfurt_mannheim)\n    (link-active link_karlsruhe_mannheim)\n    (link-active link_ulm_stuttgart)\n    (link-active link_nuremberg_stuttgart)\n    (link-active link_stuttgart_karlsruhe)\n    (link-active link_frankfurt_leipzig)\n    (link-active link_nuremberg_leipzig)\n    (link-active link_frankfurt_nuremberg)\n    (link-active link_munich_nuremberg)\n    (link-active link_munich_ulm)\n  )\n  (:goal\n    (and\n      (route Berlin Frankfurt)\n      (min-gsnr 12)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Berlin to Frankfurt with a minimum GSNR of 12 dB.",
+        "usem_score": 0.1,
+        "usem_passed": true,
+        "error_context": null,
+        "num_candidates": 0,
+        "qot_results": [],
+        "elapsed_s": 6.62
+      },
+      {
+        "turn": 3,
+        "radg_decision": "approve",
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem optical-channel-provisioning)\n  (:domain optical-network)\n  (:objects\n    Berlin - node\n    Frankfurt - node\n    Munich - node\n    Stuttgart - node\n    Ulm - node\n  )\n  (:init\n    (connected Berlin Frankfurt)\n    (connected Berlin Munich)\n    (connected Berlin Stuttgart)\n    (connected Munich Frankfurt)\n    (connected Stuttgart Frankfurt)\n    (link-active link_frankfurt_mannheim)\n    (link-active link_karlsruhe_mannheim)\n    (link-active link_ulm_stuttgart)\n    (link-active link_nuremberg_stuttgart)\n    (link-active link_stuttgart_karlsruhe)\n    (link-active link_frankfurt_leipzig)\n    (link-active link_nuremberg_leipzig)\n    (link-active link_frankfurt_nuremberg)\n    (link-active link_munich_nuremberg)\n    (link-active link_munich_ulm)\n  )\n  (:goal\n    (and\n      (route Berlin Frankfurt)\n      (min-gsnr 12)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Berlin to Frankfurt with a minimum GSNR of 12 dB.",
+        "usem_score": 0.1,
+        "usem_passed": true,
+        "error_context": null,
+        "num_candidates": 5,
+        "qot_results": [
+          {
+            "path": [
+              "Berlin",
+              "Leipzig",
+              "Frankfurt"
+            ],
+            "feasible": true,
+            "snr_dB": 13.714,
+            "power_dBm": -13.03,
+            "snr_threshold_dB": 12.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Berlin",
+              "Hannover",
+              "Frankfurt"
+            ],
+            "feasible": true,
+            "snr_dB": 13.931,
+            "power_dBm": -13.025,
+            "snr_threshold_dB": 12.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Berlin",
+              "Leipzig",
+              "Nuremberg",
+              "Frankfurt"
+            ],
+            "feasible": true,
+            "snr_dB": 12.726,
+            "power_dBm": -14.0,
+            "snr_threshold_dB": 12.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Berlin",
+              "Leipzig",
+              "Hannover",
+              "Frankfurt"
+            ],
+            "feasible": true,
+            "snr_dB": 12.348,
+            "power_dBm": -13.995,
+            "snr_threshold_dB": 12.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Berlin",
+              "Hamburg",
+              "Hannover",
+              "Frankfurt"
+            ],
+            "feasible": false,
+            "snr_dB": 11.907,
+            "power_dBm": -14.015,
+            "snr_threshold_dB": 12.0,
+            "error": null
+          }
+        ],
+        "elapsed_s": 6.73
+      }
+    ],
+    "diagnostics": {
+      "pddl_valid": true,
+      "pddl_constraints": "(define (problem optical-channel-provisioning)\n  (:domain optical-network)\n  (:objects\n    Berlin - node\n    Frankfurt - node\n    Munich - node\n    Stuttgart - node\n    Ulm - node\n  )\n  (:init\n    (connected Berlin Frankfurt)\n    (connected Berlin Munich)\n    (connected Berlin Stuttgart)\n    (connected Munich Frankfurt)\n    (connected Stuttgart Frankfurt)\n    (link-active link_frankfurt_mannheim)\n    (link-active link_karlsruhe_mannheim)\n    (link-active link_ulm_stuttgart)\n    (link-active link_nuremberg_stuttgart)\n    (link-active link_stuttgart_karlsruhe)\n    (link-active link_frankfurt_leipzig)\n    (link-active link_nuremberg_leipzig)\n    (link-active link_frankfurt_nuremberg)\n    (link-active link_munich_nuremberg)\n    (link-active link_munich_ulm)\n  )\n  (:goal\n    (and\n      (route Berlin Frankfurt)\n      (min-gsnr 12)\n    )\n  )\n)",
+      "reconstruction": "I understand you want to route traffic from Berlin to Frankfurt with a minimum GSNR of 12 dB.",
+      "usem_score": 0.1,
+      "usem_passed": true,
+      "error_context": null,
+      "num_candidates": 5,
+      "qot_results": [
+        {
+          "path": [
+            "Berlin",
+            "Leipzig",
+            "Frankfurt"
+          ],
+          "feasible": true,
+          "snr_dB": 13.714,
+          "power_dBm": -13.03,
+          "snr_threshold_dB": 12.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Berlin",
+            "Hannover",
+            "Frankfurt"
+          ],
+          "feasible": true,
+          "snr_dB": 13.931,
+          "power_dBm": -13.025,
+          "snr_threshold_dB": 12.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Berlin",
+            "Leipzig",
+            "Nuremberg",
+            "Frankfurt"
+          ],
+          "feasible": true,
+          "snr_dB": 12.726,
+          "power_dBm": -14.0,
+          "snr_threshold_dB": 12.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Berlin",
+            "Leipzig",
+            "Hannover",
+            "Frankfurt"
+          ],
+          "feasible": true,
+          "snr_dB": 12.348,
+          "power_dBm": -13.995,
+          "snr_threshold_dB": 12.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Berlin",
+            "Hamburg",
+            "Hannover",
+            "Frankfurt"
+          ],
+          "feasible": false,
+          "snr_dB": 11.907,
+          "power_dBm": -14.015,
+          "snr_threshold_dB": 12.0,
+          "error": null
+        }
+      ],
+      "radg_decision": "approve",
+      "has_report": true
+    }
+  },
+  {
+    "id": "intent_nom_05",
+    "intent_text": "Connect Hannover to Bremen with minimum 16 dB GSNR.",
+    "class": "I_Nominal",
+    "expected_radg_action": "approve",
+    "initial_action": "approve",
+    "final_action": "approve",
+    "passed_first_try": true,
+    "hitl_count": 0,
+    "total_elapsed_seconds": 3.01,
+    "usem_score": 0.1,
+    "usem_passed": true,
+    "pddl_valid": true,
+    "radg_decision": "approve",
+    "turn_telemetry": [
+      {
+        "turn": 1,
+        "active_intent": "Intent: Connect Hannover to Bremen with minimum 16 dB GSNR. | Source: Hannover | Target: Bremen",
+        "pddl_valid": true,
+        "pddl_constraints": "(define (problem connect_hannover_bremen)\n  (:domain optical-network)\n  (:objects\n    Hannover - node\n    Bremen - node\n  )\n  (:init\n    (connected Hannover Bremen)\n    (link-active link_hannover_bremen Hannover Bremen)\n    (min-gsnr 16)  ;; Explicitly requested in intent\n  )\n  (:goal\n    (and\n      (route Hannover Bremen)\n    )\n  )\n)",
+        "hitl_reconstruction": "I understand you want to route traffic from Hannover to Bremen with a minimum GSNR of 16 dB.",
+        "usem_score": 0.1,
+        "usem_passed": true,
+        "error_context": null,
+        "num_candidates": 5,
+        "qot_results": [
+          {
+            "path": [
+              "Hannover",
+              "Bremen"
+            ],
+            "feasible": true,
+            "snr_dB": 20.019,
+            "power_dBm": -11.995,
+            "snr_threshold_dB": 16.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Hannover",
+              "Hamburg",
+              "Bremen"
+            ],
+            "feasible": false,
+            "snr_dB": 15.897,
+            "power_dBm": -12.995,
+            "snr_threshold_dB": 16.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Hannover",
+              "Dortmund",
+              "Norden",
+              "Bremen"
+            ],
+            "feasible": false,
+            "snr_dB": 12.137,
+            "power_dBm": -14.01,
+            "snr_threshold_dB": 16.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Hannover",
+              "Berlin",
+              "Hamburg",
+              "Bremen"
+            ],
+            "feasible": false,
+            "snr_dB": 12.996,
+            "power_dBm": -14.055,
+            "snr_threshold_dB": 16.0,
+            "error": null
+          },
+          {
+            "path": [
+              "Hannover",
+              "Leipzig",
+              "Berlin",
+              "Hamburg",
+              "Bremen"
+            ],
+            "feasible": false,
+            "snr_dB": 11.598,
+            "power_dBm": -15.025,
+            "snr_threshold_dB": 16.0,
+            "error": null
+          }
+        ],
+        "radg_decision": "approve",
+        "elapsed_s": 3.01
+      }
+    ],
+    "diagnostics": {
+      "pddl_valid": true,
+      "pddl_constraints": "(define (problem connect_hannover_bremen)\n  (:domain optical-network)\n  (:objects\n    Hannover - node\n    Bremen - node\n  )\n  (:init\n    (connected Hannover Bremen)\n    (link-active link_hannover_bremen Hannover Bremen)\n    (min-gsnr 16)  ;; Explicitly requested in intent\n  )\n  (:goal\n    (and\n      (route Hannover Bremen)\n    )\n  )\n)",
+      "reconstruction": "I understand you want to route traffic from Hannover to Bremen with a minimum GSNR of 16 dB.",
+      "usem_score": 0.1,
+      "usem_passed": true,
+      "error_context": null,
+      "num_candidates": 5,
+      "qot_results": [
+        {
+          "path": [
+            "Hannover",
+            "Bremen"
+          ],
+          "feasible": true,
+          "snr_dB": 20.019,
+          "power_dBm": -11.995,
+          "snr_threshold_dB": 16.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Hannover",
+            "Hamburg",
+            "Bremen"
+          ],
+          "feasible": false,
+          "snr_dB": 15.897,
+          "power_dBm": -12.995,
+          "snr_threshold_dB": 16.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Hannover",
+            "Dortmund",
+            "Norden",
+            "Bremen"
+          ],
+          "feasible": false,
+          "snr_dB": 12.137,
+          "power_dBm": -14.01,
+          "snr_threshold_dB": 16.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Hannover",
+            "Berlin",
+            "Hamburg",
+            "Bremen"
+          ],
+          "feasible": false,
+          "snr_dB": 12.996,
+          "power_dBm": -14.055,
+          "snr_threshold_dB": 16.0,
+          "error": null
+        },
+        {
+          "path": [
+            "Hannover",
+            "Leipzig",
+            "Berlin",
+            "Hamburg",
+            "Bremen"
+          ],
+          "feasible": false,
+          "snr_dB": 11.598,
+          "power_dBm": -15.025,
+          "snr_threshold_dB": 16.0,
+          "error": null
+        }
+      ],
+      "radg_decision": "approve",
+      "has_report": true
+    }
+  }
+]

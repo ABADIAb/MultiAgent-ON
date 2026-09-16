@@ -41,7 +41,8 @@ def qot_validation_node(state: AgentState) -> dict:
     candidates = state.get("candidate_paths") or []
     parsed_constraints = state.get("pddl_parsed_constraints") or {}
     target_snr_dB = parsed_constraints.get("min_gsnr")
-    bitrate_gbps = parsed_constraints.get("bandwidth") or 100
+    raw_bw = parsed_constraints.get("bandwidth")
+    bitrate_gbps = raw_bw if raw_bw in (10, 100, 200, 400) else 100
 
     qot_results = []
     for candidate in candidates:
