@@ -565,6 +565,7 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Evaluation harness refactoring, follow-up multi-turn recovery implementation, dual-action schema decoupling, metrics engine recalculation, plotting suite updates, weekly report macro condensation, and debrief maintenance.
 - Testing & Verification: 350 unit tests passing under Strict TDD (`uv run pytest`), zero lint errors (`uv run ruff check src/ tests/`), and benchmark dry-run generating consolidated tables and 4 publication figure sets.
 
-
-
-
+## [2026-09-16] debrief | Nominal Intent Benchmark Harness & Multi-Node Prompt Hardening
+- Wiki Deep Lint: Created `session_20260916_Nominal_Evaluation_Harness_and_Prompt_Hardening.md` with complete YAML frontmatter and cross-linking. Updated `index.md` under `## Session Summaries`.
+- Consistency Audit: Established reproducible evaluation framework for Class I Nominal Intents on Nobel-Germany 17-node topology (`tests/evaluation/run_nominal_eval.py`, `tests/evaluation/README.md`, `tests/evaluation/results/`). Diagnosed local `qwen2.5:3b` hallucinations: dummy zero-value filling and spurious `avoid-node` exclusions on waypoint intents. Fortified prompts across `pddl_parser.py`, `semantic_gate_node.py` (with `_clean_intent_for_evaluation`), `reverse_prompt.py`, and `intent_reconciler.py`.
+- Testing & Verification: All 321 unit tests passing (`uv run pytest tests/unit/`), zero lint errors (`uv run ruff check src/ tests/`), and verified automated recovery on interrupts.
