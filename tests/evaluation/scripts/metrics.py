@@ -294,6 +294,7 @@ def compute_radg_metrics(
       - gda_percent: Gate Decision Accuracy (%)
       - fpr_percent: False Positive Rate (%) on non-nominal intents
       - hitl_interruption_rate_percent: Fraction of runs requiring HITL (%)
+      - selective_hitl_precision_percent: Fraction of interruptions on non-nominal intents (%)
       - semantic_clarify_count: Absolute count of Phase 3b clarify actions
       - physical_replan_count: Absolute count of Phase 6 replan actions
     """
@@ -302,6 +303,7 @@ def compute_radg_metrics(
             "gda_percent": 0.0,
             "fpr_percent": 0.0,
             "hitl_interruption_rate_percent": 0.0,
+            "selective_hitl_precision_percent": 100.0,
             "semantic_clarify_count": 0.0,
             "physical_replan_count": 0.0,
         }
@@ -312,6 +314,7 @@ def compute_radg_metrics(
     non_nominal_count = 0
     approved_non_nominal = 0
     interrupted_runs = 0
+    valid_interrupts = 0
     semantic_clarifies = 0
     physical_replans = 0
 
@@ -335,6 +338,8 @@ def compute_radg_metrics(
         interrupts = res.get("hitl_interrupts", 0)
         if interrupts > 0:
             interrupted_runs += 1
+            if intent_class != "I_Nominal":
+                valid_interrupts += 1
 
             if actual_action == "clarify":
                 semantic_clarifies += 1
@@ -349,11 +354,17 @@ def compute_radg_metrics(
         else 0.0
     )
     hitl_rate = (interrupted_runs / n_results) * 100.0
+    selective_precision = (
+        (valid_interrupts / interrupted_runs * 100.0)
+        if interrupted_runs > 0
+        else 100.0
+    )
 
     return {
         "gda_percent": round(gda, 2),
         "fpr_percent": round(fpr, 2),
         "hitl_interruption_rate_percent": round(hitl_rate, 2),
+        "selective_hitl_precision_percent": round(selective_precision, 2),
         "semantic_clarify_count": float(semantic_clarifies),
         "physical_replan_count": float(physical_replans),
     }
@@ -477,8 +488,10 @@ def generate_summary_markdown(
         "Prompt Tokens",
         "Total Tokens",
         "ΔHITL (%)",
+        "Sem. Agr.",
         "GDA (%)",
         "FPR (%)",
+        "HITL Prec. (%)",
     ]
 
     baseline_labels = {
@@ -510,6 +523,8 @@ def generate_summary_markdown(
                 "N/A",
                 "N/A",
                 "N/A",
+                "N/A",
+                "N/A",
             ]
         else:
             row = [
@@ -522,8 +537,10 @@ def generate_summary_markdown(
                 f"{int(eff.get('mean_prompt_tokens', 0))}",
                 f"{int(eff.get('mean_total_tokens', 0))}",
                 f"{eff.get('hitl_reduction_percent', 0.0):.1f}%",
+                f"{sem.get('mean_semantic_agreement', 0.0):.2f}",
                 f"{radg.get('gda_percent', 0.0):.1f}%",
                 f"{radg.get('fpr_percent', 0.0):.1f}%",
+                f"{radg.get('selective_hitl_precision_percent', 0.0):.1f}%",
             ]
         rows.append(row)
 

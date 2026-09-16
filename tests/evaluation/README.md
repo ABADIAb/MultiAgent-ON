@@ -68,11 +68,6 @@ Quantifies computational savings in runtime latency and total token consumption,
    - **Definition:** Reduction in operator interruptions compared to the mandatory Always-HITL baseline ($N_{hitl} \ge 2$).
    - **Target:** $> 70\%$.
 
-4. **Deterministic Compute Latency ($T_{det}$):**
-   $$T_{det} = T_{solver} + T_{phys}$$
-   - **Definition:** Wall-clock execution time of symbolic routing (Yen's $K$-SP, $T_{solver} < 10\text{ ms}$) and GN-model physics ($T_{phys} < 5\text{ ms}$).
-   - **Target:** $< 15\text{ ms}$.
-
 ---
 
 ### Pillar 4: RADG Robustness & Decision Boundary Integrity (Gate Reliability)

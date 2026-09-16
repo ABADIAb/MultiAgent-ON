@@ -176,6 +176,21 @@ class TestCreateKimiLLM:
         llm_custom = create_kimi_llm(api_key="test-key", model="kimi-for-coding-highspeed", max_tokens=4000)
         assert llm_custom.max_tokens == 4000
 
+    def test_create_kimi_llm_default_timeout(self):
+        """Default timeout is 120.0 seconds."""
+        from src.core.llm import create_kimi_llm
+
+        llm = create_kimi_llm(api_key="test-key")
+        assert llm.request_timeout == 120.0
+
+    def test_create_kimi_llm_custom_timeout(self):
+        """Explicit timeout parameter is respected."""
+        from src.core.llm import create_kimi_llm
+
+        llm = create_kimi_llm(api_key="test-key", timeout=45.0)
+        assert llm.request_timeout == 45.0
+
+
 
 class TestCreateOpenRouterLLM:
     """Test the OpenRouter LLM factory and wrapper class."""
@@ -234,6 +249,21 @@ class TestCreateOpenRouterLLM:
         )
         assert llm.default_headers.get("HTTP-Referer") == "https://myrepo.com"
         assert llm.default_headers.get("X-Title") == "MySpecialApp"
+
+    def test_create_openrouter_llm_default_timeout(self):
+        """Default timeout is 120.0 seconds."""
+        from src.core.llm import create_openrouter_llm
+
+        llm = create_openrouter_llm(api_key="test-key")
+        assert llm.request_timeout == 120.0
+
+    def test_create_openrouter_llm_custom_timeout(self):
+        """Explicit timeout parameter is respected."""
+        from src.core.llm import create_openrouter_llm
+
+        llm = create_openrouter_llm(api_key="test-key", timeout=60.0)
+        assert llm.request_timeout == 60.0
+
 
     def test_openrouter_chat_openai_structured_output_defaults_to_function_calling(self, monkeypatch):
         """with_structured_output injects method='function_calling' by default."""
@@ -323,6 +353,21 @@ class TestCreateOllamaLLM:
         monkeypatch.setenv("OLLAMA_BASE_URL", "http://my-host:11434/v1")
         assert resolve_ollama_base_url() == "http://my-host:11434/v1"
 
+    def test_create_ollama_llm_default_timeout(self):
+        """Default timeout is 120.0 seconds."""
+        from src.core.llm import create_ollama_llm
+
+        llm = create_ollama_llm(base_url="http://localhost:11434/v1")
+        assert llm.request_timeout == 120.0
+
+    def test_create_ollama_llm_custom_timeout(self):
+        """Explicit timeout parameter is respected."""
+        from src.core.llm import create_ollama_llm
+
+        llm = create_ollama_llm(base_url="http://localhost:11434/v1", timeout=30.0)
+        assert llm.request_timeout == 30.0
+
+
 
 class TestCreateConfiguredLLM:
     """Test the multi-provider LLM dispatcher."""
@@ -369,6 +414,21 @@ class TestCreateConfiguredLLM:
 
         with pytest.raises(ValueError, match="Unsupported LLM provider"):
             create_configured_llm(provider="unsupported_provider")
+
+    def test_llm_timeout_env_var(self, monkeypatch):
+        """LLM_TIMEOUT environment variable overrides default timeout across providers."""
+        from src.core.llm import create_kimi_llm, create_ollama_llm, create_openrouter_llm
+
+        monkeypatch.setenv("LLM_TIMEOUT", "42.0")
+        kimi = create_kimi_llm(api_key="test-key")
+        assert kimi.request_timeout == 42.0
+
+        openrouter = create_openrouter_llm(api_key="test-key")
+        assert openrouter.request_timeout == 42.0
+
+        ollama = create_ollama_llm(base_url="http://localhost:11434/v1")
+        assert ollama.request_timeout == 42.0
+
 
 
 

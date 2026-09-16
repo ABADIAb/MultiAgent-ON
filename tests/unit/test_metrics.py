@@ -470,6 +470,8 @@ class TestRADGRobustnessMetrics:
         assert metrics["semantic_clarify_count"] == 2
         assert metrics["physical_replan_count"] == 1
         assert metrics["hitl_interruption_rate_percent"] == pytest.approx(60.0)
+        # Selective HITL precision: All 3 interrupts occurred on non-nominal intents (intent_03, 04, 05)
+        assert metrics["selective_hitl_precision_percent"] == pytest.approx(100.0)
 
     def test_llm_only_fpr(
         self,
@@ -482,6 +484,7 @@ class TestRADGRobustnessMetrics:
         assert metrics["gda_percent"] == pytest.approx(
             40.0
         )  # Only matched the 2 nominals
+        assert metrics["selective_hitl_precision_percent"] == pytest.approx(100.0)
 
 
 # ---------------------------------------------------------------------------
@@ -514,6 +517,8 @@ class TestSummaryGeneration:
         assert "Proposed (Neurosymbolic RADG)" in md
         assert "Baseline A (Monolithic LLM)" in md
         assert "UAR" in md or "Unsafe" in md
+        assert "Sem. Agr." in md
+        assert "HITL Prec." in md
 
 
 # ---------------------------------------------------------------------------

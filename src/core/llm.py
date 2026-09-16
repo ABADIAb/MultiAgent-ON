@@ -31,6 +31,22 @@ SUPPORTED_OLLAMA_MODELS: tuple[str, ...] = (
     "gemma4:e4b",
 )
 
+# Default request timeout in seconds across LLM providers
+DEFAULT_LLM_TIMEOUT: float = 120.0
+
+
+def resolve_llm_timeout(timeout: float | None = None) -> float:
+    """Resolve request timeout in seconds from explicit param, LLM_TIMEOUT env, or default."""
+    if timeout is not None:
+        return float(timeout)
+    if env_val := os.getenv("LLM_TIMEOUT"):
+        try:
+            return float(env_val)
+        except ValueError:
+            pass
+    return DEFAULT_LLM_TIMEOUT
+
+
 # Module-level LLM reference, set during graph initialization.
 _llm: BaseChatModel | None = None
 
@@ -135,6 +151,7 @@ def create_kimi_llm(
     model: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
+    timeout: float | None = None,
     think_effort: str | None = None,
     thinking_disabled: bool = False,
     extra_body: dict[str, Any] | None = None,
@@ -147,6 +164,7 @@ def create_kimi_llm(
         model: Model identifier (defaults to KIMI_MODEL env or 'kimi-for-coding-highspeed').
         temperature: Sampling temperature. Defaults to 0.6 if thinking is disabled, 1.0 otherwise.
         max_tokens: Maximum tokens for completion (including reasoning tokens). Defaults to 8000 for highspeed.
+        timeout: Request timeout in seconds. Defaults to LLM_TIMEOUT env or 120.0s.
         think_effort: Optional reasoning effort ('low', 'high', 'max') for K3 models.
         thinking_disabled: Whether to disable reasoning/thinking entirely.
         extra_body: Additional raw payload attributes.
@@ -161,6 +179,7 @@ def create_kimi_llm(
         if max_tokens is not None
         else (8000 if resolved_model == DEFAULT_KIMI_MODEL else 2500)
     )
+    resolved_timeout = resolve_llm_timeout(timeout)
 
     body_params: dict[str, Any] = dict(extra_body) if extra_body else {}
     if thinking_disabled:
@@ -173,6 +192,7 @@ def create_kimi_llm(
         "api_key": api_key,
         "temperature": resolved_temp,
         "max_tokens": resolved_max_tokens,
+        "timeout": resolved_timeout,
     }
     if base_url:
         kwargs["base_url"] = base_url
@@ -182,6 +202,7 @@ def create_kimi_llm(
     return ChatOpenAI(**kwargs)
 
 
+
 def create_openrouter_llm(
     *,
     api_key: str,
@@ -189,6 +210,7 @@ def create_openrouter_llm(
     model: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
+    timeout: float | None = None,
     http_referer: str | None = None,
     title: str | None = None,
     extra_body: dict[str, Any] | None = None,
@@ -202,6 +224,7 @@ def create_openrouter_llm(
         model: Model identifier (defaults to OPENROUTER_MODEL, OP_LING_MODEL, or ling-3.0-flash-vl:free).
         temperature: Sampling temperature. Defaults to 0.2 for deterministic planning.
         max_tokens: Maximum tokens for completion. Defaults to 2000.
+        timeout: Request timeout in seconds. Defaults to LLM_TIMEOUT env or 120.0s.
         http_referer: Optional site URL for ranking on openrouter.ai.
         title: Optional site/app name for ranking on openrouter.ai.
         extra_body: Additional raw payload attributes.
@@ -219,6 +242,7 @@ def create_openrouter_llm(
     )
     resolved_temp = 0.2 if temperature is None else temperature
     resolved_max_tokens = 2000 if max_tokens is None else max_tokens
+    resolved_timeout = resolve_llm_timeout(timeout)
 
     referer = (
         http_referer
@@ -238,11 +262,13 @@ def create_openrouter_llm(
         "temperature": resolved_temp,
         "max_tokens": resolved_max_tokens,
         "default_headers": default_headers,
+        "timeout": resolved_timeout,
     }
     if extra_body:
         kwargs["extra_body"] = extra_body
 
     return OpenRouterChatOpenAI(**kwargs)
+
 
 
 def resolve_ollama_base_url(base_url: str | None = None) -> str:
@@ -281,6 +307,7 @@ def create_ollama_llm(
     model: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
+    timeout: float | None = None,
     extra_body: dict[str, Any] | None = None,
     **_ignored_kwargs: Any,
 ) -> OllamaChatOpenAI:
@@ -291,6 +318,7 @@ def create_ollama_llm(
         model: Model identifier (defaults to OLLAMA_MODEL or 'qwen2.5:3b').
         temperature: Sampling temperature. Defaults to 0.2.
         max_tokens: Maximum tokens for completion. Defaults to 2000.
+        timeout: Request timeout in seconds. Defaults to LLM_TIMEOUT env or 120.0s.
         extra_body: Additional raw payload attributes.
         **_ignored_kwargs: Safely absorbs provider-specific kwargs.
 
@@ -300,6 +328,7 @@ def create_ollama_llm(
     resolved_base_url = resolve_ollama_base_url(base_url)
     resolved_model = model or os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
     resolved_temp = 0.2 if temperature is None else temperature
+    resolved_timeout = resolve_llm_timeout(timeout)
     # Thinking models (qwen3, qwen3.5, gemma4) need a larger token ceiling so internal reasoning doesn't truncate output
     is_thinking_model = (
         "qwen3" in resolved_model
@@ -315,12 +344,13 @@ def create_ollama_llm(
         "base_url": resolved_base_url,
         "temperature": resolved_temp,
         "max_tokens": resolved_max_tokens,
-        "timeout": 120.0,
+        "timeout": resolved_timeout,
     }
     if extra_body:
         kwargs["extra_body"] = extra_body
 
     return OllamaChatOpenAI(**kwargs)
+
 
 
 def create_configured_llm(

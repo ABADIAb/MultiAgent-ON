@@ -1,0 +1,2466 @@
+{
+  "proposed_radg": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 3,
+      "prompt_tokens": 451,
+      "completion_tokens": 3335,
+      "total_tokens": 3786,
+      "execution_time_s": 32.758730658000786,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Establish an optical connection from Hamburg to Berlin with 100G capacity.\n- **Refinement Status:** Refined via Operator HITL (3 iterations)\n- **Applied HITL Refinements:**\n  - Turn 1: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n  - Turn 2: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n  - Turn 3: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n- **Intent Reconciliation Rationale:** The operator has requested to route traffic from Berlin to Frankfurt with at least 12 dB GSNR, which is a complete replacement of the previous intent. The previous intent was to establish an optical connection from Hamburg to Berlin with at least 12 dB GSNR. The operator's latest feedback does not retain any of the previous constraints or endpoints, thus the full replacement is required.\n- **Active Operational Intent:** Establish an optical connection from Berlin to Frankfurt with at least 12 dB GSNR.\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Berlin ] \u2500\u2500\u2500\u2500( 324.7 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Hannover ] \u2500\u2500\u2500\u2500( 341.2 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ]\n```\n- **Cumulative Metrics:** 2 Spans (Hops) \u2022 665.9 km Total Fiber \u2022 12 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Berlin \u2794 Hannover` (324.7 km, 6 EDFAs)\n  - Hop 2: `Hannover \u2794 Frankfurt` (341.2 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Berlin \u2192 Leipzig \u2192 Frankfurt` | 13.71 dB | 8.6 dB | +5.11 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 2 | `Berlin \u2192 Hannover \u2192 Frankfurt` | 13.93 dB | 8.6 dB | +5.33 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 3 | `Berlin \u2192 Leipzig \u2192 Nuremberg \u2192 Frankfurt` | 12.73 dB | 8.6 dB | +4.13 dB | -14.00 dBm | **\u2713 FEASIBLE** |\n| 4 | `Berlin \u2192 Leipzig \u2192 Hannover \u2192 Frankfurt` | 12.35 dB | 8.6 dB | +3.75 dB | -13.99 dBm | **\u2713 FEASIBLE** |\n| 5 | `Berlin \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt` | 11.91 dB | 8.6 dB | +3.31 dB | -14.02 dBm | **\u2713 FEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Berlin \u2192 Hannover \u2192 Frankfurt**\n- **Physical Layer Parameters:** Computed GSNR = 13.93 dB | $P_{rx}$ = -13.03 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "clarify",
+        "final_action": "approve",
+        "turns": 4
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": null,
+      "hitl_interrupts": 4,
+      "prompt_tokens": 471,
+      "completion_tokens": 1445,
+      "total_tokens": 1916,
+      "execution_time_s": 31.08710439999959,
+      "planning_report": null,
+      "error": "High semantic divergence (d_sem=0.50 > tau=0.3).",
+      "metadata": {
+        "usem_score": 0.5,
+        "usem_passed": false,
+        "radg_decision": null,
+        "initial_action": "clarify",
+        "final_action": "clarify",
+        "turns": 4
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Frankfurt",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": 19.189,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Frankfurt",
+        "destination": "Cologne",
+        "avoid_nodes": [
+          "Mannheim"
+        ],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 14.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 772,
+      "completion_tokens": 3062,
+      "total_tokens": 3834,
+      "execution_time_s": 9.421939858999394,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Route traffic from Frankfurt to Cologne avoiding Mannheim with minimum 14 dB GSNR.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Route traffic from Frankfurt to Cologne avoiding Mannheim with minimum 14 dB GSNR. | Source: Frankfurt | Target: Cologne\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Frankfurt ] \u2500\u2500\u2500\u2500( 188.9 km | 4 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Cologne ]\n```\n- **Cumulative Metrics:** 1 Spans (Hop) \u2022 188.9 km Total Fiber \u2022 4 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Frankfurt \u2794 Cologne` (188.9 km, 4 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Frankfurt \u2192 Cologne` | 19.19 dB | 14.0 dB | +5.19 dB | -12.01 dBm | **\u2713 FEASIBLE** |\n| 2 | `Frankfurt \u2192 Hannover \u2192 Dortmund \u2192 Cologne` | 13.00 dB | 14.0 dB | -1.00 dB | -14.02 dBm | **\u2717 INFEASIBLE** |\n| 3 | `Frankfurt \u2192 Hannover \u2192 Dortmund \u2192 Essen \u2192 Dusseldorf \u2192 Cologne` | 12.18 dB | 14.0 dB | -1.82 dB | -16.00 dBm | **\u2717 INFEASIBLE** |\n| 4 | `Frankfurt \u2192 Leipzig \u2192 Hannover \u2192 Dortmund \u2192 Cologne` | 10.85 dB | 14.0 dB | -3.15 dB | -15.04 dBm | **\u2717 INFEASIBLE** |\n| 5 | `Frankfurt \u2192 Hannover \u2192 Bremen \u2192 Norden \u2192 Dortmund \u2192 Cologne` | 10.21 dB | 14.0 dB | -3.79 dB | -15.99 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Frankfurt \u2192 Cologne**\n- **Physical Layer Parameters:** Computed GSNR = 19.19 dB | $P_{rx}$ = -12.01 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "approve",
+        "final_action": "approve",
+        "turns": 1
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "qot_feasible": false,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "error": "Request timed out.",
+      "metadata": {}
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Bremen"
+      ],
+      "computed_gsnr_dB": 20.019,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hannover",
+        "destination": "Bremen",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 573,
+      "completion_tokens": 2385,
+      "total_tokens": 2958,
+      "execution_time_s": 2.842947263001406,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Connect Hannover to Bremen with minimum 16 dB GSNR.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Connect Hannover to Bremen with minimum 16 dB GSNR. | Source: Hannover | Target: Bremen\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Hannover ] \u2500\u2500\u2500\u2500( 132.7 km | 3 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Bremen ]\n```\n- **Cumulative Metrics:** 1 Spans (Hop) \u2022 132.7 km Total Fiber \u2022 3 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Hannover \u2794 Bremen` (132.7 km, 3 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Hannover \u2192 Bremen` | 20.02 dB | 8.6 dB | +11.42 dB | -11.99 dBm | **\u2713 FEASIBLE** |\n| 2 | `Hannover \u2192 Hamburg \u2192 Bremen` | 15.90 dB | 8.6 dB | +7.30 dB | -12.99 dBm | **\u2713 FEASIBLE** |\n| 3 | `Hannover \u2192 Dortmund \u2192 Norden \u2192 Bremen` | 12.14 dB | 8.6 dB | +3.54 dB | -14.01 dBm | **\u2713 FEASIBLE** |\n| 4 | `Hannover \u2192 Berlin \u2192 Hamburg \u2192 Bremen` | 13.00 dB | 8.6 dB | +4.40 dB | -14.05 dBm | **\u2713 FEASIBLE** |\n| 5 | `Hannover \u2192 Leipzig \u2192 Berlin \u2192 Hamburg \u2192 Bremen` | 11.60 dB | 8.6 dB | +3.00 dB | -15.03 dBm | **\u2713 FEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Hannover \u2192 Bremen**\n- **Physical Layer Parameters:** Computed GSNR = 20.02 dB | $P_{rx}$ = -11.99 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "approve",
+        "final_action": "approve",
+        "turns": 1
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Bremen",
+        "Hannover",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 14.979,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Bremen",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 719,
+      "completion_tokens": 3550,
+      "total_tokens": 4269,
+      "execution_time_s": 30.81040621899956,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Set up a path from Bremen to Frankfurt. Make sure it's secure and has good enough signal for a standard transmission.\n- **Refinement Status:** Refined via Operator HITL (2 iterations)\n- **Applied HITL Refinements:**\n  - Turn 1: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n  - Turn 2: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n- **Intent Reconciliation Rationale:** The operator changed the destination from Berlin to Frankfurt, which is a change in the endpoint. The GSNR constraint remains the same.\n- **Active Operational Intent:** Set up a secure and good signal path from Bremen to Frankfurt with at least 12 dB GSNR.\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Bremen ] \u2500\u2500\u2500\u2500( 132.7 km | 3 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Hannover ] \u2500\u2500\u2500\u2500( 341.2 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ]\n```\n- **Cumulative Metrics:** 2 Spans (Hops) \u2022 473.9 km Total Fiber \u2022 9 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Bremen \u2794 Hannover` (132.7 km, 3 EDFAs)\n  - Hop 2: `Hannover \u2794 Frankfurt` (341.2 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Bremen \u2192 Hannover \u2192 Frankfurt` | 14.98 dB | 12.0 dB | +2.98 dB | -12.99 dBm | **\u2713 FEASIBLE** |\n| 2 | `Bremen \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt` | 12.61 dB | 12.0 dB | +0.61 dB | -13.99 dBm | **\u2713 FEASIBLE** |\n| 3 | `Bremen \u2192 Hannover \u2192 Dortmund \u2192 Cologne \u2192 Frankfurt` | 12.36 dB | 12.0 dB | +0.36 dB | -15.02 dBm | **\u2713 FEASIBLE** |\n| 4 | `Bremen \u2192 Norden \u2192 Dortmund \u2192 Cologne \u2192 Frankfurt` | 12.01 dB | 12.0 dB | +0.01 dB | -15.01 dBm | **\u2713 FEASIBLE** |\n| 5 | `Bremen \u2192 Hannover \u2192 Leipzig \u2192 Frankfurt` | 11.86 dB | 12.0 dB | -0.14 dB | -14.01 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Bremen \u2192 Hannover \u2192 Frankfurt**\n- **Physical Layer Parameters:** Computed GSNR = 14.98 dB | $P_{rx}$ = -12.99 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "clarify",
+        "final_action": "approve",
+        "turns": 3
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 647,
+      "completion_tokens": 2967,
+      "total_tokens": 3614,
+      "execution_time_s": 136.6620800540004,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Route traffic from Berlin to the south of Germany as fast as possible.\n- **Refinement Status:** Refined via Operator HITL (1 iteration)\n- **Applied HITL Refinements:**\n  - Turn 1: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n- **Intent Reconciliation Rationale:** The operator changed the destination from Berlin to Frankfurt and relaxed the GSNR constraint from unspecified to at least 12 dB. The source node remains unchanged.\n- **Active Operational Intent:** Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Berlin ] \u2500\u2500\u2500\u2500( 324.7 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Hannover ] \u2500\u2500\u2500\u2500( 341.2 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ]\n```\n- **Cumulative Metrics:** 2 Spans (Hops) \u2022 665.9 km Total Fiber \u2022 12 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Berlin \u2794 Hannover` (324.7 km, 6 EDFAs)\n  - Hop 2: `Hannover \u2794 Frankfurt` (341.2 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Berlin \u2192 Leipzig \u2192 Frankfurt` | 13.71 dB | 12.0 dB | +1.71 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 2 | `Berlin \u2192 Hannover \u2192 Frankfurt` | 13.93 dB | 12.0 dB | +1.93 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 3 | `Berlin \u2192 Leipzig \u2192 Nuremberg \u2192 Frankfurt` | 12.73 dB | 12.0 dB | +0.73 dB | -14.00 dBm | **\u2713 FEASIBLE** |\n| 4 | `Berlin \u2192 Leipzig \u2192 Hannover \u2192 Frankfurt` | 12.35 dB | 12.0 dB | +0.35 dB | -13.99 dBm | **\u2713 FEASIBLE** |\n| 5 | `Berlin \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt` | 11.91 dB | 12.0 dB | -0.09 dB | -14.02 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Berlin \u2192 Hannover \u2192 Frankfurt**\n- **Physical Layer Parameters:** Computed GSNR = 13.93 dB | $P_{rx}$ = -13.03 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "clarify",
+        "final_action": "approve",
+        "turns": 2
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": null,
+      "hitl_interrupts": 4,
+      "prompt_tokens": 646,
+      "completion_tokens": 1653,
+      "total_tokens": 2299,
+      "execution_time_s": 35.02026594400013,
+      "planning_report": null,
+      "error": "High semantic divergence (d_sem=0.50 > tau=0.3).",
+      "metadata": {
+        "usem_score": 0.5,
+        "usem_passed": false,
+        "radg_decision": null,
+        "initial_action": "clarify",
+        "final_action": "clarify",
+        "turns": 4
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 698,
+      "completion_tokens": 3349,
+      "total_tokens": 4047,
+      "execution_time_s": 18.386805896001533,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Connect Munich to a nearby city with high transmission quality.\n- **Refinement Status:** Refined via Operator HITL (1 iteration)\n- **Applied HITL Refinements:**\n  - Turn 1: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n- **Intent Reconciliation Rationale:** The operator requested to route traffic from Berlin to Frankfurt with at least 12 dB GSNR, which modifies the previous intent to route traffic from Munich to a nearby city with high transmission quality. The source node remains unchanged, but the target node and the GSNR constraint are updated. The previous exclusions are retained.\n- **Active Operational Intent:** Connect Berlin to Frankfurt with at least 12 dB GSNR. Keep the source node unchanged.\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Berlin ] \u2500\u2500\u2500\u2500( 324.7 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Hannover ] \u2500\u2500\u2500\u2500( 341.2 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ]\n```\n- **Cumulative Metrics:** 2 Spans (Hops) \u2022 665.9 km Total Fiber \u2022 12 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Berlin \u2794 Hannover` (324.7 km, 6 EDFAs)\n  - Hop 2: `Hannover \u2794 Frankfurt` (341.2 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Berlin \u2192 Leipzig \u2192 Frankfurt` | 13.71 dB | 12.0 dB | +1.71 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 2 | `Berlin \u2192 Hannover \u2192 Frankfurt` | 13.93 dB | 12.0 dB | +1.93 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 3 | `Berlin \u2192 Leipzig \u2192 Nuremberg \u2192 Frankfurt` | 12.73 dB | 12.0 dB | +0.73 dB | -14.00 dBm | **\u2713 FEASIBLE** |\n| 4 | `Berlin \u2192 Leipzig \u2192 Hannover \u2192 Frankfurt` | 12.35 dB | 12.0 dB | +0.35 dB | -13.99 dBm | **\u2713 FEASIBLE** |\n| 5 | `Berlin \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt` | 11.91 dB | 12.0 dB | -0.09 dB | -14.02 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Berlin \u2192 Hannover \u2192 Frankfurt**\n- **Physical Layer Parameters:** Computed GSNR = 13.93 dB | $P_{rx}$ = -13.03 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "clarify",
+        "final_action": "approve",
+        "turns": 2
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [
+          "Frankfurt"
+        ],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 4,
+      "prompt_tokens": 645,
+      "completion_tokens": 1896,
+      "total_tokens": 2541,
+      "execution_time_s": 43.3742141040002,
+      "planning_report": null,
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "replan",
+        "initial_action": "clarify",
+        "final_action": "clarify",
+        "turns": 4
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Norden",
+        "Dortmund",
+        "Cologne",
+        "Frankfurt",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.529,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Norden",
+        "destination": "Munich",
+        "avoid_nodes": [
+          "Leipzig"
+        ],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 591,
+      "completion_tokens": 3447,
+      "total_tokens": 4038,
+      "execution_time_s": 10.548239593999824,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Establish a single direct span from Norden to Munich with at least 30 dB GSNR avoiding Leipzig.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Establish a single direct span from Norden to Munich with at least 30 dB GSNR avoiding Leipzig. | Source: Norden | Target: Munich\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Norden ] \u2500\u2500\u2500\u2500( 303.0 km | 5 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Dortmund ] \u2500\u2500\u2500\u2500( 95.3 km | 3 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Cologne ] \u2500\u2500\u2500\u2500( 188.9 km | 4 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ] \u2500\u2500\u2500\u2500( 246.8 km | 5 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Nuremberg ] \u2500\u2500\u2500\u2500( 193.2 km | 4 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Munich ]\n```\n- **Cumulative Metrics:** 5 Spans (Hops) \u2022 1027.2 km Total Fiber \u2022 21 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Norden \u2794 Dortmund` (303.0 km, 5 EDFAs)\n  - Hop 2: `Dortmund \u2794 Cologne` (95.3 km, 3 EDFAs)\n  - Hop 3: `Cologne \u2794 Frankfurt` (188.9 km, 4 EDFAs)\n  - Hop 4: `Frankfurt \u2794 Nuremberg` (246.8 km, 5 EDFAs)\n  - Hop 5: `Nuremberg \u2794 Munich` (193.2 km, 4 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Norden \u2192 Dortmund \u2192 Cologne \u2192 Frankfurt \u2192 Nuremberg \u2192 Munich` | 10.53 dB | 8.6 dB | +1.93 dB | -15.98 dBm | **\u2713 FEASIBLE** |\n| 2 | `Norden \u2192 Bremen \u2192 Hannover \u2192 Frankfurt \u2192 Nuremberg \u2192 Munich` | 10.16 dB | 8.6 dB | +1.56 dB | -15.98 dBm | **\u2713 FEASIBLE** |\n| 3 | `Norden \u2192 Bremen \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt \u2192 Nuremberg \u2192 Munich` | 8.62 dB | 8.6 dB | +0.02 dB | -16.98 dBm | **\u2713 FEASIBLE** |\n| 4 | `Norden \u2192 Bremen \u2192 Hannover \u2192 Dortmund \u2192 Cologne \u2192 Frankfurt \u2192 Nuremberg \u2192 Munich` | 8.04 dB | 8.6 dB | -0.56 dB | -18.00 dBm | **\u2717 INFEASIBLE** |\n| 5 | `Norden \u2192 Dortmund \u2192 Cologne \u2192 Frankfurt \u2192 Nuremberg \u2192 Stuttgart \u2192 Ulm \u2192 Munich` | 8.22 dB | 8.6 dB | -0.38 dB | -17.99 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Norden \u2192 Dortmund \u2192 Cologne \u2192 Frankfurt \u2192 Nuremberg \u2192 Munich**\n- **Physical Layer Parameters:** Computed GSNR = 10.53 dB | $P_{rx}$ = -15.98 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "approve",
+        "final_action": "approve",
+        "turns": 1
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "qot_feasible": false,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "error": "Request timed out.",
+      "metadata": {}
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 655,
+      "completion_tokens": 2862,
+      "total_tokens": 3517,
+      "execution_time_s": 7.473755687999073,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Provision a single unamplified direct span from Berlin to Frankfurt with 28 dB GSNR.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Provision a single unamplified direct span from Berlin to Frankfurt with 28 dB GSNR. | Source: Berlin | Target: Frankfurt\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Berlin ] \u2500\u2500\u2500\u2500( 324.7 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Hannover ] \u2500\u2500\u2500\u2500( 341.2 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ]\n```\n- **Cumulative Metrics:** 2 Spans (Hops) \u2022 665.9 km Total Fiber \u2022 12 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Berlin \u2794 Hannover` (324.7 km, 6 EDFAs)\n  - Hop 2: `Hannover \u2794 Frankfurt` (341.2 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Berlin \u2192 Leipzig \u2192 Frankfurt` | 13.71 dB | 8.6 dB | +5.11 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 2 | `Berlin \u2192 Hannover \u2192 Frankfurt` | 13.93 dB | 8.6 dB | +5.33 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 3 | `Berlin \u2192 Leipzig \u2192 Nuremberg \u2192 Frankfurt` | 12.73 dB | 8.6 dB | +4.13 dB | -14.00 dBm | **\u2713 FEASIBLE** |\n| 4 | `Berlin \u2192 Leipzig \u2192 Hannover \u2192 Frankfurt` | 12.35 dB | 8.6 dB | +3.75 dB | -13.99 dBm | **\u2713 FEASIBLE** |\n| 5 | `Berlin \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt` | 11.91 dB | 8.6 dB | +3.31 dB | -14.02 dBm | **\u2713 FEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Berlin \u2192 Hannover \u2192 Frankfurt**\n- **Physical Layer Parameters:** Computed GSNR = 13.93 dB | $P_{rx}$ = -13.03 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "approve",
+        "final_action": "approve",
+        "turns": 1
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 4,
+      "prompt_tokens": 645,
+      "completion_tokens": 2009,
+      "total_tokens": 2654,
+      "execution_time_s": 56.21115949100022,
+      "planning_report": null,
+      "error": "Predicate '(min-gsnr)' requires exactly 1 numeric argument, got 3.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null,
+        "initial_action": "clarify",
+        "final_action": "clarify",
+        "turns": 4
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "proposed_radg",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Bremen",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 11.239,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Bremen",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 0,
+      "prompt_tokens": 583,
+      "completion_tokens": 3167,
+      "total_tokens": 3750,
+      "execution_time_s": 129.22825519199978,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Route traffic from Bremen to Munich with at least 29 dB GSNR.\n- **Refinement Status:** Autonomous Pass (0 Interrupts)\n- **Active Operational Intent:** Intent: Route traffic from Bremen to Munich with at least 29 dB GSNR. | Source: Bremen | Target: Munich\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Bremen ] \u2500\u2500\u2500\u2500( 132.7 km | 3 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Hannover ] \u2500\u2500\u2500\u2500( 341.2 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ] \u2500\u2500\u2500\u2500( 246.8 km | 5 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Nuremberg ] \u2500\u2500\u2500\u2500( 193.2 km | 4 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Munich ]\n```\n- **Cumulative Metrics:** 4 Spans (Hops) \u2022 913.9 km Total Fiber \u2022 18 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Bremen \u2794 Hannover` (132.7 km, 3 EDFAs)\n  - Hop 2: `Hannover \u2794 Frankfurt` (341.2 km, 6 EDFAs)\n  - Hop 3: `Frankfurt \u2794 Nuremberg` (246.8 km, 5 EDFAs)\n  - Hop 4: `Nuremberg \u2794 Munich` (193.2 km, 4 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Bremen \u2192 Hannover \u2192 Leipzig \u2192 Nuremberg \u2192 Munich` | 11.24 dB | 8.6 dB | +2.64 dB | -15.00 dBm | **\u2713 FEASIBLE** |\n| 2 | `Bremen \u2192 Hannover \u2192 Frankfurt \u2192 Nuremberg \u2192 Munich` | 11.63 dB | 8.6 dB | +3.03 dB | -14.97 dBm | **\u2713 FEASIBLE** |\n| 3 | `Bremen \u2192 Hamburg \u2192 Hannover \u2192 Leipzig \u2192 Nuremberg \u2192 Munich` | 9.62 dB | 8.6 dB | +1.02 dB | -16.00 dBm | **\u2713 FEASIBLE** |\n| 4 | `Bremen \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt \u2192 Nuremberg \u2192 Munich` | 9.95 dB | 8.6 dB | +1.35 dB | -15.97 dBm | **\u2713 FEASIBLE** |\n| 5 | `Bremen \u2192 Hannover \u2192 Berlin \u2192 Leipzig \u2192 Nuremberg \u2192 Munich` | 9.79 dB | 8.6 dB | +1.19 dB | -16.04 dBm | **\u2713 FEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Bremen \u2192 Hannover \u2192 Frankfurt \u2192 Nuremberg \u2192 Munich**\n- **Physical Layer Parameters:** Computed GSNR = 11.63 dB | $P_{rx}$ = -14.97 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "approve",
+        "final_action": "approve",
+        "turns": 1
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": null,
+      "hitl_interrupts": 4,
+      "prompt_tokens": 652,
+      "completion_tokens": 1893,
+      "total_tokens": 2545,
+      "execution_time_s": 41.71859675000087,
+      "planning_report": null,
+      "error": "High semantic divergence (d_sem=0.50 > tau=0.3).",
+      "metadata": {
+        "usem_score": 0.5,
+        "usem_passed": false,
+        "radg_decision": null,
+        "initial_action": "clarify",
+        "final_action": "clarify",
+        "turns": 4
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "proposed_radg",
+      "action": "replan",
+      "initial_action": "replan",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 447,
+      "completion_tokens": 3131,
+      "total_tokens": 3578,
+      "execution_time_s": 22.28699084300024,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Route traffic from Hamburg to Berlin avoiding Hamburg completely.\n- **Refinement Status:** Refined via Operator HITL (2 iterations)\n- **Applied HITL Refinements:**\n  - Turn 1: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n  - Turn 2: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n- **Intent Reconciliation Rationale:** The operator has requested to route traffic from Berlin to Frankfurt with at least 12 dB GSNR, which is identical to the previous intent. Therefore, the prior intent is discarded and replaced with the new request.\n- **Active Operational Intent:** Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Berlin ] \u2500\u2500\u2500\u2500( 324.7 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Hannover ] \u2500\u2500\u2500\u2500( 341.2 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ]\n```\n- **Cumulative Metrics:** 2 Spans (Hops) \u2022 665.9 km Total Fiber \u2022 12 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Berlin \u2794 Hannover` (324.7 km, 6 EDFAs)\n  - Hop 2: `Hannover \u2794 Frankfurt` (341.2 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Berlin \u2192 Leipzig \u2192 Frankfurt` | 13.71 dB | 12.0 dB | +1.71 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 2 | `Berlin \u2192 Hannover \u2192 Frankfurt` | 13.93 dB | 12.0 dB | +1.93 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 3 | `Berlin \u2192 Leipzig \u2192 Nuremberg \u2192 Frankfurt` | 12.73 dB | 12.0 dB | +0.73 dB | -14.00 dBm | **\u2713 FEASIBLE** |\n| 4 | `Berlin \u2192 Leipzig \u2192 Hannover \u2192 Frankfurt` | 12.35 dB | 12.0 dB | +0.35 dB | -13.99 dBm | **\u2713 FEASIBLE** |\n| 5 | `Berlin \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt` | 11.91 dB | 12.0 dB | -0.09 dB | -14.02 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Berlin \u2192 Hannover \u2192 Frankfurt**\n- **Physical Layer Parameters:** Computed GSNR = 13.93 dB | $P_{rx}$ = -13.03 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "replan",
+        "final_action": "approve",
+        "turns": 3
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "clarify",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": false,
+      "parsed_constraints": null,
+      "hitl_interrupts": 4,
+      "prompt_tokens": 645,
+      "completion_tokens": 1656,
+      "total_tokens": 2301,
+      "execution_time_s": 36.796657817998494,
+      "planning_report": null,
+      "error": "Predicate '(route)' requires exactly 2 arguments (source destination), got 4.",
+      "metadata": {
+        "usem_score": 1.0,
+        "usem_passed": false,
+        "radg_decision": null,
+        "initial_action": "clarify",
+        "final_action": "clarify",
+        "turns": 4
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "proposed_radg",
+      "action": "replan",
+      "initial_action": "replan",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 1,
+      "prompt_tokens": 650,
+      "completion_tokens": 2998,
+      "total_tokens": 3648,
+      "execution_time_s": 15.558417229000042,
+      "planning_report": "# \ud83d\udccb Optical Network Planning Report\n**MultiAgent-ON Neurosymbolic Orchestrator (V5)** \u2022 *SDON Pre-Deployment Decision Record*\n\n---\n\n### 1. Intent & Alignment Specification\n- **Initial Intent:** Provision an optical channel from Munich to Munich with 16 dB GSNR.\n- **Refinement Status:** Refined via Operator HITL (1 iteration)\n- **Applied HITL Refinements:**\n  - Turn 1: \"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.\"\n- **Intent Reconciliation Rationale:** The operator requested to route traffic from Berlin to Frankfurt with at least 12 dB GSNR. The original intent was to provision an optical channel with 16 dB GSNR from Munich to Munich. The operator's feedback modifies the source and target nodes, and relaxes the GSNR constraint. The original GSNR constraint is removed, and a new constraint is added with a lower threshold.\n- **Active Operational Intent:** Provision an optical channel with at least 12 dB GSNR from Berlin to Frankfurt.\n\n### 2. Pre-Deployment Safety Verification\n| Gate | Evaluated Signal | Constraint | Status | Action |\n| :--- | :--- | :--- | :---: | :--- |\n| **Semantic Gate (Phase 3)** | U_sem=0.200 | $\\tau_{sem} \\le 0.300$ | `PASS` | Semantic alignment confirmed (Auto-Pass) |\n| **Physical Risk Gate (Phase 6)** | RADG = APPROVE | Feasible Paths $\\ge 1$ | `PASS` | Auto-Approved (Coherent physics verified) |\n\n### 3. Selected Optical Lightpath Topology\n```text\n[ Berlin ] \u2500\u2500\u2500\u2500( 324.7 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Hannover ] \u2500\u2500\u2500\u2500( 341.2 km | 6 EDFAs )\u2500\u2500\u2500\u2500\u25ba [ Frankfurt ]\n```\n- **Cumulative Metrics:** 2 Spans (Hops) \u2022 665.9 km Total Fiber \u2022 12 Inline EDFAs (C-Band Coherent 96-ch)\n- **Optical Link Spans:**\n  - Hop 1: `Berlin \u2794 Hannover` (324.7 km, 6 EDFAs)\n  - Hop 2: `Hannover \u2794 Frankfurt` (341.2 km, 6 EDFAs)\n\n### 4. Evaluated Candidate Routes (Physical-Layer Feasibility)\n| # | Candidate Route | GSNR | Thresh | Margin | P_rx | Status |\n| :-: | :--- | -: | -: | -: | -: | :-: |\n| 1 | `Berlin \u2192 Leipzig \u2192 Frankfurt` | 13.71 dB | 12.0 dB | +1.71 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 2 | `Berlin \u2192 Hannover \u2192 Frankfurt` | 13.93 dB | 12.0 dB | +1.93 dB | -13.03 dBm | **\u2713 FEASIBLE** |\n| 3 | `Berlin \u2192 Leipzig \u2192 Nuremberg \u2192 Frankfurt` | 12.73 dB | 12.0 dB | +0.73 dB | -14.00 dBm | **\u2713 FEASIBLE** |\n| 4 | `Berlin \u2192 Leipzig \u2192 Hannover \u2192 Frankfurt` | 12.35 dB | 12.0 dB | +0.35 dB | -13.99 dBm | **\u2713 FEASIBLE** |\n| 5 | `Berlin \u2192 Hamburg \u2192 Hannover \u2192 Frankfurt` | 11.91 dB | 12.0 dB | -0.09 dB | -14.02 dBm | **\u2717 INFEASIBLE** |\n\n### 5. Deployment Recommendation & Testbed Status\n- **RECOMMENDED PATH: Berlin \u2192 Hannover \u2192 Frankfurt**\n- **Physical Layer Parameters:** Computed GSNR = 13.93 dB | $P_{rx}$ = -13.03 dBm\n- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n",
+      "error": null,
+      "metadata": {
+        "usem_score": 0.2,
+        "usem_passed": true,
+        "radg_decision": "approve",
+        "initial_action": "replan",
+        "final_action": "approve",
+        "turns": 2
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "proposed_radg",
+      "action": "clarify",
+      "qot_feasible": false,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "error": "Request timed out.",
+      "metadata": {}
+    }
+  ],
+  "llm_only": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Frankfurt",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 770,
+      "completion_tokens": 104,
+      "total_tokens": 874,
+      "execution_time_s": 2.4253069070000493,
+      "planning_report": "LLM-Only Route: ['Hamburg', 'Frankfurt', 'Berlin'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Frankfurt",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 790,
+      "completion_tokens": 89,
+      "total_tokens": 879,
+      "execution_time_s": 1.4611623559994769,
+      "planning_report": "LLM-Only Route: ['Hamburg', 'Frankfurt', 'Berlin'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Frankfurt",
+        "Hamburg",
+        "Berlin",
+        "Munich",
+        "Dortmund",
+        "Dusseldorf",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 774,
+      "completion_tokens": 101,
+      "total_tokens": 875,
+      "execution_time_s": 1.5917114009989746,
+      "planning_report": "LLM-Only Route: ['Frankfurt', 'Hamburg', 'Berlin', 'Munich', 'Dortmund', 'Dusseldorf', 'Cologne'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 14.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Munich",
+        "Ulm",
+        "Stuttgart"
+      ],
+      "computed_gsnr_dB": 17.134,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 778,
+      "completion_tokens": 87,
+      "total_tokens": 865,
+      "execution_time_s": 1.3885847399997147,
+      "planning_report": "LLM-Only Route: ['Munich', 'Ulm', 'Stuttgart'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Frankfurt",
+        "Bremen"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 771,
+      "completion_tokens": 114,
+      "total_tokens": 885,
+      "execution_time_s": 1.8244169730005524,
+      "planning_report": "LLM-Only Route: ['Hannover', 'Frankfurt', 'Bremen'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 16.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Bremen",
+        "Hamburg",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 781,
+      "completion_tokens": 94,
+      "total_tokens": 875,
+      "execution_time_s": 1.5681419510001433,
+      "planning_report": "LLM-Only Route: ['Bremen', 'Hamburg', 'Frankfurt'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Hamburg",
+        "Nuremberg"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 770,
+      "completion_tokens": 98,
+      "total_tokens": 868,
+      "execution_time_s": 1.5870092040004238,
+      "planning_report": "LLM-Only Route: ['Berlin', 'Hamburg', 'Nuremberg'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "llm_only",
+      "action": "clarify",
+      "selected_path": [],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 769,
+      "completion_tokens": 72,
+      "total_tokens": 841,
+      "execution_time_s": 1.1721395980002853,
+      "planning_report": "LLM-Only Route: [] | Action: clarify",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Munich",
+        "Hannover"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 767,
+      "completion_tokens": 118,
+      "total_tokens": 885,
+      "execution_time_s": 1.8601797649989749,
+      "planning_report": "LLM-Only Route: ['Munich', 'Hannover'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Frankfurt",
+        "Hamburg"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 768,
+      "completion_tokens": 92,
+      "total_tokens": 860,
+      "execution_time_s": 1.5089788109999063,
+      "planning_report": "LLM-Only Route: ['Hannover', 'Frankfurt', 'Hamburg'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Norden",
+        "Hamburg",
+        "Berlin",
+        "Munich"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 778,
+      "completion_tokens": 101,
+      "total_tokens": 879,
+      "execution_time_s": 1.6352211299999908,
+      "planning_report": "LLM-Only Route: ['Norden', 'Hamburg', 'Berlin', 'Munich'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 30.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Frankfurt",
+        "Berlin",
+        "Munich"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 773,
+      "completion_tokens": 121,
+      "total_tokens": 894,
+      "execution_time_s": 1.9950479809995159,
+      "planning_report": "LLM-Only Route: ['Hamburg', 'Frankfurt', 'Berlin', 'Munich'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 30.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Hamburg",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 778,
+      "completion_tokens": 98,
+      "total_tokens": 876,
+      "execution_time_s": 1.5446969760014326,
+      "planning_report": "LLM-Only Route: ['Berlin', 'Hamburg', 'Frankfurt'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 28.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Cologne",
+        "Hamburg",
+        "Nuremberg",
+        "Nuremberg",
+        "Leipzig"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 768,
+      "completion_tokens": 106,
+      "total_tokens": 874,
+      "execution_time_s": 1.685681476001264,
+      "planning_report": "LLM-Only Route: ['Cologne', 'Hamburg', 'Nuremberg', 'Nuremberg', 'Leipzig'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 35.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Bremen",
+        "Nordhausen",
+        "Hannover",
+        "Frankfurt",
+        "Munich"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 773,
+      "completion_tokens": 107,
+      "total_tokens": 880,
+      "execution_time_s": 1.7244908339998801,
+      "planning_report": "LLM-Only Route: ['Bremen', 'Nordhausen', 'Hannover', 'Frankfurt', 'Munich'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 29.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Leipzig",
+        "Hannover",
+        "Mannheim",
+        "Dortmund",
+        "Dusseldorf",
+        "Cologne"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 775,
+      "completion_tokens": 102,
+      "total_tokens": 877,
+      "execution_time_s": 1.5876335909997579,
+      "planning_report": "LLM-Only Route: ['Leipzig', 'Hannover', 'Mannheim', 'Dortmund', 'Dusseldorf', 'Cologne'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Frankfurt",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 766,
+      "completion_tokens": 69,
+      "total_tokens": 835,
+      "execution_time_s": 1.118632941001124,
+      "planning_report": "LLM-Only Route: ['Hamburg', 'Frankfurt', 'Berlin'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "llm_only",
+      "action": "replan",
+      "selected_path": [],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 768,
+      "completion_tokens": 81,
+      "total_tokens": 849,
+      "execution_time_s": 1.3230999190000148,
+      "planning_report": "LLM-Only Route: [] | Action: replan",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Munich"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 773,
+      "completion_tokens": 91,
+      "total_tokens": 864,
+      "execution_time_s": 1.4479871550011012,
+      "planning_report": "LLM-Only Route: ['Munich'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 16.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "llm_only",
+      "action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Berlin",
+        "Munich",
+        "Nuremberg",
+        "Stuttgart",
+        "Karlsruhe",
+        "Mannheim",
+        "Dortmund",
+        "Dusseldorf",
+        "Cologne",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 765,
+      "completion_tokens": 114,
+      "total_tokens": 879,
+      "execution_time_s": 1.7717355400000088,
+      "planning_report": "LLM-Only Route: ['Hannover', 'Berlin', 'Munich', 'Nuremberg', 'Stuttgart', 'Karlsruhe', 'Mannheim', 'Dortmund', 'Dusseldorf', 'Cologne', 'Leipzig', 'Frankfurt'] | Action: approve",
+      "error": null,
+      "metadata": {
+        "min_gsnr_threshold": 15.0
+      }
+    }
+  ],
+  "always_on": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "always_on",
+      "action": "replan",
+      "initial_action": "replan",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 3,
+      "prompt_tokens": 467,
+      "completion_tokens": 83,
+      "total_tokens": 550,
+      "execution_time_s": 3.2903717039989715,
+      "planning_report": "Always-On HITL completed with 3 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "replan"
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Berlin"
+      ],
+      "computed_gsnr_dB": 17.185,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Berlin",
+        "avoid_nodes": [
+          "Bremen",
+          "Hannover"
+        ],
+        "avoid_links": [
+          "link_hamburg_bremen",
+          "link_hannover_berlin",
+          "link_hannover_bremen",
+          "link_hannover_hamburg",
+          "link_hannover_leipzig"
+        ],
+        "max_hops": null,
+        "min_gsnr": 10.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 471,
+      "completion_tokens": 440,
+      "total_tokens": 911,
+      "execution_time_s": 7.168660613000611,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "always_on",
+      "action": "replan",
+      "initial_action": "replan",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 3,
+      "prompt_tokens": 788,
+      "completion_tokens": 445,
+      "total_tokens": 1233,
+      "execution_time_s": 8.241741360998276,
+      "planning_report": "Always-On HITL completed with 3 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "replan"
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "always_on",
+      "action": "replan",
+      "initial_action": "replan",
+      "final_action": "replan",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": false,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 3,
+      "prompt_tokens": 368,
+      "completion_tokens": 133,
+      "total_tokens": 501,
+      "execution_time_s": 4.026015388000815,
+      "planning_report": "Always-On HITL completed with 3 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "replan"
+      }
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Hannover",
+        "Bremen"
+      ],
+      "computed_gsnr_dB": 20.019,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hannover",
+        "destination": "Bremen",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 573,
+      "completion_tokens": 86,
+      "total_tokens": 659,
+      "execution_time_s": 2.246599645999595,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 735,
+      "completion_tokens": 1763,
+      "total_tokens": 2498,
+      "execution_time_s": 28.468477936001364,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 566,
+      "completion_tokens": 1084,
+      "total_tokens": 1650,
+      "execution_time_s": 18.050180342999738,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 662,
+      "completion_tokens": 575,
+      "total_tokens": 1237,
+      "execution_time_s": 10.62537500399958,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 714,
+      "completion_tokens": 526,
+      "total_tokens": 1240,
+      "execution_time_s": 251.7597043470014,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 655,
+      "completion_tokens": 764,
+      "total_tokens": 1419,
+      "execution_time_s": 13.076472275000924,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Norden",
+        "Dortmund",
+        "Cologne",
+        "Frankfurt",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.529,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Norden",
+        "destination": "Munich",
+        "avoid_nodes": [
+          "Leipzig"
+        ],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 591,
+      "completion_tokens": 421,
+      "total_tokens": 1012,
+      "execution_time_s": 6.537082647999341,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Hamburg",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 10.859,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Hamburg",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 583,
+      "completion_tokens": 465,
+      "total_tokens": 1048,
+      "execution_time_s": 7.403696479001155,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 655,
+      "completion_tokens": 393,
+      "total_tokens": 1048,
+      "execution_time_s": 6.145718002999274,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Cologne",
+        "Frankfurt",
+        "Leipzig"
+      ],
+      "computed_gsnr_dB": 13.791,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Cologne",
+        "destination": "Leipzig",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 703,
+      "completion_tokens": 533,
+      "total_tokens": 1236,
+      "execution_time_s": 7.972268151999742,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "always_on",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": [
+        "Bremen",
+        "Hannover",
+        "Leipzig",
+        "Nuremberg",
+        "Munich"
+      ],
+      "computed_gsnr_dB": 11.239,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Bremen",
+        "destination": "Munich",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 583,
+      "completion_tokens": 548,
+      "total_tokens": 1131,
+      "execution_time_s": 8.448898524999095,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "approve"
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [
+          "Hannover",
+          "Bremen",
+          "Dortmund",
+          "Hamburg",
+          "Munich",
+          "Nuremberg",
+          "Stuttgart",
+          "Essen",
+          "Dortmund",
+          "Dusseldorf"
+        ],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 726,
+      "completion_tokens": 1598,
+      "total_tokens": 2324,
+      "execution_time_s": 25.150574792000043,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 463,
+      "completion_tokens": 419,
+      "total_tokens": 882,
+      "execution_time_s": 8.977242872000716,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": 12.0,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 655,
+      "completion_tokens": 650,
+      "total_tokens": 1305,
+      "execution_time_s": 132.9942659949993,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "initial_action": "clarify",
+      "final_action": "approve",
+      "selected_path": [
+        "Berlin",
+        "Leipzig",
+        "Frankfurt"
+      ],
+      "computed_gsnr_dB": 13.714,
+      "qot_feasible": true,
+      "pddl_valid": true,
+      "parsed_constraints": {
+        "source": "Berlin",
+        "destination": "Frankfurt",
+        "avoid_nodes": [],
+        "avoid_links": [],
+        "max_hops": null,
+        "min_gsnr": null,
+        "bandwidth": null
+      },
+      "hitl_interrupts": 2,
+      "prompt_tokens": 267,
+      "completion_tokens": 923,
+      "total_tokens": 1190,
+      "execution_time_s": 15.38986364899938,
+      "planning_report": "Always-On HITL completed with 2 mandatory operator interventions.",
+      "error": null,
+      "metadata": {
+        "checkpoints_triggered": [
+          "phase_3_semantic",
+          "phase_6_physical"
+        ],
+        "initial_action": "clarify"
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "always_on",
+      "action": "clarify",
+      "qot_feasible": false,
+      "hitl_interrupts": 0,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "error": "Request timed out.",
+      "metadata": {}
+    }
+  ],
+  "traditional_sdon": [
+    {
+      "intent_id": "intent_nom_01",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_02",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_03",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_04",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_nom_05",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_01",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_02",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_03",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_04",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_amb_05",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_01",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_02",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_03",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_04",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_inf_05",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_01",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_02",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_03",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_04",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    },
+    {
+      "intent_id": "intent_adv_05",
+      "baseline_id": "traditional_sdon",
+      "action": "approve",
+      "initial_action": "approve",
+      "final_action": "approve",
+      "selected_path": null,
+      "computed_gsnr_dB": null,
+      "qot_feasible": true,
+      "pddl_valid": null,
+      "parsed_constraints": null,
+      "hitl_interrupts": 1,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
+      "execution_time_s": 0.0,
+      "planning_report": "Traditional SDON: Static industrial reference baseline. Manual provisioning workflow (hours/days/weeks); absolute safety invariant UAR = 0.0%.",
+      "error": null,
+      "metadata": {
+        "is_static_reference": true,
+        "mode": "static_reference",
+        "workflow_latency": "Hours to Days",
+        "provisioning_latency": "Hours to Days",
+        "human_effort": "100% manual authoring",
+        "uar": 0.0,
+        "uar_percent": 0.0
+      }
+    }
+  ]
+}
