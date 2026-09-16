@@ -66,6 +66,9 @@ RULES:
    - NEVER invent node or link exclusions to steer routes.
 6. WAYPOINTS ('via <node>'):
    - If the intent specifies traversing 'via <node>', emit (via <node>) inside the (:goal (and ...)) block. DO NOT generate (avoid-node ...) or (avoid-link ...) to simulate 'via'.
+7. HOP LIMITS & DIRECT SPANS:
+   - If the intent specifies a 'single direct span', 'single span', 'direct span', or 'single hop', emit (max-hops 1).
+   - If the intent specifies a numerical hop count limit (e.g. 'maximum of 3 hops', 'at most 2 hops'), emit (max-hops <value>).
 
 EXAMPLES:
 

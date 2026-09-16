@@ -582,3 +582,13 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Session focus: Full benchmark harness extension, multi-turn recovery debugging, reconciler prompt and deterministic hardening, PDDL constraint prompt decoupling, empirical validation across all 4 risk classes, weekly and issue reporting, and repository debrief.
 - Testing & Verification: 321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`), zero lint errors (`uv run ruff check src/ tests/`), and 20/20 passing on compact benchmark corpus.
 
+## [2026-09-16] maintenance | Session Summary Consolidation
+- Action: Consolidated `session_20260916_Nominal_Evaluation_Harness_and_Prompt_Hardening.md` and `session_20260916_Full_Corpus_Evaluation_and_Multi_Turn_Refinement.md` into a single authoritative session summary `session_20260916_Benchmark_Harness_SLM_Hardening_and_Full_Corpus_Evaluation.md`.
+- Updated: `docs/LLM_Wiki/index.md` and deleted obsolete separate files.
+
+## [2026-09-16] debrief2 | Evaluation Framework Modernization & Four Pillars Verification
+- Wiki Deep Lint: Audited and verified `Weekly_Report_20260922_Felipe_Abadia.md`, `Issue_Report_20260922_Felipe_Abadia.md`, `session_20260916_Benchmark_Harness_SLM_Hardening_and_Full_Corpus_Evaluation.md`, and `index.md`.
+- Consistency Audit: Modernized evaluation runner from `run_nominal_eval.py` into `run_evaluation.py`. Verified mathematical formulas against `README-evaluation.md` and `Architecture_v5`. Integrated `TokenTracker` callback handler and `compute_constraint_retention()` to parse PDDL AST and compare against ground truth explicit constraints. Executed full 20-demand benchmark on 17-node Nobel-Germany topology using local `qwen2.5:3b`, verifying the Four Core Validation Pillars: CRR 94.1%, CFG-PR 100.0%, Semantic Agreement 0.860, UAR 0.0% (Strict Safety Invariant), GDA 95.0% (19/20), FPR 0.0%, and Selective HITL Precision 100.0%.
+- Testing & Verification: 321/321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`), zero lint errors (`uv run ruff check src/ tests/`), and clean telemetry exports (JSON, CSV, Markdown).
+
+

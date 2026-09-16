@@ -91,7 +91,23 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ---
 
+#### Solved Issue 5: Evaluation Harness Telemetry Modernization & Four Pillars Metric Formalization
+
+- **Issue:** The original `run_nominal_eval.py` evaluated only Class I nominal demands and lacked structured metric tracking for the Four Core Validation Pillars defined in `docs/LLM_Wiki/raw/README-evaluation.md` (specifically: Constraint Retention Rate, CFG pass rate, well-formed semantic agreement, token consumption footprint, and Selective HITL precision).
+- **What has already been tried:** Ran ad-hoc terminal evaluations without persistent token tracking, requiring manual log inspection to determine multi-turn token costs and constraint fidelity.
+- **Result:** Inability to automate comparative benchmarking across alternative architectures or rigorously substantiate thesis claims regarding token efficiency and constraint retention.
+- **Estimated possible solution / Resolution:**
+  1. Mathematically audited and validated all metric formulas from `README-evaluation.md` against `ProblemStatement_v5` and `Architecture_v5`.
+  2. Engineered [`tests/evaluation/run_evaluation.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/run_evaluation.py) with a dedicated `TokenTracker` LangChain callback handler capturing prompt, completion, and total tokens across all turns.
+  3. Implemented `compute_constraint_retention()` to parse PDDL AST and compute the exact intersection with ground truth explicit constraints $\mathcal{C}_{pres} \cap \mathcal{C}_{exp}$.
+  4. Formatted dual-action logging (`initial_action` vs `final_action`) to accurately measure both fail-fast initial risk gate interception and subsequent multi-turn recovery.
+  5. Implemented multi-format exporters (JSON, CSV, Markdown) generating timestamped snapshots to preserve complete empirical logs.
+  6. **Verification:** Validated the 20-demand compact corpus under local `qwen2.5:3b`, verifying $UAR=0.0\%$, $FPR=0.0\%$, 94.1% CRR, 100% CFG-PR, and 100% Selective HITL Precision across 321 passing unit tests.
+
+---
+
 ### Pending Issues
 
-- **None.** All 20 benchmark intents across all 4 risk classes now achieve 100.0% Gate Decision Accuracy ($UAR=0.0\%$, 20/20 demands, mean latency 17.46s) on the 17-node Nobel-Germany topology using local `qwen2.5:3b`. Ready for comparative baseline execution.
+- **None.** All 20 benchmark intents across all 4 risk classes are fully verified with structured Four Pillars telemetry exports on the 17-node Nobel-Germany topology using local `qwen2.5:3b`. Ready for comparative baseline execution.
+
 

@@ -52,10 +52,17 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - All 321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`) in 2.45s with zero regressions.
    - Repository-wide linting verified clean (`uv run ruff check src/ tests/`).
 
-5. **Benchmark Expansion across All 4 Risk Classes & 100.0% Gate Decision Accuracy (20/20):**
+5. **Benchmark Expansion across All 4 Risk Classes & Multi-Turn Refinement:**
    - Extended the evaluation framework to cover all 20 demands in [`tests/evaluation/test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json): Class I Nominal (5), Class II Ambiguous (5), Class III Physically Infeasible (5), and Class IV Adversarial (5).
    - Diagnosed and resolved multi-turn ghost constraint leakage in SLM recovery: fortified [`src/nodes/intent_reconciler.py`](file:///home/felipeab/MultiAgentON/src/nodes/intent_reconciler.py) with deterministic full-replacement classification for standalone routing feedback, and isolated [`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py) from previous PDDL contamination on replacements.
-   - Achieved **100.0% Gate Decision Accuracy (20/20)** across the 17-node Nobel-Germany topology using local `qwen2.5:3b`: 5/5 auto-approved on first try ($N_{hitl}=0$), 5/5 ambiguous demands caught fail-fast at Phase 3b (`clarify`), 5/5 infeasible demands caught at Phase 6 (`replan`), and 5/5 adversarial demands caught (`clarify`/`replan`), with **$UAR = 0.0\%$** and 100% successful multi-turn recovery to Phase 7 Synthesis.
+   - Verified that 100% of intercepted intents successfully recover upon receiving standard feedback to Phase 7 Synthesis with $UAR = 0.0\%$.
+
+6. **Four Core Validation Pillars Formalization & Runner Modernization (`run_evaluation.py`):**
+   - Transformed `run_nominal_eval.py` into [`tests/evaluation/run_evaluation.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/run_evaluation.py), integrating comprehensive telemetry across the Four Core Validation Pillars:
+     * **Pillar 1 (Semantic):** Built `compute_constraint_retention()` to measure CRR (94.1% on operable demands), CFG Pass Rate (100.0%), and Semantic Agreement ($1 - d_{sem} = 0.860$).
+     * **Pillar 2 (Physical Feasibility):** Verified $UAR = 0.0\%$ (Strict Invariant) and 100% Turn 1 interception of physical/semantic risk.
+     * **Pillar 3 (Efficiency):** Integrated `TokenTracker` callback telemetry capturing prompt, completion, and total tokens across all turns (7,375 tok/intent; 5.62s nominal latency).
+     * **Pillar 4 (Gate Reliability):** Verified Gate Decision Accuracy (95.0%, 19/20), False Positive Rate (0.0%), and Selective HITL Precision (100.0%).
 
 ---
 
@@ -69,11 +76,11 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 4. Do You Need Support?
 
-- **Current Status:** Full 20-demand benchmark evaluation across all 4 risk classes successfully verified at 100% gate decision accuracy ($UAR=0.0\%$, 20/20). Ready to execute comparative baselines and schedule presentation rehearsal with Prof. Massimo Tornatore.
+- **Current Status:** Full 20-demand benchmark evaluation across all 4 risk classes successfully verified at 95.0% gate decision accuracy ($UAR=0.0\%$, 19/20 demands, 0.0% FPR, 100% selective HITL precision). Ready to execute comparative baselines and schedule presentation rehearsal with Prof. Massimo Tornatore.
 - **Advisor Review:** Ready to schedule presentation rehearsal with Prof. Massimo Tornatore.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I validated a 100% Gate Decision Accuracy (20/20 demands, $UAR=0.0\%$, 17.46s latency) across all four risk classes on the 17-node Nobel-Germany benchmark using local `qwen2.5:3b`, eliminated multi-turn ghost constraint leakage in intent reconciliation and PDDL parsing, and preserved all 321 passing unit tests under Strict TDD.
+I modernized the evaluation harness into `run_evaluation.py` with full Four Pillars telemetry (CRR, CFG-PR, UAR=0.0%, FPR=0.0%, 95.0% GDA, token tracking), validated the 20-demand compact corpus on the 17-node Nobel-Germany topology using local `qwen2.5:3b`, and maintained all 321 unit tests in green under Strict TDD.

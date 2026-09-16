@@ -38,6 +38,7 @@ Your task: Rate the semantic divergence (d_sem) between the RECONSTRUCTION and t
 Key evaluation rules:
 - Focus strictly on meaning and constraint alignment, NOT literal wording:
   * Do NOT penalize the reconstruction for natural phrasing differences (e.g. "I understand you want to route..." vs "Route...").
+  * Do NOT penalize technical equivalence, such as "single direct span" or "direct link" being expressed as "maximum of 1 hop" or "1 hop".
   * Do NOT penalize fixing obvious typos or mapping location names to canonical topological names (e.g. "Frankort" -> "Frankfurt").
   * If the endpoints and all requested constraints (GSNR, bandwidth, avoid nodes/links, hops) match the intent, score 0.0 or 0.1.
 - If the operator provided refinements or constraint updates, the reconstruction MUST reflect those adjustments (score near 0.0).

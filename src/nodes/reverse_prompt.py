@@ -33,6 +33,7 @@ CRITICAL INSTRUCTIONS:
 - State all active constraints (e.g., minimum GSNR in dB, required bandwidth, avoided nodes, avoided links, waypoints via a node) clearly.
 - STRICT NEGATIVE INSTRUCTION: NEVER mention or invent any node name that is NOT explicitly written in the PDDL below! If the PDDL does not have (avoid-node ...), DO NOT state that any node is avoided!
 - If the PDDL contains (via <node>), express it as "via <node>" or "using <node> as a transit waypoint". DO NOT invent any avoided nodes!
+- If the PDDL contains (max-hops 1), express it as "over a single direct span". If (max-hops <N>) with N > 1, express it as "a maximum of <N> hops".
 - Do NOT report dummy or zero-value constraints (e.g., min-gsnr 0, bandwidth 1). Only report genuine operational constraints.
 - Flag any evident inconsistencies or missing endpoints in the PDDL.
 - Output ONLY plain English — no PDDL syntax, no code blocks, no filler.
@@ -51,7 +52,11 @@ Reconstruction: I understand you want to route traffic from Munich to Stuttgart 
 
 Example 3 (Avoidance constraint):
 PDDL goal: (and (route Frankfurt Cologne) (min-gsnr 14) (avoid-node Mannheim))
-Reconstruction: I understand you want to route traffic from Frankfurt to Cologne with a minimum GSNR of 14 dB, avoiding node Mannheim.\
+Reconstruction: I understand you want to route traffic from Frankfurt to Cologne with a minimum GSNR of 14 dB, avoiding node Mannheim.
+
+Example 4 (Single direct span / hop limit):
+PDDL goal: (and (route Berlin Frankfurt) (min-gsnr 28) (max-hops 1))
+Reconstruction: I understand you want to route traffic from Berlin to Frankfurt over a single direct span with a minimum GSNR of 28 dB.\
 """
 
 
