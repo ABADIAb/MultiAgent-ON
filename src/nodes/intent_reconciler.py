@@ -84,6 +84,9 @@ the previous operational intent.
    - Triggers when the operator explicitly cancels, aborts, resets, or replaces the \
 entire request with a brand new objective (e.g. "Cancel that. Route from Cologne to \
 Frankfurt", "Forget Munich, establish a path from Leipzig to Hamburg").
+   - Triggers when the feedback specifies a brand new source AND destination pair \
+(e.g., previous intent was Hamburg to Berlin, but feedback specifies Berlin to Frankfurt). \
+In this case, ALWAYS classify as "full_replacement" and discard all prior endpoints and constraints!
    - Action: Discard all prior constraints, endpoints, and exclusions. Formulate the \
 new intent strictly from the latest instructions.
 

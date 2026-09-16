@@ -33,21 +33,38 @@ You will be given:
 1. OPERATOR INTENT: The operator's natural language request, including any subsequent clarifications or refinements provided by the operator.
 2. RECONSTRUCTION: A system's reverse-prompting reconstruction of what it parsed.
 
-Your task: Rate how faithfully the reconstruction captures the OPERATOR INTENT semantically, NOT literally.
+Your task: Rate the semantic divergence (d_sem) between the RECONSTRUCTION and the OPERATOR INTENT on a scale from 0.0 to 1.0.
 
 Key evaluation rules:
-- Focus on meaning: Do NOT penalize the reconstruction for fixing obvious typos (e.g., "Rout" -> "Route") or mapping misspelled locations to their canonical topological names (e.g., "Frankort" -> "Frankfurt"). This is a desired behavior of the parser.
-- If the operator provided clarifications, constraint adjustments, or relaxations (e.g., avoiding specific nodes/links, relaxing GSNR, or modifying endpoints), the reconstruction MUST reflect those adjustments. This is faithful adherence to operator instructions, NOT divergence (score near 0.0).
-- Penalize ONLY unprompted hallucinations (constraints neither in the base intent nor in the operator's refinements) or omitted constraints that were explicitly requested.
-- If the reconstruction explicitly flags an inconsistency, error, or missing endpoint, you MUST score it as highly divergent (1.0) so the system pauses for operator clarification.
+- Focus strictly on meaning and constraint alignment, NOT literal wording:
+  * Do NOT penalize the reconstruction for natural phrasing differences (e.g. "I understand you want to route..." vs "Route...").
+  * Do NOT penalize fixing obvious typos or mapping location names to canonical topological names (e.g. "Frankort" -> "Frankfurt").
+  * If the endpoints and all requested constraints (GSNR, bandwidth, avoid nodes/links, hops) match the intent, score 0.0 or 0.1.
+- If the operator provided refinements or constraint updates, the reconstruction MUST reflect those adjustments (score near 0.0).
+- Penalize ONLY genuine discrepancies:
+  * Hallucinated constraints: Constraints stated in the reconstruction that the operator never requested.
+  * Omitted constraints: Constraints explicitly requested by the operator that the reconstruction dropped.
+  * Inconsistencies: Contradictory endpoints or flagged syntax/resolution errors (score 1.0).
 
-Output ONLY a single decimal number between 0.0 and 1.0, where:
-  0.0 = The reconstruction faithfully matches the operator's semantic intent and refinements (even if words changed or typos were fixed).
-  1.0 = The reconstruction is completely wrong, contradicts operator feedback, has severe hallucinated constraints, or flags an unresolved inconsistency.
-  0.2 = Minor paraphrasing differences but all active constraints match operator intent.
-  0.5 = Some requested constraints are missing or contradictory constraints were introduced.
+Scoring scale:
+  0.0 = Complete semantic match: Endpoints and all requested constraints match faithfully.
+  0.1 = Minor natural language paraphrasing, but identical constraints and endpoints.
+  0.2 = Slight wording variations, preserving all active constraints.
+  0.5 = Meaningful discrepancy: A requested constraint was omitted, or an unprompted constraint was added.
+  1.0 = Wrong endpoints, contradictory constraints, or unresolved errors.
 
-No explanation, no other text — just the number."""
+Output ONLY a single decimal number between 0.0 and 1.0 (e.g., 0.0, 0.1, 0.2, 0.5, 1.0). No explanation, no other text."""
+
+
+def _clean_intent_for_evaluation(intent: str) -> str:
+    """Extract clean natural language statement without metadata pipes or topology dumps."""
+    clean = intent.split("\nTopology Context:")[0].strip()
+    clean = clean.split("Topology Context:")[0].strip()
+    if " | Source:" in clean or " | Target:" in clean:
+        clean = clean.split(" | Source:")[0].split(" | Target:")[0].strip()
+    if clean.lower().startswith("intent:"):
+        clean = clean[len("intent:") :].strip()
+    return clean.strip()
 
 
 def _score_semantic_agreement(intent: str, reconstruction: str) -> float:
@@ -117,15 +134,16 @@ def semantic_gate_node(state: AgentState) -> dict:
     # Layer 2: only meaningful if Layer 1 passed and we have a reconstruction
     if v_struct and reconstruction:
         if active_intent:
-            effective_intent = active_intent
+            effective_intent = _clean_intent_for_evaluation(active_intent)
         elif refinement_history:
+            clean_base = _clean_intent_for_evaluation(intent)
             refinements_block = "\n".join(f"- {r}" for r in refinement_history)
             effective_intent = (
-                f"{intent}\n\n"
+                f"{clean_base}\n\n"
                 f"Operator Clarifications & Refinements:\n{refinements_block}"
             )
         else:
-            effective_intent = intent
+            effective_intent = _clean_intent_for_evaluation(intent)
         d_sem = _score_semantic_agreement(effective_intent, reconstruction)
     elif not v_struct:
         # Structural failure — Layer 1 already sets U_sem = 1

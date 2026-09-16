@@ -31,6 +31,7 @@ CRITICAL INSTRUCTIONS:
 - Start with "I understand you want to..."
 - Mention the source and target nodes explicitly.
 - State all active constraints (e.g., minimum GSNR in dB, required bandwidth, avoided nodes, avoided links) clearly.
+- Do NOT report dummy or zero-value constraints (e.g., min-gsnr 0). Only report genuine operational constraints.
 - Flag any evident inconsistencies or missing endpoints in the PDDL.
 - Output ONLY plain English — no PDDL syntax, no code blocks, no filler.
 

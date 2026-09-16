@@ -42,7 +42,7 @@ PDDL problem string. Use this exact structure:
   (:goal
     (and
       <routing goal: (route <source> <target>)>
-      <constraints: (min-gsnr <value>), (bandwidth <value>), (avoid-node <node>), (avoid-link <src> <dst>), etc.>
+      <constraints: (min-gsnr <value>), (bandwidth <value>), (max-hops <value>), (avoid-node <node>), (avoid-link <src> <dst>)>
     )
   )
 )
@@ -50,12 +50,18 @@ PDDL problem string. Use this exact structure:
 The network topology is provided in the enriched intent below. Use ONLY \
 the nodes and links described there for :objects and :init sections.
 
-Rules:
-- Output ONLY the PDDL string, no explanations or markdown.
-- Include ALL nodes and links in :objects and :init even if not all are mentioned in the intent.
-- Always use the human-readable node names (e.g. Berlin, Frankfurt, Munich, Hamburg) for node objects and routing goals in PDDL, NOT internal IDs like node_1.
-- Extract specific constraints (GSNR, bandwidth, avoid nodes, avoid links, etc) from the intent.
-- If no specific constraints are mentioned, use only the (route ...) goal.\
+RULES:
+1. Output ONLY the PDDL string, no explanations or markdown code blocks.
+2. Always use the human-readable node names (e.g. Berlin, Frankfurt, Munich, Hamburg) for node objects and routing goals in PDDL, NOT internal IDs like node_1.
+3. STRICT CONSTRAINT EXTRACTION:
+   - ONLY emit constraint predicates if they are EXPLICITLY requested in the operator intent.
+   - NEVER invent default or placeholder values! E.g. if the operator does NOT specify GSNR, DO NOT emit (min-gsnr 0). If the operator only requests bandwidth, emit ONLY (bandwidth <val>).
+   - If no specific constraints are mentioned, the (:goal ...) section MUST contain ONLY (route <source> <target>).
+4. AVOIDANCE CONSTRAINTS:
+   - NEVER emit (avoid-node ...) or (avoid-link ...) unless the operator explicitly used negative words like 'avoid', 'avoiding', 'bypass', 'excluding', or 'without'.
+   - NEVER invent node or link exclusions to steer routes.
+5. WAYPOINTS ('via <node>'):
+   - If the intent specifies traversing 'via <node>', that is an inclusion preference handled by the path search. DO NOT generate (avoid-node ...) or (avoid-link ...) to simulate 'via'.\
 """
 
 
