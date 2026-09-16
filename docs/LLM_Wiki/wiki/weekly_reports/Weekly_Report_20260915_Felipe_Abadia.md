@@ -56,32 +56,30 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Empirically proved that **`qwen2.5:3b` is the optimal default** because it fits 100% in VRAM (2.15 GB), delivering ~1.5s latency at ~70 tok/s with zero RAM swapping, while establishing `phi4-mini` as the structured direct alternative and supporting `qwen3:4b` with dynamic token budgeting (3000 tokens) and native `<think>` regex stripping.
    - Hardened Phase 3 Semantic Gate prompts, eliminating `:init` topology contamination in [[reverse_prompt]] to prevent false semantic divergences.
 
-5. **Sprint 4 Evaluation Framework Modernization & Automated Follow-Up Protocol:**
+5. **Sprint 4 Evaluation Framework Architecture & Test Suite Redesign:**
    - Consolidated the comparative evaluation matrix to 4 core systems: **Proposed (Neurosymbolic RADG)**, **Baseline A (Monolithic LLM)**, **Baseline B (Always-On HITL)**, and **Baseline C (Traditional SDON / PCE)**. Completely deprecated and removed redundant `Always-Off HITL`.
    - Formalized Traditional SDON / PCE as a static industrial reference representing manual provisioning workflows taking hours to days/weeks ($UAR = 0.0\%$, tokens = `N/A`, latency = `Hours / Days`).
-   - Refined the Four Core Validation Pillars: standardized Pillar 2 on $UAR = 0.0\%$ (safety invariant) and $PIIR = 100.0\%$ (infeasibility interception), and Pillar 3 on E2E Latency, Token Footprint, and HITL reduction ($\Delta N_{hitl}$), demoting GraphRAG token reduction percentage to an implementation detail.
-   - Implemented an automated follow-up recovery protocol in [`proposed_radg.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/proposed_radg.py) and [`always_on_hitl.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_on_hitl.py) using LangGraph `Command(resume=...)`, injecting `STANDARD_FOLLOW_UP_INTENT` on gate interruptions (`clarify` / `replan`) to measure true E2E latency and cumulative token footprint through to synthesis per intent risk class (`I_Nominal`, `II_Ambiguous`, `III_Infeasible`, `IV_Adversarial`).
-   - Standardized the 100-demand benchmark corpus ([`test_corpus.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus.json)) and 20-demand compact subset ([`test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json)), purging legacy `"reject"` branches to strictly enforce the ternary RADG action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$.
-   - Built the automated runner ([`run_benchmark.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/run_benchmark.py)) and IEEE/PoliMi publication plotting suite ([`plotter.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/scripts/plotter.py)), exporting vector PDFs and 300+ DPI PNGs.
-   - Verified 100% test pass rate across all 350 unit tests under Strict TDD with zero regressions.
+   - Retained and standardized the 20-demand compact benchmark corpus ([`test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json)), balanced equiprobably across all four thesis risk classes (`I_Nominal`, `II_Ambiguous`, `III_Infeasible`, `IV_Adversarial`) to strictly enforce the ternary RADG action space $\mathcal{A} = \{\text{approve}, \text{clarify}, \text{replan}\}$.
+   - **Evaluation Suite Redesign Decision:** In testing preliminary benchmark runners, execution inconsistencies and brittle behavior emerged. In order to avoid technical debt and guarantee high reproducibility matching our production pipeline, all prototype harness scripts under `tests/evaluation/` have been cleared to redesign the test suite from the ground up, centered exclusively around `test_corpus_compact.json`.
+   - Verified that all core domain, node, and workflow unit tests pass under Strict TDD with zero regressions in the primary pipeline (`src/`).
 
 ---
 
 ## 3. What do I plan to accomplish next week?
 
-1. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and narrative structure to Prof. Massimo Tornatore for formal academic review and feedback.
-2. **Slide 14 Presentation Integration:** Integrate the newly generated empirical figures (`latency_vs_tokens.png`, `success_vs_uar.png`, `hitl_interruption_origin.png`) into Slide 14 of the thesis defense presentation deck.
-3. **Thesis Chapter 4 Drafting:** Begin drafting Chapter 4 (*Experimental Evaluation & Numerical Results*) using `thesis-coauthor`, leveraging the vector PDFs and `summary_table.md`.
+1. **Redesign Evaluation Test Suite:** Re-architect and implement the benchmarking harness from scratch around [`test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json) to reliably evaluate the full 7-phase neurosymbolic pipeline against the defined baselines.
+2. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and narrative structure to Prof. Massimo Tornatore for formal academic review and feedback.
+3. **Slide 14 Presentation Integration & Chapter 4 Preparation:** Integrate empirical figures from the newly redesigned benchmark runs into Slide 14 of the defense presentation deck, and prepare the experimental data foundations for Thesis Chapter 4.
 
 ---
 
 ## 4. Do You Need Support?
 
-- **Current Status:** No external blockers. The automated evaluation harness, baseline definitions, metrics calculation, publication figures, and local multi-model inference engine are fully completed, verified, and operational.
-- **Advisor Review:** I will schedule a checkpoint to present the 15-minute defense deck draft and discuss empirical benchmark results.
+- **Current Status:** Actively redesigning the benchmark execution and evaluation harness around `test_corpus_compact.json`. The core neurosymbolic pipeline and local multi-model inference engines are operational.
+- **Advisor Review:** I will schedule a checkpoint to present the 15-minute defense deck draft and discuss the upcoming empirical benchmark results.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I modernized the Sprint 4 evaluation framework with an automated follow-up recovery protocol for true E2E latency/token accounting, consolidated the 4-baseline comparative matrix, established `qwen2.5:3b` as the optimal 100% VRAM local engine, authored the 16-slide defense presentation deck with native OMML math, and maintained 350 passing unit tests under Strict TDD.
+I consolidated the 4-baseline comparative matrix, retained the 20-demand compact benchmark corpus while initiating a clean redesign of the evaluation test harness, established `qwen2.5:3b` as the optimal 100% VRAM local engine, authored the 16-slide defense presentation deck with native OMML math, and maintained strict pipeline integrity under Strict TDD.

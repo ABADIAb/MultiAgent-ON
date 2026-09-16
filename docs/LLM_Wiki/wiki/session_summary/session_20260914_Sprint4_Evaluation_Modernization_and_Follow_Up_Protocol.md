@@ -9,6 +9,9 @@ status: active
 
 ## 1. Executive Summary
 
+> [!NOTE]
+> **Status Note (Benchmark Test Redesign in Progress):** The prototype evaluation harness scripts, metrics utilities, and baseline adapters originally outlined in this session encountered practical execution issues and have been removed from the repository. The test suite is currently being re-engineered from the ground up to ensure robust and reproducible validation of the active V5 neurosymbolic pipeline. The single ground-truth asset preserved is the 20-demand compact benchmark corpus: [`tests/evaluation/test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json).
+
 In this session, I executed a major architectural modernization of the Sprint 4 evaluation and benchmarking framework (`tests/evaluation/`) for the Master's thesis:
 > *"LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment"*
 
