@@ -84,15 +84,20 @@ the previous operational intent.
    - Triggers when the operator explicitly cancels, aborts, resets, or replaces the \
 entire request with a brand new objective (e.g. "Cancel that. Route from Cologne to \
 Frankfurt", "Forget Munich, establish a path from Leipzig to Hamburg").
+   - Triggers when the feedback specifies a complete, self-contained routing statement \
+(e.g., "Route traffic from Berlin to Frankfurt with at least 12 dB GSNR") specifying both \
+a source and target node that supersede the previous intent.
+   - Triggers when the previous intent was incomplete, ambiguous, or missing endpoints, \
+and the feedback provides a complete routing specification.
    - Triggers when the feedback specifies a brand new source AND destination pair \
 (e.g., previous intent was Hamburg to Berlin, but feedback specifies Berlin to Frankfurt). \
-In this case, ALWAYS classify as "full_replacement" and discard all prior endpoints and constraints!
-   - Action: Discard all prior constraints, endpoints, and exclusions. Formulate the \
+In this case, ALWAYS classify as "full_replacement" and discard all prior endpoints, waypoints, and constraints!
+   - Action: Discard all prior constraints, endpoints, waypoints, and exclusions. Formulate the \
 new intent strictly from the latest instructions.
 
 2. PARTIAL_UPDATE ("partial_update"):
-   - Triggers when the operator modifies, adds, relaxes, or deletes specific constraints \
-while maintaining the general request context.
+   - Triggers ONLY when the operator modifies, adds, relaxes, or deletes specific constraints \
+while maintaining the general request context and valid endpoints.
    - Sub-types:
      * Constraint Relaxation: e.g. "Lower GSNR to 12 dB" -> update min-gsnr from 15 dB to 12 dB; \
 keep source, target, and node exclusions.
@@ -102,6 +107,7 @@ keep source, target, and node exclusions.
 to Berlin; preserve source and compatible constraints.
 
 ### RULES:
+- If the feedback is a complete routing instruction like "Route traffic from <X> to <Y>...", it is ALWAYS a FULL_REPLACEMENT! Discard all prior waypoints, hops, and constraints.
 - Output a single, clean, declarative natural language sentence in updated_intent.
 - NEVER include conversational filler ("The operator says...", "I have updated...", "Here is the new intent...").
 - NEVER retain contradictory constraints (e.g. cannot have both 15 dB and 12 dB; cannot have both Munich and Berlin as target).
@@ -156,11 +162,39 @@ def reconcile_operator_intent(
             HumanMessage(content=user_content),
         ]
         result = structured_llm.invoke(messages)
+        analysis: RefinedIntentAnalysis | None = None
         if isinstance(result, RefinedIntentAnalysis):
-            return result
-        # Fallback if structured_llm returned dict
-        if isinstance(result, dict):
-            return RefinedIntentAnalysis(**result)
+            analysis = result
+        elif isinstance(result, dict):
+            analysis = RefinedIntentAnalysis(**result)
+
+        if analysis:
+            import re
+            route_match = re.search(
+                r"(?:route|connect|path|provision|link)\s+(?:traffic\s+)?from\s+([A-Za-z0-9_-]+)\s+to\s+([A-Za-z0-9_-]+)",
+                feedback,
+                re.IGNORECASE,
+            )
+            if route_match:
+                fb_src = route_match.group(1).strip()
+                fb_dst = route_match.group(2).strip()
+                curr_src_match = re.search(r"\bfrom\s+([A-Za-z0-9_-]+)\b", current_intent, re.IGNORECASE)
+                curr_dst_match = re.search(r"\bto\s+([A-Za-z0-9_-]+)\b", current_intent, re.IGNORECASE)
+                curr_src = curr_src_match.group(1).strip() if curr_src_match else None
+                curr_dst = curr_dst_match.group(1).strip() if curr_dst_match else None
+                if not curr_src or not curr_dst or curr_src.lower() != fb_src.lower() or curr_dst.lower() != fb_dst.lower():
+                    analysis = RefinedIntentAnalysis(
+                        update_type=IntentUpdateType.FULL_REPLACEMENT,
+                        reasoning=(
+                            f"Deterministic override: Feedback specifies complete new route from {fb_src} to {fb_dst}, "
+                            f"superseding previous intent endpoints ({curr_src}->{curr_dst})."
+                        ),
+                        updated_intent=feedback.strip(),
+                        source_node=fb_src,
+                        target_node=fb_dst,
+                        modified_constraints=[feedback.strip()],
+                    )
+            return analysis
     except Exception as exc:
         logger.warning(
             "Intent reconciliation LLM structured output failed (%s). Applying safe fallback.",

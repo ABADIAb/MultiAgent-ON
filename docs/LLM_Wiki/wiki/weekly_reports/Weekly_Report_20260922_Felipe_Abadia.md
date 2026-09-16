@@ -52,23 +52,28 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - All 321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`) in 2.45s with zero regressions.
    - Repository-wide linting verified clean (`uv run ruff check src/ tests/`).
 
+5. **Benchmark Expansion across All 4 Risk Classes & 100.0% Gate Decision Accuracy (20/20):**
+   - Extended the evaluation framework to cover all 20 demands in [`tests/evaluation/test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json): Class I Nominal (5), Class II Ambiguous (5), Class III Physically Infeasible (5), and Class IV Adversarial (5).
+   - Diagnosed and resolved multi-turn ghost constraint leakage in SLM recovery: fortified [`src/nodes/intent_reconciler.py`](file:///home/felipeab/MultiAgentON/src/nodes/intent_reconciler.py) with deterministic full-replacement classification for standalone routing feedback, and isolated [`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py) from previous PDDL contamination on replacements.
+   - Achieved **100.0% Gate Decision Accuracy (20/20)** across the 17-node Nobel-Germany topology using local `qwen2.5:3b`: 5/5 auto-approved on first try ($N_{hitl}=0$), 5/5 ambiguous demands caught fail-fast at Phase 3b (`clarify`), 5/5 infeasible demands caught at Phase 6 (`replan`), and 5/5 adversarial demands caught (`clarify`/`replan`), with **$UAR = 0.0\%$** and 100% successful multi-turn recovery to Phase 7 Synthesis.
+
 ---
 
 ## 3. What do I plan to accomplish next week?
 
-1. **Benchmark Expansion across All 4 Risk Classes:** Extend the automated evaluation harness to evaluate Class II (`Ambiguous`, target: `clarify`), Class III (`Physically Infeasible`, target: `replan`), and Class IV (`Adversarial`, target: structural reject / `clarify`) across [`test_corpus_compact.json`](file:///home/felipeab/MultiAgentON/tests/evaluation/test_corpus_compact.json).
-2. **Comparative Baseline Execution:** Execute automated benchmarking across the 4 formal baselines (Proposed RADG, Baseline A Monolithic LLM, Baseline B Always-On HITL, Baseline C Traditional SDON) and generate publication-ready comparative telemetry.
-3. **Thesis Chapter 4 Experimental Drafting:** Ingest validated empirical metrics into Chapter 4 of the thesis manuscript and prepare Slide 14 for advisor review.
+1. **Comparative Baseline Benchmarking:** Execute automated evaluation across the 4 formal baselines (Proposed RADG, Baseline A Monolithic LLM, Baseline B Always-On HITL, Baseline C Traditional SDON) using the validated 20-demand compact corpus and export publication-ready telemetry.
+2. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and empirical benchmark figures on Slide 14 to Prof. Massimo Tornatore for formal academic review and feedback.
+3. **Thesis Chapter 4 Experimental Drafting:** Ingest validated empirical metrics into Chapter 4 of the thesis manuscript and prepare defense slide rehearsals.
 
 ---
 
 ## 4. Do You Need Support?
 
-- **Current Status:** Nominal benchmark evaluation successfully verified at 100% first-try autonomous pass rate. Ready to extend evaluation to the remaining three risk classes.
+- **Current Status:** Full 20-demand benchmark evaluation across all 4 risk classes successfully verified at 100% gate decision accuracy ($UAR=0.0\%$, 20/20). Ready to execute comparative baselines and schedule presentation rehearsal with Prof. Massimo Tornatore.
 - **Advisor Review:** Ready to schedule presentation rehearsal with Prof. Massimo Tornatore.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I achieved a 100% first-try autonomous pass rate ($N_{hitl}=0$, $UAR=0.0\%$, 5.75s latency) on the 17-node Nobel-Germany nominal benchmark using local `qwen2.5:3b`, eliminated SLM prompt-example echoing and attention contamination across four pipeline nodes, and preserved all 321 passing unit tests under Strict TDD.
+I validated a 100% Gate Decision Accuracy (20/20 demands, $UAR=0.0\%$, 17.46s latency) across all four risk classes on the 17-node Nobel-Germany benchmark using local `qwen2.5:3b`, eliminated multi-turn ghost constraint leakage in intent reconciliation and PDDL parsing, and preserved all 321 passing unit tests under Strict TDD.

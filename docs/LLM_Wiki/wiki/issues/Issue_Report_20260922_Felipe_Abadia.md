@@ -76,6 +76,22 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ---
 
+#### Solved Issue 4: Multi-Turn Ghost Constraint Leakage and Reconciler Misclassification on Recovery Slices
+
+- **Issue:** During automated evaluation across the full 20-demand compact corpus, intents `intent_amb_02`, `intent_amb_05`, and `intent_adv_01` were successfully intercepted by Phase 3b (`clarify`) on Turn 1. However, upon injecting the standardized follow-up recovery intent (`"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR"`), the pipeline failed to synthesize on Turn 2, repeatedly triggering semantic gate failures ($d_{sem} = 0.50$). Telemetry inspection revealed that the PDDL parser was generating ghost constraints carried over from the discarded Turn 1 intent (`(via Hannover)` for `intent_amb_02`, `(route Berlin Hamburg)` for `intent_amb_05`, and `(min-hops 1)` for `intent_adv_01`).
+- **What has already been tried:** Checked if the recovery intent itself was malformed, but confirmed that the identical follow-up text succeeded on other demands (`intent_amb_01`, `intent_amb_03`, `intent_amb_04`).
+- **Result:** The failure only occurred on demands where the initial intent was either missing an endpoint or specified a contradictory constraint.
+- **Estimated possible solution / Resolution:**
+  1. Traced `reconcile_operator_intent` in [`src/nodes/intent_reconciler.py`](file:///home/felipeab/MultiAgentON/src/nodes/intent_reconciler.py). Found that when `intent_amb_02` (which specified `Berlin` but no destination) received feedback (`"Route traffic from Berlin to Frankfurt..."`), `qwen2.5:3b` observed that the source `Berlin` was unchanged and misclassified the request as `partial_update` rather than `full_replacement`.
+  2. Because the update was classified as partial, [`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py) injected `Previous PDDL constraints` into the prompt, causing the model to blend Turn 1 waypoints (`via Hannover`) into the Turn 2 PDDL. The Phase 3 Semantic Gate correctly flagged `via Hannover` as an unprompted hallucination against the operator's feedback ($d_{sem} = 0.50$).
+  3. Updated `INTENT_RECONCILIATION_PROMPT` to explicitly rule that any standalone, complete routing instruction replacing an ambiguous or failed request is strictly a `FULL_REPLACEMENT`.
+  4. Added a deterministic neurosymbolic guard in `reconcile_operator_intent`: if feedback contains a complete route specification whose endpoints differ from or resolve previous active endpoints, it is unconditionally forced to `FULL_REPLACEMENT`.
+  5. Fortified `pddl_parser_node` in `pddl_parser.py`: when `intent_update_type == "full_replacement"`, previous PDDL constraints are completely omitted from the prompt, instructing the model to generate constraints strictly from scratch based only on active operational intent.
+  6. **Verification:** In Run 2, `intent_amb_02`, `intent_amb_05`, and `intent_adv_01` cleanly recovered on Turn 2 ($U_{sem}=0.100$, 0 ghost predicates) and synthesized feasible planning reports, bringing overall Gate Decision Accuracy to **20/20 (100.0%)**.
+
+---
+
 ### Pending Issues
 
-- **None.** All 5 Class I Nominal Intents now achieve 100.0% first-try autonomous pass rate ($N_{hitl}=0$, $UAR=0.0\%$, mean latency 5.75s) on the 17-node Nobel-Germany topology using local `qwen2.5:3b`.
+- **None.** All 20 benchmark intents across all 4 risk classes now achieve 100.0% Gate Decision Accuracy ($UAR=0.0\%$, 20/20 demands, mean latency 17.46s) on the 17-node Nobel-Germany topology using local `qwen2.5:3b`. Ready for comparative baseline execution.
+

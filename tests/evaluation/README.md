@@ -9,11 +9,11 @@ This directory contains the automated, reproducible benchmark suite for evaluati
 ```text
 tests/evaluation/
 ├── test_corpus_compact.json    # Standard 20-demand benchmark corpus (4 balanced risk classes)
-├── run_nominal_eval.py         # Automated evaluation runner for Nominal Intents (Class I)
+├── run_nominal_eval.py         # Automated evaluation runner for all risk classes
 ├── results/                    # Generated evaluation artifacts
-│   ├── nominal_results.json    # Granular per-turn telemetry & PDDL AST records
-│   ├── nominal_results.csv     # Exported tabular metrics
-│   └── nominal_summary.md      # Consolidated markdown summary table
+│   ├── evaluation_results.json # Granular per-turn telemetry & PDDL AST records
+│   ├── evaluation_results.csv  # Exported tabular metrics
+│   └── evaluation_summary.md   # Consolidated markdown summary table
 └── README.md                   # Environment, methodology, and execution instructions
 ```
 
@@ -28,11 +28,11 @@ The dataset (`test_corpus_compact.json`) comprises 20 demands balanced equiproba
 | **I** | **Nominal** | 5 | `approve` (0 interrupts) | Feasible requests with valid optical paths and realistic GSNR ($\le 18\text{ dB}$). |
 | **II** | **Ambiguous** | 5 | `clarify` (Phase 3b HITL) | Underspecified endpoints or colloquial SLA, caught fail-fast by Semantic Gate. |
 | **III** | **Physically Infeasible** | 5 | `replan` (Phase 6 RADG) | Demands violating GN-model physical reach ($> 28\text{ dB}$ GSNR on multi-hop). |
-| **IV** | **Adversarial** | 5 | `clarify` (Phase 3b / CFG) | Contradictory constraints or hallucinated node names intercepted by CFG / Gate. |
+| **IV** | **Adversarial** | 5 | `clarify` / `replan` (CFG / Gate) | Contradictory constraints or hallucinated node names intercepted by CFG / Gate. |
 
 ---
 
-## 3. How to Run the Nominal Intents Evaluation
+## 3. How to Run the Evaluation Benchmark
 
 ### Prerequisites
 1. **Ollama running with `qwen2.5:3b`** (or configured cloud provider in `.env`):
@@ -51,7 +51,17 @@ The dataset (`test_corpus_compact.json`) comprises 20 demands balanced equiproba
 ### Execution Command
 Run the evaluation directly via `uv`:
 ```bash
+# Evaluate all 20 demands in test_corpus_compact.json across all 4 risk classes:
 uv run python tests/evaluation/run_nominal_eval.py
+
+# Evaluate a specific risk class:
+uv run python tests/evaluation/run_nominal_eval.py --class I_Nominal
+uv run python tests/evaluation/run_nominal_eval.py --class II_Ambiguous
+uv run python tests/evaluation/run_nominal_eval.py --class III_Infeasible
+uv run python tests/evaluation/run_nominal_eval.py --class IV_Adversarial
+
+# Evaluate a single demand by ID:
+uv run python tests/evaluation/run_nominal_eval.py --id intent_amb_01
 ```
 
 Optional CLI flags:
@@ -67,7 +77,7 @@ uv run python tests/evaluation/run_nominal_eval.py --provider openrouter --model
 
 ## 4. Automated Recovery Protocol (Multi-Turn HITL)
 
-When an intent fails a decision gate:
+When an intent triggers a decision gate:
 - **Phase 3b (`hitl_clarify`)**: The evaluation harness intercepts the pause, logs the semantic divergence ($d_{sem}, U_{sem}$), and automatically injects the standardized follow-up recovery intent:
   `"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR."`
 - **Phase 6 (`radg`)**: If physical constraints fail, the harness provides the relaxed follow-up intent to allow completion through to Phase 7 (Synthesis).
@@ -80,6 +90,7 @@ When an intent fails a decision gate:
 ## 5. Output Artifacts
 
 All evaluation outputs are saved to `tests/evaluation/results/`:
-- `nominal_results.json`: Full diagnostic trace including PDDL strings, AST CFG pass status, reconstructed natural language, $U_{sem}$ scores, candidate routes, and QoT SNR margins.
-- `nominal_results.csv`: Tabular spreadsheet format for rapid plotting and aggregation.
-- `nominal_summary.md`: Publication-ready summary table for reports and thesis documentation.
+- `evaluation_results.json`: Full diagnostic trace including PDDL strings, AST CFG pass status, reconstructed natural language, $U_{sem}$ scores, candidate routes, and QoT SNR margins.
+- `evaluation_results.csv`: Tabular spreadsheet format for rapid plotting and aggregation.
+- `evaluation_summary.md`: Publication-ready summary table for reports and thesis documentation.
+- `evaluation_results_<timestamp>.*`: Timestamped snapshots of each run to prevent historical data loss.

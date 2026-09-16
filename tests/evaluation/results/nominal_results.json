@@ -6,9 +6,10 @@
     "expected_radg_action": "approve",
     "initial_action": "approve",
     "final_action": "approve",
+    "success": true,
     "passed_first_try": true,
     "hitl_count": 0,
-    "total_elapsed_seconds": 7.06,
+    "total_elapsed_seconds": 4.54,
     "usem_score": 0.1,
     "usem_passed": true,
     "pddl_valid": true,
@@ -18,7 +19,7 @@
         "turn": 1,
         "active_intent": "Intent: Establish an optical connection from Hamburg to Berlin with 100G capacity. | Source: Hamburg | Target: Berlin",
         "pddl_valid": true,
-        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Bremen - node\n    Dortmund - node\n    Leipzig - node\n    Frankfurt - node\n    Nuremberg - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hamburg Bremen)\n    (connected Bremen Hannover)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Nuremberg)\n    (connected Nuremberg Leipzig)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (link-active Hamburg Hannover)\n    (link-active Hannover Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Bremen Hannover)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Leipzig)\n    (link-active Frankfurt Nuremberg)\n    (link-active Nuremberg Leipzig)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Nuremberg Leipzig)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (bandwidth 100)\n    )\n  )\n)",
+        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Bremen - node\n    Dortmund - node\n    Leipzig - node\n    Frankfurt - node\n    Nuremberg - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hamburg Bremen)\n    (connected Bremen Hannover)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Hamburg Bremen)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (bandwidth 100)\n    )\n  )\n)",
         "hitl_reconstruction": "I understand you want to route traffic from Hamburg to Berlin with a required bandwidth of 100.",
         "usem_score": 0.1,
         "usem_passed": true,
@@ -90,12 +91,12 @@
           }
         ],
         "radg_decision": "approve",
-        "elapsed_s": 7.05
+        "elapsed_s": 4.54
       }
     ],
     "diagnostics": {
       "pddl_valid": true,
-      "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Bremen - node\n    Dortmund - node\n    Leipzig - node\n    Frankfurt - node\n    Nuremberg - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hamburg Bremen)\n    (connected Bremen Hannover)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Nuremberg)\n    (connected Nuremberg Leipzig)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (link-active Hamburg Hannover)\n    (link-active Hannover Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Bremen Hannover)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Leipzig)\n    (link-active Frankfurt Nuremberg)\n    (link-active Nuremberg Leipzig)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Nuremberg Leipzig)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (bandwidth 100)\n    )\n  )\n)",
+      "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Bremen - node\n    Dortmund - node\n    Leipzig - node\n    Frankfurt - node\n    Nuremberg - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hamburg Bremen)\n    (connected Bremen Hannover)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Hamburg Bremen)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (bandwidth 100)\n    )\n  )\n)",
       "reconstruction": "I understand you want to route traffic from Hamburg to Berlin with a required bandwidth of 100.",
       "usem_score": 0.1,
       "usem_passed": true,
@@ -177,9 +178,10 @@
     "expected_radg_action": "approve",
     "initial_action": "approve",
     "final_action": "approve",
+    "success": true,
     "passed_first_try": true,
     "hitl_count": 0,
-    "total_elapsed_seconds": 7.31,
+    "total_elapsed_seconds": 6.41,
     "usem_score": 0.1,
     "usem_passed": true,
     "pddl_valid": true,
@@ -189,7 +191,7 @@
         "turn": 1,
         "active_intent": "Intent: Establish an optical connection from Hamburg to Berlin avoiding both Bremen and Hannover, with a minimum of 15 dB GSNR and a maximum of 3 hops. | Source: Hamburg | Target: Berlin",
         "pddl_valid": true,
-        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Bremen - node\n    Dortmund - node\n    Leipzig - node\n    Frankfurt - node\n    Nuremberg - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hamburg Bremen)\n    (connected Bremen Hannover)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (link-active Hamburg Hannover)\n    (link-active Hannover Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Bremen Hannover)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Leipzig)\n    (link-active Hamburg Berlin)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Nuremberg Leipzig)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (min-gsnr 15)\n      (max-hops 3)\n      (avoid-node Bremen)\n      (avoid-node Hannover)\n    )\n  )\n)",
+        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Bremen - node\n    Dortmund - node\n    Frankfurt - node\n    Leipzig - node\n    Nuremberg - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hamburg Bremen)\n    (connected Bremen Hannover)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (link-active Hamburg Hannover)\n    (link-active Hannover Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Bremen Hannover)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Leipzig)\n    (link-active Hamburg Berlin)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Nuremberg Leipzig)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (min-gsnr 15)\n      (max-hops 3)\n      (avoid-node Bremen)\n      (avoid-node Hannover)\n    )\n  )\n)",
         "hitl_reconstruction": "I understand you want to route traffic from Hamburg to Berlin with a minimum GSNR of 15 dB, avoiding nodes Bremen and Hannover, and limiting the number of hops to 3.",
         "usem_score": 0.1,
         "usem_passed": true,
@@ -209,12 +211,12 @@
           }
         ],
         "radg_decision": "approve",
-        "elapsed_s": 7.31
+        "elapsed_s": 6.41
       }
     ],
     "diagnostics": {
       "pddl_valid": true,
-      "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Bremen - node\n    Dortmund - node\n    Leipzig - node\n    Frankfurt - node\n    Nuremberg - node\n    Norden - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hamburg Bremen)\n    (connected Bremen Hannover)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (link-active Hamburg Hannover)\n    (link-active Hannover Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Bremen Hannover)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Leipzig)\n    (link-active Hamburg Berlin)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Nuremberg Leipzig)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (min-gsnr 15)\n      (max-hops 3)\n      (avoid-node Bremen)\n      (avoid-node Hannover)\n    )\n  )\n)",
+      "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Hamburg - node\n    Berlin - node\n    Hannover - node\n    Bremen - node\n    Dortmund - node\n    Frankfurt - node\n    Leipzig - node\n    Nuremberg - node\n  )\n  (:init\n    (connected Hamburg Hannover)\n    (connected Hannover Berlin)\n    (connected Hamburg Bremen)\n    (connected Bremen Hannover)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Leipzig)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Nuremberg Leipzig)\n    (link-active Hamburg Hannover)\n    (link-active Hannover Berlin)\n    (link-active Hamburg Bremen)\n    (link-active Bremen Hannover)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Leipzig)\n    (link-active Hamburg Berlin)\n    (link-active Norden Bremen)\n    (link-active Norden Dortmund)\n    (link-active Berlin Leipzig)\n    (link-active Nuremberg Leipzig)\n  )\n  (:goal\n    (and\n      (route Hamburg Berlin)\n      (min-gsnr 15)\n      (max-hops 3)\n      (avoid-node Bremen)\n      (avoid-node Hannover)\n    )\n  )\n)",
       "reconstruction": "I understand you want to route traffic from Hamburg to Berlin with a minimum GSNR of 15 dB, avoiding nodes Bremen and Hannover, and limiting the number of hops to 3.",
       "usem_score": 0.1,
       "usem_passed": true,
@@ -244,9 +246,10 @@
     "expected_radg_action": "approve",
     "initial_action": "approve",
     "final_action": "approve",
+    "success": true,
     "passed_first_try": true,
     "hitl_count": 0,
-    "total_elapsed_seconds": 8.49,
+    "total_elapsed_seconds": 5.95,
     "usem_score": 0.1,
     "usem_passed": true,
     "pddl_valid": true,
@@ -256,7 +259,7 @@
         "turn": 1,
         "active_intent": "Intent: Route traffic from Frankfurt to Cologne avoiding Mannheim with minimum 14 dB GSNR. | Source: Frankfurt | Target: Cologne",
         "pddl_valid": true,
-        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Frankfurt - node\n    Cologne - node\n    Mannheim - node\n    Hannover - node\n    Hamburg - node\n    Berlin - node\n    Munich - node\n    Nuremberg - node\n    Stuttgart - node\n    Karlsruhe - node\n    Leipzig - node\n    Essen - node\n    Dortmund - node\n    Dusseldorf - node\n  )\n  (:init\n    (connected Frankfurt Hannover)\n    (connected Hannover Bremen)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Cologne)\n    (connected Frankfurt Mannheim)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Berlin Bremen)\n    (connected Bremen Dortmund)\n    (connected Dortmund Leipzig)\n    (connected Nuremberg Leipzig)\n    (connected Stuttgart Nuremberg)\n    (connected Karlsruhe Mannheim)\n    (connected Essen Dortmund)\n    (connected Dortmund Dusseldorf)\n    (connected Dusseldorf Cologne)\n    (link-active Frankfurt Hannover)\n    (link-active Hannover Bremen)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Cologne)\n    (link-active Frankfurt Mannheim)\n    (link-active Frankfurt Nuremberg)\n    (link-active Hamburg Berlin)\n    (link-active Berlin Bremen)\n    (link-active Bremen Dortmund)\n    (link-active Dortmund Leipzig)\n    (link-active Nuremberg Leipzig)\n    (link-active Stuttgart Nuremberg)\n    (link-active Karlsruhe Mannheim)\n    (link-active Essen Dortmund)\n    (link-active Dortmund Dusseldorf)\n    (link-active Dusseldorf Cologne)\n  )\n  (:goal\n    (and\n      (route Frankfurt Cologne)\n      (avoid-node Mannheim)\n      (min-gsnr 14)\n    )\n  )\n)",
+        "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Frankfurt - node\n    Cologne - node\n    Mannheim - node\n    Hannover - node\n    Hamburg - node\n    Norden - node\n    Berlin - node\n    Munich - node\n    Nuremberg - node\n    Stuttgart - node\n    Karlsruhe - node\n    Leipzig - node\n    Essen - node\n    Dortmund - node\n    Dusseldorf - node\n    Cologne - node\n  )\n  (:init\n    (connected Frankfurt Hannover)\n    (connected Hannover Bremen)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Cologne)\n    (connected Frankfurt Mannheim)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Bremen Hamburg)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Munich Nuremberg)\n    (connected Nuremberg Leipzig)\n    (connected Nuremberg Stuttgart)\n    (connected Stuttgart Karlsruhe)\n    (connected Karlsruhe Mannheim)\n    (connected Essen Dortmund)\n    (connected Dortmund Dusseldorf)\n    (connected Dusseldorf Cologne)\n    (connected Leipzig Cologne)\n  )\n  (:goal\n    (and\n      (route Frankfurt Cologne)\n      (avoid-node Mannheim)\n      (min-gsnr 14)\n    )\n  )\n)",
         "hitl_reconstruction": "I understand you want to route traffic from Frankfurt to Cologne with a minimum GSNR of 14 dB, avoiding node Mannheim.",
         "usem_score": 0.1,
         "usem_passed": true,
@@ -333,12 +336,12 @@
           }
         ],
         "radg_decision": "approve",
-        "elapsed_s": 8.49
+        "elapsed_s": 5.94
       }
     ],
     "diagnostics": {
       "pddl_valid": true,
-      "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Frankfurt - node\n    Cologne - node\n    Mannheim - node\n    Hannover - node\n    Hamburg - node\n    Berlin - node\n    Munich - node\n    Nuremberg - node\n    Stuttgart - node\n    Karlsruhe - node\n    Leipzig - node\n    Essen - node\n    Dortmund - node\n    Dusseldorf - node\n  )\n  (:init\n    (connected Frankfurt Hannover)\n    (connected Hannover Bremen)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Cologne)\n    (connected Frankfurt Mannheim)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Berlin Bremen)\n    (connected Bremen Dortmund)\n    (connected Dortmund Leipzig)\n    (connected Nuremberg Leipzig)\n    (connected Stuttgart Nuremberg)\n    (connected Karlsruhe Mannheim)\n    (connected Essen Dortmund)\n    (connected Dortmund Dusseldorf)\n    (connected Dusseldorf Cologne)\n    (link-active Frankfurt Hannover)\n    (link-active Hannover Bremen)\n    (link-active Hannover Dortmund)\n    (link-active Hannover Frankfurt)\n    (link-active Hannover Hamburg)\n    (link-active Hannover Leipzig)\n    (link-active Frankfurt Cologne)\n    (link-active Frankfurt Mannheim)\n    (link-active Frankfurt Nuremberg)\n    (link-active Hamburg Berlin)\n    (link-active Berlin Bremen)\n    (link-active Bremen Dortmund)\n    (link-active Dortmund Leipzig)\n    (link-active Nuremberg Leipzig)\n    (link-active Stuttgart Nuremberg)\n    (link-active Karlsruhe Mannheim)\n    (link-active Essen Dortmund)\n    (link-active Dortmund Dusseldorf)\n    (link-active Dusseldorf Cologne)\n  )\n  (:goal\n    (and\n      (route Frankfurt Cologne)\n      (avoid-node Mannheim)\n      (min-gsnr 14)\n    )\n  )\n)",
+      "pddl_constraints": "(define (problem optical-connection)\n  (:domain optical-network)\n  (:objects\n    Frankfurt - node\n    Cologne - node\n    Mannheim - node\n    Hannover - node\n    Hamburg - node\n    Norden - node\n    Berlin - node\n    Munich - node\n    Nuremberg - node\n    Stuttgart - node\n    Karlsruhe - node\n    Leipzig - node\n    Essen - node\n    Dortmund - node\n    Dusseldorf - node\n    Cologne - node\n  )\n  (:init\n    (connected Frankfurt Hannover)\n    (connected Hannover Bremen)\n    (connected Hannover Dortmund)\n    (connected Hannover Frankfurt)\n    (connected Hannover Hamburg)\n    (connected Hannover Leipzig)\n    (connected Frankfurt Cologne)\n    (connected Frankfurt Mannheim)\n    (connected Frankfurt Nuremberg)\n    (connected Hamburg Berlin)\n    (connected Bremen Hamburg)\n    (connected Norden Bremen)\n    (connected Norden Dortmund)\n    (connected Berlin Leipzig)\n    (connected Munich Nuremberg)\n    (connected Nuremberg Leipzig)\n    (connected Nuremberg Stuttgart)\n    (connected Stuttgart Karlsruhe)\n    (connected Karlsruhe Mannheim)\n    (connected Essen Dortmund)\n    (connected Dortmund Dusseldorf)\n    (connected Dusseldorf Cologne)\n    (connected Leipzig Cologne)\n  )\n  (:goal\n    (and\n      (route Frankfurt Cologne)\n      (avoid-node Mannheim)\n      (min-gsnr 14)\n    )\n  )\n)",
       "reconstruction": "I understand you want to route traffic from Frankfurt to Cologne with a minimum GSNR of 14 dB, avoiding node Mannheim.",
       "usem_score": 0.1,
       "usem_passed": true,
@@ -425,9 +428,10 @@
     "expected_radg_action": "approve",
     "initial_action": "approve",
     "final_action": "approve",
+    "success": true,
     "passed_first_try": true,
     "hitl_count": 0,
-    "total_elapsed_seconds": 3.25,
+    "total_elapsed_seconds": 2.93,
     "usem_score": 0.1,
     "usem_passed": true,
     "pddl_valid": true,
@@ -438,7 +442,7 @@
         "active_intent": "Intent: Provision an optical channel from Munich to Stuttgart via Ulm with GSNR at least 15 dB. | Source: Munich | Target: Stuttgart",
         "pddl_valid": true,
         "pddl_constraints": "(define (problem optical-channel)\n  (:domain optical-network)\n  (:objects\n    Munich - node\n    Stuttgart - node\n    Ulm - node\n  )\n  (:init\n    (connected Munich Ulm)\n    (connected Ulm Stuttgart)\n    (link-active Munich Ulm)\n    (link-active Ulm Stuttgart)\n  )\n  (:goal\n    (and\n      (route Munich Stuttgart)\n      (min-gsnr 15)\n      (via Ulm)\n    )\n  )\n)",
-        "hitl_reconstruction": "I understand you want to route traffic from Munich to Stuttgart via Ulm with a minimum GSNR of 15 dB.",
+        "hitl_reconstruction": "I understand you want to route traffic from Munich to Stuttgart with a minimum GSNR of 15 dB, using Ulm as a transit waypoint.",
         "usem_score": 0.1,
         "usem_passed": true,
         "error_context": null,
@@ -501,13 +505,13 @@
           }
         ],
         "radg_decision": "approve",
-        "elapsed_s": 3.25
+        "elapsed_s": 2.93
       }
     ],
     "diagnostics": {
       "pddl_valid": true,
       "pddl_constraints": "(define (problem optical-channel)\n  (:domain optical-network)\n  (:objects\n    Munich - node\n    Stuttgart - node\n    Ulm - node\n  )\n  (:init\n    (connected Munich Ulm)\n    (connected Ulm Stuttgart)\n    (link-active Munich Ulm)\n    (link-active Ulm Stuttgart)\n  )\n  (:goal\n    (and\n      (route Munich Stuttgart)\n      (min-gsnr 15)\n      (via Ulm)\n    )\n  )\n)",
-      "reconstruction": "I understand you want to route traffic from Munich to Stuttgart via Ulm with a minimum GSNR of 15 dB.",
+      "reconstruction": "I understand you want to route traffic from Munich to Stuttgart with a minimum GSNR of 15 dB, using Ulm as a transit waypoint.",
       "usem_score": 0.1,
       "usem_passed": true,
       "error_context": null,
@@ -580,9 +584,10 @@
     "expected_radg_action": "approve",
     "initial_action": "approve",
     "final_action": "approve",
+    "success": true,
     "passed_first_try": true,
     "hitl_count": 0,
-    "total_elapsed_seconds": 2.66,
+    "total_elapsed_seconds": 2.46,
     "usem_score": 0.1,
     "usem_passed": true,
     "pddl_valid": true,
@@ -664,7 +669,7 @@
           }
         ],
         "radg_decision": "approve",
-        "elapsed_s": 2.66
+        "elapsed_s": 2.45
       }
     ],
     "diagnostics": {

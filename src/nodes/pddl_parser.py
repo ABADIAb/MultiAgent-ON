@@ -185,13 +185,23 @@ def pddl_parser_node(state: AgentState) -> dict:
             if refinement_history
             else f"- {feedback}"
         )
-        user_content = (
-            f"Active Operational Intent:\n{active_intent}\n\n"
-            f"Original Intent: {enriched}\n\n"
-            f"Previous PDDL constraints:\n{previous_pddl}\n\n"
-            f"Operator refinement feedback:\n{history_text}\n\n"
-            "Please generate the updated and corrected PDDL constraints incorporating all operator feedback."
-        )
+        if reconciliation_updates.get("intent_update_type") == "full_replacement":
+            user_content = (
+                f"Active Operational Intent:\n{active_intent}\n\n"
+                f"Original Intent: {enriched}\n\n"
+                f"Operator refinement feedback (NEW INTENT REPLACEMENT):\n{history_text}\n\n"
+                "The operator has provided a complete replacement intent. "
+                "Generate the PDDL constraints from scratch based ONLY on the active operational intent. "
+                "Do NOT retain any constraints, endpoints, waypoints, hops, or exclusions from previous attempts."
+            )
+        else:
+            user_content = (
+                f"Active Operational Intent:\n{active_intent}\n\n"
+                f"Original Intent: {enriched}\n\n"
+                f"Previous PDDL constraints:\n{previous_pddl}\n\n"
+                f"Operator refinement feedback:\n{history_text}\n\n"
+                "Please generate the updated and corrected PDDL constraints incorporating all operator feedback."
+            )
     else:
         user_content = enriched
         if not active_intent and enriched != "No intent provided":
