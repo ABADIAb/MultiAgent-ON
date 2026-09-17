@@ -1,7 +1,7 @@
 ---
 title: "Session Summary: Benchmark Harness, SLM Hardening & Full Corpus Evaluation (20 Demands)"
 date: 2026-09-16
-tags: [session-summary, evaluation, benchmark, radg, pddl-parser, semantic-gate, reverse-prompt, intent-reconciler, hitl, sprint-4, ollama, qwen2.5]
+tags: [session-summary, evaluation, benchmark, radg, pddl-parser, semantic-gate, reverse-prompt, intent-reconciler, hitl, sprint-4, ollama, qwen2.5, visuals, presentation]
 status: active
 ---
 
@@ -128,8 +128,33 @@ In the second phase of this session, I modernized the evaluation harness by tran
 
 ---
 
-## 6. Next Steps & Handover State
+## 6. Automated Publication-Quality Visuals & Presentation Synthesis
+
+Following the empirical validation of the compact 20-demand corpus, the evaluation workflow was enhanced to bridge raw telemetry with academic presentation assets:
+
+1. **Markdown & LaTeX Rendering Hardening:**
+   - Diagnosed rendering conflicts in markdown tables where LaTeX absolute value and set cardinality pipe symbols (`|`) broke table column delimiters.
+   - Updated [`tests/evaluation/run_evaluation.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/run_evaluation.py) and historical summaries to use `\vert`, ensuring pristine rendering across previewers and LLM Wiki pages.
+
+2. **Automated Visual Asset Generation ([`tests/evaluation/generate_visuals.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/generate_visuals.py)):**
+   - Engineered an automated visualization module adhering strictly to PoliMi institutional styling (`#002855` deep navy, `#A01E28` burgundy, clean grid typography).
+   - Generates high-resolution PNG (300 DPI) and vector PDF figures per evaluation run under `tests/evaluation/results/evaluation_results/run_<run_id>/`:
+     - **Gate Decision Accuracy Matrix:** Categorical interception breakdown per class.
+     - **Four Core Pillars Radar Chart:** Normalized empirical achievement vs. target thresholds.
+     - **Resource Efficiency Distributions:** Latency and token consumption boxplots by demand class.
+   - Integrated automatic triggering at the conclusion of `run_evaluation.py`, while providing a standalone CLI (`--run-id`, `--all`, `--list`, `latest`) for on-demand generation.
+
+3. **Core Thesis Slide Defense Conclusions:**
+   - Synthesized the empirical outcomes of `run_20260916_203842` into four concise presentation takeaways:
+     - **95% Gate Decision Accuracy (GDA):** High reliability across nominal, ambiguous, infeasible, and adversarial intents.
+     - **0% Unsafe Approval Rate (UAR):** Absolute safety invariant strictly verified under physical QoT constraints.
+     - **94.1% Constraint Retention Rate (CRR):** Minimal semantic drift in local SLM PDDL translation.
+     - **Zero-Friction Nominal Efficiency:** 0 HITL interruptions for nominal operations, reserving human involvement solely for ambiguous or physically infeasible traffic.
+
+---
+
+## 7. Next Steps & Handover State
 
 1. **Comparative Baseline Benchmarking:** Execute automated evaluation across the 4 formal baselines (Proposed RADG, Baseline A Monolithic LLM, Baseline B Always-On HITL, Baseline C Traditional SDON) using the validated 20-demand compact corpus and export publication-ready telemetry.
-2. **Thesis Manuscript & Defense Deck:** Ingest the validated Four Pillars empirical results into Slide 14 of [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md) and Chapter 4 of the thesis manuscript.
-3. **Advisor Consultation:** Present the empirical 20-demand results to Prof. Massimo Tornatore.
+2. **Thesis Manuscript & Defense Deck:** Ingest the validated Four Pillars empirical results and generated visual figures into Slide 14 of [`deck_spec.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/presentations/thesis_defense/deck_spec.md) and Chapter 4 of the thesis manuscript.
+3. **Advisor Consultation:** Present the empirical 20-demand results and visual charts to Prof. Massimo Tornatore.

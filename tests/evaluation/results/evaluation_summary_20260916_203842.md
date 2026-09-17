@@ -14,18 +14,18 @@
 
 | Pillar | Metric | Formula / Source | Target | Measured Actual | Status |
 | :--- | :--- | :--- | :---: | :---: | :---: |
-| **Pillar 1: Semantic Translation Accuracy** | Constraint Retention Rate (CRR, Operable) | $\frac{\sum |\mathcal{C}_{pres} \cap \mathcal{C}_{exp}|}{\sum |\mathcal{C}_{exp}|}$ | $100\%$ | **94.1%** (16/17) | ✓ PASS |
+| **Pillar 1: Semantic Translation Accuracy** | Constraint Retention Rate (CRR, Operable) | $\frac{\sum \vert \mathcal{C}_{pres} \cap \mathcal{C}_{exp} \vert}{\sum \vert \mathcal{C}_{exp} \vert}$ | $100\%$ | **94.1%** (16/17) | ✓ PASS |
 | | CFG Pass Rate (CFG-PR) | $\frac{1}{N} \sum v_{struct}$ | $\ge 95\%$ (Nom/Inf) | **100.0%** | ✓ PASS |
 | | Semantic Agreement (Well-Formed) | $\frac{1}{N_{well}} \sum (1 - d_{sem})$ | $> 0.85$ | **0.860** | ✓ PASS |
-| | Ambiguity / Adversarial Catch Rate | $\frac{|\text{Clarify}|}{|\text{Ambiguous}|}$ | $100\%$ | **90.0%** | ✓ PASS |
-| **Pillar 2: Physical Feasibility** | Unsafe Approval Rate (UAR) | $\frac{|\text{Unsafe Approved}|}{|\text{Approved}|}$ | **$0.0\%$** | **0.0%** (0/5) | ✓ PASS |
-| | Physical Infeasibility Interception (PIIR) | $\frac{|\text{Class III Replan}|}{|\text{Class III}|}$ | $100\%$ | **80.0%** (4/5) | ✗ FAIL |
+| | Ambiguity / Adversarial Catch Rate | $\frac{\vert \text{Clarify} \vert}{\vert \text{Ambiguous} \vert}$ | $100\%$ | **90.0%** | ✓ PASS |
+| **Pillar 2: Physical Feasibility** | Unsafe Approval Rate (UAR) | $\frac{\vert \text{Unsafe Approved} \vert}{\vert \text{Approved} \vert}$ | **$0.0\%$** | **0.0%** (0/5) | ✓ PASS |
+| | Physical Infeasibility Interception (PIIR) | $\frac{\vert \text{Class III Replan} \vert}{\vert \text{Class III} \vert}$ | $100\%$ | **80.0%** (4/5) | ✗ FAIL |
 | **Pillar 3: Efficiency & Friction** | Mean End-to-End Latency ($T_{E2E}$) | $\frac{1}{N} \sum T_{elapsed}$ | Contextual | **53.67s** | ✓ MONITORED |
 | | Total Token Footprint | Cumulative Tokens | Monitored | **147,510 tok** (7375.5 tok/intent) | ✓ MONITORED |
 | | Selective HITL Interruptions | Mean $N_{hitl}$ | $0$ (Nom), $1$ (Others) | **0.75** (15 total) | ✓ PASS |
 | **Pillar 4: Gate Reliability** | Gate Decision Accuracy (GDA) | $\frac{1}{N} \sum \mathbb{I}(D = \text{Exp})$ | $> 98\%$ | **95.0%** (19/20) | ✓ PASS |
-| | False Positive Rate (FPR) | $\frac{|\text{Risky Approved}|}{|\text{Risky Demands}|}$ | **$0.0\%$** | **0.0%** (0) | ✓ PASS |
-| | Selective HITL Precision | $\frac{|\text{True Interrupts}|}{|\text{All Interrupts}|}$ | $100\%$ | **100.0%** | ✓ PASS |
+| | False Positive Rate (FPR) | $\frac{\vert \text{Risky Approved} \vert}{\vert \text{Risky Demands} \vert}$ | **$0.0\%$** | **0.0%** (0) | ✓ PASS |
+| | Selective HITL Precision | $\frac{\vert \text{True Interrupts} \vert}{\vert \text{All Interrupts} \vert}$ | $100\%$ | **100.0%** | ✓ PASS |
 
 ## Class-by-Class Risk Gate Breakdown
 

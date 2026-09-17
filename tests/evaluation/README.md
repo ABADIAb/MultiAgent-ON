@@ -10,10 +10,13 @@ This directory contains the automated, reproducible benchmark suite for evaluati
 tests/evaluation/
 ├── test_corpus_compact.json    # Standard 20-demand benchmark corpus (4 balanced risk classes)
 ├── run_evaluation.py           # Automated evaluation harness for all risk classes & 4 pillars
+├── generate_visuals.py         # Visualizer generating publication/slide figures (PNG/PDF)
 ├── results/                    # Generated evaluation artifacts
-│   ├── evaluation_results.json # Granular per-turn telemetry, PDDL AST records, token footprints
-│   ├── evaluation_results.csv  # Exported tabular metrics per intent
-│   └── evaluation_summary.md   # Consolidated markdown summary table (Executive Pillars + Trace)
+│   ├── evaluation_results/     # Self-contained per-run packages (run_<timestamp>/)
+│   │   └── run_<run_id>/       # Raw data (JSON, CSV, MD) + Visual figures (PNG, PDF)
+│   ├── evaluation_results.json # Latest telemetry records
+│   ├── evaluation_results.csv  # Latest tabular metrics
+│   └── evaluation_summary.md   # Latest consolidated markdown summary table
 └── README.md                   # Environment, methodology, and execution instructions
 ```
 
