@@ -11,8 +11,7 @@ Content-oriented catalog of everything in the wiki.
 
 
 ## Architecture
-- [[Architecture_v5]]: **Active V5 design** — LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning, RADG (joint semantic + QoT risk gate), conditional HITL, 4-outcome decision function.
-- [[ProblemStatement_v5]]: **Active** — LLM-Assisted Risk-Adaptive Neurosymbolic problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
+- [[ProblemStatement_v5]]: **Active** — LLM-Assisted Risk-Adaptive Decision Gates problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
 - [[Scope_Pivot_20260706]]: Formal scope pivot document — complete evolution from V2 through V5, including PoliMi/CNSM 2025 positioning.
 - [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
@@ -138,8 +137,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition]]: Chapter 3 Section 3.1 — Formal Problem Definition, architectural vulnerabilities, physical parameters, and optimization objective.
 - [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework]]: Chapter 3 Section 3.2 — Conceptual Framework, 7-phase fail-fast pipeline, and complexity bounds.
 - [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]: Chapter 3 Section 3.3 — Strict Neurosymbolic Separation, CFG validator, and token context bounds.
-- [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gate (RADG) decision function and GN model physics integration.
-- [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]]: Chapter 3 Section 3.5 — Formal HITL Reverse Prompting, Reverse Translation Invariance, divergence metric alignment, state preservation, and convergence proofs.
+- [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gate (RADG) decision function, GN model physics integration, and Formal HITL Reverse Prompting execution policies.
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
 - [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.

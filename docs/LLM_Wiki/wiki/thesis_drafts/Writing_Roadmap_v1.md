@@ -8,7 +8,7 @@ status: active
 # Master Thesis Writing Roadmap: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning
 
 Este documento establece la estrategia maestra y el orden de redacción para la tesis de maestría:
-**"LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment"**.
+**"LLM-Assisted Risk-Adaptive Decision Gates for Intent Based Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment"**.
 
 Escribir una tesis de ingeniería de posgrado sigue una **estrategia concéntrica (de adentro hacia afuera)**: se redacta primero el núcleo teórico y matemático (Capítulo 3) y la ingeniería del pipeline (Capítulo 4), se continúa con la validación experimental y métricas (Capítulo 5), se fundamenta con el Estado del Arte (Capítulo 2) y se concluye con el marco narrativo exterior (Capítulos 1 y 6, y finalmente el Abstract).
 
@@ -59,14 +59,9 @@ flowchart LR
 - **Borrador:** `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation.md`
 
 #### 3.4 The Risk-Adaptive Decision Gate (RADG)
-- **Contenido:** Formulación matemática por tramos de $D(U_{sem}, \text{QoT}_{valid})$. Cálculo de dos capas de $U_{sem}$ (CFG + Reverse Prompting $d_{sem}$). Ecuaciones analíticas del modelo GN (ASE noise, NLI Kerr, acumulación de GSNR en dB). Matriz de decisión completa (`approve`, `clarify`, `replan`).
-- **Recomendaciones:** Detallar el plano 2D de decisión ($U_{sem}$ vs $\Delta\text{GSNR}$) identificando las 3 zonas operativas.
+- **Contenido:** Formulación matemática por tramos de $D(U_{sem}, \text{QoT}_{valid})$. Cálculo de dos capas de $U_{sem}$ (CFG + Reverse Prompting $d_{sem}$). Ecuaciones analíticas del modelo GN (ASE noise, NLI Kerr, acumulación de GSNR en dB). Matriz de decisión completa (`approve`, `clarify`, `replan`). Además, se integra el formalismo de Human-In-The-Loop (HITL) vía Reverse Prompting y el patrón `interrupt()` de LangGraph para prevenir Semantic Drift.
+- **Recomendaciones:** Detallar el plano 2D de decisión ($U_{sem}$ vs $\Delta\text{GSNR}$) identificando las 3 zonas operativas. Añadir diagrama de secuencia que ilustre la suspensión, guardado atómico en checkpoint y reanudación con feedback inyectado.
 - **Borrador:** `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate.md`
-
-#### 3.5 Formal Human-In-The-Loop (HITL) via Reverse Prompting
-- **Contenido:** Problema de *Semantic Drift* en chats conversacionales. Protocolo Reverse Prompting (Traducción Forward $\to$ Reconstrucción Reversa $\to$ Contrato Estructurado). Patrón `interrupt()` de LangGraph con persistencia en checkpointer. Garantía de convergencia y preservación monotónica de restricciones ($N_{max} \le 3$).
-- **Recomendaciones:** Añadir diagrama de secuencia que ilustre la suspensión, guardado atómico en checkpoint y reanudación con feedback inyectado.
-- **Borrador:** `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting.md`
 
 ---
 
@@ -95,17 +90,17 @@ flowchart LR
 *Objetivo:* Evaluar cuantitativamente la hipótesis de la tesis utilizando el corpus sintético, demostrando que RADG elimina aprobaciones inseguras ($UAR=0$) y reduce la fricción operativa y de tokens frente a los baselines.
 
 #### 5.1 Experimental Setup
-- **Contenido:** Topología de prueba (Nobel-Germany 17 nodos, 26 enlaces bidireccionales, SNDlib). Configuración de modelos LLM (`kimi-for-coding-highspeed` y comparativa con razonamiento). Generación del corpus de prueba categorizado: (1) Safe + Clear, (2) Ambiguous ($U_{sem}$ alto), (3) Infeasible QoT.
+- **Contenido:** Topología de prueba (Nobel-Germany 17 nodos, 26 enlaces bidireccionales, SNDlib). Configuración de modelos LLM (`kimi-for-coding-highspeed` y comparativa con razonamiento). Generación del corpus de prueba categorizado: (1) Nominal + Clear, (2) Ambiguous ($U_{sem}$ alto), (3) Infeasible QoT.
 - **Recomendaciones:** Explicar por qué migrar de una topología lineal de 3 nodos a una red de 17 nodos permitió evaluar rutas multi-hop realistas.
 
 #### 5.2 Performance Metrics
 - **Contenido:** Definición formal estructurada en los 4 Pilares de Validación:
   1. *Pilar 1 — Semantic Translation Accuracy:* Constraint Retention Rate ($CRR = 100\%$), Context-Free Grammar Pass Rate ($v_{struct} \in \{0, 1\}$), Semantic Agreement ($1 - d_{sem}$).
-  2. *Pilar 2 — Physical Feasibility:* Unsafe Approval Rate ($UAR = \frac{N_{\text{unfeasible\_approved}}}{N_{\text{total\_intents}}} \to 0\%$), QoT Feasibility Rate ($QFR = \frac{N_{\text{feasible\_approved}}}{N_{\text{approved\_plans}}} \to 100\%$), Physical Infeasibility Interception Rate (PIIR).
+  2. *Pilar 2 — Physical Feasibility:* Unfeasible Approval Rate ($UAR = \frac{N_{\text{unfeasible\_approved}}}{N_{\text{total\_intents}}} \to 0\%$), QoT Feasibility Rate ($QFR = \frac{N_{\text{feasible\_approved}}}{N_{\text{approved\_plans}}} \to 100\%$), Physical Infeasibility Interception Rate (PIIR).
   3. *Pilar 3 — Orchestration & Resource Efficiency:* Prompt Token Reduction ($\Delta T_{tokens} > 75\%$ via Scoped GraphRAG), Human Intervention Reduction ($\Delta N_{hitl} > 70\%$ frente a Always-HITL), latencia determinista ($T_{det} < 15\text{ ms}$) y End-to-End Latency ($T_{E2E}$).
   4. *Pilar 4 — RADG Decision Robustness:* Gate Decision Accuracy ($GDA > 98\%$), False Positive Rate ($FPR = 0\%$), precisión del interrupt selectivo.
 
-#### 5.3 Performance under Safe Conditions
+#### 5.3 Performance under Nominal Conditions
 - **Contenido:** Resultados para intenciones claras y físicamente viables. Demostración de auto-aprobación autónoma ($HIC=0$) sin intervención humana, comparado con *Always-HITL*.
 
 #### 5.4 Performance under Ambiguity and Physical Infeasibility
@@ -136,8 +131,8 @@ flowchart LR
   - Abstracción de herramientas de dominio (Chalmers T-API ReAct, 2026).
 - **Recomendaciones:** Argumentar detalladamente por qué el reintento post-despliegue es ineficiente y riesgoso en backbones ópticos frente a un gate pre-despliegue.
 
-#### 2.4 The Research Gap: Pre-Deployment Risk-Adaptive Verification
-- **Contenido:** La matriz de brechas de la literatura ([[literature/sota_gap_analysis]]). Demostración de que ningún trabajo previo combina $U_{sem}$ + $\text{QoT}_{valid}$ en una compuerta pre-despliegue secuencial.
+#### 2.4 The Research Gap: Pre-Deployment Risk-Adaptive Decision Gates and HITL Optimization
+- **Contenido:** La matriz de brechas de la literatura ([[literature/sota_gap_analysis]]). Demostración de que ningún trabajo previo combina $U_{sem}$ + $\text{QoT}_{valid}$ en una compuerta pre-despliegue secuencial para optimizar las intervenciones del operador (HITL).
 
 ---
 

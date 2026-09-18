@@ -2,7 +2,7 @@
 
 Exp 3.0: Generates the full auditable Planning Report including:
   - Intent & Alignment Specification (Initial intent, HITL refinements, and active operational intent)
-  - Pre-deployment safety gate verification (U_sem score and RADG physical feasibility)
+  - Pre-deployment integrity gate verification (U_sem score and RADG physical feasibility)
   - Selected lightpath topology (Horizontal ASCII graph with link distances and EDFA counts)
   - Candidate lightpath QoT feasibility matrix (real GN-model physics)
   - Deployment recommendation and provisioning readiness
@@ -120,7 +120,7 @@ def plan_synthesizer_node(state: AgentState) -> dict:
 
     Produces an executive-grade, pre-deployment decision record:
     1. Intent & Alignment Trace (Original intent, HITL feedback, Active intent)
-    2. Pre-Deployment Safety Verification (Semantic Gate U_sem + Physical RADG)
+    2. Pre-Deployment Integrity Verification (Semantic Gate U_sem + Physical RADG)
     3. Selected Optical Lightpath Topology (Horizontal ASCII path + Spans/EDFAs)
     4. Evaluated Candidate Routes & QoT Physics (Feasibility matrix)
     5. Provisioning Recommendation & Testbed Action
@@ -181,7 +181,7 @@ def plan_synthesizer_node(state: AgentState) -> dict:
         best_route_nodes = best_path.get("path", ["unknown"])
         best_route = " → ".join(best_route_nodes)
 
-        # 2. Safety Gates evaluation line
+        # 2. Integrity Gates evaluation line
         usem = state.get("usem_score")
         usem_passed = state.get("usem_passed")
         radg_decision = (state.get("radg_decision") or "N/A").upper()
@@ -246,7 +246,7 @@ def plan_synthesizer_node(state: AgentState) -> dict:
             "### 1. Intent & Alignment Specification\n"
             f"- **Initial Intent:** {base_intent}\n"
             f"{refinement_block}\n\n"
-            "### 2. Pre-Deployment Safety Verification\n"
+            "### 2. Pre-Deployment Integrity Verification\n"
             "| Gate | Evaluated Signal | Constraint | Status | Action |\n"
             "| :--- | :--- | :--- | :---: | :--- |\n"
             f"| **Semantic Gate (Phase 3)** | {usem_metric} | $\\tau_{{sem}} \\le 0.300$ | `{usem_status}` | {usem_action} |\n"
@@ -262,7 +262,7 @@ def plan_synthesizer_node(state: AgentState) -> dict:
             "### 5. Deployment Recommendation & Testbed Status\n"
             f"- **RECOMMENDED PATH: {best_route}**\n"
             f"- **Physical Layer Parameters:** Computed GSNR = {best_path.get('snr_dB', 0.0):.2f} dB | $P_{{rx}}$ = {best_path.get('power_dBm', 0.0):.2f} dBm\n"
-            "- **Safety Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n"
+            "- **Integrity Guarantee:** Coherent GN-model verified. Zero physical violations allowed to reach network controller.\n"
             "- **Provisioning Action:** `READY_FOR_PROVISIONING` via SDON Testbed Adapter (100G DP-QPSK C-Band).\n"
         )
 

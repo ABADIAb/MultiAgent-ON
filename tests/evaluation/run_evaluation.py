@@ -340,7 +340,7 @@ def evaluate_single_intent(
     # Check Physical Feasibility: Unsafe Approval check
     qot_results = diagnostics.get("qot_results") or []
     has_infeasible_path = any(q.get("qot_valid") is False for q in qot_results)
-    is_unsafe_approval = (initial_action == "approve" and has_infeasible_path)
+    is_unfeasible_approval = (initial_action == "approve" and has_infeasible_path)
 
     return {
         "id": item_id,
@@ -361,7 +361,7 @@ def evaluate_single_intent(
         "usem_score": turn_1_usem if turn_1_usem is not None else diagnostics.get("usem_score"),
         "semantic_agreement": semantic_agreement,
         "crr_info": crr_info,
-        "is_unsafe_approval": is_unsafe_approval,
+        "is_unfeasible_approval": is_unfeasible_approval,
         "radg_decision": diagnostics.get("radg_decision"),
         "turn_telemetry": turn_telemetry,
         "diagnostics": diagnostics,
@@ -405,8 +405,8 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
 
     # --- Pillar 2: Physical Feasibility ---
     approved_demands = [r for r in results if r["initial_action"] == "approve"]
-    unsafe_approved_count = sum(1 for r in approved_demands if r["is_unsafe_approval"])
-    uar = (unsafe_approved_count / len(approved_demands) * 100.0) if approved_demands else 0.0
+    unfeasible_approved_count = sum(1 for r in approved_demands if r["is_unfeasible_approval"])
+    uar = (unfeasible_approved_count / len(approved_demands) * 100.0) if approved_demands else 0.0
 
     class_3_demands = [r for r in results if r["class"] == "III_Infeasible"]
     class_3_replan_count = sum(1 for r in class_3_demands if r["initial_action"] == "replan")
@@ -446,7 +446,7 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
         },
         "pillar_2": {
             "uar_rate": round(uar, 2),
-            "unsafe_approved_count": unsafe_approved_count,
+            "unfeasible_approved_count": unfeasible_approved_count,
             "total_approved_count": len(approved_demands),
             "piir_rate": round(piir, 2),
             "class_3_replan_count": class_3_replan_count,
@@ -681,7 +681,7 @@ def main():
         f"- **Model Evaluated:** `{args.model}`",
         f"- **Total Demands Evaluated:** {len(results)}",
         f"- **Overall Risk Gate Accuracy (GDA):** {p4.get('correct_gate_count', 0)}/{len(results)} ({p4.get('gda_rate', 0.0):.1f}%)",
-        f"- **Unsafe Approval Rate (UAR):** {p2.get('uar_rate', 0.0):.1f}% (Absolute Safety Invariant)",
+        f"- **Unfeasible Approval Rate (UAR):** {p2.get('uar_rate', 0.0):.1f}% (Absolute Physical Integrity Invariant)",
         f"- **Mean End-to-End Latency:** {p3.get('mean_e2e_latency_seconds', 0.0):.2f}s",
         f"- **Per-Request Timeout Guard:** {resolved_timeout}s",
         "",
@@ -693,7 +693,7 @@ def main():
         f"| | CFG Pass Rate (CFG-PR) | $\\frac{{1}}{{N}} \\sum v_{{struct}}$ | $\\ge 95\\%$ (Nom/Inf) | **{p1.get('cfg_pass_rate', 0.0):.1f}%** | {'✓ PASS' if p1.get('cfg_pass_rate', 0.0) >= 50.0 else '✗ REVIEW'} |",
         f"| | Semantic Agreement (Well-Formed) | $\\frac{{1}}{{N_{{well}}}} \\sum (1 - d_{{sem}})$ | $> 0.85$ | **{p1.get('mean_well_formed_agreement', 0.0):.3f}** | {'✓ PASS' if p1.get('mean_well_formed_agreement', 0.0) >= 0.80 else '✗ REVIEW'} |",
         f"| | Ambiguity / Adversarial Catch Rate | $\\frac{{\\vert \\text{{Clarify}} \\vert}}{{\\vert \\text{{Ambiguous}} \\vert}}$ | $100\\%$ | **{p1.get('ambiguity_catch_rate', 0.0):.1f}%** | {'✓ PASS' if p1.get('ambiguity_catch_rate', 0.0) >= 90.0 else '✗ REVIEW'} |",
-        f"| **Pillar 2: Physical Feasibility** | Unsafe Approval Rate (UAR) | $\\frac{{\\vert \\text{{Unsafe Approved}} \\vert}}{{\\vert \\text{{Approved}} \\vert}}$ | **$0.0\\%$** | **{p2.get('uar_rate', 0.0):.1f}%** ({p2.get('unsafe_approved_count', 0)}/{p2.get('total_approved_count', 0)}) | {'✓ PASS' if p2.get('uar_rate', 0.0) == 0.0 else '✗ CRITICAL'} |",
+        f"| **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | $\\frac{{\\vert \\text{{Unfeasible Approved}} \\vert}}{{\\vert \\text{{Approved}} \\vert}}$ | **$0.0\\%$** | **{p2.get('uar_rate', 0.0):.1f}%** ({p2.get('unfeasible_approved_count', 0)}/{p2.get('total_approved_count', 0)}) | {'✓ PASS' if p2.get('uar_rate', 0.0) == 0.0 else '✗ CRITICAL'} |",
         f"| | Physical Infeasibility Interception (PIIR) | $\\frac{{\\vert \\text{{Class III Replan}} \\vert}}{{\\vert \\text{{Class III}} \\vert}}$ | $100\\%$ | **{p2.get('piir_rate', 0.0):.1f}%** ({p2.get('class_3_replan_count', 0)}/{p2.get('class_3_total', 0)}) | {'✓ PASS' if p2.get('piir_rate', 0.0) == 100.0 else '✗ FAIL'} |",
         f"| **Pillar 3: Efficiency & Friction** | Mean End-to-End Latency ($T_{{E2E}}$) | $\\frac{{1}}{{N}} \\sum T_{{elapsed}}$ | Contextual | **{p3.get('mean_e2e_latency_seconds', 0.0):.2f}s** | ✓ MONITORED |",
         f"| | Total Token Footprint | Cumulative Tokens | Monitored | **{p3.get('total_tokens_consumed', 0):,} tok** ({p3.get('mean_tokens_per_intent', 0.0):.1f} tok/intent) | ✓ MONITORED |",

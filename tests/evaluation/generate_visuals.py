@@ -10,7 +10,7 @@ following Politecnico di Milano institutional palette guidelines:
   - Dark Slate (#222222)
 
 Artifacts generated per evaluation run:
-  1. gate_accuracy_matrix.png / .pdf (Multi-Class Gate Interceptions & Safety Boundaries)
+  1. gate_accuracy_matrix.png / .pdf (Multi-Class Gate Interceptions & Integrity Boundaries)
   2. latency_tokens_overhead.png / .pdf (Latency & Token Distribution across Risk Classes)
   3. presentation_slide_dashboard.png / .pdf (16:9 Widescreen Composite Visual for 1-2 slides)
 
@@ -102,7 +102,7 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
     annotations = [
         "100% Autonomous\n(0 HITL Interrupts)",
         "100% Caught Fail-Fast\n(Semantic Gate)",
-        "0% Unsafe Approved\n(UAR = 0.0% Invariant)",
+        "0% Unfeasible Approved\n(UAR = 0.0% Invariant)",
         "100% Filtered\n(Syntax / Semantics)",
     ]
     for i, text in enumerate(annotations):
@@ -220,7 +220,7 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
 
     # 4 Top KPI Stat Banners
     kpi_cards = [
-        ("0.0%", "Unsafe Approval Rate (UAR)", "Hard Physical Safety Invariant (0/5 admitted)", COLOR_APPROVE),
+        ("0.0%", "Unfeasible Approval Rate (UAR)", "Hard Physical Integrity Invariant (0/5 admitted)", COLOR_APPROVE),
         (f"{p4.get('gda_rate', 95.0):.1f}%", "Gate Decision Accuracy (GDA)", "19/20 correct initial gate interventions", COLOR_NAVY),
         (f"{p1.get('operable_crr_rate', 94.1):.1f}%", "Constraint Retention Rate (CRR)", "Explicit operator constraints in PDDL", COLOR_NAVY),
         ("0.0", "HITL Interrupts (Nominal)", "Touchless autonomous path provisioning", COLOR_APPROVE),
@@ -283,7 +283,7 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
     ax_left.set_xticklabels(["Nominal", "Ambiguous", "Infeasible", "Adversarial"], fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax_left.set_ylabel("Demands (Count)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
     ax_left.set_ylim(0, 5.8)
-    ax_left.set_title("Initial Risk Gate Decisions by Class (Safety vs. Catch)", fontsize=12.5, fontweight="bold", color=COLOR_NAVY, pad=10)
+    ax_left.set_title("Initial Risk Gate Decisions by Class (Integrity vs. Catch)", fontsize=12.5, fontweight="bold", color=COLOR_NAVY, pad=10)
     ax_left.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax_left.set_axisbelow(True)
     for spine in ax_left.spines.values():

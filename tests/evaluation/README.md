@@ -46,10 +46,10 @@ Validates that the neural subsystem faithfully translates unstructured natural l
 ### Pillar 2: Physical Feasibility (Optical Layer Integrity)
 Guarantees that all approved lightpaths strictly satisfy physical-layer transmission impairments (ASE noise, non-linear interference via the GN model) before touching the network controller.
 
-1. **Unsafe Approval Rate (UAR):**
+1. **Unfeasible Approval Rate (UAR):**
    $$\text{UAR} = \frac{|\{\text{plan} \in \text{Approved} \mid \text{GSNR}_{\text{actual}} < \text{GSNR}_{th} \lor P_{rx} < P_{rx,min}\}|}{|\text{Approved}|} \times 100\%$$
    - **Definition:** Fraction of intents producing physically infeasible lightpaths that receive an `approve` verdict.
-   - **Hard Target:** **$0.0\%$ (Absolute Physical Safety Invariant)**.
+   - **Hard Target:** **$0.0\%$ (Absolute Physical Integrity Invariant)**.
 2. **Physical Infeasibility Interception Rate (PIIR):**
    $$\text{PIIR} = \frac{|\{\text{intent} \in \text{Class III} \mid \text{Action} = \text{replan}\}|}{|\text{Class III}|} \times 100\%$$
    - **Definition:** Fraction of demands requesting physically impossible optical reaches that are intercepted and flagged for replanning.
