@@ -349,7 +349,7 @@ Upon validation by the CFG gate, the system translates the PDDL predicates into 
     \widetilde{V}_{\text{sub}} = V_{\text{sub}} \setminus \{ u \mid \text{avoid-node}(u) \in \mathcal{S}_{\text{PDDL}} \}
     \end{equation}
     \item \textbf{Topological Edge Pruning:}
-    The system filters the edge set to produce $\widetilde{E}_{\text{sub}}$. An edge $(u, v)$ remains viable strictly if both terminal nodes exist within the pruned vertex set $\widetilde{V}_{\text{sub}}$, and the edge itself avoids direct prohibition via an $\text{avoid-link}$ predicate. This yields the safe, fully pruned subtopology $\widetilde{G}_{\text{sub}} = (\widetilde{V}_{\text{sub}}, \widetilde{E}_{\text{sub}})$:
+    The system filters the edge set to produce $\widetilde{E}_{\text{sub}}$. An edge $(u, v)$ remains viable strictly if both terminal nodes exist within the pruned vertex set $\widetilde{V}_{\text{sub}}$, and the edge itself avoids direct prohibition via an $\text{avoid-link}$ predicate. This yields the nominal, fully pruned subtopology $\widetilde{G}_{\text{sub}} = (\widetilde{V}_{\text{sub}}, \widetilde{E}_{\text{sub}})$:
     \begin{equation}
     \widetilde{E}_{\text{sub}} = \{ (u, v) \in E_{\text{sub}} \mid u, v \in \widetilde{V}_{\text{sub}} \land (u, v) \notin \{ (x, y) \mid \text{avoid-link}(x, y) \in \mathcal{S}_{\text{PDDL}} \} \}
     \end{equation}
@@ -502,88 +502,3 @@ $U_{\text{sem}} \le \tau_{\text{sem}}$ & $\text{QoT}_{\text{valid}} = 1$ & \text
 \end{table}
 \FloatBarrier
 
-\section{Formal Human-in-the-Loop (HITL) via Reverse Prompting}
-\label{sec:hitl_reverse_prompting}
-
-\subsection{The Semantic Drift Problem in Conversational Networking}
-\label{subsec:semantic_drift}
-
-Intent refinement in conversational Intent-Based Networking (IBN) typically utilizes unconstrained multi-turn chat sessions. While these interfaces offer high usability, open-ended conversational memory structures introduce a severe vulnerability defined here as \textbf{Semantic Drift}.
-
-When an operator modifies a requirement during iteration $t_k$, autoregressive language models frequently discard or mutate constraints established during earlier iterations $t_0, \dots, t_{k-1}$. Because standard conversational architectures process context windows probabilistically, they cannot mathematically guarantee the preservation of prior operational rules. Consequently, critical parameters such as minimum Generalized Signal-to-Noise Ratio ($\text{GSNR}_{\min}$) or maximum hop boundaries may silently vanish. This structural flaw produces two primary failure modes:
-\begin{enumerate}
-    \item \textbf{Constraint Erosion:} Hard physical constraints degrade during sequential negotiation turns.
-    \item \textbf{Infinite Negotiation Cycles:} Operators must repeatedly correct dropped constraints, escalating token consumption and control-plane latency without achieving a valid topology configuration.
-\end{enumerate}
-
-\subsection{The Reverse Prompting Invariant}
-\label{subsec:reverse_prompting_invariant}
-
-To enforce formal semantic convergence, the architecture implements \textbf{Reverse Prompting} as a closed-loop validation contract. Instead of preserving an unstructured dialogue history, the intent refinement mechanism operates exclusively over explicit, immutable symbolic state variables.
-
-The closed-loop validation contract of Reverse Prompting is depicted in Figure~\ref{fig:reverse_prompting_loop}.
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=0.88\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
-    \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
-    \label{fig:reverse_prompting_loop}
-\end{figure}
-
-The validation protocol executes three deterministic phases:
-\begin{enumerate}
-    \item \textbf{Forward Formal Translation:}
-    \begin{equation}
-    \mathcal{S}_{\text{PDDL}} = \mathcal{M}_{\text{forward}}(\mathcal{I}_{\text{NL}}, G_{\text{sub}})
-    \end{equation}
-    The primary LLM translates the linguistic intent $\mathcal{I}_{\text{NL}}$ into formal Planning Domain Definition Language (PDDL) predicates, bounded by the optical sub-graph $G_{\text{sub}}$.
-    \item \textbf{Reverse Natural Language Reconstruction:}
-    \begin{equation}
-    \mathcal{I}_{\text{recon}} = \mathcal{M}_{\text{reverse}}(\mathcal{S}_{\text{PDDL}})
-    \end{equation}
-    An independent generative execution translates the formalized PDDL syntax back into an unambiguous natural language paragraph. This mechanism exposes the exact constraints the system parsed.
-    \item \textbf{Closed-Loop Agreement Verification:}
-    The architecture directly queries an evaluator LLM to compute the semantic divergence scalar $d_{\text{sem}} \in [0, 1]$ between the effective operator intent $\mathcal{I}_{\text{eff}}^{(k)}$ and the algorithmic reconstruction $\mathcal{I}_{\text{recon}}$, where $0$ indicates perfect semantic agreement and $1$ represents catastrophic constraint loss. At initialization ($k=0$), $\mathcal{I}_{\text{eff}}^{(0)} = \mathcal{I}_{\text{NL}}$. For multi-turn refinement iterations ($k \ge 1$), the effective intent is formed by binding the cumulative sequence of operator clarifications $\mathcal{I}_{\text{eff}}^{(k)} = \mathcal{I}_{\text{NL}} \oplus \mathcal{H}_{\text{refine}}$. This formulation guarantees that operator-instructed constraint adjustments (such as relaxing a GSNR threshold or avoiding intermediate nodes) are evaluated as faithful adherence ($d_{\text{sem}} \to 0$) rather than artificial divergence. If the divergence exceeds the acceptable threshold ($d_{\text{sem}} > \tau_{\text{sem}}$), the system presents $\mathcal{I}_{\text{recon}}$ to the operator alongside the explicit structural state. Presenting the natural language reconstruction allows network engineers to verify complex physical constraints without requiring advanced PDDL syntax expertise.
-\end{enumerate}
-
-\FloatBarrier
-\subsection{State-Preserving Execution Pausing via LangGraph Interrupts}
-\label{subsec:langgraph_interrupts}
-
-Conventional asynchronous control-plane servers utilize stateless webhooks or polling loops to capture human feedback. These approaches frequently generate orphaned execution threads and precipitate race conditions within the optical controller.
-
-The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic Gate when $U_{\text{sem}} > \tau_{\text{sem}}$:
-
-\begin{academicbox}{Listing 3.4: Formal LangGraph Stateful Interrupt Pattern}
-# Formal LangGraph Interrupt Pattern within the HITL Clarification Node
-response = interrupt({
-    "status": "clarification_required",
-    "reconstruction": reconstruction,
-    "usem_score": usem_score,
-    "pddl_valid": pddl_valid,
-    "error_context": error_context,
-    "options": ["approve", "refine", "cancel"] if pddl_valid else ["refine", "cancel"],
-    "message": (
-        "Semantic uncertainty is high or intent requires clarification. "
-        "Please review the system's understanding and provide refined instructions."
-    )
-})
-\end{academicbox}
-
-\paragraph{Execution Lifecycle under Interruption:}
-\begin{enumerate}
-    \item \textbf{Atomic Checkpoint Serialization:} Invoking the \texttt{interrupt()} function halts node execution and serializes the complete \texttt{AgentState} tuple $\mathcal{S}_{\text{state}}$ into a persistent storage checkpointer, keyed by a unique transaction thread identifier.
-    \item \textbf{Resource Deallocation:} The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
-    \item \textbf{Resumption and State Injection:} Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it appends the feedback $\mathcal{F}_k$ to the cumulative refinement history $\mathcal{H}_{\text{refine}}$, increments the refinement counter $\kappa_{\text{refine}}$, and injects the human instructions into \texttt{error\_context}, routing cleanly back to the parsing phase for targeted PDDL regeneration.
-    \item \textbf{Context Window Protection ($N_{\max} = 3$):} If the refinement counter reaches $\kappa_{\text{refine}} \ge N_{\max} = 3$, the system raises an explicit abort interrupt (\texttt{status="aborted"}). This deterministic ceiling prevents context window saturation, attention degradation (``lost-in-the-middle''), and token budget exhaustion, routing execution cleanly to the terminal state upon operator cancellation.
-\end{enumerate}
-
-\subsection{Monotonic Constraint Preservation and Convergence Guarantees}
-\label{subsec:monotonic_constraint_preservation}
-
-To ensure multi-turn refinement strictly terminates, the architecture defines a \textbf{Monotonic Constraint Preservation} invariant. Let $\mathcal{C}_k$ denote the set of active hard constraints during iteration $k$. Following operator feedback $\mathcal{F}_k$, the subsequent constraint set satisfies:
-\begin{equation}
-\mathcal{C}_{k+1} = \mathcal{C}_k \cup \text{ExtractConstraints}(\mathcal{F}_k) \setminus \text{ExplicitRevocations}(\mathcal{F}_k)
-\end{equation}
-
-Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{\max} = 3$. If an intent fails to achieve $U_{\text{sem}} \le \tau_{\text{sem}}$ after $N_{\max}$ iterations, the system halts with the context-protection abort interrupt, preventing control-plane deadlocks.

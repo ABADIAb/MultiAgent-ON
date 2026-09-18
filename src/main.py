@@ -84,7 +84,7 @@ def print_banner() -> None:
     banner.append("Nobel-Germany 17-Node Network ", style="bold green")
     banner.append("│ Physical Model: ", style="dim")
     banner.append("Coherent GN-Model (C-Band 96-ch)\n", style="bold green")
-    banner.append("Safety Guarantee: ", style="dim")
+    banner.append("Integrity Guarantee: ", style="dim")
     banner.append("Pre-Deployment Fail-Fast Gates (Semantic Gate + Physical RADG)", style="italic yellow")
 
     console.print()

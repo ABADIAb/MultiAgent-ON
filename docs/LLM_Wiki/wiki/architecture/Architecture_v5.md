@@ -1,5 +1,5 @@
 ---
-title: "Architecture V5: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning"
+title: "Architecture V5: LLM-Assisted Risk-Adaptive Decision Gates for Intent Based Optical Networks"
 date: 2026-07-17
 tags: [architecture, langgraph, neurosymbolic, pddl, reverse-prompting, qot, risk-adaptive, radg]
 status: active
@@ -7,11 +7,11 @@ supersedes:
   - "[[architecture/archive/Architecture_v4]]"
 ---
 
-# Architecture V5: LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning
+# Architecture V5: LLM-Assisted Risk-Adaptive Decision Gates for Intent Based Optical Networks
 
 ## 1. Executive Summary
 
-This document defines the V5 system architecture for the **LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces a **Risk-Adaptive Decision Pipeline** — a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent.
+This document defines the V5 system architecture for the **LLM-Assisted Risk-Adaptive Decision Gates** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces a **Risk-Adaptive Decision Gate (RADG)** mechanism designed fundamentally to **optimize Human-in-the-Loop (HITL) operator interventions**. It acts as a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent, minimizing cognitive overload while ensuring absolute network safety.
 
 The system translates natural language intent into PDDL. Before executing expensive symbolic solvers and physical simulations, a **Semantic Uncertainty Gate** evaluates if the intent is clear, triggering a targeted HITL request for missing data if it is not. Once semantically clear, the system filters valid topologies, validates physical feasibility, and applies a **Physical Risk Gate** to decide whether the plan should be **auto-approved**, **suggest replanning** with alternative paths, or **rejected** to prevent unfeasible deployments.
 
@@ -23,7 +23,7 @@ The system translates natural language intent into PDDL. Before executing expens
 
 1. **Strict Neurosymbolic Separation.** The LLM does not decide optical routes — it only translates intent into formal PDDL constraints. A non-neural symbolic solver determines path feasibility.
 2. **Risk-Proportional HITL Engagement.** The operator is not always interrupted (expensive, slow) nor never consulted (unsafe). The RADG engages the human only when the assessed risk warrants it, based on joint semantic and QoT signals.
-3. **Pre-Deployment Safety.** No configuration is pushed to the network without passing the RADG. Unlike post-deployment retry systems, physically infeasible or semantically ambiguous plans are caught before they can cause harm.
+3. **Pre-Deployment Safety & HITL Optimization.** No configuration is pushed to the network without passing the RADG. Unlike post-deployment retry systems, physically infeasible or semantically ambiguous plans are caught before they can cause harm. Concurrently, the RADG optimizes HITL engagement, filtering out trivial approvals to prevent operator fatigue.
 4. **Context Bounding Optimization.** Rather than dumping the entire RESTConf topology JSON into the LLM, a topological extraction layer fetches only the localized $k$-hop neighborhood required, preventing context window saturation and reducing prompt tokens.
 5. **Modular Production Design.** The PDDL symbolic solver, Mock GraphRAG, and RADG are implemented as decoupled, testable pure-Python modules adhering strictly to `src/core/` domain boundaries.
 
@@ -98,7 +98,7 @@ The validated PDDL constraints are sent to a Python-based symbolic solver. The s
 The structurally valid paths are sent to the Python QoT Tool (GN-model port). The tool computes the exact GSNR for each candidate and produces a binary feasibility verdict ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$).
 
 ### Phase 6: Physical Risk Decision Gate (RADG)
-This gate evaluates the binary physical safety of the proposed paths:
+This gate evaluates the binary physical feasibility of the proposed paths:
 
 | Decision | Condition | Action |
 |----------|-----------|--------|

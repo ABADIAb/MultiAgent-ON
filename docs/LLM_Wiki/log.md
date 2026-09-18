@@ -592,3 +592,6 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Testing & Verification: 321/321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`), zero lint errors (`uv run ruff check src/ tests/`), and clean telemetry exports (JSON, CSV, Markdown).
 
 
+## [2026-09-18] debrief | Architecture Tone Refactor & HITL Optimization Shift
+- Executed full consistency audit across `src/`, `tests/evaluation/`, and `docs/` replacing "safety" terminology with "integrity/feasibility".
+- Consolidated metrics into `EvaluationFramework_v5.md` to prevent discrepancies with evaluation README.

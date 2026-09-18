@@ -1,7 +1,7 @@
 ---
 title: "Chapter 3 - Section 3.4: The Risk-Adaptive Decision Gate (RADG)"
 date: 2026-08-24
-tags: [thesis, chapter-3, system-model, radg, decision-function, usem, qot, gn-model, optical-physics]
+tags: [thesis, chapter-3, system-model, radg, decision-function, usem, qot, hitl, reverse-prompting, interrupt]
 status: draft
 ---
 
@@ -38,7 +38,7 @@ While conceptualized as a unified mathematical function, the software implementa
 
 To prevent false positives during automated intent translation, $U_{sem}$ undergoes a two-layer hierarchical assessment. 
 
-### Layer 1: Structural CFG Validity ($v_{struct}$)
+#### Layer 1: Structural CFG Validity ($v_{struct}$)
 
 The generated Planning Domain Definition Language (PDDL) constraint block $\mathcal{S}_{PDDL}$ is evaluated against a deterministic Context-Free Grammar $\mathcal{G}_{pddl}$, while verifying node existence against the active topology subgraph $V_{sub}$:
 
@@ -46,7 +46,15 @@ $$
 v_{struct} = \begin{cases} 1 & \text{if } \mathcal{S}_{PDDL} \in \mathcal{L}(\mathcal{G}_{pddl}) \land \text{EndpointsExist}(\mathcal{S}_{PDDL}, V_{sub}) \\ 0 & \text{otherwise} \end{cases}
 $$
 
-### Layer 2: Reverse Prompting Semantic Divergence ($d_{sem}$)
+#### The Reverse Prompting Invariant
+
+To prevent semantic drift and enforce formal semantic convergence, the architecture implements **Reverse Prompting** as a closed-loop validation contract. 
+
+<!-- FIGURE_PLACEHOLDER: reverse_prompting_loop -->
+> **Figure: Closed-Loop Reverse Prompting Validation Invariant** (`figs_SystemModel/pdf/reverse_prompting_loop.pdf`)
+> Closed-loop verification cycle enforcing semantic convergence: the operator's natural language intent $\mathcal{I}_{NL}$ is translated into formal PDDL predicates $\mathcal{S}_{PDDL}$, independently reconstructed back to natural language $\mathcal{I}_{recon}$, and evaluated for semantic divergence $d_{sem}$.
+
+#### Layer 2: Reverse Prompting Semantic Divergence ($d_{sem}$)
 
 Assuming $v_{struct} = 1$, the formal PDDL specification is reconstructed into a natural language confirmation statement $\mathcal{I}_{recon}$ via an independent Reverse Prompting mechanism. The semantic divergence $d_{sem} \in [0, 1]$ is computed directly by a dedicated evaluator LLM that scores the semantic discrepancy between the original operator request $\mathcal{I}_{NL}$ and the algorithmic reconstruction $\mathcal{I}_{recon}$:
 
@@ -56,7 +64,7 @@ $$
 
 where $0.0$ indicates perfect semantic alignment and $1.0$ indicates catastrophic constraint loss.
 
-### Composite $U_{sem}$ Evaluation
+#### Composite $U_{sem}$ Evaluation
 
 The composite uncertainty metric combines both layers into a strict fail-fast formulation. Structural grammar violations immediately maximize uncertainty, neutralizing downstream processing:
 
@@ -136,9 +144,48 @@ The mathematical intersection of the semantic and physical risk signals maps det
 
 | $U_{sem}$ Evaluation | $\text{QoT}_{valid}$ Status | RADG Decision | Pipeline Action & Human Engagement |
 | :--- | :--- | :--- | :--- |
-| **$U_{sem} > \tau_{sem}$** | *Bypassed* | **`clarify`** | **Early HITL Clarification:** Halts execution prior to topology extraction. Queries the operator directly to resolve missing constraints or syntactic translation ambiguities. |
-| **$U_{sem} \le \tau_{sem}$** | $\text{QoT}_{valid} = 0$ | **`replan`** | **Physical Risk HITL:** Signals an unfeasible physics state. Halts execution, presenting the inadequate GSNR margins and requesting permission to relax specific constraints. |
-| **$U_{sem} \le \tau_{sem}$** | $\text{QoT}_{valid} = 1$ | **`approve`** | **Autonomous Auto-Approval:** Implements zero-friction validation. Compiles the verified routing report and prepares the physical configuration for automated controller provisioning. |
+
+Conventional asynchronous control-plane servers utilize stateless webhooks or polling loops to capture human feedback. These approaches frequently generate orphaned execution threads and precipitate race conditions within the optical controller.
+
+The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic Gate when $U_{sem} > \tau_{sem}$:
+
+```python
+# Formal LangGraph Interrupt Pattern within the HITL Clarification Node
+response = interrupt({
+    "status": "clarification_required",
+    "reconstruction": reconstruction,
+    "usem_score": usem_score,
+    "pddl_valid": pddl_valid,
+    "error_context": error_context,
+    "options": ["approve", "refine", "cancel"] if pddl_valid else ["refine", "cancel"],
+    "message": (
+        "Semantic uncertainty is high or intent requires clarification. "
+        "Please review the system's understanding and provide refined instructions."
+    )
+})
+```
+
+**Execution Lifecycle under Interruption:**
+1. **Atomic Checkpoint Serialization:** Invoking the `interrupt()` function halts node execution and serializes the complete `AgentState` tuple $\mathcal{S}_{state}$ into a persistent storage checkpointer, keyed by a unique transaction thread identifier.
+2. **Resource Deallocation:** The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
+3. **Resumption and State Injection:** Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it appends the feedback $\mathcal{F}_k$ to the cumulative refinement history $\mathcal{H}_{refine}$, increments the refinement counter $\kappa_{refine}$, and injects the human instructions into `error_context`, routing cleanly back to the parsing phase for targeted PDDL regeneration.
+4. **Context Window Protection ($N_{max} = 3$):** If the refinement counter reaches $\kappa_{refine} \ge N_{max} = 3$, the system raises an explicit abort interrupt (`status="aborted"`). This deterministic ceiling prevents context window saturation, attention degradation ("lost-in-the-middle"), and token budget exhaustion, routing execution cleanly to the terminal state upon operator cancellation.
+
+---
+
+## 3.4.6 Monotonic Constraint Preservation and Convergence Guarantees
+
+To ensure multi-turn refinement strictly terminates, the architecture defines a **Monotonic Constraint Preservation** invariant. Let $\mathcal{C}_k$ denote the set of active hard constraints during iteration $k$. Following operator feedback $\mathcal{F}_k$, the subsequent constraint set satisfies:
+
+$$\mathcal{C}_{k+1} = \mathcal{C}_k \cup \text{ExtractConstraints}(\mathcal{F}_k) \setminus \text{ExplicitRevocations}(\mathcal{F}_k)$$
+
+Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{max} = 3$. If an intent fails to achieve $U_{sem} \le \tau_{sem}$ after $N_{max}$ iterations, the system halts with the context-protection abort interrupt, preventing control-plane deadlocks.
+
+
+
+## 3.4.5 State-Preserving Execution Pausing via LangGraph Interrupts
+
+The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic Gate when $U_{sem} > \tau_{sem}$ or at the Physical Risk Gate when $\text{QoT}_{valid} = 0$, ensuring no configurations are deployed without explicit human verification. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback, preserving full execution state atomically.
 
 ---
 

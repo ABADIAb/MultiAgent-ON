@@ -64,6 +64,11 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
      * **Pillar 3 (Efficiency):** Integrated `TokenTracker` callback telemetry capturing prompt, completion, and total tokens across all turns (7,375 tok/intent; 5.62s nominal latency).
      * **Pillar 4 (Gate Reliability):** Verified Gate Decision Accuracy (95.0%, 19/20), False Positive Rate (0.0%), and Selective HITL Precision (100.0%).
 
+7. **Thesis Architecture Pivot and Tone Refactor:**
+   - Realigned the core narrative across [[ProblemStatement_v5]], [[Architecture_v5]], and LaTeX drafts to explicitly emphasize the optimization of Human-in-the-Loop (HITL) operator interventions.
+   - Systematically replaced fatalistic terminology ("Unsafe Approval Rate", "safety guarantee") with academically precise operational terminology ("Unfeasible Approval Rate", "operational integrity") across the Wiki, LaTeX drafts, and the `tests/evaluation` Python harness.
+   - Consolidated the theoretical metrics into a dedicated [[EvaluationFramework_v5]] to prevent redundancies and inconsistencies with the benchmark README.
+
 ---
 
 ## 3. What do I plan to accomplish next week?
@@ -83,4 +88,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I modernized the evaluation harness into `run_evaluation.py` with full Four Pillars telemetry (CRR, CFG-PR, UAR=0.0%, FPR=0.0%, 95.0% GDA, token tracking), validated the 20-demand compact corpus on the 17-node Nobel-Germany topology using local `qwen2.5:3b`, and maintained all 321 unit tests in green under Strict TDD.
+I modernized the evaluation harness with full Four Pillars telemetry, validated the compact corpus on the 17-node Nobel-Germany topology, and executed a complete architectural tone refactor to emphasize HITL optimization and deterministic physical feasibility across all thesis drafts and codebase.
