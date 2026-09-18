@@ -34,6 +34,7 @@ _MAX_HOPS_PREDICATES = frozenset({"max-hops", "max_hops", "hops"})
 _MIN_GSNR_PREDICATES = frozenset({
     "min-gsnr", "min-snr", "target-snr", "min_gsnr", "target_snr",
 })
+_BANDWIDTH_PREDICATES = frozenset({"bandwidth", "capacity", "bitrate"})
 
 
 # ---------------------------------------------------------------------------
@@ -177,6 +178,11 @@ def _validate_goal_predicate(pred: Any, errors: list[str]) -> None:
             errors.append(f"Predicate '({name})' requires exactly 1 numeric argument, got {len(args)}.")
         elif not _validate_numeric(str(args[0]), allow_float=True):
             errors.append(f"Predicate '({name})' argument must be a number, got {args[0]!r}.")
+    elif name in _BANDWIDTH_PREDICATES:
+        if len(args) != 1:
+            errors.append(f"Predicate '({name})' requires exactly 1 integer argument, got {len(args)}.")
+        elif not _validate_numeric(str(args[0]), allow_float=False):
+            errors.append(f"Predicate '({name})' argument must be an integer, got {args[0]!r}.")
 
 
 # ---------------------------------------------------------------------------

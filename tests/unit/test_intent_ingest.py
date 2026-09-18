@@ -6,11 +6,9 @@ calls the LLM for structured output, and populates enriched_intent in state.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from langchain_core.messages import AIMessage, HumanMessage
-from pydantic import BaseModel
 
 from src.core.state import AgentState
 
@@ -64,6 +62,9 @@ class TestIntentIngestNode:
             assert result["enriched_intent"] is not None
             assert "Milano-A" in result["enriched_intent"]
             assert "Milano-D" in result["enriched_intent"]
+            assert result["active_intent"] is not None
+            assert "Milano-A" in result["active_intent"]
+            assert "Topology Context:" not in result["active_intent"]
         finally:
             llm_module._llm = None
 

@@ -25,14 +25,56 @@ Your job is to read a PDDL problem string that describes an optical \
 network routing request, and rewrite it as a clear, human-readable \
 English paragraph that a network operator can verify.
 
-Rules:
+CRITICAL INSTRUCTIONS:
+- Focus ONLY on the (:goal ...) section of the PDDL to identify the routing request and operator constraints.
+- NEVER mention or list topology facts, available links, or connected nodes from (:init ...) or (:objects ...). Do not discuss network infrastructure.
 - Start with "I understand you want to..."
-- Mention source and target nodes explicitly.
-- List ALL constraints (GSNR, latency, avoid links, etc.) clearly.
-- Do NOT add information that is not in the PDDL.
-- Do NOT include the PDDL syntax itself — only plain English.
-- Be concise but complete.\
+- Mention the source and target nodes explicitly.
+- State all active constraints (e.g., minimum GSNR in dB, required bandwidth, avoided nodes, avoided links, waypoints via a node) clearly.
+- STRICT NEGATIVE INSTRUCTION: NEVER mention or invent any node name that is NOT explicitly written in the PDDL below! If the PDDL does not have (avoid-node ...), DO NOT state that any node is avoided!
+- If the PDDL contains (via <node>), express it as "via <node>" or "using <node> as a transit waypoint". DO NOT invent any avoided nodes!
+- If the PDDL contains (max-hops 1), express it as "over a single direct span". If (max-hops <N>) with N > 1, express it as "a maximum of <N> hops".
+- Do NOT report dummy or zero-value constraints (e.g., min-gsnr 0, bandwidth 1). Only report genuine operational constraints.
+- Flag any evident inconsistencies or missing endpoints in the PDDL.
+- Output ONLY plain English — no PDDL syntax, no code blocks, no filler.
+
+Target format:
+"I understand you want to route traffic from <source> to <target> with <constraints>."
+
+EXAMPLES:
+Example 1 (Bandwidth constraint):
+PDDL goal: (and (route Hamburg Berlin) (bandwidth 100))
+Reconstruction: I understand you want to route traffic from Hamburg to Berlin with a required bandwidth of 100.
+
+Example 2 (Waypoint with GSNR):
+PDDL goal: (and (route Munich Stuttgart) (min-gsnr 15) (via Ulm))
+Reconstruction: I understand you want to route traffic from Munich to Stuttgart via Ulm with a minimum GSNR of 15 dB.
+
+Example 3 (Avoidance constraint):
+PDDL goal: (and (route Frankfurt Cologne) (min-gsnr 14) (avoid-node Mannheim))
+Reconstruction: I understand you want to route traffic from Frankfurt to Cologne with a minimum GSNR of 14 dB, avoiding node Mannheim.
+
+Example 4 (Single direct span / hop limit):
+PDDL goal: (and (route Berlin Frankfurt) (min-gsnr 28) (max-hops 1))
+Reconstruction: I understand you want to route traffic from Berlin to Frankfurt over a single direct span with a minimum GSNR of 28 dB.\
 """
+
+
+def _clean_pddl_for_reverse_prompt(pddl: str) -> str:
+    """Filter out verbose topology predicates (connected, link-active) to prevent LLM attention leakage."""
+    if not pddl or not isinstance(pddl, str):
+        return pddl
+    lines = []
+    for line in pddl.splitlines():
+        stripped = line.strip().lower()
+        if (
+            stripped.startswith("(connected ")
+            or stripped.startswith("(link-active ")
+            or stripped.startswith("(link-capacity ")
+        ):
+            continue
+        lines.append(line)
+    return "\n".join(lines).strip()
 
 
 def reverse_prompt_node(state: AgentState) -> dict:
@@ -49,12 +91,13 @@ def reverse_prompt_node(state: AgentState) -> dict:
         Partial state update with hitl_reconstruction and messages.
     """
     pddl = state.get("pddl_constraints", "No constraints generated")
+    clean_pddl = _clean_pddl_for_reverse_prompt(pddl)
 
     # Inverse LLM call: PDDL → English reconstruction
     llm = get_llm()
     messages = [
         SystemMessage(content=REVERSE_PROMPT_SYSTEM),
-        HumanMessage(content=pddl),
+        HumanMessage(content=clean_pddl),
     ]
     reconstruction_response = llm.invoke(messages)
     reconstruction = (

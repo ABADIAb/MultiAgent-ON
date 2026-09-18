@@ -78,6 +78,7 @@ class ThresholdConstants:
     snr_threshold_10g_dB: float = 12.2  # SNR threshold for 10G [dB]
     snr_threshold_100g_dB: float = 8.6  # SNR threshold for 100G [dB]
     snr_threshold_200g_dB: float = 15.2  # SNR threshold for 200G [dB]
+    snr_threshold_400g_dB: float = 21.5  # SNR threshold for 400G [dB]
 
     def get_snr_threshold(self, bitrate_gbps: int) -> float:
         """Return the SNR threshold for a given bitrate."""
@@ -85,6 +86,7 @@ class ThresholdConstants:
             10: self.snr_threshold_10g_dB,
             100: self.snr_threshold_100g_dB,
             200: self.snr_threshold_200g_dB,
+            400: self.snr_threshold_400g_dB,
         }
         if bitrate_gbps not in thresholds:
             msg = (

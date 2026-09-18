@@ -28,6 +28,7 @@ The feature has three layers:
 - **GN Model:** Computes both linear Amplified Spontaneous Emission (ASE) noise from EDFAs and nonlinear interference (NLI) generated in fiber spans.
 - **Span propagation:** Tracks signal power [dBm] as it traverses nodes (filter/connector losses) and fiber spans (propagation attenuation + EDFA gain).
 - **Feasibility verdict:** Returns `QoTResult` with `snr_dB`, `power_dBm`, and `feasible` (True iff `snr_dB >= snr_threshold` AND `power_dBm >= -18 dBm`).
+- **Adaptive Bitrate Thresholds:** Calibrated in `src/core/constants.py`: standard $\text{SNR}_{th} = 14.5\text{ dB}$ (100G/200G QPSK) and high-order $\text{SNR}_{th, 400G} = 21.5\text{ dB}$ (400G 16-QAM). `qot_validation_node` dynamically binds this threshold when evaluating candidate paths with explicit bandwidth requirements.
 
 *Scope: Filtered (ROADM) network mode. Filterless ASE propagation deferred to future work. Zero equalization loss assumed.*
 

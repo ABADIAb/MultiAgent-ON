@@ -56,10 +56,13 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
         "avoid_links": [],
         "max_hops": None,
         "min_gsnr": None,
+        "bandwidth": None,
     }
 
     if not pddl_text:
         return constraints
+
+    pddl_lower = pddl_text.lower()
 
     # 1. Parse combined route predicates in goal, e.g. (route Munich Cologne), (routed src dst), (path src dst)
     route_match = re.search(
@@ -117,13 +120,14 @@ def _parse_pddl_constraints(pddl_text: str) -> dict:
         constraints["max_hops"] = int(hops_match.group(1))
 
     # 7. Parse (min-gsnr <value>) / (min-snr <value>) / (target-snr <value>)
-    snr_match = re.search(
-        r"\((?:min-gsnr|min-snr|target-snr|min_gsnr|target_snr)\s+([\d.]+)\)",
-        pddl_text,
-        re.IGNORECASE,
-    )
-    if snr_match:
-        constraints["min_gsnr"] = float(snr_match.group(1))
+    match = re.search(r"\((?:min-gsnr|min-snr|target-snr|min_gsnr|target_snr)\s+([0-9.]+)\)", pddl_lower)
+    if match:
+        constraints["min_gsnr"] = float(match.group(1))
+
+    # 3. Extract bandwidth
+    match = re.search(r"\((?:bandwidth|capacity|bitrate)\s+(\d+)\)", pddl_lower)
+    if match:
+        constraints["bandwidth"] = int(match.group(1))
 
     return constraints
 

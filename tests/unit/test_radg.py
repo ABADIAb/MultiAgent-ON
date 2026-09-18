@@ -9,7 +9,6 @@ All tests are offline — no LLM calls.
 
 from __future__ import annotations
 
-import pytest
 
 from src.core.radg import evaluate_radg
 

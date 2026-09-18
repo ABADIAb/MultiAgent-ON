@@ -9,7 +9,10 @@ All tests are offline — no LLM calls.
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock, patch
+
 import pytest
+from langchain_core.messages import AIMessage
 
 from src.core.semantic_gate import compute_usem, evaluate_semantic_gate
 
@@ -116,3 +119,77 @@ class TestSemanticGateNode:
         human_msg_content = call_messages[1].content
         assert "Avoid Munich" in human_msg_content
         assert "Ensure min GSNR is 12 dB" in human_msg_content
+
+    def test_semantic_gate_uses_active_intent_when_present(self):
+        """When active_intent is present, semantic gate evaluates directly against it."""
+        from src.nodes.semantic_gate_node import semantic_gate_node
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content="0.05")
+
+        state = {
+            "pddl_valid": True,
+            "active_intent": "Route Berlin to Frankfurt with 12 dB GSNR avoiding Munich",
+            "enriched_intent": "Intent: Route Berlin to Frankfurt\nTopology Context: ...",
+            "hitl_reconstruction": "I understand you want to route from Berlin to Frankfurt with 12 dB GSNR avoiding Munich.",
+            "refinement_history": ["Avoid Munich", "Ensure min GSNR is 12 dB"],
+        }
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            result = semantic_gate_node(state)
+
+        assert result["usem_passed"] is True
+        assert result["usem_score"] == pytest.approx(0.05)
+
+        call_messages = mock_llm.invoke.call_args[0][0]
+        human_msg_content = call_messages[1].content
+        assert "Route Berlin to Frankfurt with 12 dB GSNR avoiding Munich" in human_msg_content
+        # Should not duplicate with an extra refinements block when active_intent is supplied
+        assert "Operator Clarifications & Refinements:" not in human_msg_content
+
+
+class TestScoreSemanticAgreement:
+    """Validate _score_semantic_agreement parsing and robustness."""
+
+    def test_parses_clean_float(self) -> None:
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content="0.2")
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.2)
+
+    def test_parses_with_think_tags(self) -> None:
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(
+            content="<think>Comparing intent and reconstruction... divergence is low.</think>\n0.15"
+        )
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.15)
+
+    def test_parses_with_markdown_or_text(self) -> None:
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content="Score: 0.0\nFaithful match.")
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.0)
+
+    def test_fallback_on_unparseable_text(self) -> None:
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(content="Uncertain result with no numbers.")
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.5)
+
