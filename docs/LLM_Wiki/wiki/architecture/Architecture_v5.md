@@ -11,9 +11,9 @@ supersedes:
 
 ## 1. Executive Summary
 
-This document defines the V5 system architecture for the **LLM-Assisted Risk-Adaptive Decision Gates** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces a **Risk-Adaptive Decision Gate (RADG)** mechanism designed fundamentally to **optimize Human-in-the-Loop (HITL) operator interventions**. It acts as a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent, minimizing cognitive overload while ensuring absolute network safety.
+This document defines the V5 system architecture for the **LLM-Assisted Risk-Adaptive Decision Gates** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces the **Risk-Adaptive Decision Gates (RADGs)** mechanism designed fundamentally to **optimize Human-in-the-Loop (HITL) operator interventions**. It acts as a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent, minimizing cognitive overload while ensuring absolute network safety.
 
-The system translates natural language intent into PDDL. Before executing expensive symbolic solvers and physical simulations, a **Semantic Uncertainty Gate** evaluates if the intent is clear, triggering a targeted HITL request for missing data if it is not. Once semantically clear, the system filters valid topologies, validates physical feasibility, and applies a **Physical Risk Gate** to decide whether the plan should be **auto-approved**, **suggest replanning** with alternative paths, or **rejected** to prevent unfeasible deployments.
+The system translates natural language intent into PDDL. Before executing expensive symbolic solvers and physical simulations, the **Semantic RADG** evaluates if the intent is clear, triggering a targeted HITL request for missing data if it is not. Once semantically clear, the system filters valid topologies, validates physical feasibility, and applies the **Physical RADG** to decide whether the plan should be **auto-approved**, **suggest replanning** with alternative paths, or **rejected** to prevent unfeasible deployments.
 
 **Key distinction from prior work:** Existing systems rely on reactive post-deployment configurations and heuristic LLM trial-and-error loops *after* a deployment failure occurs. This architecture applies a fail-fast risk evaluation *before* deployment, saving compute by catching semantic ambiguity early and preventing physically infeasible lightpaths from reaching the network controller.
 
@@ -25,7 +25,7 @@ The system translates natural language intent into PDDL. Before executing expens
 2. **Risk-Proportional HITL Engagement.** The operator is not always interrupted (expensive, slow) nor never consulted (unsafe). The RADG engages the human only when the assessed risk warrants it, based on joint semantic and QoT signals.
 3. **Pre-Deployment Safety & HITL Optimization.** No configuration is pushed to the network without passing the RADG. Unlike post-deployment retry systems, physically infeasible or semantically ambiguous plans are caught before they can cause harm. Concurrently, the RADG optimizes HITL engagement, filtering out trivial approvals to prevent operator fatigue.
 4. **Context Bounding Optimization.** Rather than dumping the entire RESTConf topology JSON into the LLM, a topological extraction layer fetches only the localized $k$-hop neighborhood required, preventing context window saturation and reducing prompt tokens.
-5. **Modular Production Design.** The PDDL symbolic solver, Mock GraphRAG, and RADG are implemented as decoupled, testable pure-Python modules adhering strictly to `src/core/` domain boundaries.
+5. **Modular Production Design.** The PDDL symbolic solver, Mock GraphRAG, and the RADGs are implemented as decoupled, testable pure-Python modules adhering strictly to `src/core/` domain boundaries.
 
 ## 3. System Overview
 
@@ -45,11 +45,11 @@ flowchart TD
     Phase1["Phase 1: Optical RAG<br/>(Enrich Intent)"]:::phase
     Phase2["Phase 2: PDDL Parsing<br/>(NL → PDDL)"]:::phase
     Phase3a["Phase 3a: Reverse Prompting<br/>(PDDL → NL Reconstruction, 0 Interrupts)"]:::phase
-    Phase3{"Phase 3: Semantic Gate<br/>(Evaluate U_sem = f(v_struct, d_sem))"}:::decision
+    Phase3{"Phase 3: Semantic RADG<br/>(Evaluate U_sem = f(v_struct, d_sem))"}:::decision
     Phase3b["Phase 3b: HITL Clarify<br/>(Operator Disambiguation via interrupt())"]:::hitl
     Phase4["Phase 4: Symbolic Solver<br/>(Extract valid paths)"]:::phase
     Phase5["Phase 5: QoT Validation<br/>(Binary Feasibility)"]:::phase
-    Phase6{"Phase 6: Physical Risk Gate<br/>(Valid/Invalid)"}:::decision
+    Phase6{"Phase 6: Physical RADG<br/>(Valid/Invalid)"}:::decision
     Phase7["Phase 7: Synthesis & Provisioning<br/>(Configure)"]:::phase
     
     Replan["Suggest Replan to Operator<br/>(Physics Failed)"]:::hitl
@@ -82,7 +82,7 @@ The operator submits a natural language request. The system connects to the test
 ### Phase 2: PDDL Parsing (CFG Validated)
 The LLM reads the enriched intent and generates a simplified PDDL string. A deterministic CFG (Context-Free Grammar) AST validator checks the string for syntactical and grammar correctness ($v_{struct} \in \{0, 1\}$), blocking structural hallucinations.
 
-### Phase 3: Automated Reverse Prompting & Semantic Uncertainty Gate ($U_{sem}$)
+### Phase 3: Automated Reverse Prompting & Semantic RADG ($U_{sem}$)
 Implementing a **fail-fast** principle, the system assesses Semantic Uncertainty ($U_{sem}$) *before* any complex routing or physics calculations:
 - **Phase 3a (Reverse Prompting):** Automated PDDL $\to$ Natural Language reconstruction ($\mathcal{I}_{recon}$) executed by the LLM without human interruption.
 - **Layer 1 (Structural)**: Did the PDDL pass CFG validation ($v_{struct}$)?
@@ -97,7 +97,7 @@ The validated PDDL constraints are sent to a Python-based symbolic solver. The s
 ### Phase 5: QoT Validation
 The structurally valid paths are sent to the Python QoT Tool (GN-model port). The tool computes the exact GSNR for each candidate and produces a binary feasibility verdict ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$).
 
-### Phase 6: Physical Risk Decision Gate (RADG)
+### Phase 6: Physical RADG
 This gate evaluates the binary physical feasibility of the proposed paths:
 
 | Decision | Condition | Action |
@@ -119,8 +119,8 @@ The Orchestrator summarizes the feasible, approved paths into a Planning Report 
 | Symbolic Solver | Python / networkx | `src/core/symbolic_solver.py` |
 | GraphRAG | Mock Python / networkx | `src/core/mock_graphrag.py` |
 | QoT Validation | Python GN-Model Port | `src/tools/qot_tool.py` + `src/core/qot_calculator.py` |
-| **RADG** | **Python Decision Module** | **`src/core/radg.py`** + **`src/nodes/radg_node.py`** |
-| **Semantic Gate** | **Mathematical Gate + Judge** | **`src/core/semantic_gate.py`** + **`src/nodes/semantic_gate_node.py`** |
+| **Physical RADG** | **Python Decision Module** | **`src/core/radg.py`** + **`src/nodes/radg_node.py`** |
+| **Semantic RADG** | **Mathematical Gate + Judge** | **`src/core/semantic_gate.py`** + **`src/nodes/semantic_gate_node.py`** |
 | Testbed NBI | SSH / RESTConf | `src/services/testbed_client.py` |
 
 ## 6. `src/` Folder Convention
@@ -143,10 +143,10 @@ Each pipeline phase has a dedicated feature doc in `docs/LLM_Wiki/wiki/architect
 | **Phase 1**: Intent Ingestion | `src/nodes/intent_ingest.py` | [[architecture/features/intent_ingest]] |
 | **Phase 2**: PDDL Parsing | `src/nodes/pddl_parser.py` + `src/core/pddl_validator.py` | [[architecture/features/pddl_parser]] |
 | **Phase 3a**: Reverse Prompting | `src/nodes/reverse_prompt.py` | [[architecture/features/reverse_prompt]] |
-| **Phase 3**: Semantic Gate & Phase 3b HITL | `src/core/semantic_gate.py` + `src/nodes/semantic_gate_node.py` + `src/nodes/reverse_prompt.py` | [[architecture/features/semantic_gate]] |
+| **Phase 3**: Semantic RADG & Phase 3b HITL | `src/core/semantic_gate.py` + `src/nodes/semantic_gate_node.py` + `src/nodes/reverse_prompt.py` | [[architecture/features/semantic_gate]] |
 | **Phase 4**: Symbolic Solver | `src/core/symbolic_solver.py` + `src/core/mock_graphrag.py` | [[architecture/features/symbolic_solver]] |
 | **Phase 5**: QoT Validation | `src/core/qot_calculator.py` + `src/tools/qot_tool.py` | [[architecture/features/qot_tool]] |
-| **Phase 6**: RADG (Physical Gate) | `src/core/radg.py` + `src/nodes/radg_node.py` | [[architecture/features/radg]] |
+| **Phase 6**: Physical RADG | `src/core/radg.py` + `src/nodes/radg_node.py` | [[architecture/features/radg]] |
 | **Phase 7**: Synthesis | `src/nodes/plan_synthesizer.py` | [[architecture/features/plan_synthesizer]] |
 | **Testbed NBI** | `src/services/testbed_client.py` | [[architecture/features/testbed_client]] |
 | **Pipeline Wiring** | `src/core/graph.py` + `src/core/state.py` | [[architecture/features/pipeline_graph]] |

@@ -54,11 +54,11 @@ PHASE_META: dict[str, tuple[str, str]] = {
     "intent_ingest": ("Phase 1: Intent Ingestion", "Ingesting NL intent & scoping optical topology (GraphRAG)"),
     "pddl_parser": ("Phase 2: PDDL Translation", "Translating enriched intent to PDDL & AST CFG validation"),
     "reverse_prompt": ("Phase 3a: Reverse Prompting", "Reconstructing natural language intent from PDDL"),
-    "semantic_gate": ("Phase 3: Semantic Gate", "Evaluating Semantic Uncertainty U_sem vs threshold"),
+    "semantic_gate": ("Phase 3: Semantic RADG", "Evaluating Semantic Uncertainty U_sem vs threshold"),
     "hitl_clarify": ("Phase 3b: HITL Clarification", "Awaiting operator clarification for ambiguous intent"),
     "symbolic_solver": ("Phase 4: Symbolic Solver", "Computing candidate lightpaths via Yen's K-Shortest Paths"),
     "qot_validation": ("Phase 5: QoT Physics Engine", "Evaluating physical-layer feasibility with GN-model"),
-    "radg": ("Phase 6: Physical Risk Gate", "Applying Risk-Adaptive Decision Gate (RADG)"),
+    "radg": ("Phase 6: Physical RADG", "Applying Physical RADG"),
     "plan_synthesizer": ("Phase 7: Plan Synthesis", "Compiling auditable planning and provisioning report"),
 }
 
@@ -85,7 +85,7 @@ def print_banner() -> None:
     banner.append("│ Physical Model: ", style="dim")
     banner.append("Coherent GN-Model (C-Band 96-ch)\n", style="bold green")
     banner.append("Integrity Guarantee: ", style="dim")
-    banner.append("Pre-Deployment Fail-Fast Gates (Semantic Gate + Physical RADG)", style="italic yellow")
+    banner.append("Pre-Deployment Fail-Fast Gates (Semantic RADG + Physical RADG)", style="italic yellow")
 
     console.print()
     console.print(
@@ -376,7 +376,7 @@ def handle_hitl_interrupt(interrupt_val: dict[str, Any]) -> dict[str, Any] | Non
     """Display modern Rich panels for HITL interrupts and prompt with questionary."""
     console.print()
 
-    # Case 1: Semantic Gate Clarification (Phase 3b)
+    # Case 1: Semantic RADG Clarification (Phase 3b)
     if interrupt_val.get("status") == "clarification_required":
         reconstruction = interrupt_val.get("reconstruction", "N/A")
         usem_score = interrupt_val.get("usem_score")
@@ -429,7 +429,7 @@ def handle_hitl_interrupt(interrupt_val: dict[str, Any]) -> dict[str, Any] | Non
             )
         )
 
-    # Case 2: Physical Risk Gate Replan (Phase 6 RADG)
+    # Case 2: Physical RADG Replan (Phase 6)
     elif interrupt_val.get("decision") == "replan":
         raw_reason = interrupt_val.get("reason", "Physical QoT threshold violated.")
         clean_reason = raw_reason.replace("RADG Decision: SUGGEST REPLAN | ", "").strip()

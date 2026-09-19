@@ -35,12 +35,12 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 ### Pending Issues
 
-> None. All Chapter 3 drafting ([[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition|Section 3.1]]–[[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|3.5]]), figure generation ([[thesis_drafts/3_SystemModel/figs/README]]), and LaTeX compilation ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]) deliverables are fully resolved and verified.
+> None. All Chapter 3 drafting ([[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition|Section 3.1]]–[[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates|3.4]]), figure generation ([[thesis_drafts/3_SystemModel/figs_SystemModel/README]]), and LaTeX compilation ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]) deliverables are fully resolved and verified.
 
 ---
 
 ### Additional Notes
 
-The thesis workflow now features two clearly separated visual artifact pathways documented in [[thesis_drafts/3_SystemModel/figs/README]]:
+The thesis workflow now features two clearly separated visual artifact pathways documented in [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]:
 - **Pathway A (Draw.io XML):** Stored in `figs/src/diagrams/`, allowing interactive manual editing without Python dependencies, and exported via CLI to vector `.pdf` and 300 DPI `.png`.
 - **Pathway B (Matplotlib Python Scripts):** Stored in `figs/src/plots/`, generating analytical simulation curves directly to `pdf/` and `png/`.

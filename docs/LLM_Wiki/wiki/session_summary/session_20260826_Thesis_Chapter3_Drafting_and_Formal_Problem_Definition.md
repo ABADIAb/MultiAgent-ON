@@ -31,7 +31,7 @@ This session marked the formal kick-off of the Master's thesis document redactio
   - `3_1_Formal_Problem_Definition.md`: Architectural vulnerabilities in LLM optical planning, network graph definition $G(V, E)$, physical parameter tuples, decision variables, resource constraints ($T_{max}$, $t_{exec}$, $K$-shortest paths), physical/semantic boundary constraints, and the composite optimization objective $\min \mathcal{J} = \alpha N_{hitl} + \beta T_{tokens}$ subject to $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$.
   - `3_2_Conceptual_Framework.md`: 7-phase fail-fast pipeline, architectural component separation, and computational complexity bounds.
   - `3_3_Strict_Neurosymbolic_Separation.md`: Strict boundaries, CFG structural validator, and token context scoping via $k$-hop Optical RAG.
-  - `3_4_Risk_Adaptive_Decision_Gate.md`: Piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ and Gaussian Noise model integration.
+  - `3_4_Risk_Adaptive_Decision_Gates.md`: Piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ and Gaussian Noise model integration.
   - `3_5_Formal_HITL_Reverse_Prompting.md`: State preservation, prompt reconstruction, and human-in-the-loop disambiguation protocol.
 
 ### 3. Codebase Alignment & Assumption Formalization:

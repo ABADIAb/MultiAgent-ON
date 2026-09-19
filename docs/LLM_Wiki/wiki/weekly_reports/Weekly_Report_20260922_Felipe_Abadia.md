@@ -69,6 +69,16 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Systematically replaced fatalistic terminology ("Unsafe Approval Rate", "safety guarantee") with academically precise operational terminology ("Unfeasible Approval Rate", "operational integrity") across the Wiki, LaTeX drafts, and the `tests/evaluation` Python harness.
    - Consolidated the theoretical metrics into a dedicated [[EvaluationFramework_v5]] to prevent redundancies and inconsistencies with the benchmark README.
 
+8. **Thesis Chapter 4 Drafting & Plural RADGs Architecture Refactor:**
+   - Drafted all three sections of Chapter 4 (`4_1_Network_State_and_GraphRAG.md`, `4_2_Semantic_and_QoT_Validation_Modules.md`, `4_3_Decision_Outcomes_and_Orchestration_Flow.md`), mathematically grounding network state abstraction, AST CFG validation, two-layer semantic uncertainty ($U_{sem}$), and analytical GN-model physics against `src/`.
+   - Standardized terminology across the thesis drafts, outlines, architecture feature docs, and codebase to "Risk-Adaptive Decision Gates (RADGs)" (plural), formally distinguishing the Semantic RADG (Phase 3) and Physical RADG (Phase 6).
+   - Renamed Section 3.4 to `3_4_Risk_Adaptive_Decision_Gates.md`, resolved merged Section 3.5 references, authored missing concept notes (`Human_in_the_Loop.md`, `Constraint_Isolation.md`, `PDDL.md`), and completed a repository-wide Wiki Deep Lint.
+
+9. **Chapter 3 and Chapter 4 Restructuring for Narrative Fluidity:**
+   - Consolidated all mathematical formulations (GN-model physics, $U_{sem}$) and formal grammars (PDDL CFG) into Chapter 3, establishing it purely as the theoretical system model.
+   - Completely redesigned Chapter 4 to trace the end-to-end software lifecycle across four newly defined sections: Orchestration and Network Context (4.1), The Semantic Engine (4.2), The Physical Engine and System Resilience (4.3), and Plan Synthesis and Verification (4.4).
+   - Removed raw PDDL code blocks and math proofs from Chapter 4 to focus on software implementation mechanics and storytelling.
+
 ---
 
 ## 3. What do I plan to accomplish next week?
@@ -88,4 +98,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I modernized the evaluation harness with full Four Pillars telemetry, validated the compact corpus on the 17-node Nobel-Germany topology, and executed a complete architectural tone refactor to emphasize HITL optimization and deterministic physical feasibility across all thesis drafts and codebase.
+I modernized the evaluation harness with full Four Pillars telemetry, validated the compact corpus on the 17-node Nobel-Germany topology, and executed a complete architectural tone refactor to emphasize HITL optimization and deterministic physical feasibility across all thesis drafts and codebase, followed by a major restructuring of Chapters 3 and 4 to optimize narrative fluidity.

@@ -20,7 +20,7 @@ This session completed major milestones for the thesis:
 
 ## What was Accomplished?
 
-### 1. Section 3.5 Academic Refinement ([[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]])
+### 1. Section 3.5 Academic Refinement ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]])
 - **Formal Mathematical Grounding:**
   - Formalized Reverse Translation Invariance $T_{inv}(\mathcal{I}, \mathcal{S}_{PDDL})$ to verify that reconstructed intent $\mathcal{I}_{recon}$ preserves all operator constraints without semantic drift.
   - Defined semantic divergence scalar $d_{sem} = \text{Score}_{divergence}(\mathcal{I}_{NL}, \mathcal{I}_{recon}) \in [0, 1]$ ($0 = \text{exact match}$, $1 = \text{distortion}$).
@@ -31,7 +31,7 @@ This session completed major milestones for the thesis:
 - **Stylistic & Academic Standards:**
   - Enforced IEEE Transactions / ACM SIGCOMM density and sanitized prose against AI clichés.
 
-### 2. Cross-Section Consistency Audit & GN-Model Alignment ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]])
+### 2. Cross-Section Consistency Audit & GN-Model Alignment ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]])
 - Audited Layer 2 semantic divergence definition and aligned Section 3.4.2 to standardize on $d_{sem} = \text{Score}_{divergence}$ as direct divergence, matching `src/core/semantic_gate.py`.
 - Rewrote the analytical approximations for Non-Linear Interference ($P_{NLI,m}$) and ASE noise ($P_{ASE,m}$) in Section 3.4.3 to exactly reflect the coherent GN-model equations ported from C++ in `src/core/qot_calculator.py`.
 
@@ -60,8 +60,8 @@ This session completed major milestones for the thesis:
 
 | Component | File | Action | Description |
 |-----------|------|--------|-------------|
-| Thesis Drafts | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting.md` | MODIFIED | Academic rewrite, Theorem 3.1 proof, LangGraph interrupt pattern |
-| Thesis Drafts | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate.md` | MODIFIED | Aligned Layer 2 $d_{sem}$ and exact GN-model analytical formulas |
+| Thesis Drafts | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md` | MODIFIED | Academic rewrite, Theorem 3.1 proof, LangGraph interrupt pattern (merged into 3.4) |
+| Thesis Drafts | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md` | MODIFIED | Aligned Layer 2 $d_{sem}$ and exact GN-model analytical formulas |
 | Thesis Export | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt` | NEW | Merged Chapter 3 in pure LaTeX ready for Overleaf |
 | Skills | `.agents/skills/thesis-coauthor/SKILL.md` | NEW | Unified skill for drafting, code validation, consistency, and diagramming |
 | Skills | `.agents/skills/thesis-coauthor/references/*.md` | NEW | Modular standards for writing, consistency, and Draw.io figure guidelines |

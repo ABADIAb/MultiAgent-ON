@@ -20,7 +20,7 @@ This document provides the fourth iteration of the thesis outline, incorporating
 # **1 Introduction** 
 - **1.1 Overview and Motivation:** The shift from manual configuration towards Level-4 (L4) autonomous operations and Intent-Based Networking (IBN). How Large Language Models (LLMs) and Agentic AI are being adopted to interpret operator intents, alongside the severe physical and computational risks they introduce (Token Budget Saturation and Hallucinated Physics). The specific bottlenecks in translating human intent into physical optical configurations.
   - *Citations:* `[SOTA] ETSI_AI_in_the_evolution_of_Autonomous_Networks.pdf`; `[SOTA] Assurance_and_Conflict_Detection_in_Intent-Based_Networking...pdf`; `[SOTA] Netconfeval-Can_llms_facilitate_network_configuration.pdf`; `[SOTA] Open_Implementation_of_a_Large_Language_Model_Pipeline..._POLIMI.pdf`; `[[ProblemStatement_v5]]` (Formalizing the five bottlenecks).
-- **1.2 Proposed Solution and Contributions:** Introduction of the Risk-Adaptive Decision Gate (RADG) and the strict separation of semantic reasoning from symbolic physical calculation.
+- **1.2 Proposed Solution and Contributions:** Introduction of the Risk-Adaptive Decision Gates (RADGs) and the strict separation of semantic reasoning from symbolic physical calculation.
   - *Citations:* `[[Architecture_v5]]` and `[[Scope_Pivot_20260706]]`.
 - **1.3 Thesis Structure:** Brief description of the remaining chapters.
 
@@ -33,7 +33,7 @@ This document provides the fourth iteration of the thesis outline, incorporating
   - *Citations:* `[SOTA] Network_Planning_With_Actual_Margins.pdf`; `[SOTA] GNPy_as_a_benchmark_for_open_and_disaggregated_optical_networks.pdf`; `[SOTA] JOCN2026_AutoONBench_a_benchmark_for_large_language_model_agents_in_autonomous_optical_networks 1.pdf`; `[SOTA] Scientific_Knowledge-driven_Decoding_Constraints_Improving_the_Reliability_of_LLMs.pdf`.
 - **2.3 Intent Verification, Service Assurance, and Deployment Correction Strategies:** Contrasting closed-loop service assurance and pre-execution formal validation (CFG, PDDL) against reactive post-deployment retry paradigms.
   - *Citations:* `[SOTA] Assurance_and_Conflict_Detection_in_Intent-Based_Networking...Survey.pdf`; `[SOTA] ETSI_AI_in_the_evolution_of_Autonomous_Networks.pdf`; `[SOTA] Bridging_Language_Models_and_Formal_Methods_for_Intent-Driven_OpticalNetwork_Design.pdf`; `[SOTA] Flow-Rule_Generation_for_SDN_Using_LLMs_with_Retry-Based_Deployment_Validation.pdf`.
-- **2.4 The Research Gap: Pre-Deployment Risk-Adaptive Decision Gates and HITL Optimization:** The lack of a pre-deployment RADG pipeline that jointly evaluates semantic certainty and physical-layer deterministic risk to fundamentally optimize Human-in-the-Loop (HITL) operator interventions, minimizing cognitive overload while ensuring deterministic physical feasibility.
+- **2.4 The Research Gap: Pre-Deployment Risk-Adaptive Decision Gates and HITL Optimization:** The lack of a pre-deployment RADGs pipeline that jointly evaluates semantic certainty and physical-layer deterministic risk to fundamentally optimize Human-in-the-Loop (HITL) operator interventions, minimizing cognitive overload while ensuring deterministic physical feasibility.
   - *Citations:* `[SOTA] Bridging_Language_Models_and_Formal_Methods_for_Intent-Driven_OpticalNetwork_Design.pdf`; `[SOTA] LOOP-A_Plug-and-Play_Neuro-Symbolic_Framework_for_Enhancing_Planning.pdf`.
 
 --------------------------------------------------------------------------------
@@ -45,21 +45,22 @@ This document provides the fourth iteration of the thesis outline, incorporating
   - **Constrained by:** Deterministic physical QoT requirements ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$, receiver power thresholds) and strict semantic ambiguity thresholds ($U_{sem}$).
   - **Objective:** Minimize operational friction ($N_{hitl}$) and computational cost ($T_{tokens}$) subject to strict physical and semantic validity constraints. Physical feasibility is treated as a hard constraint (UAR = $0$) rather than a maximizable variable.
   - *Citations:* `[[ProblemStatement_v5]]`.
-- **3.2 Conceptual Framework:** High-level introduction of the LLM-Assisted Risk-Adaptive Decision Gates architecture.
-  - *Citations:* `[[Architecture_v5]]`.
-- **3.3 Strict Neurosymbolic Separation:** Constraining the LLM to linguistic parsing (Intent $\to$ PDDL) and isolating the physics computations to deterministic symbolic solvers.
+- **3.2 Strict Neurosymbolic Separation:** Constraining the LLM to linguistic parsing (Intent $\to$ PDDL) and isolating the physics computations to deterministic symbolic solvers.
   - *Citations:* `[[Scope_Pivot_20260706]]`.
-- **3.4 The Risk-Adaptive Decision Gate (RADG):** The core mathematical/logical pipeline evaluating semantic uncertainty ($U_{sem}$) and physical-layer QoT feasibility ($\text{QoT}_{valid}$) before deployment. Incorporates formal Human-In-The-Loop (HITL) via reverse prompting and LangGraph state-preserving interrupts to eliminate semantic drift without cognitive overload.
+- **3.3 Risk-Adaptive Decision Gates (RADGs):** The core mathematical/logical pipeline evaluating semantic uncertainty ($U_{sem}$) and physical-layer QoT feasibility ($\text{QoT}_{valid}$) before deployment. Incorporates formal Human-In-The-Loop (HITL) via reverse prompting and LangGraph state-preserving interrupts to eliminate semantic drift without cognitive overload.
+  - *Citations:* `[[Architecture_v5]]`.
+- **3.4 Conceptual Framework:** High-level introduction of the LLM-Assisted Risk-Adaptive Decision Gates architecture (The 7-Phase Pipeline).
   - *Citations:* `[[Architecture_v5]]`.
 
 --------------------------------------------------------------------------------
 # **4 Neurosymbolic Pipeline Implementation** 
-- **4.1 Network State and Knowledge Graph (GraphRAG):** Solving token budget saturation by implementing a k-hop compressed topological GraphRAG to provide localized context.
-  - *Citations:* `[[Architecture_v5]]`; `[SOTA] INTEGRATION_OF_LIVE_NETWORK_KNOWLEDGE_GRAPHS_WITH_RAG...pdf` (validating topology chunks and state embeddings); `[SOTA] How to improve multi-hop reasoning with knowledge graphs and LLMs` (general GraphRAG mechanics).
-- **4.2 Semantic and QoT Validation Modules:** The mechanics of the threshold-based decision functions, specifically integrating a deterministic GN-model for exact GSNR and receiver power feasibility.
-  - *Citations:* `[[ProblemStatement_v5]]`; `[SOTA] GNPy_as_a_benchmark_for_open_and_disaggregated_optical_networks.pdf` (to validate GN-model usage); `[SOTA] A_T-API-Compliant_ReAct_Agentic_Loop_for_Optical_Networks.pdf` (for T-API/GNPy integration).
-- **4.3 Decision Outcomes:** The specific workflows resulting from the RADG: Auto-Approve, Clarify, and Suggest Replan.
-  - *Citations:* `[[Architecture_v5]]`.
+- **4.1 Orchestration and Network Context:** Solving token budget saturation by implementing a k-hop compressed topological GraphRAG to provide localized context, and structuring the LangGraph state machine.
+  - *Citations:* `[[Architecture_v5]]`; `[SOTA] INTEGRATION_OF_LIVE_NETWORK_KNOWLEDGE_GRAPHS_WITH_RAG...pdf`; `[SOTA] How to improve multi-hop reasoning with knowledge graphs and LLMs`.
+- **4.2 The Semantic Engine:** The mechanics of the ingestion, multi-turn reconciler, CFG AST parsing, and the Semantic RADG logic via Reverse Prompting.
+  - *Citations:* `[[ProblemStatement_v5]]`.
+- **4.3 The Physical Engine and System Resilience:** The deterministic GN-model QoT validation execution flow, the Physical RADG decision logic, and proportional HITL re-entry protocols.
+  - *Citations:* `[[Architecture_v5]]`; `[SOTA] GNPy_as_a_benchmark_for_open_and_disaggregated_optical_networks.pdf`; `[SOTA] A_T-API-Compliant_ReAct_Agentic_Loop_for_Optical_Networks.pdf`.
+- **4.4 Plan Synthesis and Verification:** The final auditable provisioning trace and verification of the seven canonical execution paths under Strict TDD.
 
 --------------------------------------------------------------------------------
 # **5 Experimental Evaluation and Results** 
@@ -69,7 +70,7 @@ This document provides the fourth iteration of the thesis outline, incorporating
   - *1. Semantic Translation Accuracy:* Constraint Retention Rate (CRR), CFG AST Pass Rate ($v_{struct} \in \{0, 1\}$), Semantic Agreement Score ($1 - d_{sem}$).
   - *2. Physical Feasibility:* Unfeasible Approval Rate (UAR $\to 0\%$), QoT Feasibility Rate (QFR $\to 100\%$), Physical Infeasibility Interception Rate (PIIR).
   - *3. Orchestration & Resource Efficiency:* Prompt Token Reduction ($\Delta T_{tokens} > 75\%$ via Scoped GraphRAG), Human Intervention Reduction ($\Delta N_{hitl} > 70\%$), Sub-second deterministic compute ($T_{det} < 15\text{ ms}$), End-to-End Latency ($T_{E2E}$).
-  - *4. RADG Decision Robustness:* Gate Decision Accuracy (GDA $> 98\%$), False Positive Rate ($\text{FPR} = 0\%$), Selective HITL Precision.
+  - *4. RADGs Decision Robustness:* Gate Decision Accuracy (GDA $> 98\%$), False Positive Rate ($\text{FPR} = 0\%$), Selective HITL Precision.
   - *Citations:* `[[ProblemStatement_v5]]`; `[[Scope_Pivot_20260706]]`.
 - **5.3 Performance under Nominal Conditions:** Results data of the architecture autonomously processing unambiguous, QoT-valid intents. Integrates comparison against No-HITL and Always-HITL baselines.
 - **5.4 Performance under Ambiguity:** Results data of the system engaging the HITL proportionally via reverse prompting when constraints are missing. Integrates comparison against the reactive-retry baseline.
@@ -78,5 +79,5 @@ This document provides the fourth iteration of the thesis outline, incorporating
 
 --------------------------------------------------------------------------------
 # **6 Conclusion and Future Work** 
-- **6.1 Summary of Contributions:** Reiteration of the value of merging LLM semantic reasoning with formal PDDL constraint solving via the RADG.
+- **6.1 Summary of Contributions:** Reiteration of the value of merging LLM semantic reasoning with formal PDDL constraint solving via the RADGs.
 - **6.2 Future Work:** Expanding the lightweight Python symbolic solver and Mock GraphRAG into production-grade orchestration platforms.

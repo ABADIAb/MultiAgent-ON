@@ -5,6 +5,9 @@ Content-oriented catalog of everything in the wiki.
 ## Concepts
 - [[Concepts_and_Terminology]]: Glossary of terms for Intent-Based Optical Networks.
 - [[QoT_Awareness]]: Concept of Quality of Transmission awareness and feasibility metrics.
+- [[Human_in_the_Loop]]: Pre-deployment safety backstop, reverse prompting, bounded refinement, and LangGraph interrupts.
+- [[Constraint_Isolation]]: Architectural separation principle ("LLMs reason, tools calculate") isolating physics and graph algorithms.
+- [[PDDL]]: Optical network Planning Domain Definition Language subset and Context-Free Grammar AST validation.
 
 ## Features
 *(Moved to Architecture section — see below)*
@@ -13,17 +16,17 @@ Content-oriented catalog of everything in the wiki.
 ## Architecture
 - [[ProblemStatement_v5]]: **Active** — LLM-Assisted Risk-Adaptive Decision Gates problem definition, RADG decision function, formal evaluation framework (UAR, HIC, QFR, E2EL, TC), baselines.
 - [[Scope_Pivot_20260706]]: Formal scope pivot document — complete evolution from V2 through V5, including PoliMi/CNSM 2025 positioning.
-- [[tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
+- [[architecture/tools_wiki/QoT_Tool]]: Centralized documentation for the QoT C++ simulator and its physical-layer parameters.
 
 ### Feature Docs (`docs/LLM_Wiki/wiki/architecture/features/`)
 - [[architecture/features/intent_ingest]]: Phase 1 — NL intent parsing node, IntentSummary schema, LLM structured output.
 - [[architecture/features/intent_reconciler]]: Phase 2 (Refinement) — LLM-assisted intent reconciliation and reasoning (full replacement vs partial update).
 - [[architecture/features/pddl_parser]]: Phase 2 — PDDL Parser node + CFG Validator. LLM as translator, refinement loop.
 - [[architecture/features/reverse_prompt]]: Phase 3 (HITL) — Reverse Prompting HITL node, LLM reconstruction, `interrupt()` pattern.
-- [[architecture/features/semantic_gate]]: Phase 3 (Gate) — Semantic Gate node computing $U_{sem}$ with 2-layer validation. Routes to Phase 4 or clarifies.
+- [[architecture/features/semantic_gate]]: Phase 3 (Gate) — Semantic RADG node computing $U_{sem}$ with 2-layer validation. Routes to Phase 4 or clarifies.
 - [[architecture/features/symbolic_solver]]: Phase 4 — Symbolic Solver (Yen's K-SP) + Mock GraphRAG (k-hop neighborhood extraction).
 - [[architecture/features/qot_tool]]: Phase 5 — QoT Physics Engine (GN model), `@tool` wrapper, real physics integration in `qot_validation_node.py`.
-- [[architecture/features/radg]]: Phase 6 — Risk-Adaptive Decision Gate (RADG), evaluates physical risk, maps QoT to `{approve, replan}`.
+- [[architecture/features/radg]]: Phase 6 — Physical RADG, evaluates physical risk, maps QoT to `{approve, replan}`.
 - [[architecture/features/plan_synthesizer]]: Phase 7 — Plan Synthesizer, compiles auditable trace of $U_{sem}$ and QoT decisions.
 - [[architecture/features/testbed_client]]: Testbed NBI — RESTConf client with CAS SSO, MockTestbedClient, topology assembly.
 - [[architecture/features/pipeline_graph]]: Pipeline wiring — LangGraph StateGraph, AgentState schema, full V5 active topology.
@@ -98,7 +101,6 @@ Content-oriented catalog of everything in the wiki.
 - [[presentations/archive/Presentation_20260519_Orchestrator_Architecture]]: (archived) V2 LangGraph Orchestrator architecture slide deck for professor review.
 - [[presentations/archive/Presentation_20260511_QoT_Integration]]: (archived) Technical analysis of the C++ QoT simulator and the Pure Python Port integration proposal.
 - [[presentations/archive/Presentation_Hybrid_Memory_Architecture_and_Implementation]]: (archived) Presentation outline proposing the Hybrid Memory Architecture to the professor.
-- [[presentations/archive/Presentation_20260430_DevEnvironment]]: (archived) Dev environment restructuring (Screaming Architecture, Wiki system, Issue tracking).
 
 ## Transcriptions
 - [[transcriptions/Transcript_20260811_ThesisOutline_MockTopology]]: Meeting with team on thesis outline feedback (introduction, baseline integration, October defense timeline) and shifting from physical testbed RESTConf topology to mock topologies (17-node German / 14-node Japan).
@@ -137,13 +139,18 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition]]: Chapter 3 Section 3.1 — Formal Problem Definition, architectural vulnerabilities, physical parameters, and optimization objective.
 - [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework]]: Chapter 3 Section 3.2 — Conceptual Framework, 7-phase fail-fast pipeline, and complexity bounds.
 - [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]: Chapter 3 Section 3.3 — Strict Neurosymbolic Separation, CFG validator, and token context bounds.
-- [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gate (RADG) decision function, GN model physics integration, and Formal HITL Reverse Prompting execution policies.
+- [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gates (RADGs) decision function, GN model physics integration, and Formal HITL Reverse Prompting execution policies.
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
 - [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
+- [[thesis_drafts/4_NPImp/4_1_Network_State_and_GraphRAG]]: Chapter 4 Section 4.1 — Optical Network Abstraction, Nobel-Germany testbed modeling, token budget saturation, and Scoped Subtopology GraphRAG.
+- [[thesis_drafts/4_NPImp/4_2_Semantic_and_QoT_Validation_Modules]]: Chapter 4 Section 4.2 — Intent Ingest, Intent Reconciler (SLM ghost constraint prevention), CFG AST PDDL Validator ($v_{struct}$), Two-Layer Semantic RADG ($U_{sem}$), and analytical GN-model physics engine.
+- [[thesis_drafts/4_NPImp/4_3_Decision_Outcomes_and_Orchestration_Flow]]: Chapter 4 Section 4.3 — LangGraph StateGraph, AgentState schema, Physical RADG execution, decoupled HITL interruption checkpoints, and verification of the 7 canonical E2E execution paths.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260919_Thesis_Chapter4_Neurosymbolic_Pipeline_Implementation]]: Consolidated session summary: major restructuring of Chapters 3 and 4 for narrative fluidity. Consolidated all mathematical formulations (GN-model physics, $U_{sem}$) and formal grammars (PDDL CFG) into Chapter 3. Completely redesigned Chapter 4 into four execution sections (4.1 to 4.4 in `docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/`), covering Orchestration and Network Context, The Semantic Engine, The Physical Engine and System Resilience, and Plan Synthesis and Verification, abstracting raw PDDL and code blocks to improve storytelling.
+- [[session_summary/session_20260918_Architecture_Tone_Refactor]]: Architecture tone refactor to emphasize HITL optimization and operational integrity, thesis title alignment, and consolidation of EvaluationFramework_v5.
 - [[session_summary/session_20260916_Benchmark_Harness_SLM_Hardening_and_Full_Corpus_Evaluation]]: Consolidated session summary: automated benchmark harness with run isolation and non-destructive snapshotting, Four Core Validation Pillars telemetry integration (`run_evaluation.py`), prompt/context hardening for local SLM (`qwen2.5:3b`), elimination of ghost constraint leakage in intent reconciliation, achieving 100% first-attempt pass rate on Nominal intents, 94.1% CRR, 0% FPR, 0% UAR (Strict Safety Invariant), and 95.0% Gate Decision Accuracy across the full 20-demand compact corpus.
 - [[session_summary/session_20260914_Sprint4_Evaluation_Modernization_and_Follow_Up_Protocol]]: Sprint 4 evaluation framework modernization: automated follow-up recovery protocol (`STANDARD_FOLLOW_UP_INTENT`) via `Command(resume=...)` for true E2E latency and cumulative token accounting through to synthesis per intent risk class, dual-action tracking (`initial_action` vs `final_action`), consolidation to a 4-baseline comparative matrix (Proposed, Baseline A, Baseline B, Baseline C), complete removal of Baseline C (Always-Off HITL), refinement of Pillar 2 (UAR=0%, PIIR=100%) and Pillar 3 (latency, tokens, $\Delta N_{hitl}$), and formalization of Traditional SDON / PCE as a static industrial reference (hours to days/weeks, 0 tokens, UAR=0.0%).
 - [[session_summary/session_20260914_Local_Ollama_Multi_Model_Profiling_and_Provider_Integration]]: Consolidated session summary: local open-weights Ollama integration (`OllamaChatOpenAI`, WSL2 gateway discovery, multi-provider dispatch), hardware architecture audit on RTX 3050 (4GB VRAM) proving `qwen2.5:3b` as optimal 100% VRAM default (~1.5s latency, 70 tok/s), profiling of `phi4-mini:latest` and `qwen3:4b` with dynamic token budgeting (3000 tokens) and native `<think>` token filtering, and Phase 3 Semantic Gate hardening eliminating topology leakage.

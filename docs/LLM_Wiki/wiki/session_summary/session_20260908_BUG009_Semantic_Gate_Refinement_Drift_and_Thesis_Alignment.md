@@ -41,7 +41,7 @@ To solve this, the orchestrator architecture was extended with **Effective Refer
 
 ### 3. Thesis Chapter 3 Alignment & Formalization
 - **Conceptual Framework (`docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_2_Conceptual_Framework.md`):** Updated Section 3.2.3 to expand the formal state vector $\mathcal{S}_{\text{state}} = \langle \mathcal{I}_{NL}, \mathcal{P}_{PDDL}, \mathcal{G}_{sub}, \mathcal{R}_{QoT}, \mathcal{H}_{refine}, \kappa_{refine}, \mathcal{U}_{sem}, \mathcal{D}_{RADG} \rangle$.
-- **Formal HITL Reverse Prompting (`docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting.md`):**
+- **Risk-Adaptive Decision Gates (`docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md`):**
   - Formulated Section 3.5.2 to define effective reference intent $\mathcal{I}_{\text{eff}}^{(k)} = \mathcal{I}_{NL} \oplus \bigoplus_{j=1}^{k} \delta_j$ and calibrated semantic divergence $d_{sem}(\mathcal{I}_{\text{recon}}^{(k)}, \mathcal{I}_{\text{eff}}^{(k)})$.
   - Added Section 3.5.3 detailing bounded refinement convergence, state persistence, and the safety halting condition $\kappa_{refine} \ge N_{max} \implies \text{ABORT}$.
 - **Consolidated LaTeX Source (`docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt`):** Synchronized all definitions and text into Overleaf LaTeX format, preserving academic boxes and LaTeX math consistency.
@@ -83,7 +83,7 @@ To solve this, the orchestrator architecture was extended with **Effective Refer
 | **Bug Documentation** | [[experiments/bugs/bug010_Planning_Report_Intent_and_Topology|bug010]] | Created | Complete RCA and verification for BUG-010 (stale intent and raw subtopology dump) |
 | **Bug Registry** | [[experiments/Bug_Registry|Bug_Registry.md]] | Modified | Registered BUG-008, BUG-009, and BUG-010 |
 | **Thesis Section 3.2** | [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|3_2_Conceptual_Framework.md]] | Modified | Added $\mathcal{H}_{refine}$ and $\kappa_{refine}$ to $\mathcal{S}_{\text{state}}$ |
-| **Thesis Section 3.5** | [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|3_5_Formal_HITL_Reverse_Prompting.md]] | Modified | Formally documented effective intent and $N_{max}=3$ bounded convergence |
+| **Thesis Section 3.4** | [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates|3_4_Risk_Adaptive_Decision_Gates.md]] | Modified | Formally documented effective intent and $N_{max}=3$ bounded convergence |
 | **Consolidated LaTeX** | [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt|chapter_3_system_model.txt]] | Modified | Synchronized Overleaf source with Section 3.2.3 and 3.5 updates |
 | **Weekly Report** | [[weekly_reports/Weekly_Report_20260908_Felipe_Abadia|Weekly_Report_20260908]] | Modified | Added Section 2 Items 9-10, Section 3 Issues 3-4, and presentation rehearsal priority |
 | **Issue Report** | [[issues/Issue_Report_20260908_Felipe_Abadia|Issue_Report_20260908]] | Modified | Documented BUG-009 and BUG-010 resolutions |

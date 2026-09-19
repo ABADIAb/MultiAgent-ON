@@ -71,6 +71,6 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 
 The mathematical framework and convergence guarantees for bounded refinement and effective intent have been integrated directly into:
 - Thesis Section 3.2.3: Extended State Vector $\mathcal{S}_{\text{state}}$ ([[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework]])
-- Thesis Section 3.5.2: Effective Reference Intent Formulation ([[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]])
-- Thesis Section 3.5.3: Bounded Refinement and Token Protection ([[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]])
+- Thesis Section 3.4.5: Effective Reference Intent Formulation ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]])
+- Thesis Section 3.4.6: Bounded Refinement and Token Protection ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]])
 - Overleaf Consolidated Document: [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]

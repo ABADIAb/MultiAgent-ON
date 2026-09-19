@@ -17,7 +17,7 @@ This session focused on the rigorous review, mathematical verification, and acad
 
 ## What was Accomplished?
 
-### 1. Section 3.4 Audit & Academic Refinement ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate]])
+### 1. Section 3.4 Audit & Academic Refinement ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]])
 - **Mathematical Consistency Audit:**
   - Audited the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ mapping to action space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$.
   - Verified the two-layer formulation of semantic uncertainty $U_{sem} = f(v_{struct}, d_{sem})$ against `src/core/semantic_gate.py` and `src/core/pddl_validator.py`.
@@ -41,7 +41,7 @@ This session focused on the rigorous review, mathematical verification, and acad
 
 | Component | File | Action | Description |
 |-----------|------|--------|-------------|
-| Thesis Drafts | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate.md` | MODIFIED | Refined Section 3.4 text, LaTeX formulas, and architecture alignment |
+| Thesis Drafts | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md` | MODIFIED | Refined Section 3.4 text, LaTeX formulas, and architecture alignment |
 | Session Summaries | `docs/LLM_Wiki/wiki/session_summary/session_20260904_Thesis_Section_3_4_RADG_Refinement.md` | NEW | Formal session summary and debrief documentation |
 | Reports | `docs/LLM_Wiki/wiki/weekly_reports/Weekly_Report_20260901_Felipe_Abadia.md` | MODIFIED | Updated weekly progress with Section 3.4 achievements |
 | Wiki Index | `docs/LLM_Wiki/index.md` | MODIFIED | Cataloged new session summary |
@@ -51,6 +51,6 @@ This session focused on the rigorous review, mathematical verification, and acad
 
 ## Next Steps (Handover State)
 
-1. **Chapter 3 Section 3.5 Refinement ([[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]]):** Review and mathematically synchronize Section 3.5 (*Formal HITL Reverse Prompting Protocol*), formalizing reverse translation invariance, state schema preservation, and convergence guarantees.
+1. **Chapter 3 Section 3.4/3.5 Refinement ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]]):** Review and mathematically synchronize Section 3.5 (*Formal HITL Reverse Prompting Protocol*), formalizing reverse translation invariance, state schema preservation, and convergence guarantees.
 2. **Sprint 4 Baseline Benchmarking (Exp 4.0 & Exp 4.1):** Build the synthetic test corpus (`tests/evaluation/test_corpus.json`) across the 17-node German topology and execute baseline comparisons (Risk-Adaptive HITL vs No-HITL vs Always-HITL).
 3. **Drafting Chapter 4 (Implementation & System Integration):** Begin formal drafting of Chapter 4 sections detailing the LangGraph orchestrator, AST parser, and GN-model physics port.
