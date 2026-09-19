@@ -45,21 +45,22 @@ This document provides the fourth iteration of the thesis outline, incorporating
   - **Constrained by:** Deterministic physical QoT requirements ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$, receiver power thresholds) and strict semantic ambiguity thresholds ($U_{sem}$).
   - **Objective:** Minimize operational friction ($N_{hitl}$) and computational cost ($T_{tokens}$) subject to strict physical and semantic validity constraints. Physical feasibility is treated as a hard constraint (UAR = $0$) rather than a maximizable variable.
   - *Citations:* `[[ProblemStatement_v5]]`.
-- **3.2 Conceptual Framework:** High-level introduction of the LLM-Assisted Risk-Adaptive Decision Gates architecture.
-  - *Citations:* `[[Architecture_v5]]`.
-- **3.3 Strict Neurosymbolic Separation:** Constraining the LLM to linguistic parsing (Intent $\to$ PDDL) and isolating the physics computations to deterministic symbolic solvers.
+- **3.2 Strict Neurosymbolic Separation:** Constraining the LLM to linguistic parsing (Intent $\to$ PDDL) and isolating the physics computations to deterministic symbolic solvers.
   - *Citations:* `[[Scope_Pivot_20260706]]`.
-- **3.4 The Risk-Adaptive Decision Gates (RADGs):** The core mathematical/logical pipeline evaluating semantic uncertainty ($U_{sem}$) and physical-layer QoT feasibility ($\text{QoT}_{valid}$) before deployment. Incorporates formal Human-In-The-Loop (HITL) via reverse prompting and LangGraph state-preserving interrupts to eliminate semantic drift without cognitive overload.
+- **3.3 Risk-Adaptive Decision Gates (RADGs):** The core mathematical/logical pipeline evaluating semantic uncertainty ($U_{sem}$) and physical-layer QoT feasibility ($\text{QoT}_{valid}$) before deployment. Incorporates formal Human-In-The-Loop (HITL) via reverse prompting and LangGraph state-preserving interrupts to eliminate semantic drift without cognitive overload.
+  - *Citations:* `[[Architecture_v5]]`.
+- **3.4 Conceptual Framework:** High-level introduction of the LLM-Assisted Risk-Adaptive Decision Gates architecture (The 7-Phase Pipeline).
   - *Citations:* `[[Architecture_v5]]`.
 
 --------------------------------------------------------------------------------
 # **4 Neurosymbolic Pipeline Implementation** 
-- **4.1 Network State and Knowledge Graph (GraphRAG):** Solving token budget saturation by implementing a k-hop compressed topological GraphRAG to provide localized context.
-  - *Citations:* `[[Architecture_v5]]`; `[SOTA] INTEGRATION_OF_LIVE_NETWORK_KNOWLEDGE_GRAPHS_WITH_RAG...pdf` (validating topology chunks and state embeddings); `[SOTA] How to improve multi-hop reasoning with knowledge graphs and LLMs` (general GraphRAG mechanics).
-- **4.2 Semantic and QoT Validation Modules:** The mechanics of the threshold-based decision functions, specifically integrating a deterministic GN-model for exact GSNR and receiver power feasibility.
-  - *Citations:* `[[ProblemStatement_v5]]`; `[SOTA] GNPy_as_a_benchmark_for_open_and_disaggregated_optical_networks.pdf` (to validate GN-model usage); `[SOTA] A_T-API-Compliant_ReAct_Agentic_Loop_for_Optical_Networks.pdf` (for T-API/GNPy integration).
-- **4.3 Decision Outcomes:** The specific workflows resulting from the RADGs: Auto-Approve, Clarify, and Suggest Replan.
-  - *Citations:* `[[Architecture_v5]]`.
+- **4.1 Orchestration and Network Context:** Solving token budget saturation by implementing a k-hop compressed topological GraphRAG to provide localized context, and structuring the LangGraph state machine.
+  - *Citations:* `[[Architecture_v5]]`; `[SOTA] INTEGRATION_OF_LIVE_NETWORK_KNOWLEDGE_GRAPHS_WITH_RAG...pdf`; `[SOTA] How to improve multi-hop reasoning with knowledge graphs and LLMs`.
+- **4.2 The Semantic Engine:** The mechanics of the ingestion, multi-turn reconciler, CFG AST parsing, and the Semantic RADG logic via Reverse Prompting.
+  - *Citations:* `[[ProblemStatement_v5]]`.
+- **4.3 The Physical Engine and System Resilience:** The deterministic GN-model QoT validation execution flow, the Physical RADG decision logic, and proportional HITL re-entry protocols.
+  - *Citations:* `[[Architecture_v5]]`; `[SOTA] GNPy_as_a_benchmark_for_open_and_disaggregated_optical_networks.pdf`; `[SOTA] A_T-API-Compliant_ReAct_Agentic_Loop_for_Optical_Networks.pdf`.
+- **4.4 Plan Synthesis and Verification:** The final auditable provisioning trace and verification of the seven canonical execution paths under Strict TDD.
 
 --------------------------------------------------------------------------------
 # **5 Experimental Evaluation and Results** 

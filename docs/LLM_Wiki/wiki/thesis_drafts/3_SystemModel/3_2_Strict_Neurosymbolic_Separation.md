@@ -1,13 +1,13 @@
 ---
-title: "Chapter 3 - Section 3.3: Strict Neurosymbolic Separation"
+title: "Chapter 3 - Section 3.2: Strict Neurosymbolic Separation"
 date: 2026-09-02
 tags: [thesis, chapter-3, system-model, neurosymbolic, pddl, cfg-validator, separation-of-concerns]
 status: active
 ---
 
-# 3.3 Strict Neurosymbolic Separation
+# 3.2 Strict Neurosymbolic Separation
 
-## 3.3.1 The "LLMs Reason, Tools Calculate" Paradigm
+## 3.2.1 The "LLMs Reason, Tools Calculate" Paradigm
 
 A central design tenet of the proposed architecture is strict neurosymbolic separation. In telecommunications domains, neural generative models and symbolic algorithms exhibit complementary, non-overlapping operational capabilities. 
 
@@ -22,7 +22,7 @@ To reconcile this operational tension, the architecture enforces a strict bounda
 > **Figure: Neurosymbolic Subsystem Architecture & PDDL Interface** (`figs_SystemModel/pdf/neural_symbolic_subsystems.pdf`)
 > Decoupling of functional responsibilities: the Neural Subsystem handles intent extraction and linguistic formalization, passing typed PDDL predicates through a Context-Free Grammar (CFG) validation boundary to the deterministic Symbolic Subsystem for constraint pruning and physical simulation.
 
-## 3.3.2 PDDL Domain Formalization for Optical Routing
+## 3.2.2 PDDL Domain Formalization for Optical Routing
 
 To establish a standard formal intermediate representation, we define an optical routing subset within the Planning Domain Definition Language (PDDL). This domain formalizes the types, predicates, and constraint structures required to model optical path establishment.
 
@@ -74,7 +74,7 @@ When the operator submits an intent such as *"Provision a lightpath from Hamburg
 )
 ```
 
-## 3.3.3 Context-Free Grammar (CFG) Structural Validation
+## 3.2.3 Context-Free Grammar (CFG) Structural Validation
 
 To guarantee that the neural translation output contains zero structural or syntactical hallucinations, a deterministic Context-Free Grammar (CFG) validator immediately audits the generated string. 
 
@@ -116,7 +116,7 @@ $$v_{struct} = \begin{cases} 1 & \text{if } \mathcal{S}_{PDDL} \in \mathcal{L}(\
 
 If $v_{struct} = 0$, the plan fails the structural audit. The system assigns maximum semantic uncertainty ($U_{sem} = 1.0$) and triggers a clarification request, avoiding wasted downstream computational resources.
 
-## 3.3.4 Deterministic Symbolic Solver and Graph Traversal
+## 3.2.4 Deterministic Symbolic Solver and Graph Traversal
 
 Upon validation by the CFG gate, the system translates the PDDL predicates into topological graph pruning and constraint filtering operations. These execute over the $k$-hop subtopology $G_{sub}(V_{sub}, E_{sub})$ extracted by the topological context extractor:
 

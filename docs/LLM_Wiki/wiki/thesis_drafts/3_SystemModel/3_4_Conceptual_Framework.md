@@ -1,13 +1,13 @@
 ---
-title: "Chapter 3 - Section 3.2: Conceptual Framework"
+title: "Chapter 3 - Section 3.4: Conceptual Framework"
 date: 2026-08-24
 tags: [thesis, chapter-3, system-model, conceptual-framework, fail-fast, architecture-v5]
 status: draft
 ---
 
-# 3.2 Conceptual Framework
+# 3.4 Conceptual Framework
 
-## 3.2.1 The Fail-Fast Pre-Deployment Paradigm
+## 3.4.1 The Fail-Fast Pre-Deployment Paradigm
 
 To overcome the latency penalties and operational risks of trial-and-error network configuration, the proposed architecture introduces a **Fail-Fast Risk-Adaptive Neurosymbolic Framework**. The foundational premise rests on a strict pre-deployment verification invariant: *no configuration directive shall be dispatched to the physical or virtual optical controller until it has been verified through a sequence of orthogonal, risk-bounded validation gates*.
 
@@ -22,7 +22,7 @@ By decoupling and ordering these validation checks sequentially, the architectur
 
 ---
 
-## 3.2.2 End-to-End Pipeline Overview
+## 3.4.2 End-to-End Pipeline Overview
 
 The framework operates through seven interconnected functional phases managed by a stateful orchestration graph:
 
@@ -45,7 +45,7 @@ The framework operates through seven interconnected functional phases managed by
 
 ---
 
-## 3.2.3 State Representation and Transaction Lifecycle
+## 3.4.3 State Representation and Transaction Lifecycle
 
 The pipeline state $\mathcal{S}_{state}$ is managed as an immutable, append-only data structure within the orchestration runtime:
 
@@ -70,6 +70,6 @@ State transitions are governed by deterministic guard functions, ensuring that b
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 3.2 Placement:** Insert the complete Swimlane/Flowchart diagram representing the 7 phases, highlighting the two decision gates with distinct visual boundaries.
+> **Figure 3.4 Placement:** Insert the complete Swimlane/Flowchart diagram representing the 7 phases, highlighting the two decision gates with distinct visual boundaries.
 > 
 > **Key Distinctions to Emphasize:** Highlight how the 2-gate sequential model differs from traditional single-pass LLM wrappers (such as raw ReAct agents or stateless chatbot interfaces).

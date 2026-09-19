@@ -1,13 +1,13 @@
 ---
-title: "Chapter 3 - Section 3.4: The Risk-Adaptive Decision Gates (RADGs)"
+title: "Chapter 3 - Section 3.3: The Risk-Adaptive Decision Gates (RADGs)"
 date: 2026-08-24
 tags: [thesis, chapter-3, system-model, radg, decision-function, usem, qot, hitl, reverse-prompting, interrupt]
 status: draft
 ---
 
-# 3.4 The Risk-Adaptive Decision Gates (RADGs)
+# 3.3 The Risk-Adaptive Decision Gates (RADGs)
 
-## 3.4.1 Mathematical Formulation of the RADGs Decision Function
+## 3.3.1 Mathematical Formulation of the RADGs Decision Function
 
 The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gates (RADGs). Formulated as a deterministic, piecewise decision function $D$, the RADGs evaluate two orthogonal, sequentially computed risk signals to guarantee pre-deployment safety. These signals comprise:
 
@@ -34,7 +34,7 @@ While conceptualized as a unified mathematical function, the software implementa
 
 ---
 
-## 3.4.2 Two-Layer Semantic Uncertainty Quantification ($U_{sem}$)
+## 3.3.2 Two-Layer Semantic Uncertainty Quantification ($U_{sem}$)
 
 To prevent false positives during automated intent translation, $U_{sem}$ undergoes a two-layer hierarchical assessment. 
 
@@ -74,7 +74,7 @@ $$
 
 ---
 
-## 3.4.3 Deterministic Physical-Layer QoT Evaluation
+## 3.3.3 Deterministic Physical-Layer QoT Evaluation
 
 Following semantic validation, physical feasibility is assessed deterministically utilizing the analytical coherent Gaussian Noise (GN) model for uncompensated optical fiber transmission.
 
@@ -138,62 +138,33 @@ $$
 
 ---
 
-## 3.4.4 Decision Matrix and Action Execution Policies
+## 3.3.4 Decision Matrix and Action Execution Policies
 
 The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADGs operational decision matrix:
 
 | $U_{sem}$ Evaluation | $\text{QoT}_{valid}$ Status | RADGs Decision | Pipeline Action & Human Engagement |
 | :--- | :--- | :--- | :--- |
-
-Conventional asynchronous control-plane servers utilize stateless webhooks or polling loops to capture human feedback. These approaches frequently generate orphaned execution threads and precipitate race conditions within the optical controller.
-
-The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic RADG when $U_{sem} > \tau_{sem}$:
-
-```python
-# Formal LangGraph Interrupt Pattern within the HITL Clarification Node
-response = interrupt({
-    "status": "clarification_required",
-    "reconstruction": reconstruction,
-    "usem_score": usem_score,
-    "pddl_valid": pddl_valid,
-    "error_context": error_context,
-    "options": ["approve", "refine", "cancel"] if pddl_valid else ["refine", "cancel"],
-    "message": (
-        "Semantic uncertainty is high or intent requires clarification. "
-        "Please review the system's understanding and provide refined instructions."
-    )
-})
-```
-
-**Execution Lifecycle under Interruption:**
-1. **Atomic Checkpoint Serialization:** Invoking the `interrupt()` function halts node execution and serializes the complete `AgentState` tuple $\mathcal{S}_{state}$ into a persistent storage checkpointer, keyed by a unique transaction thread identifier.
-2. **Resource Deallocation:** The framework immediately releases memory and compute threads. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback.
-3. **Resumption and State Injection:** Upon receiving operator feedback via the management interface, the framework reloads the precise state checkpoint. If the operator approves a structurally valid constraint set, the system bypasses the parsing phase and routes directly to the symbolic solver. Otherwise, it appends the feedback $\mathcal{F}_k$ to the cumulative refinement history $\mathcal{H}_{refine}$, increments the refinement counter $\kappa_{refine}$, and injects the human instructions into `error_context`, routing cleanly back to the parsing phase for targeted PDDL regeneration.
-4. **Context Window Protection ($N_{max} = 3$):** If the refinement counter reaches $\kappa_{refine} \ge N_{max} = 3$, the system raises an explicit abort interrupt (`status="aborted"`). This deterministic ceiling prevents context window saturation, attention degradation ("lost-in-the-middle"), and token budget exhaustion, routing execution cleanly to the terminal state upon operator cancellation.
+| $\le \tau_{sem}$ | $1$ (Feasible) | Approve | Auto-provision (Zero Human Interaction) |
+| $\le \tau_{sem}$ | $0$ (Infeasible) | Replan | HITL Interrupt: Suggest relaxing constraints |
+| $> \tau_{sem}$ | N/A (Bypassed) | Clarify | HITL Interrupt: Clarify semantic ambiguity |
 
 ---
 
-## 3.4.6 Monotonic Constraint Preservation and Convergence Guarantees
+## 3.3.5 Monotonic Constraint Preservation and Convergence Guarantees
 
 To ensure multi-turn refinement strictly terminates, the architecture defines a **Monotonic Constraint Preservation** invariant. Let $\mathcal{C}_k$ denote the set of active hard constraints during iteration $k$. Following operator feedback $\mathcal{F}_k$, the subsequent constraint set satisfies:
 
 $$\mathcal{C}_{k+1} = \mathcal{C}_k \cup \text{ExtractConstraints}(\mathcal{F}_k) \setminus \text{ExplicitRevocations}(\mathcal{F}_k)$$
 
-Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{max} = 3$. If an intent fails to achieve $U_{sem} \le \tau_{sem}$ after $N_{max}$ iterations, the system halts with the context-protection abort interrupt, preventing control-plane deadlocks.
-
-
-
-## 3.4.5 State-Preserving Execution Pausing via LangGraph Interrupts
-
-The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic RADG when $U_{sem} > \tau_{sem}$ or at the Physical RADG when $\text{QoT}_{valid} = 0$, ensuring no configurations are deployed without explicit human verification. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback, preserving full execution state atomically.
+Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{max} = 3$. If an intent fails to achieve $U_{sem} \le \tau_{sem}$ after $N_{max}$ iterations, the system halts execution, preventing control-plane deadlocks.
 
 ---
 
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 3.4 Placement (The 2D Decision Space Diagram):** 
-> To maximize academic clarity, insert a visual representation of the RADGs state space mapping immediately following Section 3.4.1. 
+> **Figure 3.3 Placement (The 2D Decision Space Diagram):** 
+> To maximize academic clarity, insert a visual representation of the RADGs state space mapping immediately following Section 3.3.1. 
 > - **X-axis:** Semantic Uncertainty $U_{sem} \in [0, 1]$ with a solid vertical delimiter representing $\tau_{sem} = 0.30$.
 > - **Y-axis:** GSNR Margin defined as $\Delta\text{GSNR} = \text{GSNR}_{computed} - \text{GSNR}_{th}$ ($\text{dB}$), featuring a solid horizontal delimiter at $0\text{ dB}$.
 > - **Quadrants:** Shade and label the three distinct operational zones: the **Clarify Zone** ($U_{sem} > 0.30$), the **Replan Zone** ($\Delta\text{GSNR} < 0$), and the **Auto-Approve Zone** (top-left, safe).

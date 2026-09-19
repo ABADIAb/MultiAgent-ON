@@ -69,19 +69,23 @@ flowchart LR
 
 *Objetivo:* Documentar la arquitectura de software real en `src/`, explicando cómo el diseño matemático del Capítulo 3 se traduce a código ejecutable en Python, LangGraph y servicios de red.
 
-#### 4.1 Network State and Knowledge Graph (GraphRAG)
-- **Contenido:** Extracción de subtopología de $k$-hops en `src/core/mock_graphrag.py`. Abstracción de la red Nobel-Germany de 17 nodos y 26 enlaces en `MockTestbedClient`. Adaptador RESTCONF NBI con autenticación CAS SSO (`src/services/testbed_client.py`).
+#### 4.1 Orchestration and Network Context
+- **Contenido:** Grafo de estados en `src/core/graph.py` y `state.py`. Extracción de subtopología de $k$-hops en `src/core/mock_graphrag.py`. Abstracción de la red Nobel-Germany de 17 nodos y 26 enlaces.
 - **Recomendaciones:** Explicar cómo el filtrado de $k$-hops reduce drásticamente el tamaño del contexto ($T_{prompt} \ll T_{full}$), evitando la saturación de atención.
 - **Referencias:** `[SOTA] INTEGRATION_OF_LIVE_NETWORK_KNOWLEDGE_GRAPHS_WITH_RAG...pdf`, [[architecture/features/testbed_client]].
 
-#### 4.2 Semantic and QoT Validation Modules
-- **Contenido:** Implementación de nodos: `intent_ingest_node`, `pddl_parser_node` y validador regex (`src/core/pddl_validator.py`). Motor físico de QoT en `src/core/qot_calculator.py` calibrado para enlaces de 37.5 km a 381.9 km con amplificadores ILAs y boosters.
+#### 4.2 The Semantic Engine
+- **Contenido:** Implementación de nodos: `intent_ingest_node`, el reconciliador multi-turno, `pddl_parser_node` y el validador CFG AST (`src/core/pddl_validator.py`). Lógica del Semantic RADG usando Reverse Prompting.
+- **Recomendaciones:** Enfatizar la Verbatim Intent Preservation Invariant para evitar abstracciones numéricas con pérdida.
+
+#### 4.3 The Physical Engine and System Resilience
+- **Contenido:** Motor físico de QoT en `src/core/qot_calculator.py` calibrado para enlaces de 37.5 km a 381.9 km con amplificadores ILAs y boosters. Lógica de decisión del Physical RADG (`radg_node.py`). Manejo de loops de refinamiento y re-entradas HITL.
 - **Recomendaciones:** Documentar la calibración de potencia optical ($-15$ a $-11\text{ dBm}$) y cómo se previno la explosión no lineal (BUG-003).
 - **Referencias:** `[SOTA] GNPy_as_a_benchmark_for_open_and_disaggregated_optical_networks.pdf`, [[architecture/features/qot_tool]].
 
-#### 4.3 Decision Outcomes and Orchestration Flow
-- **Contenido:** Grafo de estados en `src/core/graph.py` y `state.py`. Nodos de decisión: `semantic_gate_node.py` y `radg_node.py`. Manejo de loops de refinamiento y resolución de BUG-007 (evitando bucles infinitos). Síntesis del reporte final en `plan_synthesizer.py`.
-- **Recomendaciones:** Incluir tabla con los 7 caminos de ejecución verificados en `tests/unit/test_e2e_pipeline_flow.py`.
+#### 4.4 Plan Synthesis and Verification
+- **Contenido:** Síntesis del reporte final auditable en `plan_synthesizer.py`. Verificación de los caminos canónicos bajo Strict TDD.
+- **Recomendaciones:** Incluir resumen de los 7 caminos de ejecución verificados en `tests/unit/test_e2e_pipeline_flow.py`.
 
 ---
 
