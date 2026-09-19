@@ -11,16 +11,19 @@ This document serves as a registry and reminder of all assumptions, clarificatio
 
 Review this list before finalizing each chapter.
 
-## Chapter 4: Neurosymbolic Pipeline Implementation
+## Chapter 4: Neurosymbolic Pipeline Implementation (Drafted)
 
-### 1. Document Optical RAG Bypass (ITU-T Specs)
-- **Context:** In the theoretical model (Chapter 3), Phase 1 (*Intent Ingestion & Optical RAG*) includes both dynamic topology extraction (GraphRAG) and querying standard optical specifications (ITU-T, amplifier parameters) via document retrieval.
-- **Mandatory Clarification to Include:** For the scope of the MVP and experimental validation, the textual document retrieval branch of the Optical RAG was bypassed. The physical parameters of the ITU-T grid and EDFA characteristics were injected statically as constants in the code to deterministically isolate the performance of the *Risk-Adaptive Decision Gate (RADG)*.
-- **Action:** Ensure it is mentioned that dynamic standard text retrieval remains as **Future Work**.
+- **Status:** Sections 4.1, 4.2, and 4.3 drafted under `docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/`.
 
-### 2. Verify LaTeX Cross-Reference Label
-- **Context:** In Section 3.1.5 (Optimization Objective), we referenced Chapter 4 for the baseline experiments. We used `Chapter~\ref{chap:implementation}` to avoid hardcoding the number.
-- **Action:** Ensure that when Chapter 4 is created, the label `\label{chap:implementation}` is explicitly declared right after the `\chapter{...}` command so the cross-reference resolves correctly. Also remove the `\textcolor{red}{[TODO...]}`.
+### 1. Document Optical RAG Bypass (ITU-T Specs) — [RESOLVED]
+- **Resolution:** Explicitly documented in Section 4.1 under *Remark 1 (Optical RAG Standard Specification Bypass)*. Dynamic retrieval is deferred to Chapter 6 Future Work.
+
+### 2. Verify LaTeX Cross-Reference Label — [PENDING LATEX CONSOLIDATION]
+- **Context:** In Section 3.1.5 (Optimization Objective), we referenced Chapter 4 for the baseline experiments using `Chapter~\ref{chap:implementation}`.
+- **Action:** When compiling the merged LaTeX file for Chapter 4 (`chapter_4_npimp.txt`), declare `\label{chap:implementation}` immediately after `\chapter{...}`.
+
+### 3. Dynamic Subtopology Scoping (Ellipsoid GraphRAG) — [RESOLVED]
+- **Resolution:** Explicitly documented in Section 4.1 under *Remark 2 (Ellipsoid Subtopology Scoping for Large Diameters)* with the formal node set equation.
 
 ---
 

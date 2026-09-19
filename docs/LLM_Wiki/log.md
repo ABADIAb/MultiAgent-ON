@@ -387,13 +387,13 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Testing & Verification: Test suite expanded from 255 to 268 passing unit tests with 100% success (`uv run pytest`).
 
 ## [2026-09-04] debrief2 | Thesis Section 3.4 RADG Mathematical Refinement
-- Wiki Deep Lint: Audited and verified `session_20260904_Thesis_Section_3_4_RADG_Refinement.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, `3_4_Risk_Adaptive_Decision_Gate.md`, and `index.md` for complete YAML frontmatter and `[[wikilinks]]`.
+- Wiki Deep Lint: Audited and verified `session_20260904_Thesis_Section_3_4_RADG_Refinement.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, `3_4_Risk_Adaptive_Decision_Gates.md`, and `index.md` for complete YAML frontmatter and `[[wikilinks]]`.
 - Consistency Audit: Verified strict alignment between `src/core/radg.py`, `src/nodes/radg_node.py`, `src/core/qot_calculator.py`, `Architecture_v5.md`, and Chapter 3 Section 3.4. Confirmed that the theoretical piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ is correctly documented as decoupled across Phase 3 (Semantic Gate) and Phase 6 (Physical Risk Gate) to preserve the fail-fast execution paradigm.
 - Session focus: Rigorous review, mathematical formalization, and academic refinement of Thesis Chapter 3 Section 3.4 (The Risk-Adaptive Decision Gate). Standardized GN-model GSNR formulas, verified single-sided receiver power sensitivity constraints, and formatted Figure 3.4 drafting blueprint.
 - Testing & Verification: Test suite remains 100% passing across 268 unit tests (`uv run pytest`).
 
 ## [2026-09-05] debrief2 | Thesis Section 3.5 Refinement, Divergence Alignment & BUG-008 Resolution
-- Wiki Deep Lint: Audited and verified `session_20260905_Thesis_Section_3_5_HITL_Refinement_and_Bugfix.md`, `bug008_Inadmissible_HITL_Approval_on_Gate_Failure.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, `3_5_Formal_HITL_Reverse_Prompting.md`, `3_4_Risk_Adaptive_Decision_Gate.md`, and `index.md` for complete YAML frontmatter and `[[wikilinks]]`.
+- Wiki Deep Lint: Audited and verified `session_20260905_Thesis_Section_3_5_HITL_Refinement_and_Bugfix.md`, `bug008_Inadmissible_HITL_Approval_on_Gate_Failure.md`, `Weekly_Report_20260901_Felipe_Abadia.md`, `3_5_Formal_HITL_Reverse_Prompting.md`, `3_4_Risk_Adaptive_Decision_Gates.md`, and `index.md` for complete YAML frontmatter and `[[wikilinks]]`.
 - Consistency Audit: Verified mathematical alignment across Chapter 3 drafts and `src/core/semantic_gate.py`: standardized on $d_{sem} = \text{Score}_{divergence}$ as direct divergence rather than $1 - \text{Score}_{agreement}$. Audited Phase 3b execution in `src/nodes/reverse_prompt.py` and resolved BUG-008 by disallowing inadmissible operator approval on gate failure.
 - Session focus: Rigorous review, mathematical formalization, and academic refinement of Thesis Chapter 3 Section 3.5 (Formal HITL Reverse Prompting), proving Theorem 3.1 (Finite Convergence). Hardened Phase 3b interrupt payload and synchronized test suite.
 - Testing & Verification: Full test suite remains 100% passing across 268 unit tests (`uv run pytest`).
@@ -595,3 +595,14 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 ## [2026-09-18] debrief | Architecture Tone Refactor & HITL Optimization Shift
 - Executed full consistency audit across `src/`, `tests/evaluation/`, and `docs/` replacing "safety" terminology with "integrity/feasibility".
 - Consolidated metrics into `EvaluationFramework_v5.md` to prevent discrepancies with evaluation README.
+
+## [2026-09-19] debrief | Thesis Chapter 4 Drafting (Neurosymbolic Pipeline Implementation)
+- Wiki Deep Lint: Created `session_20260919_Thesis_Chapter4_Neurosymbolic_Pipeline_Implementation.md` with complete YAML frontmatter and cross-links. Updated `index.md` under `## Thesis Drafts` and `## Session Summaries`. Synchronized `Writing_Roadmap_v1.md` (Phase 2 status: Borradores Listos) and `Drafting_Backlog.md` (resolved Optical RAG bypass and Ellipsoid Subtopology Scoping).
+- Consistency Audit: Authored all three markdown sections of Thesis Chapter 4 (`docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/`): `4_1_Network_State_and_GraphRAG.md`, `4_2_Semantic_and_QoT_Validation_Modules.md`, and `4_3_Decision_Outcomes_and_Orchestration_Flow.md` (~60 KB total). Every formulation, algorithm, and data structure was verified against the active codebase (`src/core/`, `src/nodes/`, `src/services/`, and `tests/unit/`).
+- Session focus: Thesis Chapter 4 drafting, codebase mathematical grounding, backlog resolution, wiki catalog synchronization, and session closure.
+
+## [2026-09-19] debrief2 | RADGs Plural Normalization, Section 3.4 Rename & Wiki Deep Lint
+- Wiki Deep Lint: Renamed `3_4_Risk_Adaptive_Decision_Gate.md` to `3_4_Risk_Adaptive_Decision_Gates.md`, synchronized all wikilinks across active drafts, reports, and session summaries. Audited full wiki connectivity across 258 files; authored missing canonical concept notes (`Human_in_the_Loop.md`, `Constraint_Isolation.md`, `PDDL.md`, `HITL_Refinement.md`, `recommendations.md`, `Tool_Registry.md`, `QoT_Tool.md`), updated `index.md`, and repointed merged Section 3.5 references directly to Section 3.4.
+- Consistency Audit: Standardized terminology across the repository to "Risk-Adaptive Decision Gates (RADGs)" (plural) as the overarching prototype, with "Semantic RADG" (Phase 3) and "Physical RADG" (Phase 6) representing the orthogonal execution gates. Synchronized docstrings, CLI print banners, and rich loggers in `src/` while preserving 100% executable code integrity.
+- Testing & Verification: All 321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`). Zero broken links in active wiki notes.
+

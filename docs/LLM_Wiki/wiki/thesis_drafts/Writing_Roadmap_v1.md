@@ -27,7 +27,7 @@ flowchart LR
 | Fase | Capítulo | Nombre | Dependencias Previas | Estado |
 | :--- | :--- | :--- | :--- | :--- |
 | **Fase 1** | **Capítulo 3** | System Model: The Risk-Adaptive Neurosymbolic Architecture | `Architecture_v5`, `ProblemStatement_v5` | **Borradores Listos** (`3_SystemModel/`) |
-| **Fase 2** | **Capítulo 4** | Neurosymbolic Pipeline Implementation | `src/core/`, `src/nodes/`, `src/services/` | Pendiente |
+| **Fase 2** | **Capítulo 4** | Neurosymbolic Pipeline Implementation | `src/core/`, `src/nodes/`, `src/services/` | **Borradores Listos** (`4_NPImp/`) |
 | **Fase 3** | **Capítulo 5** | Experimental Evaluation and Results | Sprint 4 Corpus, 17-Node Nobel-Germany, Kimi Benchmarks | Pendiente (post Sprint 4) |
 | **Fase 4** | **Capítulo 2** | Background and State of the Art | `literature/`, SOTA papers (Confucius, AutoLight, PoliMi CNSM'25) | Pendiente |
 | **Fase 5** | **Capítulo 1 & 6** | Introduction, Conclusion, and Abstracts | Toda la tesis completada | Pendiente final |
@@ -58,10 +58,10 @@ flowchart LR
 - **Recomendaciones:** Incluir figura comparativa: LLM End-to-End (alucinaciones) vs Separación Neurosimbólica.
 - **Borrador:** `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation.md`
 
-#### 3.4 The Risk-Adaptive Decision Gate (RADG)
+#### 3.4 The Risk-Adaptive Decision Gates (RADGs)
 - **Contenido:** Formulación matemática por tramos de $D(U_{sem}, \text{QoT}_{valid})$. Cálculo de dos capas de $U_{sem}$ (CFG + Reverse Prompting $d_{sem}$). Ecuaciones analíticas del modelo GN (ASE noise, NLI Kerr, acumulación de GSNR en dB). Matriz de decisión completa (`approve`, `clarify`, `replan`). Además, se integra el formalismo de Human-In-The-Loop (HITL) vía Reverse Prompting y el patrón `interrupt()` de LangGraph para prevenir Semantic Drift.
 - **Recomendaciones:** Detallar el plano 2D de decisión ($U_{sem}$ vs $\Delta\text{GSNR}$) identificando las 3 zonas operativas. Añadir diagrama de secuencia que ilustre la suspensión, guardado atómico en checkpoint y reanudación con feedback inyectado.
-- **Borrador:** `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate.md`
+- **Borrador:** `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md`
 
 ---
 

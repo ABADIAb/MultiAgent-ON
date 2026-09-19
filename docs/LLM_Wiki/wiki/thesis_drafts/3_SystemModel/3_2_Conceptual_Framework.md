@@ -18,7 +18,7 @@ Unlike reactive paradigms—which execute unverified configurations and rely on 
 By decoupling and ordering these validation checks sequentially, the architecture implements a **fail-fast operational hierarchy**: computationally cheap semantic verification is executed early to catch misunderstandings and missing parameters before invoking non-linear physical simulations or path-finding algorithms.
 <!-- FIGURE_PLACEHOLDER: conceptual_framework -->
 > **Figure: Conceptual Framework & 7-Phase Orchestration Pipeline** (`figs_SystemModel/pdf/conceptual_framework.pdf`)
-> End-to-end architecture of the Risk-Adaptive Neurosymbolic Intent Orchestrator, illustrating the two-gate validation hierarchy: Gate 1 (Semantic Uncertainty Gate $U_{sem} \le \tau_{sem}$) preventing semantic drift, and Gate 2 (Physical Risk Gate $\text{QoT}_{valid} = 1$) ensuring deterministic optical transmission feasibility prior to provisioning.
+> End-to-end architecture of the Risk-Adaptive Neurosymbolic Intent Orchestrator, illustrating the two-gate validation hierarchy: Gate 1 (Semantic RADG $U_{sem} \le \tau_{sem}$) preventing semantic drift, and Gate 2 (Physical RADG $\text{QoT}_{valid} = 1$) ensuring deterministic optical transmission feasibility prior to provisioning.
 
 ---
 
@@ -30,15 +30,15 @@ The framework operates through seven interconnected functional phases managed by
   The raw operator intent $\mathcal{I}_{NL}$ is ingested. To prevent token context exhaustion, an optical topological retriever queries the active network state to extract a localized $k$-hop subtopology $G_{sub} \subseteq G$ encompassing the candidate endpoints (Note: while this thesis bounds context using a static $k$-hop radius, future work proposes dynamic ellipsoid extraction to guarantee subgraph connectivity in larger diameter networks). Relevant ITU-T optical grid specifications and amplifier parameters are merged into an enriched intent schema.
 - **Phase 2: Context-Free Grammar (CFG) Validated PDDL Parsing:**
   The enriched intent is processed by an LLM acting strictly as a linguistic compiler, translating the operational requirements into Planning Domain Definition Language (PDDL) goal predicates and constraint clauses. A deterministic Context-Free Grammar (CFG) validator immediately audits the output to eliminate structural hallucinations ($v_{struct} \in \{0, 1\}$).
-- **Phase 3: Automated Reverse Prompting & Semantic Uncertainty Gate ($U_{sem}$ Evaluation):**
+- **Phase 3: Automated Reverse Prompting & Semantic RADG ($U_{sem}$ Evaluation):**
   - **Phase 3a (Automated Reverse Prompting):** The LLM reconstructs the PDDL specification back into natural language $\mathcal{I}_{recon}$ autonomously without pausing execution.
-  - **Semantic Gate:** The gate computes the composite semantic uncertainty metric $U_{sem} = f(v_{struct}, d_{sem})$, measuring syntactic integrity and semantic divergence against the original intent. If $U_{sem} \le \tau_{sem}$, the pipeline proceeds autonomously to Phase 4 with **zero human intervention**.
+  - **Semantic RADG:** The gate computes the composite semantic uncertainty metric $U_{sem} = f(v_{struct}, d_{sem})$, measuring syntactic integrity and semantic divergence against the original intent. If $U_{sem} \le \tau_{sem}$, the pipeline proceeds autonomously to Phase 4 with **zero human intervention**.
   - **Phase 3b (HITL Clarification):** If $U_{sem} > \tau_{sem}$ (due to syntax invalidity or high ambiguity), execution interrupts, prompting the human operator for explicit clarification. If the operator provides new instructions, the system loops back to Phase 2. However, if the intent is structurally valid ($v_{struct}=1$) and the operator explicitly approves the system's reconstructed understanding, execution bypasses re-parsing and proceeds directly to Phase 4.
 - **Phase 4: Deterministic Symbolic Solver:**
   Once semantic clarity is established ($U_{sem} \le \tau_{sem}$), the validated PDDL constraints are passed to a non-neural symbolic graph engine. The solver executes Yen's $K$-Shortest Paths algorithm over $G_{sub}$, pruning paths that violate topological constraints (e.g., node/link exclusions, maximum hop bounds).
 - **Phase 5: Deterministic Quality of Transmission (QoT) Validation:**
   Each structurally valid candidate path $\pi_k \in \mathcal{K}_{path}$ is evaluated by a standalone physics engine implementing the analytical coherent Gaussian Noise (GN) model. The engine computes span-by-span amplifier noise accumulation, fiber attenuation, and non-linear interference (NLI), yielding exact GSNR predictions.
-- **Phase 6: Physical Risk Decision Gate (RADG):**
+- **Phase 6: Physical RADG:**
   The physical feasibility vector $\text{QoT}_{valid}$ is evaluated. If at least one candidate path satisfies $\text{GSNR}(\pi) \ge \text{GSNR}_{th}$, the plan is marked as valid and **auto-approved**. If all paths violate transmission thresholds, the gate triggers a *Suggest Replan* signal via HITL interrupt, querying the operator to relax constraints (e.g., lower GSNR target, alternative modulation, or split bandwidth) and looping back to Phase 2.
 - **Phase 7: Plan Synthesis and Configuration Provisioning:**
   Approved paths, complete with their deterministic physical telemetry and full verification traces, are formatted into an auditable Planning Report. Upon final confirmation, configuration payloads are dispatched to the SDON controller via RESTCONF/SSH interfaces.

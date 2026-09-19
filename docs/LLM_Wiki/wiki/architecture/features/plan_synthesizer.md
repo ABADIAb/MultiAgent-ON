@@ -10,7 +10,7 @@ status: active
 ## 1. Architecture Placement
 **Phase 7: Plan Synthesizer** | [[Architecture_v5]]
 
-The Plan Synthesizer is the final node in the Architecture V5 pipeline. It is only reached if the [[architecture/features/radg|RADG]] (Risk-Adaptive Decision Gate) approves the physical feasibility of at least one candidate path. Its purpose is to compile a full, auditable execution report detailing the decisions made across the entire pipeline.
+The Plan Synthesizer is the final node in the Architecture V5 pipeline. It is only reached if the [[architecture/features/radg|Physical RADG]] approves the physical feasibility of at least one candidate path. Its purpose is to compile a full, auditable execution report detailing the decisions made across the entire pipeline.
 
 ## 2. Overview
 The synthesizer reads the `AgentState` accumulated throughout the graph execution and produces an executive-grade Markdown summary. This summary is optimized for terminal rendering via Rich (`rich.markdown.Markdown`) and provides complete pre-deployment transparency for the network operator.
@@ -22,7 +22,7 @@ The node extracts and formats the following sections:
    - Inspects `refinement_history` and `refinement_count`. If operator feedback was incorporated, it lists every HITL refinement turn and presents the **Active Operational Intent** reflecting the deployed constraints.
    - If no refinements were needed, marks the status as `Autonomous Pass (0 Interrupts)`.
 2. **Pre-Deployment Safety Verification**:
-   - Tabulates the two-gate fail-fast safety outcomes: Semantic Gate ($U_{sem} \le \tau_{sem}$) and Physical Risk Gate (RADG $= \text{APPROVE}$).
+   - Tabulates the two-gate fail-fast safety outcomes: Semantic RADG ($U_{sem} \le \tau_{sem}$) and Physical RADG ($= \text{APPROVE}$).
 3. **Selected Optical Lightpath Topology**:
    - Correlates the recommended route with `candidate_paths` to extract physical link attributes (`length_km`, `amplifiers`).
    - Renders a horizontal ASCII/Unicode graph:

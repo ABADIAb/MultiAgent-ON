@@ -35,7 +35,7 @@ class AgentState(TypedDict):
     pddl_valid: bool | None
     pddl_parsed_constraints: dict | None  # structured: source, dest, avoid_links, max_hops
 
-    # Phase 3 — Automated Reverse Prompting & Semantic Gate
+    # Phase 3 — Automated Reverse Prompting & Semantic RADG
     hitl_reconstruction: str | None
     hitl_approved: bool | None
     usem_score: float | None
@@ -45,7 +45,7 @@ class AgentState(TypedDict):
     topology_snapshot: TopologySnapshot | None
     candidate_paths: list | None
 
-    # Phase 5 & 6 — QoT Validation & RADG
+    # Phase 5 & 6 — QoT Validation & Physical RADG
     qot_results: list | None
     radg_decision: str | None
 
@@ -72,7 +72,7 @@ Key V5 components in `src/core/graph.py`:
 - `reverse_prompt_node` — Phase 3a automated PDDL $\to$ NL reconstruction (zero interrupts).
 - `semantic_gate_node` + `semantic_gate_route` — Phase 3 mathematical evaluation of $U_{sem} = f(v_{struct}, d_{sem})$. Routes to `symbolic_solver` (pass) or `hitl_clarify` (fail).
 - `hitl_clarify_node` + `hitl_clarify_route` — Phase 3b human clarification via `interrupt()`. Conditionally routes directly to `symbolic_solver` if operator approves an already valid PDDL constraint set, or loops back to `pddl_parser` with `error_context`.
-- `radg_node` + `radg_route` — Phase 6 physical risk gate, evaluating $\text{QoT}_{valid}$ and executing auto-approve or replan `interrupt()`.
+- `radg_node` + `radg_route` — Phase 6 Physical RADG, evaluating $\text{QoT}_{valid}$ and executing auto-approve or replan `interrupt()`.
 
 ## 5. Checkpointer & Serialization
 `compile_graph(checkpointer=...)` is required for `interrupt()` to work. Without a checkpointer, `interrupt()` will raise a `RuntimeError`.

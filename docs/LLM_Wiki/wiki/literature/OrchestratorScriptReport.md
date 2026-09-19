@@ -53,4 +53,4 @@ While we won't use the Python scripts directly, **we must adopt their Pipeline A
 **Proposed LangGraph Mapping**:
 1. **Planning Node**: Replicates `planning.py`. A LangGraph node that takes the user intent and uses LangChain's `with_structured_output` to generate the task list.
 2. **Execution Sub-Agents**: Replicates `execution.py`. Specialized sub-agents (e.g., a Lightpath Agent) that take a task and use `with_structured_output` tied to the professor's exact JSON schemas.
-3. **Error Handling Edge**: A conditional edge in LangGraph. If the [[tools_wiki/QoT_Tool|QoT Tool]] or Controller returns an error, the graph routes back to the Planning/Execution node with the error appended to the state, exactly mimicking the paper's Step 3.
+3. **Error Handling Edge**: A conditional edge in LangGraph. If the [[architecture/tools_wiki/QoT_Tool|QoT Tool]] or Controller returns an error, the graph routes back to the Planning/Execution node with the error appended to the state, exactly mimicking the paper's Step 3.

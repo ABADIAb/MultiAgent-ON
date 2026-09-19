@@ -1,7 +1,7 @@
 """RADG LangGraph node for the V5 Neurosymbolic Intent Pipeline.
 
-Exp 3.1 (Phase 6): Implements the Physical Risk Gate that maps QoT
-feasibility results to a final RADG decision: approve or replan.
+Exp 3.1 (Phase 6): Implements the Physical RADG that maps QoT
+feasibility results to a final decision: approve or replan.
 
 This is Phase 6 in Architecture V5.
 """
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def radg_node(state: AgentState) -> dict:
-    """Physical Risk Gate — map QoT results to a RADG decision.
+    """Physical RADG — map QoT results to a decision.
 
     Reads qot_results from state, calls evaluate_radg(), and writes
     the decision to state. If the decision is "replan", triggers a

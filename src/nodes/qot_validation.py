@@ -30,7 +30,7 @@ def qot_validation_node(state: AgentState) -> dict:
     3. Records feasibility verdict (GSNR >= threshold AND power >= threshold).
 
     Paths that fail conversion (e.g. missing physics data) are marked
-    infeasible with an error note — the RADG gate handles the outcome.
+    infeasible with an error note — the Physical RADG handles the outcome.
 
     Args:
         state: AgentState with candidate_paths populated by symbolic_solver.

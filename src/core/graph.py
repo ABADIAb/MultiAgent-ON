@@ -69,7 +69,7 @@ def build_graph() -> StateGraph:
     builder.add_edge("reverse_prompt", "semantic_gate")
 
     # -----------------------------------------------------------------------
-    # Semantic Gate conditional routing (Phase 3 → 3b / Phase 4)
+    # Semantic RADG conditional routing (Phase 3 → 3b / Phase 4)
     # Routes:
     #   semantic_gate_route → "symbolic_solver"  (U_sem <= tau, gate passes -> 0 interrupts)
     #   semantic_gate_route → "hitl_clarify"     (U_sem > tau, triggers Phase 3b HITL)
@@ -78,13 +78,13 @@ def build_graph() -> StateGraph:
     builder.add_conditional_edges("hitl_clarify", hitl_clarify_route)
 
     # -----------------------------------------------------------------------
-    # Symbolic solver → QoT validation → RADG physical risk gate
+    # Symbolic solver → QoT validation → Physical RADG
     # -----------------------------------------------------------------------
     builder.add_edge("symbolic_solver", "qot_validation")
     builder.add_edge("qot_validation", "radg")
 
     # -----------------------------------------------------------------------
-    # RADG conditional routing (Phase 6)
+    # Physical RADG conditional routing (Phase 6)
     # Routes:
     #   radg_route → "plan_synthesizer"  (approve)
     #   radg_route → "pddl_parser"       (replan loop — refined by operator)

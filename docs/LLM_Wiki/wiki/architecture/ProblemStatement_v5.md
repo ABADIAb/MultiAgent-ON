@@ -42,10 +42,10 @@ The pipeline enforces a strict "LLMs reason, tools calculate" separation:
 
 1. **Intent Ingestion + Optical RAG.** The natural language request is semantically enriched with domain standards (e.g., ITU-T specifications, transponder data) before LLM processing.
 2. **PDDL Intent Parsing.** The LLM translates the enriched intent into formal PDDL constraints.
-3. **Semantic Uncertainty Gate ($U_{sem}$).** Before complex computation, the system checks structural (CFG) and semantic (Reverse Prompting) validity. If uncertainty is high, it immediately requests the operator to clarify missing data.
+3. **Semantic RADG ($U_{sem}$).** Before complex computation, the system checks structural (CFG) and semantic (Reverse Prompting) validity. If uncertainty is high, it immediately requests the operator to clarify missing data.
 4. **Symbolic Solver + Context Bounding.** A Python-based symbolic solver dynamically extracts a localized $k$-hop subtopology to bound LLM context, and then mathematically computes 3–5 structurally valid candidate paths.
 5. **QoT Validation.** Candidate paths are evaluated by a deterministic Python QoT Tool (GN-model port) to compute precise GSNR and receiver power feasibility.
-6. **Physical Risk Gate.** Evaluates the binary QoT feasibility to decide if the plan should be auto-approved or if the operator must be engaged to relax constraints via HITL.
+6. **Physical RADG.** Evaluates the binary QoT feasibility to decide if the plan should be auto-approved or if the operator must be engaged to relax constraints via HITL.
 
 ### 4.2 Risk-Adaptive Decision Pipeline
 
@@ -58,16 +58,16 @@ The system acts upon two orthogonal risk signals in a sequential, fail-fast mann
 - **QoT Feasibility (Evaluated Later).** 
 Binary check: $\text{GSNR}_{computed} \ge \text{GSNR}_{threshold} \land P_{rx} \ge P_{rx, min}$
 
-Assuming $U_{sem}$ is low (resolved in the earlier gate), the physical gate maps to two outcomes:
+Assuming $U_{sem}$ is low (resolved in the Semantic RADG), the Physical RADG maps to two outcomes:
 
 | Decision | Condition | Action |
 |----------|-----------|--------|
 | **Auto-Approve** | Valid (Feasible) | Deploy without human review |
 | **Suggest Replan** | Invalid (Unfeasible) | Physics failed. Notify operator and suggest relaxing constraints via HITL (loops back to Phase 2) |
 
-### 4.3 Formalizing the Risk-Adaptive Decision Gate (RADG)
+### 4.3 Formalizing the Risk-Adaptive Decision Gates (RADGs)
 
-The RADG is formulated as a piecewise decision function $D$ that evaluates two constraints sequentially:
+The RADGs are formulated as a piecewise decision function $D$ that evaluates two constraints sequentially:
 
 1. **Semantic Uncertainty ($U_{sem}$):** A function of structural validity ($v_{struct} \in \{0, 1\}$) and semantic divergence ($d_{sem} \in [0, 1]$).
    $$U_{sem} = \begin{cases} 1 & \text{if } v_{struct} = 0 \text{ (Structural Failure)} \\ d_{sem} & \text{if } v_{struct} = 1 \text{ (Semantic Divergence)} \end{cases}$$

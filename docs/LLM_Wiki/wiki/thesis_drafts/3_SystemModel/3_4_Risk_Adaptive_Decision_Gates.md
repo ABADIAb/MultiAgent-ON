@@ -1,20 +1,20 @@
 ---
-title: "Chapter 3 - Section 3.4: The Risk-Adaptive Decision Gate (RADG)"
+title: "Chapter 3 - Section 3.4: The Risk-Adaptive Decision Gates (RADGs)"
 date: 2026-08-24
 tags: [thesis, chapter-3, system-model, radg, decision-function, usem, qot, hitl, reverse-prompting, interrupt]
 status: draft
 ---
 
-# 3.4 The Risk-Adaptive Decision Gate (RADG)
+# 3.4 The Risk-Adaptive Decision Gates (RADGs)
 
-## 3.4.1 Mathematical Formulation of the RADG Decision Function
+## 3.4.1 Mathematical Formulation of the RADGs Decision Function
 
-The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gate (RADG). Formulated as a deterministic, piecewise decision function $D$, the RADG evaluates two orthogonal, sequentially computed risk signals to guarantee pre-deployment safety. These signals comprise:
+The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gates (RADGs). Formulated as a deterministic, piecewise decision function $D$, the RADGs evaluate two orthogonal, sequentially computed risk signals to guarantee pre-deployment safety. These signals comprise:
 
 1. **Semantic Uncertainty ($U_{sem} \in [0, 1]$):** A quantifiable metric capturing linguistic ambiguity, unstated network parameters, and structural LLM translation errors.
 2. **Physical Transmission Viability ($\text{QoT}_{valid} \in \{0, 1\}$):** A binary indicator of physical feasibility derived analytically via the uncompensated Gaussian Noise (GN) model.
 
-The RADG maps the joint state space of these variables to an actionable operational space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$. Formally, the overarching decision function is defined as:
+The RADGs map the joint state space of these variables to an actionable operational space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$. Formally, the overarching decision function is defined as:
 
 $$
 D\left(U_{sem}, \text{QoT}_{valid}\right) = \begin{cases} 
@@ -29,7 +29,7 @@ where the constant $\tau_{sem} \in (0, 1)$ represents the operational semantic t
 While conceptualized as a unified mathematical function, the software implementation decouples $D$ hierarchically to enforce a fail-fast execution paradigm. Semantic uncertainty ($U_{sem}$) is evaluated exclusively at Phase 3, halting execution prior to complex route computation if $\tau_{sem}$ is exceeded. The subsequent physical viability ($\text{QoT}_{valid}$) is assessed exclusively at Phase 6, ensuring that the computationally expensive GN-model calculations are reserved strictly for semantically verified intents.
 
 <!-- FIGURE_PLACEHOLDER: radg_decision_space -->
-> **Figure: Risk-Adaptive Decision Gate (RADG) 2D Operational State Space** (`figs_SystemModel/pdf/radg_decision_space.pdf`)
+> **Figure: Risk-Adaptive Decision Gates (RADGs) 2D Operational State Space** (`figs_SystemModel/pdf/radg_decision_space.pdf`)
 > Visual representation of the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$. The horizontal axis denotes Semantic Uncertainty $U_{sem} \in [0, 1]$ with threshold delimiter $\tau_{sem} = 0.30$; the vertical axis represents the physical margin $\Delta\text{GSNR} = \text{GSNR}_{path} - \text{GSNR}_{th}$ (dB). The partitioned state space maps directly to three operational action zones: Zone I: Auto-Approve (top-left, safe), Zone II: Suggest Replan (bottom-left, infeasible physics), and Zone III: Early HITL Clarify (right, high ambiguity with physics simulation bypassed).
 
 ---
@@ -140,14 +140,14 @@ $$
 
 ## 3.4.4 Decision Matrix and Action Execution Policies
 
-The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADG operational decision matrix:
+The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADGs operational decision matrix:
 
-| $U_{sem}$ Evaluation | $\text{QoT}_{valid}$ Status | RADG Decision | Pipeline Action & Human Engagement |
+| $U_{sem}$ Evaluation | $\text{QoT}_{valid}$ Status | RADGs Decision | Pipeline Action & Human Engagement |
 | :--- | :--- | :--- | :--- |
 
 Conventional asynchronous control-plane servers utilize stateless webhooks or polling loops to capture human feedback. These approaches frequently generate orphaned execution threads and precipitate race conditions within the optical controller.
 
-The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic Gate when $U_{sem} > \tau_{sem}$:
+The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic RADG when $U_{sem} > \tau_{sem}$:
 
 ```python
 # Formal LangGraph Interrupt Pattern within the HITL Clarification Node
@@ -185,7 +185,7 @@ Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than uns
 
 ## 3.4.5 State-Preserving Execution Pausing via LangGraph Interrupts
 
-The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic Gate when $U_{sem} > \tau_{sem}$ or at the Physical Risk Gate when $\text{QoT}_{valid} = 0$, ensuring no configurations are deployed without explicit human verification. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback, preserving full execution state atomically.
+The proposed neurosymbolic framework utilizes native LangGraph stateful interrupts to guarantee deterministic execution suspension. This mechanism halts the computation graph at the Semantic RADG when $U_{sem} > \tau_{sem}$ or at the Physical RADG when $\text{QoT}_{valid} = 0$, ensuring no configurations are deployed without explicit human verification. The system maintains zero active LLM sessions or server polling loops while awaiting operator feedback, preserving full execution state atomically.
 
 ---
 
@@ -193,7 +193,7 @@ The proposed neurosymbolic framework utilizes native LangGraph stateful interrup
 
 > [!NOTE]
 > **Figure 3.4 Placement (The 2D Decision Space Diagram):** 
-> To maximize academic clarity, insert a visual representation of the RADG state space mapping immediately following Section 3.4.1. 
+> To maximize academic clarity, insert a visual representation of the RADGs state space mapping immediately following Section 3.4.1. 
 > - **X-axis:** Semantic Uncertainty $U_{sem} \in [0, 1]$ with a solid vertical delimiter representing $\tau_{sem} = 0.30$.
 > - **Y-axis:** GSNR Margin defined as $\Delta\text{GSNR} = \text{GSNR}_{computed} - \text{GSNR}_{th}$ ($\text{dB}$), featuring a solid horizontal delimiter at $0\text{ dB}$.
 > - **Quadrants:** Shade and label the three distinct operational zones: the **Clarify Zone** ($U_{sem} > 0.30$), the **Replan Zone** ($\Delta\text{GSNR} < 0$), and the **Auto-Approve Zone** (top-left, safe).

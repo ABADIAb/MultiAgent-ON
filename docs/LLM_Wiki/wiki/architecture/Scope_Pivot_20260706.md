@@ -16,7 +16,7 @@ The progression follows:
 - **V2 (Full MAS)**: End-to-end multi-agent orchestration for Day-0 to Day-N.
 - **V3 (Planning Loop Focus)**: Narrowed scope to the Intent Planning phase due to SOTA saturation.
 - **V4 (Neurosymbolic Pipeline)**: Introduction of deterministic PDDL, GraphRAG, and formal Reverse Prompting to solve physical hallucinations and token saturation.
-- **V5 (Risk-Adaptive Decision Gate)**: Introduction of a pre-deployment joint semantic + QoT risk assessment mechanism that adaptively determines HITL engagement, replanning, or rejection.
+- **V5 (Risk-Adaptive Decision Gates)**: Introduction of a pre-deployment joint semantic + QoT risk assessment mechanism that adaptively determines HITL engagement, replanning, or rejection.
 
 ## 2. First Pivot: V2 to V3 (SOTA-Driven Scope Reduction)
 
@@ -67,13 +67,13 @@ While V4 successfully introduced the neurosymbolic separation and Reverse Prompt
 - **V4's HITL was always-on.** Every intent triggered a Reverse Prompting HITL interrupt, regardless of the system's confidence in its own interpretation. This is operationally expensive and unnecessary for unambiguous, physically feasible intents.
 - **No risk differentiation.** V4 treated all intents equally — a trivially simple routing request received the same level of human scrutiny as a physically marginal or semantically ambiguous one.
 
-### 4.2 The V5 Solution (Risk-Adaptive Decision Gate)
-The novelty was reframed from "how the system clarifies" to "how the system decides WHETHER and HOW to act." V5 introduces a **Risk-Adaptive Decision Gate (RADG)** that jointly evaluates two orthogonal signals:
+### 4.2 The V5 Solution (Risk-Adaptive Decision Gates)
+The novelty was reframed from "how the system clarifies" to "how the system decides WHETHER and HOW to act." V5 introduces the **Risk-Adaptive Decision Gates (RADGs)** that jointly evaluate two orthogonal signals:
 
 1. **Semantic Uncertainty ($U_{sem}$)**: A two-layer assessment combining CFG structural validation (Layer 1) and embedding-based disagreement between the original intent and the Reverse Prompting reconstruction (Layer 2).
 2. **QoT Feasibility ($\text{QoT}_{valid}$)**: Binary evaluation of physical-layer feasibility ($\text{GSNR}_{computed} \ge \text{GSNR}_{threshold}$).
 
-The RADG maps these signals to four possible outcomes: **auto-approve**, **clarify** (trigger HITL), **suggest replan** (propose alternatives to operator), or **reject + request reformulation** (block deployment and notify operator).
+The RADGs map these signals to four possible outcomes: **auto-approve**, **clarify** (trigger HITL), **suggest replan** (propose alternatives to operator), or **reject + request reformulation** (block deployment and notify operator).
 
 ### 4.3 Key Distinction from Prior Art
 | Aspect | PoliMi/CNSM 2025 (El Hachimi et al.) | MultiAgentON V5 (Ours) |
@@ -89,14 +89,14 @@ The RADG maps these signals to four possible outcomes: **auto-approve**, **clari
 
 The evolution through V4 to V5 establishes a highly focused, academically novel contribution:
 
-1. **Risk-Adaptive Pre-Deployment Decision Gate (RADG).** Unlike post-deployment retry systems (PoliMi/CNSM 2025) or always-on HITL approaches, V5 jointly evaluates semantic uncertainty and QoT risk margin BEFORE deployment to determine the minimally invasive corrective action. This is the core novelty.
+1. **Risk-Adaptive Pre-Deployment Decision Gates (RADGs).** Unlike post-deployment retry systems (PoliMi/CNSM 2025) or always-on HITL approaches, V5 jointly evaluates semantic uncertainty and QoT risk margin BEFORE deployment to determine the minimally invasive corrective action. This is the core novelty.
 2. **Neurosymbolic Constraint Isolation.** The LLM is restricted to linguistics (Intent → PDDL). A deterministic Symbolic Solver and GN-model tool handle the physics, guaranteeing 100% physically viable route proposals in the approved set.
-3. **Formal HITL via Reverse Prompting.** When the RADG determines clarification is needed, the Reverse Prompting mechanism mathematically bounds the operator's approval to the exact logical constraints the system will execute.
+3. **Formal HITL via Reverse Prompting.** When the RADGs determine clarification is needed, the Reverse Prompting mechanism mathematically bounds the operator's approval to the exact logical constraints the system will execute.
 4. **Formal Evaluation Framework.** V5 includes a structured comparison against No-HITL, Always-HITL, and Fixed-Retry baselines using five metrics (UAR, HIC, QFR, E2EL, TC) — ensuring the contribution is measurably validated.
 
 ## 6. MVP Roadmap Constraint
 
-Given the August 25 deadline, the V5 MVP will utilize a **simplified Python symbolic solver**, a **mock GraphRAG** structure (Python dictionary traversals), and a **lightweight RADG** (threshold-based decision function with embedding similarity for $U_{sem}$). This ensures a functional, verifiable prototype with formal baseline evaluation.
+Given the August 25 deadline, the V5 MVP will utilize a **simplified Python symbolic solver**, a **mock GraphRAG** structure (Python dictionary traversals), and a **lightweight RADG implementation** (threshold-based decision function with embedding similarity for $U_{sem}$). This ensures a functional, verifiable prototype with formal baseline evaluation.
 
 ## 7. Cross-References
 

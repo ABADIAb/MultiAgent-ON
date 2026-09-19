@@ -177,14 +177,14 @@ The framework operates through seven interconnected functional phases managed by
     \item \textbf{Phase 3: Automated Reverse Prompting \& Semantic Uncertainty Gate ($U_{\text{sem}}$ Evaluation):}
     \begin{itemize}
         \item \textbf{Phase 3a (Automated Reverse Prompting):} The LLM reconstructs the PDDL specification back into natural language $\mathcal{I}_{\text{recon}}$ autonomously without pausing execution.
-        \item \textbf{Semantic Gate:} The gate computes the composite semantic uncertainty metric $U_{\text{sem}} = f(v_{\text{struct}}, d_{\text{sem}})$, measuring syntactic integrity and semantic divergence against the original intent. If $U_{\text{sem}} \le \tau_{\text{sem}}$, the pipeline proceeds autonomously to Phase 4 with \textbf{zero human intervention}.
+        \item \textbf{Semantic RADG:} The gate computes the composite semantic uncertainty metric $U_{\text{sem}} = f(v_{\text{struct}}, d_{\text{sem}})$, measuring syntactic integrity and semantic divergence against the original intent. If $U_{\text{sem}} \le \tau_{\text{sem}}$, the pipeline proceeds autonomously to Phase 4 with \textbf{zero human intervention}.
         \item \textbf{Phase 3b (HITL Clarification):} If $U_{\text{sem}} > \tau_{\text{sem}}$ (due to syntax invalidity or high ambiguity), execution interrupts, prompting the human operator for explicit clarification. If the operator provides new instructions, the system loops back to Phase 2. However, if the intent is structurally valid ($v_{\text{struct}}=1$) and the operator explicitly approves the system's reconstructed understanding, execution bypasses re-parsing and proceeds directly to Phase 4.
     \end{itemize}
     \item \textbf{Phase 4: Deterministic Symbolic Solver:}
     Once semantic clarity is established ($U_{\text{sem}} \le \tau_{\text{sem}}$), the validated PDDL constraints are passed to a non-neural symbolic graph engine. The solver executes Yen's $K$-Shortest Paths algorithm over $G_{\text{sub}}$, pruning paths that violate topological constraints (e.g., node/link exclusions, maximum hop bounds).
     \item \textbf{Phase 5: Deterministic Quality of Transmission (QoT) Validation:}
     Each structurally valid candidate path $\pi_k \in \mathcal{K}_{\text{path}}$ is evaluated by a standalone physics engine implementing the analytical coherent Gaussian Noise (GN) model. The engine computes span-by-span amplifier noise accumulation, fiber attenuation, and non-linear interference (NLI), yielding exact GSNR predictions.
-    \item \textbf{Phase 6: Physical Risk Decision Gate (RADG):}
+    \item \textbf{Phase 6: Physical RADG:}
     The physical feasibility vector $\text{QoT}_{\text{valid}}$ is evaluated. If at least one candidate path satisfies $\text{GSNR}(\pi) \ge \text{GSNR}_{\text{th}}$, the plan is marked as valid and \textbf{auto-approved}. If all paths violate transmission thresholds, the gate triggers a \textit{Suggest Replan} signal via HITL interrupt, querying the operator to relax constraints (e.g., lower GSNR target, alternative modulation, or split bandwidth) and looping back to Phase 2.
     \item \textbf{Phase 7: Plan Synthesis and Configuration Provisioning:}
     Approved paths, complete with their deterministic physical telemetry and full verification traces, are formatted into an auditable Planning Report. Upon final confirmation, configuration payloads are dispatched to the SDON controller via RESTCONF/SSH interfaces.
@@ -367,19 +367,19 @@ Upon validation by the CFG gate, the system translates the PDDL predicates into 
 
 Delegating path exploration to Yen's deterministic algorithm over the pruned topology $\widetilde{G}_{\text{sub}}$ mathematically precludes routing loops, traversal of non-existent links, or constraint violations prior to initiating the computationally intensive GN-model QoT evaluation.
 
-\section{The Risk-Adaptive Decision Gate (RADG)}
+\section{The Risk-Adaptive Decision Gates (RADGs)}
 \label{sec:radg}
 
-\subsection{Mathematical Formulation of the RADG Decision Function}
+\subsection{Mathematical Formulation of the RADGs Decision Function}
 \label{subsec:radg_formulation}
 
-The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gate (RADG). Formulated as a deterministic, piecewise decision function $D$, the RADG evaluates two orthogonal, sequentially computed risk signals to guarantee pre-deployment safety. These signals comprise:
+The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gates (RADGs). Formulated as a deterministic, piecewise decision function $D$, the RADGs evaluate two orthogonal, sequentially computed risk signals to guarantee pre-deployment safety. These signals comprise:
 \begin{enumerate}
     \item \textbf{Semantic Uncertainty ($U_{\text{sem}} \in [0, 1]$):} A quantifiable metric capturing linguistic ambiguity, unstated network parameters, and structural LLM translation errors.
     \item \textbf{Physical Transmission Viability ($\text{QoT}_{\text{valid}} \in \{0, 1\}$):} A binary indicator of physical feasibility derived analytically via the uncompensated Gaussian Noise (GN) model.
 \end{enumerate}
 
-The RADG maps the joint state space of these variables to an actionable operational space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$. Formally, the overarching decision function is defined as:
+The RADGs map the joint state space of these variables to an actionable operational space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$. Formally, the overarching decision function is defined as:
 \begin{equation}
 D\left(U_{\text{sem}}, \text{QoT}_{\text{valid}}\right) = \begin{cases} 
 \text{clarify} & \text{if } U_{\text{sem}} > \tau_{\text{sem}} \\ 
@@ -396,7 +396,7 @@ The resulting two-dimensional operational state space is illustrated in Figure~\
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.82\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
-    \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
+    \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gates (RADGs) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
 \end{figure}
 
@@ -483,16 +483,16 @@ The ultimate physical viability of a routed candidate path set $\mathcal{K}_{\te
 \subsection{Decision Matrix and Action Execution Policies}
 \label{subsec:decision_matrix}
 
-The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADG operational decision matrix (Table~\ref{tab:radg_decision_matrix}).
+The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADGs operational decision matrix (Table~\ref{tab:radg_decision_matrix}).
 
 \begin{table}[!htbp]
 \centering
 \small
-\caption{RADG Operational Decision Matrix and Human Engagement Policies.}
+\caption{RADGs Operational Decision Matrix and Human Engagement Policies.}
 \label{tab:radg_decision_matrix}
 \begin{tabular}{@{} p{0.18\linewidth} p{0.16\linewidth} p{0.13\linewidth} p{0.48\linewidth} @{}}
 \hline
-\textbf{$U_{\text{sem}}$ Evaluation} & \textbf{$\text{QoT}_{\text{valid}}$ Status} & \textbf{RADG Decision} & \textbf{Pipeline Action \& Human Engagement} \\
+\textbf{$U_{\text{sem}}$ Evaluation} & \textbf{$\text{QoT}_{\text{valid}}$ Status} & \textbf{RADGs Decision} & \textbf{Pipeline Action \& Human Engagement} \\
 \hline
 $U_{\text{sem}} > \tau_{\text{sem}}$ & \textit{Bypassed} & \texttt{clarify} & \textbf{Early HITL Clarification:} Halts execution prior to topology extraction; queries operator directly to resolve semantic ambiguities. \\[6pt]
 $U_{\text{sem}} \le \tau_{\text{sem}}$ & $\text{QoT}_{\text{valid}} = 0$ & \texttt{replan} & \textbf{Physical Risk HITL:} Signals unfeasible physical state; halts execution, presents GSNR margins, and requests permission to relax constraints. \\[6pt]

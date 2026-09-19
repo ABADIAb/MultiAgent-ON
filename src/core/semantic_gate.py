@@ -1,4 +1,4 @@
-"""Semantic Gate — pure decision logic for U_sem computation.
+"""Semantic RADG — pure decision logic for U_sem computation.
 
 Implements the fail-fast Semantic Uncertainty gate from Architecture V5,
 Phase 3. Evaluates intent clarity BEFORE running the expensive Symbolic
@@ -16,7 +16,7 @@ Placement: core/ — pure deterministic logic, no LLM calls, no framework deps.
 
 from __future__ import annotations
 
-#: Default threshold tau_sem for the semantic gate.
+#: Default threshold tau_sem for the Semantic RADG.
 #: Tunable hyperparameter — 0.3 means >30% divergence triggers clarification.
 DEFAULT_TAU_SEM: float = 0.3
 
@@ -48,7 +48,7 @@ def compute_usem(v_struct: bool, d_sem: float) -> float:
 
 
 def evaluate_semantic_gate(usem: float, tau_sem: float = DEFAULT_TAU_SEM) -> bool:
-    """Evaluate whether the semantic gate passes (intent is sufficiently clear).
+    """Evaluate whether the Semantic RADG passes (intent is sufficiently clear).
 
     The gate passes (True) when U_sem <= tau_sem, meaning the operator's
     intent is clear enough to proceed to the Symbolic Solver without

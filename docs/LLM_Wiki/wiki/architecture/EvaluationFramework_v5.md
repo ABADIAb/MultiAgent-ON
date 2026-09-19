@@ -45,10 +45,10 @@ To ensure a rigorous, multidimensional assessment beyond mere latency and token 
   - **Sub-Second Deterministic Compute Latency ($T_{det}$):** Wall-clock execution time of symbolic routing ($T_{solver} < 10\text{ ms}$) and GN-model physics ($T_{phys} < 5\text{ ms}$).
   - **End-to-End Orchestration Latency ($T_{E2E}$):** Total wall-clock turnaround from NL submission to final planning report.
 
-#### Pillar 4: RADG Robustness & Decision Boundary Integrity (Gate Reliability)
+#### Pillar 4: RADGs Robustness & Decision Boundary Integrity (Gate Reliability)
 - **Objective:** Stress-test the piecewise decision function $\mathcal{D}(U_{sem}, \text{QoT}_{valid})$ across boundary conditions, verifying accurate classification into `approve`, `clarify`, and `replan`.
 - **Metrics:**
-  - **Gate Decision Accuracy (GDA):** Overall accuracy of the RADG in routing intents to the optimal action state according to ground-truth risk profiles. Target: $> 98\%$.
+  - **Gate Decision Accuracy (GDA):** Overall accuracy of the RADGs in routing intents to the optimal action state according to ground-truth risk profiles. Target: $> 98\%$.
   - **False Positive Rate ($\text{FPR}$):** Probability of issuing an `approve` decision given an unfeasible or ambiguous intent. Target: **$0\%$**.
   - **Selective HITL Precision:** Fraction of human interruptions that correctly target ambiguous intents requiring genuine operator clarification rather than false alarms.
 
