@@ -5,14 +5,14 @@ tags: [thesis, chapter-3, system-model, radg, decision-function, usem, qot, hitl
 status: draft
 ---
 
-# 3.3 The Risk-Adaptive Decision Gates (RADGs)
+# 3.4 The Risk-Adaptive Decision Gates (RADGs)
 
-## 3.3.1 Mathematical Formulation of the RADGs Decision Function
+## 3.4.1 Mathematical Formulation of the RADGs Decision Function
 
-The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gates (RADGs). Formulated as a deterministic, piecewise decision function $D$, the RADGs evaluate two orthogonal, sequentially computed risk signals to guarantee pre-deployment safety. These signals comprise:
+The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gates (RADGs). Formulated as a deterministic, piecewise decision function $D$, the RADGs evaluate two independent, sequentially computed risk signals to guarantee pre-deployment operational integrity. These signals comprise:
 
 1. **Semantic Uncertainty ($U_{sem} \in [0, 1]$):** A quantifiable metric capturing linguistic ambiguity, unstated network parameters, and structural LLM translation errors.
-2. **Physical Transmission Viability ($\text{QoT}_{valid} \in \{0, 1\}$):** A binary indicator of physical feasibility derived analytically via the uncompensated Gaussian Noise (GN) model.
+2. **Physical Transmission Viability ($\text{QoT}_{valid} \in \{0, 1\}$):** A binary indicator of physical feasibility derived analytically via the Gaussian Noise (GN) model.
 
 The RADGs map the joint state space of these variables to an actionable operational space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$. Formally, the overarching decision function is defined as:
 
@@ -24,9 +24,9 @@ D\left(U_{sem}, \text{QoT}_{valid}\right) = \begin{cases}
 \end{cases}
 $$
 
-where the constant $\tau_{sem} \in (0, 1)$ represents the operational semantic tolerance threshold, calibrated empirically for this architecture to $\tau_{sem} = 0.30$. 
+where the constant $\tau_{sem} \in (0, 1)$ represents the operational semantic tolerance threshold. This parameter is adjustable by the network operator based on their risk profile; a higher $\tau_{sem}$ reduces human interruptions but increases the risk of deploying a semantically misaligned intent. For the purpose of this thesis evaluation, it is calibrated to a default of $\tau_{sem} = 0.30$.
 
-While conceptualized as a unified mathematical function, the software implementation decouples $D$ hierarchically to enforce a fail-fast execution paradigm. Semantic uncertainty ($U_{sem}$) is evaluated exclusively at Phase 3, halting execution prior to complex route computation if $\tau_{sem}$ is exceeded. The subsequent physical viability ($\text{QoT}_{valid}$) is assessed exclusively at Phase 6, ensuring that the computationally expensive GN-model calculations are reserved strictly for semantically verified intents.
+While conceptualized as a unified mathematical function, the software implementation decouples $D$ hierarchically to enforce a fail-fast execution paradigm. Semantic uncertainty ($U_{sem}$) is evaluated exclusively at Phase 3, halting execution prior to complex route computation if $\tau_{sem}$ is exceeded. The subsequent physical viability ($\text{QoT}_{valid}$) is assessed exclusively at Phase 6, ensuring that the GN-model calculations are reserved strictly for semantically verified intents.
 
 <!-- FIGURE_PLACEHOLDER: radg_decision_space -->
 > **Figure: Risk-Adaptive Decision Gates (RADGs) 2D Operational State Space** (`figs_SystemModel/pdf/radg_decision_space.pdf`)
@@ -34,7 +34,7 @@ While conceptualized as a unified mathematical function, the software implementa
 
 ---
 
-## 3.3.2 Two-Layer Semantic Uncertainty Quantification ($U_{sem}$)
+## 3.4.2 Two-Layer Semantic Uncertainty Quantification ($U_{sem}$)
 
 To prevent false positives during automated intent translation, $U_{sem}$ undergoes a two-layer hierarchical assessment. 
 
@@ -46,15 +46,13 @@ $$
 v_{struct} = \begin{cases} 1 & \text{if } \mathcal{S}_{PDDL} \in \mathcal{L}(\mathcal{G}_{pddl}) \land \text{EndpointsExist}(\mathcal{S}_{PDDL}, V_{sub}) \\ 0 & \text{otherwise} \end{cases}
 $$
 
-#### The Reverse Prompting Invariant
+#### Layer 2: Reverse Prompting Semantic Divergence ($d_{sem}$)
 
-To prevent semantic drift and enforce formal semantic convergence, the architecture implements **Reverse Prompting** as a closed-loop validation contract. 
+To prevent semantic drift and enforce formal semantic convergence, the architecture implements Reverse Prompting as a closed-loop validation contract.
 
 <!-- FIGURE_PLACEHOLDER: reverse_prompting_loop -->
-> **Figure: Closed-Loop Reverse Prompting Validation Invariant** (`figs_SystemModel/pdf/reverse_prompting_loop.pdf`)
+> **Figure: Closed-Loop Reverse Prompting Validation condition** (`figs_SystemModel/pdf/reverse_prompting_loop.pdf`)
 > Closed-loop verification cycle enforcing semantic convergence: the operator's natural language intent $\mathcal{I}_{NL}$ is translated into formal PDDL predicates $\mathcal{S}_{PDDL}$, independently reconstructed back to natural language $\mathcal{I}_{recon}$, and evaluated for semantic divergence $d_{sem}$.
-
-#### Layer 2: Reverse Prompting Semantic Divergence ($d_{sem}$)
 
 Assuming $v_{struct} = 1$, the formal PDDL specification is reconstructed into a natural language confirmation statement $\mathcal{I}_{recon}$ via an independent Reverse Prompting mechanism. The semantic divergence $d_{sem} \in [0, 1]$ is computed directly by a dedicated evaluator LLM that scores the semantic discrepancy between the original operator request $\mathcal{I}_{NL}$ and the algorithmic reconstruction $\mathcal{I}_{recon}$:
 
@@ -62,7 +60,7 @@ $$
 d_{sem} = \text{Score}_{divergence}\left( \mathcal{I}_{NL}, \mathcal{I}_{recon} \right)
 $$
 
-where $0.0$ indicates perfect semantic alignment and $1.0$ indicates catastrophic constraint loss.
+where $0.0$ indicates perfect semantic alignment and $1.0$ indicates total constraint loss.
 
 #### Composite $U_{sem}$ Evaluation
 
@@ -74,7 +72,7 @@ $$
 
 ---
 
-## 3.3.3 Deterministic Physical-Layer QoT Evaluation
+## 3.4.3 Deterministic Physical-Layer QoT Evaluation
 
 Following semantic validation, physical feasibility is assessed deterministically utilizing the analytical coherent Gaussian Noise (GN) model for uncompensated optical fiber transmission.
 
@@ -130,7 +128,7 @@ $$
 
 ### Binary QoT Feasibility Indicator
 
-The ultimate physical viability of a routed candidate path set $\mathcal{K}_{path}$ is subsequently evaluated against a strict modulation-dependent design threshold $\text{GSNR}_{th}$:
+The final physical viability of the proposed paths is evaluated against the required modulation design threshold $\text{GSNR}_{th}$:
 
 $$
 \text{QoT}_{valid} = \begin{cases} 1 & \text{if } \exists \pi \in \mathcal{K}_{path} \text{ such that } \text{GSNR}_{dB}(\pi) \ge \text{GSNR}_{th} \land P_{rx}(\pi) \ge P_{rx,min} \\ 0 & \text{otherwise} \end{cases}
@@ -138,7 +136,7 @@ $$
 
 ---
 
-## 3.3.4 Decision Matrix and Action Execution Policies
+## 3.4.4 Decision Matrix and Action Execution Policies
 
 The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADGs operational decision matrix:
 
@@ -150,9 +148,9 @@ The mathematical intersection of the semantic and physical risk signals maps det
 
 ---
 
-## 3.3.5 Monotonic Constraint Preservation and Convergence Guarantees
+## 3.4.5 Constraint Preservation and Convergence Guarantees
 
-To ensure multi-turn refinement strictly terminates, the architecture defines a **Monotonic Constraint Preservation** invariant. Let $\mathcal{C}_k$ denote the set of active hard constraints during iteration $k$. Following operator feedback $\mathcal{F}_k$, the subsequent constraint set satisfies:
+To ensure multi-turn refinement strictly terminates, the architecture defines a **Constraint Preservation** condition. Let $\mathcal{C}_k$ denote the set of active hard constraints during iteration $k$. Following operator feedback $\mathcal{F}_k$, the subsequent constraint set satisfies:
 
 $$\mathcal{C}_{k+1} = \mathcal{C}_k \cup \text{ExtractConstraints}(\mathcal{F}_k) \setminus \text{ExplicitRevocations}(\mathcal{F}_k)$$
 

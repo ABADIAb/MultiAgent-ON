@@ -79,6 +79,12 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Completely redesigned Chapter 4 to trace the end-to-end software lifecycle across four newly defined sections: Orchestration and Network Context (4.1), The Semantic Engine (4.2), The Physical Engine and System Resilience (4.3), and Plan Synthesis and Verification (4.4).
    - Removed raw PDDL code blocks and math proofs from Chapter 4 to focus on software implementation mechanics and storytelling.
 
+10. **Chapter 3 Top-Down Storytelling & Anti-AI Refactor:**
+    - Reordered and renamed the theoretical framework sections in Chapter 3 to enforce a top-down storytelling structure, introducing the End-to-End Conceptual Framework (3.2) before the deep mathematical dives into Strict Neurosymbolic Separation (3.3) and RADGs (3.4).
+    - Executed a comprehensive tone refactor across Chapter 3 to eliminate latent AI-like clichés (e.g., orthogonal, composite, monotonic) and consolidated the use of "operational integrity" over generic phrasing.
+    - Simplified the Context-Free Grammar (CFG) formalization to focus strictly on Abstract Syntax Tree parsing logic and corrected inaccuracies regarding GN-model complexity.
+    - Updated the `thesis-coauthor` skill to mandate top-down storytelling and expand the blacklist of prohibited AI vocabulary for future drafting sessions.
+
 ---
 
 ## 3. What do I plan to accomplish next week?

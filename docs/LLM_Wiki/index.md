@@ -137,8 +137,8 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/Writing_Roadmap_v1]]: Writing roadmap and strategy for using NotebookLM/Antigravity.
 - [[thesis_drafts/Thesis_Outline_v4]]: Active V4 draft with problem formalization and mapped citations based on NotebookLM structural recommendations.
 - [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition]]: Chapter 3 Section 3.1 — Formal Problem Definition, architectural vulnerabilities, physical parameters, and optimization objective.
-- [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework]]: Chapter 3 Section 3.2 — Conceptual Framework, 7-phase fail-fast pipeline, and complexity bounds.
-- [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]: Chapter 3 Section 3.3 — Strict Neurosymbolic Separation, CFG validator, and token context bounds.
+- [[thesis_drafts/3_SystemModel/3_2_Proposed_Neurosymbolic_Framework]]: Chapter 3 Section 3.2 — Proposed Neurosymbolic Framework, 7-phase fail-fast pipeline, and complexity bounds.
+- [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]: Chapter 3 Section 3.3 — Strict Neurosymbolic Separation, CFG validator AST parsing, and token context bounds.
 - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gates (RADGs) decision function, GN model physics integration, and Formal HITL Reverse Prompting execution policies.
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
 - [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
@@ -149,6 +149,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260920_Chapter3_Storytelling_Refactor]]: Chapter 3 top-down storytelling restructure (renaming/reordering framework sections), elimination of AI clichés, terminology consolidation (operational integrity), and CFG/GN-model simplification.
 - [[session_summary/session_20260919_Thesis_Chapter4_Neurosymbolic_Pipeline_Implementation]]: Consolidated session summary: major restructuring of Chapters 3 and 4 for narrative fluidity. Consolidated all mathematical formulations (GN-model physics, $U_{sem}$) and formal grammars (PDDL CFG) into Chapter 3. Completely redesigned Chapter 4 into four execution sections (4.1 to 4.4 in `docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/`), covering Orchestration and Network Context, The Semantic Engine, The Physical Engine and System Resilience, and Plan Synthesis and Verification, abstracting raw PDDL and code blocks to improve storytelling.
 - [[session_summary/session_20260918_Architecture_Tone_Refactor]]: Architecture tone refactor to emphasize HITL optimization and operational integrity, thesis title alignment, and consolidation of EvaluationFramework_v5.
 - [[session_summary/session_20260916_Benchmark_Harness_SLM_Hardening_and_Full_Corpus_Evaluation]]: Consolidated session summary: automated benchmark harness with run isolation and non-destructive snapshotting, Four Core Validation Pillars telemetry integration (`run_evaluation.py`), prompt/context hardening for local SLM (`qwen2.5:3b`), elimination of ghost constraint leakage in intent reconciliation, achieving 100% first-attempt pass rate on Nominal intents, 94.1% CRR, 0% FPR, 0% UAR (Strict Safety Invariant), and 95.0% Gate Decision Accuracy across the full 20-demand compact corpus.

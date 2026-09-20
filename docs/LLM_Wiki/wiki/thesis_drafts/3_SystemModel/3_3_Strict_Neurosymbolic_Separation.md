@@ -5,14 +5,14 @@ tags: [thesis, chapter-3, system-model, neurosymbolic, pddl, cfg-validator, sepa
 status: active
 ---
 
-# 3.2 Strict Neurosymbolic Separation
+# 3.3 Strict Neurosymbolic Separation
 
-## 3.2.1 The "LLMs Reason, Tools Calculate" Paradigm
+## 3.3.1 The "LLMs Reason, Tools Calculate" Paradigm [[[no me gusta el titulo de la subsección, propón algo sin usar estas comillas no usar metaforas]]]
 
-A central design tenet of the proposed architecture is strict neurosymbolic separation. In telecommunications domains, neural generative models and symbolic algorithms exhibit complementary, non-overlapping operational capabilities. 
+A central design tenet of the proposed architecture is strict neurosymbolic separation. In telecommunications domains, generative models and symbolic algorithms exhibit complementary, non-overlapping operational capabilities. [[[Este párrafo inicial no está mal, pero podrías mejorarlo un poco, no tanto en contenido, sino en la forma de expresarlo, ya que actualmente suena muy a redactado con IA. Las palabras "tenet", "exhibit" lo hacen sonar muy a IA. ]]]
 
-- **Large Language Models (Neural Subsystem):** Generative language models excel at semantic reasoning, natural language ambiguity resolution, contextual synthesis, and unstructured intent extraction. However, they demonstrate fundamental unreliability regarding deterministic numerical computation, combinatorial graph exploration, and constraint satisfaction over physical systems.
-- **Symbolic and Analytical Solvers (Symbolic Subsystem):** Symbolic algorithms execute deterministic path optimization, exact graph traversal (such as Yen's $K$-Shortest Paths), mathematical constraint enforcement, and numerical physics modeling. Yet, these solvers require rigid formal syntax and cannot process unstructured human requests natively.
+- **Large Language Models (Neural Subsystem):** Generative language models excel at semantic reasoning, natural language ambiguity resolution, contextual synthesis, and unstructured intent extraction. However, they demonstrate fundamental unreliability regarding deterministic numerical computation, combinatorial graph exploration, and constraint satisfaction over physical systems. [[[Igual con este. No está mal, pero se siente como una explicación un poco básica o vaga. Se puede redactar de una forma más técnica y precisa. ]]]
+- **Symbolic and Analytical Solvers (Symbolic Subsystem):** Symbolic algorithms execute deterministic path optimization, exact graph traversal (such as Yen's $K$-Shortest Paths), mathematical constraint enforcement, and numerical physics modeling. Yet, these solvers require rigid formal syntax and cannot process unstructured human requests natively. [[[Igual que en el caso anterior.]]]
 
 Forcing an LLM to compute optical lightpath feasibility natively induces severe hallucination, yielding non-existent fiber spans or violating physical conservation laws. Conversely, restricting network operators to rigid command-line scripts nullifies the core objective of autonomous Intent-Based Networking (IBN). 
 
@@ -22,7 +22,7 @@ To reconcile this operational tension, the architecture enforces a strict bounda
 > **Figure: Neurosymbolic Subsystem Architecture & PDDL Interface** (`figs_SystemModel/pdf/neural_symbolic_subsystems.pdf`)
 > Decoupling of functional responsibilities: the Neural Subsystem handles intent extraction and linguistic formalization, passing typed PDDL predicates through a Context-Free Grammar (CFG) validation boundary to the deterministic Symbolic Subsystem for constraint pruning and physical simulation.
 
-## 3.2.2 PDDL Domain Formalization for Optical Routing
+## 3.3.2 PDDL Domain Formalization for Optical Routing
 
 To establish a standard formal intermediate representation, we define an optical routing subset within the Planning Domain Definition Language (PDDL). This domain formalizes the types, predicates, and constraint structures required to model optical path establishment.
 
@@ -74,49 +74,17 @@ When the operator submits an intent such as *"Provision a lightpath from Hamburg
 )
 ```
 
-## 3.2.3 Context-Free Grammar (CFG) Structural Validation
+## 3.3.3 Context-Free Grammar (CFG) Structural Validation
 
 To guarantee that the neural translation output contains zero structural or syntactical hallucinations, a deterministic Context-Free Grammar (CFG) validator immediately audits the generated string. 
 
-Let the grammar $\mathcal{G}_{pddl}$ be defined by the 4-tuple:
+The CFG parses the PDDL text into an Abstract Syntax Tree (AST) by checking the hierarchical S-expression structure against a predefined grammar (e.g., ensuring `(:goal (and ...))` blocks only contain valid predicates like `route`, `avoid-node`, or `min-gsnr`). It computes the structural indicator $v_{struct} \in \{0, 1\}$:
 
-$$\mathcal{G}_{pddl} = (V_N, \Sigma, R, S_0)$$
-
-where the constituent formal language components are specified as:
-- **Non-Terminal Alphabet ($V_N$):** The set of syntactic variables governing the hierarchical S-expression structure:
-  $$\begin{aligned}
-  V_N = \{ & S_0, \text{ProblemDef}, \text{DomainBlock}, \text{ObjectsBlock}, \text{InitBlock}, \text{GoalBlock}, \\
-           & \text{ExprList}, \text{Predicate}, \text{NodePair}, \text{SingleNode}, \text{NumericVal}, \text{IntVal} \}
-  \end{aligned}$$
-- **Terminal Alphabet ($\Sigma$):** The set of constant string literals, punctuation, and keyword symbols:
-  $$\begin{aligned}
-  \Sigma = \{ & \texttt{(}, \texttt{)}, \texttt{define}, \texttt{problem}, \texttt{:domain}, \texttt{:objects}, \texttt{:init}, \\
-              & \texttt{:goal}, \texttt{and}, \texttt{route}, \texttt{avoid-node}, \texttt{avoid-link}, \texttt{max-hops}, \texttt{min-gsnr} \} \cup \Sigma_{\text{id}}
-  \end{aligned}$$
-  where $\Sigma_{\text{id}}$ matches alphanumeric token identifiers defined by the regular expression `[A-Za-z0-9_-]+`.
-- **Start Symbol ($S_0 \in V_N$):** The root non-terminal generating the complete PDDL problem envelope.
-
-The production rules $R$ enforce permissible syntactic derivations for valid optical routing intents:
-
-$$\begin{aligned}
-S_0 &\to \texttt{(define (problem } \text{SingleNode}\texttt{)} \\
-    &\quad\quad \text{DomainBlock} \; \text{ObjectsBlock} \; \text{InitBlock} \; \text{GoalBlock}\texttt{)} \\[4pt]
-\text{GoalBlock} &\to \texttt{(:goal (and } \text{ExprList}\texttt{))} \;\mid\; \texttt{(:goal } \text{Predicate}\texttt{)} \\[4pt]
-\text{ExprList} &\to \text{Predicate} \; \text{ExprList} \;\mid\; \text{Predicate} \\[4pt]
-\text{Predicate} &\to \texttt{(route } \text{NodePair}\texttt{)} \\
-    &\;\mid\; \texttt{(avoid-node } \text{SingleNode}\texttt{)} \\
-    &\;\mid\; \texttt{(avoid-link } \text{NodePair}\texttt{)} \\
-    &\;\mid\; \texttt{(max-hops } \text{IntVal}\texttt{)} \\
-    &\;\mid\; \texttt{(min-gsnr } \text{NumericVal}\texttt{)}
-\end{aligned}$$
-
-The CFG validator parses the PDDL text into an Abstract Syntax Tree (AST) and computes the structural indicator $v_{struct} \in \{0, 1\}$:
-
-$$v_{struct} = \begin{cases} 1 & \text{if } \mathcal{S}_{PDDL} \in \mathcal{L}(\mathcal{G}_{pddl}) \\ 0 & \text{otherwise} \end{cases}$$
+$$v_{struct} = \begin{cases} 1 & \text{if the PDDL string is syntactically valid} \\ 0 & \text{otherwise} \end{cases}$$
 
 If $v_{struct} = 0$, the plan fails the structural audit. The system assigns maximum semantic uncertainty ($U_{sem} = 1.0$) and triggers a clarification request, avoiding wasted downstream computational resources.
 
-## 3.2.4 Deterministic Symbolic Solver and Graph Traversal
+## 3.3.4 Deterministic Symbolic Solver and Graph Traversal
 
 Upon validation by the CFG gate, the system translates the PDDL predicates into topological graph pruning and constraint filtering operations. These execute over the $k$-hop subtopology $G_{sub}(V_{sub}, E_{sub})$ extracted by the topological context extractor:
 
@@ -136,7 +104,7 @@ Upon validation by the CFG gate, the system translates the PDDL predicates into 
    The solver iterates over the candidate set $\mathcal{K}_{path}$. If the operator designates a maximum hop threshold $h_{max}$, any path $\pi$ exhibiting a hop cardinality $|\pi| > h_{max}$ undergoes strict elimination:
    $$\mathcal{K}_{path}^{final} = \{ \pi \in \mathcal{K}_{path} \mid |\pi| \le h_{max} \}$$
 
-Delegating path exploration to Yen's deterministic algorithm over the pruned topology $\widetilde{G}_{sub}$ mathematically precludes routing loops, traversal of non-existent links, or constraint violations prior to initiating the computationally intensive GN-model QoT evaluation.
+Delegating path exploration to Yen's deterministic algorithm over the pruned topology $\widetilde{G}_{sub}$ mathematically precludes routing loops, traversal of non-existent links, or constraint violations prior GN-model QoT evaluation. Importantly, topological pruning is employed as a strategy to restrict the search space and strictly bound the context window size, ensuring that downstream calculations only consider valid topological subgraphs.
 
 ---
 
