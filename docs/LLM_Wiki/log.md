@@ -612,3 +612,4 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Wiki Deep Lint: Audited and updated index.md and Weekly_Report_20260922_Felipe_Abadia.md with the new file names and session summary.
 - Consistency Audit: Chapter 3 restructured for top-down storytelling and eliminating AI-like clichés.
 - Session focus: Storytelling refactoring of Chapter 3, enforcing operational integrity terminology, simplifying CFG parsing explanations, and updating the thesis-coauthor skill.
+## [2026-09-21] debrief | Session Summary

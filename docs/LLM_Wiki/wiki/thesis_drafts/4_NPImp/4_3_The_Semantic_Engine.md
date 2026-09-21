@@ -5,25 +5,25 @@ tags: [thesis, chapter-4, implementation, pddl, cfg-ast, reverse-prompting, sema
 status: draft
 ---
 
-# 4.2 The Semantic Engine
+# 4.3 The Semantic Engine
 
-## 4.2.1 Natural Language Intent Ingestion and Structured Extraction
+## 4.3.1 Natural Language Intent Ingestion and Structured Extraction
 
-The initial phase of the pipeline bridges informal operator communication with structured computational planning. Implemented in `src/nodes/intent_ingest.py`, the ingestion node accepts the raw operator prompt string alongside the active network topology snapshot.
+Phase 2 begins by ingesting the informal operator communication. Implemented in `src/nodes/intent_ingest.py`, the ingestion node (`intent_ingest_node`) accepts the raw operator prompt string alongside the active network topology snapshot.
 
-Rather than immediately translating unconstrained language into symbolic execution code, the module executes a two-step parsing routine:
+The module executes a two-step parsing routine:
 1. **Dynamic Context Injection:** The localized subtopology context string produced by the Mock GraphRAG extractor (Section 4.1.3) is injected into the LLM system prompt, grounding the language model in valid node identifiers and active fiber links.
 2. **Constrained Schema Extraction:** The LLM is queried using structured outputs (enforced via Pydantic schema validation) to produce a structured summary of the intent, encapsulating endpoints, required bandwidth, and avoidance constraints.
 
 ### Prevention of Lossy Numerical Abstraction
 
-Early iterations of the ingestion module exhibited a critical failure mode: when downstream verification modules evaluated intent fidelity against the structured summary rather than the verbatim operator message, subtle constraints and domain qualifiers were lost. This lossy numerical abstraction generated artificial semantic divergence, triggering unnecessary operator clarification interruptions.
+When downstream verification modules evaluate intent fidelity against a structured summary rather than the verbatim operator message, subtle constraints and domain qualifiers are lost. This generates artificial semantic divergence, triggering unnecessary operator interruptions.
 
-To prevent this distortion, the pipeline enforces the **Verbatim Intent Preservation Invariant**: the ingestion node instantiates the state variable tracking the active intent using the exact, unmodified operator input string. The structured summary serves exclusively to guide downstream prompt templating and initialize subtopology scoping, while the raw text remains the single immutable reference for semantic agreement scoring throughout the pipeline lifecycle.
+To prevent this distortion, the pipeline enforces **Verbatim Intent Preservation**: the ingestion node instantiates the `active_intent` state variable using the exact, unmodified operator input string. The structured summary serves exclusively to guide downstream prompt templating and initialize subtopology scoping. The raw text remains the single immutable reference for semantic agreement scoring throughout the pipeline lifecycle.
 
 ---
 
-## 4.2.2 Multi-Turn Intent Reconciliation and Disambiguation Reasoning
+## 4.3.2 Multi-Turn Intent Reconciliation and Disambiguation Reasoning
 
 When an intent triggers an operational interruption, the operator submits corrective feedback. In multi-turn conversational architectures, language models frequently conflate prior constraints with new instructions, producing contaminated intent states (e.g., retaining a previously requested avoidance of a node when the operator explicitly requested a completely new route). This phenomenon is known as ghost constraint leakage.
 
@@ -35,11 +35,11 @@ Furthermore, if the reconciler identifies modified endpoint nodes, it dynamicall
 
 ---
 
-## 4.2.3 Context-Free Grammar (CFG) AST PDDL Validation
+## 4.3.3 Context-Free Grammar (CFG) AST PDDL Validation
 
-To strictly enforce neurosymbolic separation, Phase 2 (`src/nodes/pddl_parser.py`) prompts the model to act as a pure linguistic translator, mapping the natural language intent into a simplified Planning Domain Definition Language (PDDL) problem specification.
+To strictly enforce neurosymbolic separation, the `pddl_parser_node` in Phase 2 prompts the model to act as a pure linguistic translator, mapping the natural language intent into a simplified Planning Domain Definition Language (PDDL) problem specification.
 
-Because autoregressive models can generate syntactically corrupted expressions or unbalanced parentheses, accepting raw PDDL into the symbolic solver introduces catastrophic control-plane failure risks. Rather than relying on fragile regular expression heuristics, `src/core/pddl_validator.py` implements a rigorous Context-Free Grammar (CFG) parser based on S-expression abstract syntax trees (AST).
+Because autoregressive models can generate syntactically corrupted expressions or unbalanced parentheses, accepting raw PDDL into the symbolic solver introduces operational risks. Instead of relying on regular expression heuristics, `src/core/pddl_validator.py` implements a Context-Free Grammar (CFG) parser based on S-expression abstract syntax trees (AST).
 
 The parser operates through two formal software stages:
 1. **Tokenization and Nesting Depth Tracking:** The raw string is stripped of comments and scanned character-by-character. The lexer tracks parenthesis depth. An invariant condition is enforced: the depth must never drop below zero, and must return to exactly zero at string termination.
@@ -49,9 +49,9 @@ Within the goal section, the parser isolates logical conjunctions and applies fo
 
 ---
 
-## 4.2.4 Automated Reverse Prompting and Semantic Agreement Scoring
+## 4.3.4 Automated Reverse Prompting and Semantic Agreement Scoring
 
-To prevent semantic drift while eliminating human interruption for unambiguous intents, Phase 3 implements an automated Reverse Prompting protocol coupled to the Semantic RADG logic (`src/nodes/reverse_prompt.py`, `src/nodes/semantic_gate_node.py`).
+To prevent semantic drift, Phase 3 implements an automated Reverse Prompting protocol coupled to the Semantic RADG logic (`src/nodes/reverse_prompt.py`, `src/nodes/semantic_gate_node.py`).
 
 ### Automated PDDL-to-NL Reconstruction
 

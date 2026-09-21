@@ -5,21 +5,21 @@ tags: [thesis, chapter-4, implementation, synthesis, verification, canonical-pat
 status: draft
 ---
 
-# 4.4 Plan Synthesis and Verification
+# 4.5 Plan Synthesis and Verification
 
-## 4.4.1 Plan Synthesis and Auditable Provisioning Trace
+## 4.5.1 Plan Synthesis and Auditable Provisioning Trace (Phase 7)
 
-The terminal phase of the pipeline is executed by the plan synthesizer. When the Physical RADG approves the verified candidate paths, the synthesizer constructs a comprehensive, auditable Planning Report. 
+Phase 7 is executed by the `plan_synthesizer_node`. When the Physical RADG approves the verified candidate paths, the synthesizer constructs a comprehensive, auditable Planning Report. 
 
-The report encapsulates the operational decision, intent traceability (ingress/egress), primary and secondary allocated lightpaths with computed physical telemetry (path length, active channels, GSNR margin, received power), and the auditable decision metrics from the RADGs (structural validity, semantic divergence, token consumption).
+The report encapsulates the operational decision, intent traceability (ingress/egress), primary and secondary allocated lightpaths with computed physical telemetry (path length, active channels, GSNR margin, received power), and the decision metrics from the RADGs (structural validity, semantic divergence, token consumption).
 
-This synthesis serves as a cryptographically auditable log for network operators. Crucially, the planning report encapsulates the machine-readable provisioning payload formatted for direct dispatch to the optical controller (e.g., RESTConf or OpenConfig NETCONF RPCs), completing the pre-deployment intent translation loop.
+This synthesis serves as an auditable log for network operators. Crucially, the planning report encapsulates the machine-readable provisioning payload formatted for direct dispatch to the optical controller (e.g., RESTConf or OpenConfig NETCONF RPCs), completing the pre-deployment intent translation loop.
 
 ---
 
-## 4.4.2 Verification of the Seven Canonical Execution Paths
+## 4.5.2 Verification of the Seven Canonical Execution Paths
 
-To guarantee that the orchestrated state machine handles all operational contingencies deterministically, the pipeline was subjected to a comprehensive verification test suite executing the fully compiled StateGraph with an in-memory checkpointer. 
+To verify that the orchestrator handles operational contingencies deterministically, the pipeline was subjected to a verification test suite executing the fully compiled StateGraph with an in-memory checkpointer. 
 
 Across hundreds of test assertions, seven canonical execution paths were verified:
 1. **Single-Pass Auto-Approve (Happy Path):** Unambiguous, physically valid intents complete the entire workflow with zero human interruptions.

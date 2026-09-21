@@ -9,13 +9,13 @@ status: draft
 
 ## 3.2.1 The Fail-Fast Pre-Deployment Paradigm
 
-To overcome the latency penalties, operational inefficiencies, and rework inherent in trial-and-error network configuration, the proposed architecture introduces a **Fail-Fast Risk-Adaptive Neurosymbolic Framework**. The foundational premise rests on a strict pre-deployment verification condition: *no configuration directive shall be dispatched to the physical or virtual optical controller until it has been verified through a sequence of independent, risk-bounded validation gates*.
+To overcome the latency penalties and rework inherent in trial-and-error network configuration, the proposed architecture introduces a **Fail-Fast Risk-Adaptive Neurosymbolic Framework**. The core principle is a pre-deployment verification condition: *no configuration directive is dispatched to the optical controller until it has been verified through a sequence of independent validation gates*.
 
-Unlike reactive paradigms—which execute unverified configurations and rely on controller error logs to trigger iterative regeneration—our framework evaluates plan viability along two distinct axes:
+Unlike reactive paradigms—which execute unverified configurations and rely on controller error logs to trigger iterative regeneration—our framework evaluates plan viability along two axes:
 1. **Linguistic and Structural Certainty (Semantic Domain):** Ensuring the high-level intent is fully disambiguated and faithfully translated into formal mathematical constraints.
 2. **Physical-Layer Transmission Feasibility (Optical Domain):** Verifying that candidate lightpaths satisfy deterministic Generalized Signal-to-Noise Ratio (GSNR) margins and dynamic range limits under realistic fiber propagation models.
 
-By decoupling and ordering these validation checks sequentially, the architecture implements a **fail-fast operational hierarchy**: semantic verification is executed early to catch misunderstandings and missing parameters before invoking non-linear physical simulations or path-finding algorithms.
+By ordering these validation checks sequentially, the architecture implements a **fail-fast operational hierarchy**: semantic verification is executed early to catch missing parameters before invoking non-linear physical simulations or path-finding algorithms.
 
 ---
 
@@ -32,17 +32,17 @@ The framework operates through seven interconnected functional phases managed by
 - **Phase 2: Context-Free Grammar (CFG) Validated PDDL Parsing:**
   The enriched intent is processed by an LLM prompted to act as a linguistic compiler, translating the operational requirements into Planning Domain Definition Language (PDDL) goal predicates and constraint clauses. A deterministic Context-Free Grammar (CFG) validator immediately audits the output to eliminate structural hallucinations ($v_{struct} \in \{0, 1\}$).
 - **Phase 3: Automated Reverse Prompting & Semantic RADG ($U_{sem}$ Evaluation):**
-  - **Phase 3a (Automated Reverse Prompting):** A separate instance of the LLM, initialized with a specialized reconstruction system prompt, translates the formal PDDL specification back into natural language $\mathcal{I}_{recon}$ autonomously without pausing execution.
-  - **Semantic RADG:** The gate computes the composite semantic uncertainty metric $U_{sem} = f(v_{struct}, d_{sem})$, measuring syntactic integrity and semantic divergence against the original intent. If $U_{sem} \le \tau_{sem}$, the pipeline proceeds autonomously to Phase 4 with **zero human intervention**.
+  - **Phase 3a (Automated Reverse Prompting):** A separate instance of the LLM translates the formal PDDL specification back into natural language $\mathcal{I}_{recon}$ autonomously without pausing execution.
+  - **Semantic RADG:** The gate computes the semantic uncertainty metric $U_{sem} = f(v_{struct}, d_{sem})$, measuring syntactic integrity and semantic divergence against the original intent. If $U_{sem} \le \tau_{sem}$, the pipeline proceeds autonomously to Phase 4 with **zero human intervention**.
   - **Phase 3b (HITL Clarification):** If $U_{sem} > \tau_{sem}$ (due to syntax invalidity or high ambiguity), execution interrupts, prompting the human operator for explicit clarification. If the operator provides new instructions, the system loops back to Phase 2. However, if the intent is structurally valid ($v_{struct}=1$) and the operator explicitly approves the system's reconstructed understanding, execution bypasses re-parsing and proceeds directly to Phase 4.
 - **Phase 4: Deterministic Symbolic Solver:**
-  Once semantic clarity is established ($U_{sem} \le \tau_{sem}$), the validated PDDL constraints leave the neural subsystem and enter the non-neural symbolic graph engine. The solver executes Yen's $K$-Shortest Paths algorithm over $G_{sub}$, pruning paths that violate topological constraints (e.g., node/link exclusions, maximum hop bounds).
+  Once semantic clarity is established ($U_{sem} \le \tau_{sem}$), the validated PDDL constraints enter the non-neural symbolic engine. The solver executes Yen's $K$-Shortest Paths algorithm over $G_{sub}$, pruning paths that violate topological constraints (e.g., node/link exclusions, maximum hop bounds).
 - **Phase 5: Deterministic Quality of Transmission (QoT) Validation:**
   Each structurally valid candidate path $\pi_k \in \mathcal{K}_{path}$ is evaluated by a standalone physics engine implementing the Gaussian Noise (GN) model. The engine computes span-by-span amplifier noise accumulation, fiber attenuation, and non-linear interference (NLI), yielding exact GSNR predictions.
 - **Phase 6: Physical RADG:**
   The physical feasibility vector $\text{QoT}_{valid}$ is evaluated. If at least one candidate path satisfies $\text{GSNR}(\pi) \ge \text{GSNR}_{th}$, the plan is marked as valid and **auto-approved**. If all paths violate transmission thresholds, the gate triggers a *Suggest Replan* signal via HITL interrupt, querying the operator to relax constraints (e.g., lower GSNR target, alternative modulation, or split bandwidth) and looping back to Phase 2.
 - **Phase 7: Plan Synthesis and Configuration Provisioning:**
-  Approved paths, complete with their deterministic physical telemetry and full verification traces, are formatted into an auditable Planning Report. This report constitutes the final verified output of the system, acting as an assured routing decision ready to be consumed by downstream configuration agents or directly to the controller.
+  Approved paths and full verification traces are formatted into an auditable Planning Report. This report constitutes the final verified output of the system, acting as an assured routing decision ready to be consumed by downstream configuration agents or directly to the controller.
 
 ---
 

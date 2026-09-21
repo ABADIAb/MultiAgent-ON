@@ -7,16 +7,11 @@ status: active
 
 # 3.3 Strict Neurosymbolic Separation
 
-## 3.3.1 The "LLMs Reason, Tools Calculate" Paradigm [[[no me gusta el titulo de la subsección, propón algo sin usar estas comillas no usar metaforas]]]
-
-A central design tenet of the proposed architecture is strict neurosymbolic separation. In telecommunications domains, generative models and symbolic algorithms exhibit complementary, non-overlapping operational capabilities. [[[Este párrafo inicial no está mal, pero podrías mejorarlo un poco, no tanto en contenido, sino en la forma de expresarlo, ya que actualmente suena muy a redactado con IA. Las palabras "tenet", "exhibit" lo hacen sonar muy a IA. ]]]
-
-- **Large Language Models (Neural Subsystem):** Generative language models excel at semantic reasoning, natural language ambiguity resolution, contextual synthesis, and unstructured intent extraction. However, they demonstrate fundamental unreliability regarding deterministic numerical computation, combinatorial graph exploration, and constraint satisfaction over physical systems. [[[Igual con este. No está mal, pero se siente como una explicación un poco básica o vaga. Se puede redactar de una forma más técnica y precisa. ]]]
-- **Symbolic and Analytical Solvers (Symbolic Subsystem):** Symbolic algorithms execute deterministic path optimization, exact graph traversal (such as Yen's $K$-Shortest Paths), mathematical constraint enforcement, and numerical physics modeling. Yet, these solvers require rigid formal syntax and cannot process unstructured human requests natively. [[[Igual que en el caso anterior.]]]
+## 3.3.1 Functional Delegation in Network Configuration
 
 Forcing an LLM to compute optical lightpath feasibility natively induces severe hallucination, yielding non-existent fiber spans or violating physical conservation laws. Conversely, restricting network operators to rigid command-line scripts nullifies the core objective of autonomous Intent-Based Networking (IBN). 
 
-To reconcile this operational tension, the architecture enforces a strict boundary: the LLM functions exclusively as a semantic compiler that translates linguistic intent into formal symbolic logic. The system delegates all topological search operations and physical QoT calculations to deterministic external engines.
+The proposed architecture isolates functional responsibilities. To prevent the fabrication of physical parameters—such as inaccurately predicting the GSNR over a non-linear optical span—the neural component is restricted entirely to semantic translation. The architecture delegates all path computation, wavelength assignment, and non-linear quality-of-transmission (QoT) validations to deterministic symbolic algorithms.
 
 <!-- FIGURE_PLACEHOLDER: neural_symbolic_subsystems -->
 > **Figure: Neurosymbolic Subsystem Architecture & PDDL Interface** (`figs_SystemModel/pdf/neural_symbolic_subsystems.pdf`)
@@ -76,7 +71,7 @@ When the operator submits an intent such as *"Provision a lightpath from Hamburg
 
 ## 3.3.3 Context-Free Grammar (CFG) Structural Validation
 
-To guarantee that the neural translation output contains zero structural or syntactical hallucinations, a deterministic Context-Free Grammar (CFG) validator immediately audits the generated string. 
+To guarantee that the neural translation output contains zero structural or syntactical hallucinations, a deterministic Context-Free Grammar (CFG) validator immediately audits the generated string. This parser applies formal language rules to enforce that the PDDL syntax is strictly compliant before any subsequent processing occurs. If the CFG validator detects malformed parentheses, undefined predicates, or invalid node references, it sets $v_{struct} = 0$, explicitly triggering the semantic decision gate to halt execution.
 
 The CFG parses the PDDL text into an Abstract Syntax Tree (AST) by checking the hierarchical S-expression structure against a predefined grammar (e.g., ensuring `(:goal (and ...))` blocks only contain valid predicates like `route`, `avoid-node`, or `min-gsnr`). It computes the structural indicator $v_{struct} \in \{0, 1\}$:
 

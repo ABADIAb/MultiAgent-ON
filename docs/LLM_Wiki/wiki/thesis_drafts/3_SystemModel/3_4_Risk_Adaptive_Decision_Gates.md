@@ -7,6 +7,10 @@ status: draft
 
 # 3.4 The Risk-Adaptive Decision Gates (RADGs)
 
+The framework implements a two-stage Risk-Adaptive Decision Gate (RADG) mechanism to dynamically manage human intervention. These gates act as the core control logic evaluating the operational risks of the generated plan across two domains: Semantic Uncertainty ($U_{sem}$) and Physical Feasibility ($\text{QoT}_{valid}$). 
+
+By executing these checks prior to deployment, the architecture resolves ambiguity and unfeasible requests early.
+
 ## 3.4.1 Mathematical Formulation of the RADGs Decision Function
 
 The principal control logic of the proposed neurosymbolic architecture resides within the Risk-Adaptive Decision Gates (RADGs). Formulated as a deterministic, piecewise decision function $D$, the RADGs evaluate two independent, sequentially computed risk signals to guarantee pre-deployment operational integrity. These signals comprise:
@@ -128,23 +132,27 @@ $$
 
 ### Binary QoT Feasibility Indicator
 
-The final physical viability of the proposed paths is evaluated against the required modulation design threshold $\text{GSNR}_{th}$:
+The final physical viability of the proposed paths is evaluated. If at least one path $\pi$ satisfies the threshold, the goal is marked as physically feasible.
 
 $$
-\text{QoT}_{valid} = \begin{cases} 1 & \text{if } \exists \pi \in \mathcal{K}_{path} \text{ such that } \text{GSNR}_{dB}(\pi) \ge \text{GSNR}_{th} \land P_{rx}(\pi) \ge P_{rx,min} \\ 0 & \text{otherwise} \end{cases}
+\text{QoT}_{valid} = \begin{cases} 
+1 & \text{if } \exists \pi \in \mathcal{K}_{path}^{final} \mid \text{GSNR}_{comp}(\pi) \ge \text{GSNR}_{th} \\
+0 & \text{otherwise}
+\end{cases}
 $$
+
+If $\text{QoT}_{valid} = 0$, the Physical RADG immediately halts execution and triggers a Proportional Re-Entry interrupt.
 
 ---
 
-## 3.4.4 Decision Matrix and Action Execution Policies
+## 3.4.4 Proportional Human-In-The-Loop (HITL) Re-Entry
 
-The mathematical intersection of the semantic and physical risk signals maps deterministically to the RADGs operational decision matrix:
+The decision gates operate as thresholds for Proportional HITL engagement. Instead of requesting a generic system override, the architecture provides the operator with mathematically grounded context for the failure:
 
-| $U_{sem}$ Evaluation | $\text{QoT}_{valid}$ Status | RADGs Decision | Pipeline Action & Human Engagement |
-| :--- | :--- | :--- | :--- |
-| $\le \tau_{sem}$ | $1$ (Feasible) | Approve | Auto-provision (Zero Human Interaction) |
-| $\le \tau_{sem}$ | $0$ (Infeasible) | Replan | HITL Interrupt: Suggest relaxing constraints |
-| $> \tau_{sem}$ | N/A (Bypassed) | Clarify | HITL Interrupt: Clarify semantic ambiguity |
+1. **Semantic Interrupt ($U_{sem} > \tau_{sem}$):** The operator receives the reconstructed natural language intent ($\mathcal{I}_{recon}$) and is prompted to clarify the ambiguity (e.g., *"Did you mean max-hops 3 or max-hops 5?"*). 
+2. **Physical Interrupt ($\text{QoT}_{valid} = 0$):** The operator is presented with the telemetry of the failed $K$-paths (e.g., *"Path 1 failed by 1.2 dB GSNR due to NLI on span 4"*). The system suggests specific relaxations: lowering the GSNR threshold, reducing the target baud rate, or changing the modulation format to close the physical link budget.
+
+This isolates human intervention solely to scenarios where the autonomous mathematical bounding condition is violated, ensuring that operators manage edge-case failures rather than routine provisioning.
 
 ---
 
