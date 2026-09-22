@@ -42,7 +42,7 @@ The framework operates through seven interconnected functional phases managed by
 - **Phase 6: Physical RADG:**
   The physical feasibility vector $\text{QoT}_{valid}$ is evaluated. If at least one candidate path satisfies $\text{GSNR}(\pi) \ge \text{GSNR}_{th}$, the plan is marked as valid and **auto-approved**. If all paths violate transmission thresholds, the gate triggers a *Suggest Replan* signal via HITL interrupt, querying the operator to relax constraints (e.g., lower GSNR target, alternative modulation, or split bandwidth) and looping back to Phase 2.
 - **Phase 7: Plan Synthesis and Configuration Provisioning:**
-  Approved paths and full verification traces are formatted into an auditable Planning Report. This report constitutes the final verified output of the system, acting as an assured routing decision ready to be consumed by downstream configuration agents or directly to the controller.
+  Approved paths and full verification traces are formatted into an auditable Planning Report. This report constitutes the final verified output of the system, acting as an assured routing decision ready to be consumed by downstream configuration agents that dispatch the payloads to the controller.
 
 ---
 
