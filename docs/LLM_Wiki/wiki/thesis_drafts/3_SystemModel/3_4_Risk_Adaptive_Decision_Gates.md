@@ -36,6 +36,11 @@ While conceptualized as a unified mathematical function, the software implementa
 > **Figure: Risk-Adaptive Decision Gates (RADGs) 2D Operational State Space** (`figs_SystemModel/pdf/radg_decision_space.pdf`)
 > Visual representation of the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$. The horizontal axis denotes Semantic Uncertainty $U_{sem} \in [0, 1]$ with threshold delimiter $\tau_{sem} = 0.30$; the vertical axis represents the physical margin $\Delta\text{GSNR} = \text{GSNR}_{path} - \text{GSNR}_{th}$ (dB). The partitioned state space maps directly to three operational action zones: Zone I: Auto-Approve (top-left, safe), Zone II: Suggest Replan (bottom-left, infeasible physics), and Zone III: Early HITL Clarify (right, high ambiguity with physics simulation bypassed).
 
+Figure~\ref{fig:radg_decision_space} illustrates this piecewise mapping across the two-dimensional operational state space defined by Semantic Uncertainty ($U_{sem}$, horizontal axis) and Physical Feasibility Margin ($\Delta\text{GSNR} = \text{GSNR}_{comp} - \text{GSNR}_{th}$, vertical axis). As depicted, the decision boundaries partition the plane into three distinct operational regions:
+- **Zone I (Auto-Approve, top-left green region):** Defined by $U_{sem} \le \tau_{sem}$ and $\Delta\text{GSNR} \ge 0\text{ dB}$. Here, candidate plans are semantically unambiguous and physically feasible; the orchestrator provisions the configuration autonomously with zero human intervention.
+- **Zone II (Suggest Replan, bottom-left orange region):** Defined by $U_{sem} \le \tau_{sem}$ and $\Delta\text{GSNR} < 0\text{ dB}$. The intent is semantically verified, but physical optical constraints fail. The system halts at Gate 2 and presents physical failure telemetry to the operator for parameter relaxation.
+- **Zone III (Early HITL Clarify, right blue hatched region):** Defined by $U_{sem} > \tau_{sem}$. The intent exhibits high linguistic ambiguity or structural syntax invalidity ($v_{struct}=0$). As highlighted in Figure~\ref{fig:radg_decision_space}, the entire region to the right of the vertical delimiter $\tau_{sem} = 0.30$ is shaded uniformly regardless of $\Delta\text{GSNR}$ because execution halts at Gate 1 before running symbolic path-finding or physical simulations, realizing the fail-fast principle.
+
 ---
 
 ## 3.4.2 Two-Layer Semantic Uncertainty Quantification ($U_{sem}$)
@@ -52,19 +57,24 @@ $$
 
 #### Layer 2: Reverse Prompting Semantic Divergence ($d_{sem}$)
 
-To prevent semantic drift and enforce formal semantic convergence, the architecture implements Reverse Prompting as a closed-loop validation contract.
+To prevent semantic drift across refinement turns, the architecture implements Reverse Prompting as a closed-loop validation cycle, illustrated in Figure~\ref{fig:reverse_prompting_loop}.
 
 <!-- FIGURE_PLACEHOLDER: reverse_prompting_loop -->
 > **Figure: Closed-Loop Reverse Prompting Validation condition** (`figs_SystemModel/pdf/reverse_prompting_loop.pdf`)
 > Closed-loop verification cycle enforcing semantic convergence: the operator's natural language intent $\mathcal{I}_{NL}$ is translated into formal PDDL predicates $\mathcal{S}_{PDDL}$, independently reconstructed back to natural language $\mathcal{I}_{recon}$, and evaluated for semantic divergence $d_{sem}$.
 
-Assuming $v_{struct} = 1$, the formal PDDL specification is reconstructed into a natural language confirmation statement $\mathcal{I}_{recon}$ via an independent Reverse Prompting mechanism. The semantic divergence $d_{sem} \in [0, 1]$ is computed directly by a dedicated evaluator LLM that scores the semantic discrepancy between the original operator request $\mathcal{I}_{NL}$ and the algorithmic reconstruction $\mathcal{I}_{recon}$:
+As shown in Figure~\ref{fig:reverse_prompting_loop}, the validation cycle coordinates five sequential steps:
+1. **Forward Translation:** The linguistic compiler translates the raw intent $\mathcal{I}_{NL}$ into formal PDDL constraints $\mathcal{S}_{PDDL}$.
+2. **Structural Audit:** The Context-Free Grammar parser deterministically verifies syntax validity ($v_{struct} \in \{0, 1\}$); syntax violations immediately bypass reverse reconstruction and force $U_{sem} = 1.0$.
+3. **Reverse Reconstruction:** Assuming structural validity ($v_{struct} = 1$), an independent reconstruction LLM translates $\mathcal{S}_{PDDL}$ back into a natural language confirmation statement $\mathcal{I}_{recon}$.
+4. **Agreement Evaluation:** A separate LLM Agreement Judge compares the original intent $\mathcal{I}_{NL}$ with $\mathcal{I}_{recon}$, computing the continuous semantic divergence metric $d_{sem} \in [0, 1]$ via Equation~\eqref{eq:d_sem}:
 
 $$
 d_{sem} = \text{Score}_{divergence}\left( \mathcal{I}_{NL}, \mathcal{I}_{recon} \right)
 $$
 
 where $0.0$ indicates perfect semantic alignment and $1.0$ indicates total constraint loss.
+5. **Threshold Routing:** If $d_{sem} \le \tau_{sem}$, the intent is approved for route computation; if $d_{sem} > \tau_{sem}$, execution branches out of the autonomous loop to prompt the human operator for clarification.
 
 #### Composite $U_{sem}$ Evaluation
 
@@ -163,6 +173,8 @@ To ensure multi-turn refinement strictly terminates, the architecture defines a 
 $$\mathcal{C}_{k+1} = \mathcal{C}_k \cup \text{ExtractConstraints}(\mathcal{F}_k) \setminus \text{ExplicitRevocations}(\mathcal{F}_k)$$
 
 Maintaining $\mathcal{C}_k$ within a structured state dictionary rather than unstructured conversational history provides two analytical guarantees. First, established operational rules cannot degrade silently; they require explicit operator revocation. Second, the architecture strictly bounds the maximum number of clarification turns to $N_{max} = 3$. If an intent fails to achieve $U_{sem} \le \tau_{sem}$ after $N_{max}$ iterations, the system halts execution, preventing control-plane deadlocks.
+
+With the system model and decision gates defined, Chapter~\ref{chap:implementation} presents the implementation of this architecture using a stateful LangGraph orchestration pipeline.
 
 ---
 

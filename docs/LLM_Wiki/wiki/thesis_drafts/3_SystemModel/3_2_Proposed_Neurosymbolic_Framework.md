@@ -7,6 +7,8 @@ status: draft
 
 # 3.2 Proposed Neurosymbolic Framework
 
+To address the optimization objective in Section~\ref{sec:problem_definition}—minimizing human interventions and token usage while ensuring zero unsafe approvals ($UAR = 0\%$)—the system separates intent translation from physical calculation. The framework applies deterministic checks at each stage before sending configurations to the network.
+
 ## 3.2.1 The Fail-Fast Pre-Deployment Paradigm
 
 To overcome the latency penalties and rework inherent in trial-and-error network configuration, the proposed architecture introduces a **Fail-Fast Risk-Adaptive Neurosymbolic Framework**. The core principle is a pre-deployment verification condition: *no configuration directive is dispatched to the optical controller until it has been verified through a sequence of independent validation gates*.
@@ -25,7 +27,7 @@ By ordering these validation checks sequentially, the architecture implements a 
 > **Figure: Proposed Framework & 7-Phase Orchestration Pipeline** (`figs_SystemModel/pdf/conceptual_framework.pdf`)
 > End-to-end architecture of the Risk-Adaptive Neurosymbolic Intent Orchestrator, illustrating the two-gate validation hierarchy: Gate 1 (Semantic RADG $U_{sem} \le \tau_{sem}$) preventing semantic drift, and Gate 2 (Physical RADG $\text{QoT}_{valid} = 1$) ensuring deterministic optical transmission feasibility prior to provisioning.
 
-The framework operates through seven interconnected functional phases managed by a stateful orchestration graph:
+Figure~\ref{fig:conceptual_framework} shows the end-to-end architecture of the 7-phase neurosymbolic pipeline. As illustrated, the workflow is structured across two decoupled operational domains: the linguistic reasoning domain (Phases 1–3) shown in the upper area, and the deterministic physical domain (Phases 4–6) shown in the lower area, culminating in the control-plane synthesis interface (Phase 7). The architecture evaluates candidate configurations along a two-gate fail-fast hierarchy: Gate 1 (Semantic RADG, $U_{sem} \le \tau_{sem}$) validates syntactic structure and linguistic alignment before path calculation, while Gate 2 (Physical RADG, $\text{QoT}_{valid} = 1$) verifies optical transmission feasibility before provisioning. When an intent fails verification, the diagram illustrates the closed-loop feedback trajectories: Phase 3b triggers human clarification looping back to Phase 2, and Phase 6 triggers parameter relaxation looping back to Phase 2. The framework operates through seven interconnected functional phases managed by a stateful orchestration graph:
 
 - **Phase 1: Intent Ingestion and Optical Retrieval-Augmented Generation (Optical RAG):**
   The raw operator intent $\mathcal{I}_{NL}$ is ingested. To prevent token context exhaustion, an optical topological retriever queries the active network state to extract a localized $k$-hop subtopology $G_{sub} \subseteq G$ encompassing the candidate endpoints. This subtopology extraction acts as a token-reduction strategy, bounding the context window prior to downstream translation into an enriched intent schema.
@@ -65,6 +67,8 @@ where:
 - $\kappa_{refine} \in \{0, \dots, N_{\max}\}$ is the active refinement counter bounded by $N_{\max} = 3$.
 
 State transitions use deterministic rules to ensure that if a loopback occurs (e.g., from Phase 3b or Phase 6 back to Phase 2), the system preserves the audit history and operator feedback trail while resetting temporary execution variables. This prevents infinite loops and ensures that prior refinement constraints are maintained.
+
+To formalize the architectural boundary that decouples neural intent translation from deterministic graph algorithms and physics simulations, Section~\ref{sec:neurosymbolic_separation} details the formal PDDL domain and Context-Free Grammar (CFG) validation layer.
 
 ---
 

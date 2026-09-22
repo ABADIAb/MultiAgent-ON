@@ -104,10 +104,13 @@ $$\pi^* \in \mathcal{K}_{path}(G, \mathcal{S}_{PDDL})$$
 where:
 - $N_{hitl} \in \mathbb{N}_0$ denotes the number of operator interruptions triggered during the planning lifecycle.
 - $T_{tokens} \in \mathbb{N}^+$ represents the total cumulative LLM token consumption.
-- $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs. In this theoretical formulation, they act as operational policy parameters (OPEX) and normalization factors that project discrete human interaction events ($N_{hitl}$) and high-magnitude token consumption ($T_{tokens}$) into a unified evaluation scale. Exact empirical values for these parameters are defined by the specific testbed configuration during system evaluation; these coefficients directly inform the boundary conditions for the baseline experiments evaluated in Chapter~\ref{chap:implementation} \textcolor{red}{[TODO: Define chap:implementation label]} (Always-HITL vs. No-HITL).
+- $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs. In this theoretical formulation, they act as operational policy parameters (OPEX) and normalization factors that project discrete human interaction events ($N_{hitl}$) and high-magnitude token consumption ($T_{tokens}$) into a unified evaluation scale. Exact empirical values for these parameters are defined by the specific testbed configuration during system evaluation; these coefficients directly inform the boundary conditions for the baseline experiments evaluated in Chapter~\ref{chap:implementation} (Always-HITL vs. No-HITL).
 - $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved. This hard constraint intrinsically governs the appropriate Human-in-the-Loop (HITL) engagement, guaranteeing that the system triggers an interruption if the intent is ambiguous or physically impossible, thereby achieving the goal of optimizing HITL without requiring a complex multi-objective formulation.
+
+To solve this pre-deployment optimization problem deterministically, Section~\ref{sec:proposed_framework} introduces the proposed Neurosymbolic Framework and its underlying multi-phase orchestration pipeline.
 
 ---
 
 > [!NOTE]
 > **Notation Consistency Check:** Ensure that $\text{GSNR}_{th}$, $U_{sem}$, and $\text{QoT}_{valid}$ symbols match identically across Chapter 3 and Chapter 5.
+

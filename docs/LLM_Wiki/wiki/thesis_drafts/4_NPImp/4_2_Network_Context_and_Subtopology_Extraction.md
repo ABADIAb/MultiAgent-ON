@@ -28,13 +28,14 @@ To mitigate token saturation without sacrificing topological awareness, the pipe
 
 When an operator intent specifies a communication request between an origin node $s$ and a destination node $d$, the system scopes the context using $k$-hop neighborhood extraction. The relevant subtopology node set $V_{sub}$ is the union of the $k$-hop neighborhoods centered on the source and target endpoints. By default, the radius is configured to $k = 2$, bounding the candidate vertex set to the immediate switching neighborhood and discarding irrelevant peripheral links.
 
-To inject the extracted subtopology into the LLM system prompt with maximum token density, the subgraph is serialized into a structured plain text schema. This approach significantly reduces prompt token consumption while retaining complete physical transparency over link lengths, amplifier counts, and topological identifiers.
+To provide the language model with topological context while limiting prompt size, the subgraph is serialized into plain text. This keeps the prompt within the token bound $T_{prompt}(\mathcal{I}_{NL}, G_{sub}) \le T_{max} \ll T_{full}(G)$ from Equation~\eqref{eq:token_budget}, avoiding attention loss while preserving link lengths, amplifier counts, and node identifiers.
+
+Once the topological context is extracted and bounded, the orchestrator passes control to Phase 2. Section~\ref{sec:semantic_engine} details the Semantic Engine, describing how raw natural language intents are ingested, parsed into AST-verified PDDL, and audited via automated Reverse Prompting.
 
 ---
 
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 4.2 Placement:** Architectural diagram illustrating the Optical Network Abstraction and GraphRAG extraction pipeline.
-> - **Artifact Path:** `figs_NPImp/src/diagrams/graphrag_subtopology_extraction.drawio`
-> - **LaTeX Figure Reference:** `Figure~\ref{fig:graphrag_subtopology_extraction}`
+> **Subtopology Scoping:** The plain text serialization format preserves all physical parameters required by downstream GN-model physics calculations without inflating prompt token counts.
+

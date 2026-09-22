@@ -141,6 +141,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]: Chapter 3 Section 3.3 — Strict Neurosymbolic Separation, CFG validator AST parsing, and token context bounds.
 - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gates (RADGs) decision function, GN model physics integration, and Formal HITL Reverse Prompting execution policies.
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
+- [[thesis_drafts/4_NPImp/chapter_4_implementation.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 4 (Overleaf-ready).
 - [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
 - [[thesis_drafts/4_NPImp/4_1_Network_State_and_GraphRAG]]: Chapter 4 Section 4.1 — Optical Network Abstraction, Nobel-Germany testbed modeling, token budget saturation, and Scoped Subtopology GraphRAG.
 - [[thesis_drafts/4_NPImp/4_2_Semantic_and_QoT_Validation_Modules]]: Chapter 4 Section 4.2 — Intent Ingest, Intent Reconciler (SLM ghost constraint prevention), CFG AST PDDL Validator ($v_{struct}$), Two-Layer Semantic RADG ($U_{sem}$), and analytical GN-model physics engine.
@@ -149,6 +150,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260922_Chapter4_Improvement]]: Overleaf $\text{\LaTeX}$ chapter consolidation (Chapters 3 & 4), in-text woven figure narrative integration across all 5 diagrams/placeholders, strict tone refactor eliminating AI clichés, upgrade of thesis-coauthor skill and references, and 1:1 Markdown-to-LaTeX synchronization.
 - [[session_summary/session_20260921_Chapter4_Restructure_and_Tone_Refactor]]: Chapter 4 structural expansion to 5 sections aligning with the 7-phase LangGraph pipeline, rigorous tone refactor of Chapters 3 and 4 eliminating AI clichés, update to `thesis-coauthor` skill enforcing precision and technical density.
 - [[session_summary/session_20260920_Chapter3_Storytelling_Refactor]]: Chapter 3 top-down storytelling restructure (renaming/reordering framework sections), elimination of AI clichés, terminology consolidation (operational integrity), and CFG/GN-model simplification.
 - [[session_summary/session_20260919_Thesis_Chapter4_Neurosymbolic_Pipeline_Implementation]]: Consolidated session summary: major restructuring of Chapters 3 and 4 for narrative fluidity. Consolidated all mathematical formulations (GN-model physics, $U_{sem}$) and formal grammars (PDDL CFG) into Chapter 3. Completely redesigned Chapter 4 into four execution sections (4.1 to 4.4 in `docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/`), covering Orchestration and Network Context, The Semantic Engine, The Physical Engine and System Resilience, and Plan Synthesis and Verification, abstracting raw PDDL and code blocks to improve storytelling.

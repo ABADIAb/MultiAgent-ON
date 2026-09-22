@@ -606,10 +606,14 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Consistency Audit: Standardized terminology across the repository to "Risk-Adaptive Decision Gates (RADGs)" (plural) as the overarching prototype, with "Semantic RADG" (Phase 3) and "Physical RADG" (Phase 6) representing the orthogonal execution gates. Synchronized docstrings, CLI print banners, and rich loggers in `src/` while preserving 100% executable code integrity.
 - Testing & Verification: All 321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`). Zero broken links in active wiki notes.
 
-## [2026-09-19] debrief | Thesis Chapter 3 & 4 Redesign and Structural Consolidation
+## [2026-09-21] debrief | Chapter 4 Five-Section Expansion and Narrative Refactoring
+- Wiki Deep Lint: Updated `Weekly_Report_20260922_Felipe_Abadia.md` and `session_20260922_Chapter4_Improvement.md`.
+- Consistency Audit: Expanded Chapter 4 into five dedicated sections aligning 1:1 with the 7-phase LangGraph pipeline (4.1 Orchestrator Mapping, 4.2 Network Context & Subtopology Scoping, 4.3 Semantic Engine & Semantic RADG 4.3.5, 4.4 Symbolic Solver & GN Physical Engine, 4.5 Synthesis & Verification). Removed low-level code paths (`src/`) to preserve theoretical academic focus.
+- Session focus: Chapter 4 structural alignment with LangGraph architecture and narrative tone cleansing.
 
-## [2026-09-20] debrief | Session Summary
-- Wiki Deep Lint: Audited and updated index.md and Weekly_Report_20260922_Felipe_Abadia.md with the new file names and session summary.
-- Consistency Audit: Chapter 3 restructured for top-down storytelling and eliminating AI-like clichés.
-- Session focus: Storytelling refactoring of Chapter 3, enforcing operational integrity terminology, simplifying CFG parsing explanations, and updating the thesis-coauthor skill.
-## [2026-09-21] debrief | Session Summary
+## [2026-09-22] debrief2 | Overleaf Consolidation, Woven Figure Narratives, and Skill Upgrades
+- Wiki Deep Lint: Audited and updated `docs/LLM_Wiki/index.md`, `Weekly_Report_20260922_Felipe_Abadia.md` (Item 11), `session_20260922_Chapter4_Improvement.md`, and `Drafting_Backlog.md` (marked Item 2 resolved). Added catalog entries for `chapter_3_system_model.txt` and `chapter_4_implementation.txt`.
+- Consistency Audit: Consolidated all markdown drafts for Chapters 3 and 4 into production-ready LaTeX files (`chapter_3_system_model.txt` and `chapter_4_implementation.txt`) for immediate Overleaf compilation. Enforced strict pre-commit compilation invariants (no redundant preambles, `academicbox` listings, compilation-safe `\fbox{\parbox{...}}` placeholders, and `\FloatBarrier` guards). Integrated exhaustive in-text figure walkthroughs (axes, zones, stages, arrows) and forward-looking storytelling transitions. Synchronized markdown sources with LaTeX drafts (zero drift).
+- Skill Upgrade: Upgraded `thesis-coauthor` skill (`SKILL.md`, `references/writing-standards.md`, `references/consistency-protocol.md`) with expanded Anti-AI Cliché blacklist (`swimlane`, `paradigm`, `mandates`, `govern`, `certified`, `canonical`, `empirical`), mandatory figure narratives, inter-section/chapter storytelling bridges, dynamic LaTeX cross-references, and pre-commit compilation invariants.
+- Session focus: Full Overleaf chapter consolidation, figure narrative integration, tone cleansing, skill hardening, and repository debrief.
+

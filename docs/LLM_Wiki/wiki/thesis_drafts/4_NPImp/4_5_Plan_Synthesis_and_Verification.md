@@ -21,22 +21,23 @@ This synthesis serves as an auditable log for network operators, completing the 
 
 To verify that the orchestrator handles operational contingencies deterministically, the pipeline was subjected to a verification suite executing the state graph. 
 
-Across the tests, seven canonical execution paths were verified:
-1. **Single-Pass Auto-Approve (Happy Path):** Unambiguous, physically valid intents complete the workflow with zero human interruptions.
-2. **Semantic Clarification Loop:** Underspecified intents trigger an interruption. The operator supplies missing endpoints, and the pipeline reconciles and completes.
-3. **Fast-Track Manual Override:** The operator forces approval of a structurally valid intent with marginal semantic divergence, bypassing re-parsing.
-4. **Physical Replan Loop:** Long-haul paths fail physics thresholds. The operator relaxes the bitrate constraint, looping back to yield a viable configuration.
-5. **Complex Topological Constraints:** Negative constraints (`avoid-link`, `max-hops`) are honored by the symbolic solver, preventing traffic from traversing excluded nodes.
-6. **Topology Edge Cases & Disconnection:** Requests for disconnected partitions yield empty candidate sets, triggering a graceful physical replan.
-7. **Multi-Interruption Persistence:** State integrity is maintained across sequential semantic ambiguities followed by physical infeasibilities.
+Across the tests, seven canonical execution paths were verified, mapping directly onto the forward branches, decision checkpoints, and feedback loops of the LangGraph state machine depicted in Figure~\ref{fig:langgraph_execution_flow}:
+1. **Single-Pass Auto-Approve (Happy Path):** Unambiguous, physically valid intents traverse the direct forward edge through both gates with zero human interruptions.
+2. **Semantic Clarification Loop:** Underspecified intents trigger an interruption at Phase 3b, routing operator feedback back to Phase 2 for reconciliation and re-parsing.
+3. **Fast-Track Manual Override:** The operator forces approval of a structurally valid intent with marginal semantic divergence, traversing the bypass edge from Phase 3b directly to Phase 4.
+4. **Physical Replan Loop:** Long-haul paths fail physics thresholds at Phase 6. The operator relaxes the bitrate constraint, traversing the loopback edge back to Phase 2 to yield a viable configuration.
+5. **Complex Topological Constraints:** Negative constraints (`avoid-link`, `max-hops`) are honored by the symbolic solver in Phase 4, pruning topological paths before physical simulation.
+6. **Topology Edge Cases & Disconnection:** Requests for disconnected partitions yield empty candidate sets in Phase 4, triggering a graceful physical replan at Phase 6.
+7. **Multi-Interruption Persistence:** State integrity is maintained across sequential semantic ambiguities followed by physical infeasibilities, exercising both feedback loops in series.
 
-All execution flows pass consistently, confirming the operational grounding of the neurosymbolic architecture.
+All execution flows pass consistently, confirming the operational grounding of the neurosymbolic architecture and validating that the software execution map faithfully reproduces the action space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$ and multi-turn constraint preservation guarantees defined in Chapter~\ref{chap:system_model}.
+
+With the orchestrator implemented and verified, Chapter 5 presents the experimental evaluation, comparing pipeline performance across multiple language models and against non-adaptive baselines.
 
 ---
 
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 4.4 Placement:** Detailed state machine diagram illustrating the seven canonical execution paths of the LangGraph orchestrator, highlighting the conditional branching at the decision gates, the two suspension checkpoints, and the state-preserving loopbacks.
-> - **Artifact Path:** `figs_NPImp/src/diagrams/langgraph_state_machine.drawio`
-> - **LaTeX Figure Reference:** `Figure~\ref{fig:langgraph_state_machine}`
+> **Empirical Validation:** The seven verified canonical paths form the foundation of the automated evaluation harness deployed in Chapter 5 to benchmark autonomous pass rate, human interaction count ($N_{hitl}$), and unsafe approval rate ($UAR$).
+

@@ -19,17 +19,27 @@ status: active
 - **Narrative Refactoring:** Applied comprehensive tone, structure, and content refactoring across all five sections of Chapter 4 (`4_NPImp/`).
   - Removed explicit codebase details (e.g., specific file paths like `src/core/graph.py`) to maintain a clear, theoretical narrative focus.
   - Restructured subsections for clarity, notably giving the Semantic RADG its own dedicated subsection (`4.3.5`).
-- **Citation Integration:** Added a placeholder citation for "ghost constraint leakage" referencing the *EditAgent* paper (`https://openreview.net/forum?id=AUZIYQGqtzkBEOy7KWRquGFq_U_aP3_yriXJYyJe2bsX1XaWaY5AAnPjA`).
 
-### Cross-Chapter Tone Refactoring and Skill Updates (2026-09-20 to 2026-09-22)
-- **Tone Refactoring:** Executed a rigorous linguistic scrub across Chapters 3 and 4, removing vague AI-like clichés (e.g., *orthogonal*, *composite*, *catastrophic*, *tapestry*, *seamlessly*, *fundamental*, *atomic*, *overcome*) and enforcing highly technical, direct phrasing.
-- **Skill Updates:** Continuously updated the `thesis-coauthor` and `writing-standards.md` skills to mandate top-down storytelling, forbid metaphors and quotation marks in headings, blacklist specific AI-like clichés, and forbid the repetitive comparative structure ("Instead of X, Y is done").
+### Overleaf Consolidation, Figure Narratives, and Skill Upgrades (2026-09-22)
+- **Overleaf Chapter Consolidation:** Consolidated and generated production-ready LaTeX files for Overleaf:
+  - `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt` (Chapter 3)
+  - `docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/chapter_4_implementation.txt` (Chapter 4)
+  Both files adhere to strict compilation invariants (no raw preambles, `academicbox` listings, compilation-safe `\fbox{\parbox{...}}` placeholders for pending graphics, and `\FloatBarrier` guards).
+- **Woven Figure Narrative Integration:** Explicitly weaved descriptive walkthroughs for all figures and placeholders across Chapters 3 and 4. The text now directly guides the reader through axes, units, threshold boundaries, operational zones (color regions), AST/PDDL layers, and directional/loopback feedback edges.
+- **Storytelling Transitions:** Enforced forward-looking bridge sentences at the end of each section and chapter, ensuring seamless narrative flow and dynamic LaTeX cross-referencing (`\ref{chap:...}`, `\ref{sec:...}`, `\ref{fig:...}`).
+- **User Feedback & Tone Refinement:** Replaced non-academic terminology (e.g., "swimlane" replaced with "area" / "layer" in Section 3.2 and Chapter 3 `.txt`). Resolved backlog tracking item for `\label{chap:implementation}`.
+- **`thesis-coauthor` Skill Upgrade:** Upgraded `SKILL.md`, `writing-standards.md`, and `consistency-protocol.md`:
+  - Expanded Anti-AI Cliché Blacklist (`swimlane`, `paradigm`, `mandates`, `govern`, `certified`, `canonical`, `empirical`).
+  - Formalized Section 4: *Woven Figure Narrative Integration*.
+  - Formalized Section 5: *Storytelling, Flow & Inter-Section Transitions*.
+  - Added *1:1 Markdown-to-LaTeX Synchronization (Zero Drift)* rule and automated pre-commit compilation checks.
 
 ## 2. Handover State
-- All structural and narrative feedback provided regarding Chapters 3 and 4 has been addressed.
-- The previously generated `.txt` files for Overleaf have been deleted, as they require corrections. They will be regenerated in the next session.
+- Chapters 3 and 4 are fully written, tone-cleansed, and consolidated into `chapter_3_system_model.txt` and `chapter_4_implementation.txt` ready for immediate Overleaf import and compilation.
+- Markdown source drafts in `3_SystemModel/` and `4_NPImp/` are in 1:1 synchronization with the consolidated `.txt` files.
+- The `thesis-coauthor` skill is updated to guarantee that future drafting (Chapters 5 and beyond) automatically enforces these standards without iterative back-and-forth.
 
 ## 3. Next Steps
-- Re-generate the clean `.txt` files for Chapters 3 and 4 for Overleaf integration.
-- Begin drafting or migrating figures and diagrams for Chapter 4 once the text is structured in LaTeX.
-- Continue with Sprint 4 (Evaluation & Polish) or start drafting the remaining sections (e.g., Evaluation Methodology and Results) per the Writing Roadmap.
+- Generate production vector diagrams and matplotlib plots for Chapter 4 (`figs_NPImp/`) following the skill's figure guidelines.
+- Draft Chapter 5 (Evaluation Methodology, Experimental Setup, and Results) following the upgraded `thesis-coauthor` protocol.
+- Continue tracking any cross-chapter assumptions in `Drafting_Backlog.md`.

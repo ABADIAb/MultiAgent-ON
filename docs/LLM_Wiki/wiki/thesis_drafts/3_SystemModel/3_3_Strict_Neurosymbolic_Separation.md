@@ -13,10 +13,6 @@ Forcing an LLM to compute optical lightpath feasibility natively induces severe 
 
 The proposed architecture isolates functional responsibilities. To prevent the fabrication of physical parameters—such as inaccurately predicting the GSNR over a non-linear optical span—the neural component is restricted entirely to semantic translation. The architecture delegates all path computation, wavelength assignment, and non-linear quality-of-transmission (QoT) validations to deterministic symbolic algorithms.
 
-<!-- FIGURE_PLACEHOLDER: neural_symbolic_subsystems -->
-> **Figure: Neurosymbolic Subsystem Architecture & PDDL Interface** (`figs_SystemModel/pdf/neural_symbolic_subsystems.pdf`)
-> Decoupling of functional responsibilities: the Neural Subsystem handles intent extraction and linguistic formalization, passing typed PDDL predicates through a Context-Free Grammar (CFG) validation boundary to the deterministic Symbolic Subsystem for constraint pruning and physical simulation.
-
 ## 3.3.2 PDDL Domain Formalization for Optical Routing
 
 To establish a standard formal intermediate representation, we define an optical routing subset within the Planning Domain Definition Language (PDDL). This domain formalizes the types, predicates, and constraint structures required to model optical path establishment.
@@ -101,12 +97,15 @@ Upon validation by the CFG gate, the system translates the PDDL predicates into 
 
 Delegating path exploration to Yen's deterministic algorithm over the pruned topology $\widetilde{G}_{sub}$ mathematically precludes routing loops, traversal of non-existent links, or constraint violations prior GN-model QoT evaluation. Importantly, topological pruning is employed as a strategy to restrict the search space and strictly bound the context window size, ensuring that downstream calculations only consider valid topological subgraphs.
 
+Section~\ref{sec:radg} introduces the Risk-Adaptive Decision Gates (RADGs), which evaluate semantic and physical risk before deployment.
+
 ---
 
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure Placement:** The structural division of responsibilities is illustrated in `Figure~\ref{fig:neural_symbolic_subsystems}`. The comparative analysis against conventional end-to-end LLM architectures is documented in the literature gap analysis (Chapter 2).
+> **Architectural Positioning:** The comparative analysis against conventional end-to-end LLM architectures is documented in the literature gap analysis (Chapter 2).
+
 
 > [!TIP]
 > **Code Alignment Note:** To maintain full transparency regarding the implementation, the production rules defined for $\mathcal{G}_{pddl}$ mirror the AST parsing logic strictly located in `src/core/pddl_validator.py`. The vertex/edge pruning mathematics ($\widetilde{G}_{sub}$) directly correspond to the constraints filtered dynamically in `src/core/symbolic_solver.py`.

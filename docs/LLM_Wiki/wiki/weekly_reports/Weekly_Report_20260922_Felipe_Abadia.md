@@ -85,6 +85,12 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Simplified the Context-Free Grammar (CFG) formalization to focus strictly on Abstract Syntax Tree parsing logic and corrected inaccuracies regarding GN-model complexity.
     - Updated the `thesis-coauthor` skill to mandate top-down storytelling and expand the blacklist of prohibited AI vocabulary for future drafting sessions.
 
+11. **Overleaf LaTeX Chapter Consolidation & Woven Figure Narrative Integration:**
+    - Consolidated and mathematically validated standalone Overleaf-ready LaTeX chapter text files: [`chapter_3_system_model.txt`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt) and [`chapter_4_implementation.txt`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/chapter_4_implementation.txt), verifying line 1 `\chapter`, zero `\usepackage`, balanced environments, and strict float barrier placements.
+    - Integrated in-text explanatory narratives for all active figures and placeholders (`Figure~\ref{fig:conceptual_framework}`, `Figure~\ref{fig:radg_decision_space}`, `Figure~\ref{fig:reverse_prompting_loop}`, `Figure~\ref{fig:langgraph_execution_flow}`, `Figure~\ref{fig:semantic_engine}`), detailing axes, operational zones, structural stages, and feedback loops.
+    - Upgraded the `thesis-coauthor` skill (`SKILL.md`, `writing-standards.md`, `consistency-protocol.md`) with explicit rules on storytelling transitions, in-text figure walk-throughs, expanded anti-AI cliché blacklist (banning "swimlane", "paradigm", "mandates", "govern", "certified", "canonical", "empirical"), and 1:1 Markdown-to-LaTeX synchronization.
+    - Resolved Item 2 in [`Drafting_Backlog.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/Drafting_Backlog.md) (`\label{chap:implementation}`).
+
 ---
 
 ## 3. What do I plan to accomplish next week?

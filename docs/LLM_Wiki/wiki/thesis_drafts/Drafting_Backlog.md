@@ -18,9 +18,8 @@ Review this list before finalizing each chapter.
 ### 1. Document Optical RAG Bypass (ITU-T Specs) — [RESOLVED]
 - **Resolution:** Explicitly documented in Section 4.1 under *Remark 1 (Optical RAG Standard Specification Bypass)*. Dynamic retrieval is deferred to Chapter 6 Future Work.
 
-### 2. Verify LaTeX Cross-Reference Label — [PENDING LATEX CONSOLIDATION]
-- **Context:** In Section 3.1.5 (Optimization Objective), we referenced Chapter 4 for the baseline experiments using `Chapter~\ref{chap:implementation}`.
-- **Action:** When compiling the merged LaTeX file for Chapter 4 (`chapter_4_npimp.txt`), declare `\label{chap:implementation}` immediately after `\chapter{...}`.
+### 2. Verify LaTeX Cross-Reference Label — [RESOLVED]
+- **Resolution:** Declared `\label{chap:implementation}` immediately following `\chapter{Neurosymbolic Pipeline Implementation}` on line 1 of `chapter_4_implementation.txt`, ensuring cross-chapter references from Chapter 3 resolve cleanly.
 
 ### 3. Dynamic Subtopology Scoping (Ellipsoid GraphRAG) — [RESOLVED]
 - **Resolution:** Explicitly documented in Section 4.1 under *Remark 2 (Ellipsoid Subtopology Scoping for Large Diameters)* with the formal node set equation.

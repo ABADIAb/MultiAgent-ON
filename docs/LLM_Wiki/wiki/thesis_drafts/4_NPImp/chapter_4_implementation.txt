@@ -1,0 +1,332 @@
+\chapter{Neurosymbolic Pipeline Implementation}
+\label{chap:implementation}
+
+This chapter details the software implementation of the system model and decision gates from Chapter~\ref{chap:system_model}. It describes the LangGraph state machine, network context extraction, the semantic and physical engines, and the testbed verification.
+
+Section~\ref{sec:orchestration_architecture} details the LangGraph directed state machine and its thread-level state persistence. Section~\ref{sec:network_context} describes the optical transport network abstraction and the Mock GraphRAG topological scoping engine. Section~\ref{sec:semantic_engine} elaborates on the Semantic Engine, covering intent ingestion, multi-turn reconciliation, Context-Free Grammar (CFG) Abstract Syntax Tree (AST) validation, automated Reverse Prompting, and Semantic RADG execution. Section~\ref{sec:physical_engine} details the Symbolic Solver, analytical GN-model physics calculation, Physical RADG execution, and proportional Human-in-the-Loop (HITL) protocols. Finally, Section~\ref{sec:plan_synthesis_verification} presents Plan Synthesis and the validation of the orchestrator across seven operational test scenarios.
+
+\section{Orchestration and Pipeline Architecture}
+\label{sec:orchestration_architecture}
+
+\subsection{LangGraph State Machine Architecture and State Schema}
+\label{subsec:langgraph_architecture}
+
+The end-to-end coordination of the seven-phase neurosymbolic pipeline is orchestrated via a directed acyclic state machine leveraging the \texttt{langgraph} framework \cite{langgraph_2024}. This architecture structures intent planning as a state-preserving computational graph where transitions between linguistic reasoning, symbolic solvers, and physical engines are controlled by conditional routing edges.
+
+The state graph topology and conditional execution flow are shown in Figure~\ref{fig:langgraph_execution_flow}. As illustrated in the figure, the state machine coordinates seven primary execution nodes interconnected by forward state transitions and conditional feedback loops. The diagram highlights the two decision checkpoints—the Semantic RADG after Phase 3 and the Physical RADG after Phase 6—where conditional routing edges determine whether execution advances autonomously along the main pipeline or triggers an asynchronous interrupt (\texttt{interrupt()}) for human-in-the-loop intervention. In the event of an interrupt, the diagram illustrates how the active thread serializes its state into the checkpointer and establishes a feedback path directing refined parameters back to Phase 2.
+
+\begin{figure}[!htbp]
+    \centering
+    % \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/langgraph_execution_flow.pdf}
+    \fbox{\parbox[c][0.28\textwidth][c]{0.88\textwidth}{\centering\sffamily\footnotesize [Figure Placeholder: LangGraph State Machine Execution Flow -- \texttt{Figures/figs\_NPImp/langgraph\_execution\_flow.pdf}]}}
+    \caption{LangGraph state machine execution graph and conditional routing flow across the seven neurosymbolic pipeline phases.}
+    \label{fig:langgraph_execution_flow}
+\end{figure}
+\FloatBarrier
+
+\subsubsection{State Schema (\texttt{AgentState})}
+
+The shared memory across all execution stages is encapsulated within \texttt{AgentState}, a typed dictionary schema directly implementing the mathematical state tuple $\mathcal{S}_{state}$ formalized in Section~\ref{subsec:state_representation} (Equation~\eqref{eq:state_vector}). Every pipeline node operates as a pure or state-transforming function returning partial updates that LangGraph merges into the global checkpointed state. This design guarantees immutability of historical snapshots, facilitates modular unit testing, and ensures execution determinism. 
+
+\begin{academicbox}{Listing 4.1: Master Orchestration State Schema (\texttt{AgentState})}
+class AgentState(TypedDict):
+    active_intent: str                        # Verbatim operator intent string
+    enriched_intent: Optional[dict]           # Context-enriched intent parameters
+    topology_context: Optional[dict]          # Scoped k-hop subgraph snapshot
+    pddl_intent: Optional[str]                # Compiled PDDL problem specification
+    structural_valid: bool                    # CFG AST validation flag (v_struct)
+    semantic_divergence: Optional[float]      # Reverse prompting divergence (d_sem)
+    semantic_uncertainty: Optional[float]     # Composite uncertainty (U_sem)
+    candidate_paths: Optional[List[List[str]]] # K loopless paths from Yen's KSP
+    qot_results: Optional[List[dict]]         # Analytical GSNR and power metrics
+    qot_valid: bool                           # Binary feasibility flag (QoT_valid)
+    decision: Optional[str]                   # Resolved action: approve | replan
+    messages: Annotated[List[BaseMessage], add_messages] # Append-only trace
+    refinement_history: List[dict]            # Log of operator feedback turns
+    refinement_count: int                     # Active iteration counter (kappa)
+\end{academicbox}
+
+\subsubsection{State Persistence and Checkpointing}
+
+To support asynchronous Human-in-the-Loop (HITL) engagement without thread blocking or memory loss, the orchestrator integrates a state preservation mechanism. When a decision gate suspends execution via an \texttt{interrupt()}, the checkpointer writes a serialized snapshot of the state indexed by a unique transaction thread identifier. The operating thread is released immediately, allowing the orchestrator to remain dormant until the human operator supplies clarification or approval, whereupon execution resumes from the saved checkpoint.
+
+\subsection{Pipeline-to-Node Execution Mapping}
+\label{subsec:pipeline_mapping}
+
+The theoretical 7-phase pipeline introduced in Chapter~\ref{chap:system_model} is mapped directly to Python functions decorated as LangGraph nodes. Referring to the sequential progression in Figure~\ref{fig:langgraph_execution_flow}, each theoretical phase corresponds to an orchestrated node with explicit operational boundaries:
+
+\begin{enumerate}
+    \item \textbf{Phase 1 (Intent Ingestion \& Topological Scoping):} Represented by the initial entry node in Figure~\ref{fig:langgraph_execution_flow}, which ingests the raw intent and seeds the \texttt{AgentState} with the scoped $k$-hop subtopology extracted from the active network state (detailed in Section~\ref{sec:network_context}).
+    \item \textbf{Phase 2 (Intent Ingestion \& PDDL Parsing):} Receives the enriched intent and invokes the translation LLM, compiling operational requirements into formal PDDL goal predicates. As indicated by the upstream loopback arrows in Figure~\ref{fig:langgraph_execution_flow}, this node also serves as the re-entry target whenever downstream gates trigger refinement.
+    \item \textbf{Phase 3 (Semantic RADG):} Executes the two-layer semantic validation check and routes execution through the first conditional fork shown in Figure~\ref{fig:langgraph_execution_flow}. If $U_{sem} \le \tau_{sem}$, execution transitions autonomously to Phase 4; if $U_{sem} > \tau_{sem}$, the graph halts at the Phase 3b checkpoint for operator clarification.
+    \item \textbf{Phase 4 (Symbolic Solver):} Receives verified PDDL constraints and executes the non-neural deterministic Yen's K-Shortest Paths algorithm over the pruned topology context.
+    \item \textbf{Phase 5 (GN-Model QoT Validation):} Computes exact GSNR and power metrics for each candidate path using the deterministic physical engine.
+    \item \textbf{Phase 6 (Physical RADG):} Evaluates physical transmission feasibility ($\text{QoT}_{valid}$) across the second conditional fork in Figure~\ref{fig:langgraph_execution_flow}. If valid paths exist ($\text{QoT}_{valid} = 1$), execution proceeds to Phase 7; otherwise, the node halts at the Phase 6 interrupt for parameter relaxation, routing feedback back to Phase 2.
+    \item \textbf{Phase 7 (Plan Synthesis):} The terminal node in Figure~\ref{fig:langgraph_execution_flow}, which compiles verified routing paths, physical telemetry, and audit logs into an auditable provisioning trace.
+\end{enumerate}
+
+By structurally aligning the codebase modules with the theoretical phases, the orchestrator guarantees a direct trace between the Risk-Adaptive conceptual model and the executed software lifecycle. To ground the state machine in physical network reality, Section~\ref{sec:network_context} introduces the optical transport abstraction and the Mock GraphRAG topological scoping engine.
+
+\section{Network Context and Subtopology Extraction}
+\label{sec:network_context}
+
+\subsection{Optical Network Abstraction and Physical Testbed Modeling}
+\label{subsec:network_abstraction}
+
+The translation of high-level operator intent into operational lightpaths requires a faithful software representation of the underlying optical transport infrastructure. In our neurosymbolic architecture, physical network state ingestion is decoupled from generative model execution and encapsulated within dedicated service adapters and domain models.
+
+The optical topology is abstracted as an undirected graph $G(V, E)$ populated by two fundamental data structures:
+\begin{enumerate}
+    \item \textbf{Network Nodes ($V$):} Represented by the \texttt{NetworkNode} model, each network element corresponds to a Reconfigurable Optical Add-Drop Multiplexer (ROADM) or optical cross-connect (OXC) hub.
+    \item \textbf{Fiber Links ($E$):} Encapsulated by the \texttt{FiberLink} model, each edge represents an optical fiber transmission line connecting node pairs. To ensure physical fidelity during downstream Quality of Transmission (QoT) estimation, each link record stores structural and physical attributes, including the total span length in kilometers, the count of optical amplifiers, active WDM channels, port insertion loss, and the ordered chain of Erbium-Doped Fiber Amplifiers (EDFAs).
+\end{enumerate}
+
+\begin{academicbox}{Listing 4.2: Optical Network Domain Models (\texttt{NetworkNode} \& \texttt{FiberLink})}
+@dataclass(frozen=True)
+class NetworkNode:
+    node_id: str                              # Unique ROADM/OXC identifier
+    node_type: str                            # Node category (roadm, transponder)
+    location: Optional[Tuple[float, float]]   # Geographical coordinates
+
+@dataclass(frozen=True)
+class FiberLink:
+    source: str                               # Ingress ROADM node
+    target: str                               # Egress ROADM node
+    length_km: float                          # Physical span distance
+    amplifiers: Tuple[Amplifier, ...]         # Ordered chain of inline EDFAs
+    channels_active: int                      # Currently lit WDM channels
+    attenuation_db_km: float = 0.20           # Fiber attenuation coefficient (alpha)
+    dispersion_ps_nm_km: float = 16.7         # Chromatic dispersion (D)
+    nonlinear_coeff: float = 1.3              # Kerr nonlinear coefficient (gamma)
+\end{academicbox}
+
+To establish an experimentally reproducible evaluation baseline, the primary topology utilized throughout this work is a simulated version of the \textbf{Nobel-Germany optical backbone network} sourced from SNDlib \cite{orlowski_sndlib_2010}. The topology comprises 17 core ROADM switching nodes and 26 bidirectional physical fiber links interconnecting Germany's primary telecommunications hubs. Physical network access is unified behind an abstract client interface, which provides a static memory-backed topology for continuous benchmarking.
+
+\subsection{Scoped Subtopology Extraction via Mock GraphRAG}
+\label{subsec:graphrag_extraction}
+
+Modern optical transport controllers represent network state using standard YANG data models serialized into extensive JSON or XML structures via RESTConf or NETCONF protocols. Raw RESTConf JSON payloads can grow exponentially with network scale, easily exceeding standard context limits. Injecting full network configuration payloads directly into the context window of an LLM exhausts token budgets, triggers attention degradation, and inflates inference latency. 
+
+To mitigate token saturation without sacrificing topological awareness, the pipeline implements a localized subtopology extraction layer termed \textbf{Mock GraphRAG}.
+
+When an operator intent specifies a communication request between an origin node $s$ and a destination node $d$, the system scopes the context using $k$-hop neighborhood extraction. The relevant subtopology node set $V_{sub}$ is the union of the $k$-hop neighborhoods centered on the source and target endpoints:
+\begin{equation}
+V_{sub} = \mathcal{N}_k(s) \cup \mathcal{N}_k(d)
+\end{equation}
+By default, the radius is configured to $k = 2$, bounding the candidate vertex set to the immediate switching neighborhood and discarding irrelevant peripheral links.
+
+To provide the language model with topological context while limiting prompt size, the subgraph is serialized into plain text. This keeps the prompt within the token bound $T_{prompt}(\mathcal{I}_{NL}, G_{sub}) \le T_{max} \ll T_{full}(G)$ from Equation~\eqref{eq:token_budget}, avoiding attention loss while preserving link lengths, amplifier counts, and node identifiers.
+
+Once the topological context is extracted and bounded, the orchestrator passes control to Phase 2. Section~\ref{sec:semantic_engine} details the Semantic Engine, describing how raw natural language intents are ingested, parsed into AST-verified PDDL, and audited via automated Reverse Prompting.
+
+\section{The Semantic Engine}
+\label{sec:semantic_engine}
+
+The Semantic Engine comprises Phases 2 and 3 of the neurosymbolic pipeline. It handles intent ingestion, Context-Free Grammar (CFG) AST validation of the translated PDDL, and automated Reverse Prompting. Figure~\ref{fig:semantic_engine} outlines the components of the Semantic Engine, illustrating the two-layer verification flow from intent ingestion to the Semantic RADG decision routing. As illustrated, the architecture organizes intent processing into two consecutive stages: Layer 1 (top block) verifies the structural syntax of the generated PDDL through a deterministic AST parser; Layer 2 (middle block) verifies semantic alignment by reconstructing natural language from the validated PDDL and computing the semantic divergence $d_{sem}$ via an independent judge. The outputs of both layers converge at the Semantic RADG decision multiplexer (bottom block), which routes execution either along an autonomous forward edge into the symbolic solver or halts at an asynchronous HITL interrupt for operator clarification.
+
+\begin{figure}[!htbp]
+    \centering
+    % \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/semantic_engine.pdf}
+    \fbox{\parbox[c][0.28\textwidth][c]{0.88\textwidth}{\centering\sffamily\footnotesize [Figure Placeholder: Two-Layer Semantic Engine Architecture -- \texttt{Figures/figs\_NPImp/semantic\_engine.pdf}]}}
+    \caption{Two-layer Semantic Engine architecture illustrating intent ingestion, AST structural verification, automated PDDL-to-NL reconstruction, and Semantic RADG decision routing.}
+    \label{fig:semantic_engine}
+\end{figure}
+\FloatBarrier
+
+\subsection{Natural Language Intent Ingestion and Structured Extraction}
+\label{subsec:intent_ingestion}
+
+Phase 2 begins by ingesting the informal operator communication. The ingestion module accepts the raw operator prompt string alongside the active network topology snapshot.
+
+The module executes a two-step parsing routine:
+\begin{enumerate}
+    \item \textbf{Dynamic Context Injection:} The localized subtopology context string produced by the Mock GraphRAG extractor (Section~\ref{subsec:graphrag_extraction}) is injected into the LLM system prompt, grounding the language model in valid node identifiers and active fiber links.
+    \item \textbf{Constrained Schema Extraction:} The LLM is queried using structured outputs (enforced via Pydantic schema validation) to produce a structured summary of the intent, encapsulating endpoints, required bandwidth, and avoidance constraints.
+\end{enumerate}
+
+\subsubsection{Prevention of Lossy Numerical Abstraction}
+
+When downstream verification modules evaluate intent fidelity against a structured summary rather than the verbatim operator message, subtle constraints and domain qualifiers are susceptible to loss. This generates artificial semantic divergence, triggering unnecessary operator interruptions.
+
+To prevent this distortion, the ingestion module instantiates the \texttt{active\_intent} state variable using the exact, unmodified operator input string. The structured summary serves to guide downstream prompt templating and initialize subtopology scoping, while the raw text remains the reference for semantic agreement scoring throughout the pipeline lifecycle.
+
+\subsection{Multi-Turn Intent Reconciliation and Disambiguation Reasoning}
+\label{subsec:intent_reconciliation}
+
+When an intent triggers an operational interruption, the operator submits corrective feedback. In multi-turn conversational architectures, language models frequently mix prior constraints with new instructions, producing contaminated intent states (e.g., retaining a previously requested avoidance of a node when the operator explicitly requested a new route). This phenomenon is known as ghost constraint leakage.
+
+To eliminate ghost constraint contamination, the pipeline implements a formal intent reconciliation engine powered by a structured classification model. The reconciler evaluates the feedback according to two resolution paths:
+\begin{itemize}
+    \item \textbf{Full Replacement:} Triggered when the operator explicitly aborts the previous request, provides a self-contained routing statement with a new endpoint pair, or supplies complete instructions following an incomplete turn. Under this branch, all prior endpoints, exclusions, and numerical thresholds are discarded, resetting the state to the new intent.
+    \item \textbf{Partial Update:} Triggered when the operator adjusts, relaxes, or removes specific constraints while maintaining the general request context. The module merges the modification into the existing constraint set.
+\end{itemize}
+
+\begin{academicbox}{Listing 4.3: Intent Reconciliation Resolution Schema}
+class IntentResolutionType(str, Enum):
+    FULL_REPLACEMENT = "full_replacement"     # Discard previous state, reinitialize
+    PARTIAL_UPDATE = "partial_update"         # Merge modified parameters into state
+
+class IntentReconciliationResult(BaseModel):
+    resolution_type: IntentResolutionType
+    revised_intent_string: str                # Reconciled text for reverse prompting
+    modified_fields: List[str]                # Attributes updated during this turn
+    requires_rescoping: bool                  # True if endpoints changed (triggers GraphRAG)
+\end{academicbox}
+
+Furthermore, if the reconciler identifies modified endpoint nodes, it dynamically invokes the GraphRAG extractor to rescope the subtopology to the new geographic region, preventing downstream routing failures caused by stale topological context.
+
+\subsection{Context-Free Grammar (CFG) AST PDDL Validation}
+\label{subsec:cfg_ast_validation}
+
+To maintain neurosymbolic separation, the parser module in Phase 2 prompts the model to act as a linguistic translator, mapping the natural language intent into a simplified Planning Domain Definition Language (PDDL) problem specification.
+
+Because autoregressive models can generate syntactically corrupted expressions or unbalanced parentheses, accepting raw PDDL into the symbolic solver introduces operational risks. As illustrated in the Layer 1 block of Figure~\ref{fig:semantic_engine}, the generated PDDL constraint specification is immediately intercepted by a deterministic Context-Free Grammar (CFG) parser based on S-expression abstract syntax trees (AST) to verify structural integrity before any semantic evaluation occurs.
+
+The parser operates through two formal software stages:
+\begin{enumerate}
+    \item \textbf{Tokenization and Nesting Depth Tracking:} The raw string is stripped of comments and scanned character-by-character. The lexer tracks parenthesis depth. An invariant condition is established: the depth must never drop below zero, and must return to exactly zero at string termination.
+    \item \textbf{Recursive AST Builder:} Lexical tokens are parsed into nested Python lists representing the S-expression tree. The top-level expression must conform to the formal domain structure, extracting mandatory sections (domain, objects, init, goal).
+\end{enumerate}
+
+Within the goal section, the parser isolates logical conjunctions and applies formal type- and arity-checking against the optical routing domain grammar defined in Section~\ref{subsec:pddl_formalization} and Section~\ref{subsec:cfg_validation}. If any parenthesis fails to balance or a predicate violates the grammar, the parser returns a detailed list of syntax violations and flags a structural failure ($v_{struct} = 0$), preventing further execution along the current trace.
+
+\subsection{Automated Reverse Prompting and Semantic Agreement Scoring}
+\label{subsec:reverse_prompting_scoring}
+
+To prevent semantic drift, Phase 3 implements an automated Reverse Prompting protocol, realizing the closed-loop validation contract illustrated in Figure~\ref{fig:reverse_prompting_loop}. Following structural confirmation ($v_{struct} = 1$), execution enters the Layer 2 processing stage shown in Figure~\ref{fig:semantic_engine}, where the PDDL specification is evaluated for linguistic fidelity without human involvement.
+
+\subsubsection{Automated PDDL-to-NL Reconstruction}
+
+Immediately following PDDL parsing, the pipeline invokes an automated reconstruction turn involving \textbf{zero human intervention}. As depicted in Layer 2 of Figure~\ref{fig:semantic_engine}, a secondary prompt presents the generated PDDL string back to the language model, instructing it to translate the formal symbolic constraints back into natural language.
+
+To ensure the reconstruction reflects only genuine routing constraints without prompt contamination, a filtering utility removes verbose topological statements prior to reconstruction, presenting only the operational goal constraints.
+
+\subsubsection{Semantic Agreement Evaluation}
+
+Next, the reconstructed intent and the original operator intent are supplied to an independent LLM Agreement Judge, shown alongside the reconstruction module in Figure~\ref{fig:semantic_engine}. The judge evaluates the semantic correspondence between the two statements and outputs an agreement score, from which the semantic divergence $d_{sem}$ is derived (Equation~\eqref{eq:d_sem}).
+
+\subsection{Semantic RADG Execution}
+\label{subsec:semantic_radg_execution}
+
+As illustrated at the decision stage of Figure~\ref{fig:semantic_engine}, the software gate evaluates the composite Semantic Uncertainty ($U_{sem}$) against the operator-defined tolerance threshold, implementing the decision function established in Section~\ref{subsec:radg_formulation} (Equation~\eqref{eq:radg_decision}):
+\begin{itemize}
+    \item \textbf{Branch A (Autonomous Pass):} If structural parsing succeeds ($v_{struct} = 1$) and semantic divergence is low ($d_{sem} \le \tau_{sem}$), the intent is classified into Zone I (Auto-Approve / Safe) of the RADG decision space (Figure~\ref{fig:radg_decision_space}), and the pipeline proceeds directly to the Symbolic Solver with \textbf{zero human interruptions}.
+    \item \textbf{Branch B (Fail-Fast Interruption):} If structural parsing fails ($v_{struct} = 0$) or semantic divergence exceeds the threshold ($d_{sem} > \tau_{sem}$), execution falls into Zone III (Clarify) and suspends via an interrupt mechanism, presenting the reconstructed intent, the identified discrepancies, and the uncertainty score to the human operator for disambiguation.
+\end{itemize}
+
+Once the intent passes the Semantic RADG ($U_{sem} \le \tau_{sem}$), execution transitions to the physical-layer pipeline. Section~\ref{sec:physical_engine} details the Symbolic Solver, the GN-model physics calculator, and Physical RADG execution.
+
+\section{The Physical Engine and System Resilience}
+\label{sec:physical_engine}
+
+\subsection{The Deterministic Symbolic Solver}
+\label{subsec:symbolic_solver_phase4}
+
+Once the intent passes the Semantic RADG, the validated PDDL constraints enter the non-neural Symbolic Solver. This module bridges the linguistic intent and the physical engine by computing feasible paths over the subtopology. 
+
+The solver executes Yen's $K$-Shortest Paths algorithm over the pruned context graph $\widetilde{G}_{sub}$, directly realizing the topological vertex and edge pruning operations formalized in Section~\ref{subsec:symbolic_solver_traversal} (Equations~\eqref{eq:vertex_pruning}--\eqref{eq:hop_constraint}). It ensures topological constraints (e.g., node exclusions, link avoidances, and maximum hop limits) are applied before any physical transmission calculations begin. By removing unfeasible topologies early, the solver guarantees that downstream calculations only process valid routing paths.
+
+\subsection{Deterministic GN-Model Physical-Layer Physics Engine}
+\label{subsec:gn_physics_engine}
+
+When candidate lightpaths are extracted by the Symbolic Solver in Phase 4, their transmission feasibility must be verified against the physical optical layer. In our architecture, physical validation is isolated within an analytical software engine implementing the incoherent Gaussian Noise (GN) model derived in Section~\ref{subsec:qot_evaluation}.
+
+The software execution flow traces the continuous optical path across cascading spans and intermediate nodes:
+\begin{enumerate}
+    \item \textbf{Per-Span Evaluation:} The engine computes Amplified Spontaneous Emission (ASE) noise from EDFAs via Equation~\eqref{eq:ase_noise} and Non-Linear Interference (NLI) distortion via Equation~\eqref{eq:nli_noise}, parameterizing fiber attenuation $\alpha$, chromatic dispersion $D$, and the non-linear Kerr coefficient $\gamma$.
+    \item \textbf{End-to-End Accumulation:} The pipeline tracks signal degradation by accumulating inverse linear SNR contributions across all cascaded links via Equation~\eqref{eq:gsnr_accumulation}. The engine preserves unamplified fiber lengths across node boundaries to accurately model non-linear phase accumulation.
+    \item \textbf{Power Calibration:} To prevent non-linear performance issues, the physics engine enforces operating limits matching industrial dense WDM transmission, keeping launch powers within the optimal linear regime.
+\end{enumerate}
+
+\begin{academicbox}{Listing 4.4: Analytical Gaussian Noise (GN) Physical Engine Calculation}
+def calculate_path_gsnr(path: List[str], topology: TopologySnapshot) -> float:
+    inv_snr_total = 0.0
+    for u, v in zip(path[:-1], path[1:]):
+        link = topology.get_link(u, v)
+        p_ase = sum((amp.gain_linear - 1) * PLANCK_H * OPTICAL_FREQ * 
+                    amp.noise_figure_linear * SYMBOL_RATE for amp in link.amplifiers)
+        eta_0 = calculate_nli_eta(link.alpha, link.dispersion, link.gamma)
+        p_nli = eta_0 * (link.effective_length ** 2) * (LAUNCH_POWER_WATTS ** 3)
+        inv_snr_total += (p_ase + p_nli) / LAUNCH_POWER_WATTS
+    return 10.0 * math.log10(1.0 / inv_snr_total)
+\end{academicbox}
+
+The top-level evaluation function compares the computed Generalized Signal-to-Noise Ratio (GSNR) against modulation-specific thresholds ($\text{GSNR}_{th}$). This calculation executes deterministically, providing physical validation before any configuration reaches the control plane.
+
+\subsection{Physical RADG Execution Mechanics}
+\label{subsec:physical_radg_mechanics}
+
+The Physical RADG evaluates the binary physical feasibility ($\text{QoT}_{valid}$) of the proposed paths, implementing the physical validation component of the decision function established in Section~\ref{subsec:radg_formulation} (Equation~\eqref{eq:radg_decision}):
+\begin{itemize}
+    \item \textbf{Branch A (Approve):} If at least one candidate lightpath meets or exceeds the required GSNR threshold and optical power budget ($\text{QoT}_{valid} = 1$), the intent resides in Zone I (Auto-Approve / Safe) of the RADG state space (Figure~\ref{fig:radg_decision_space}). In the orchestrator state machine (Figure~\ref{fig:langgraph_execution_flow}), execution transitions along the forward edge directly to Phase 7 (Plan Synthesis) with \textbf{zero human intervention}.
+    \item \textbf{Branch B (Replan):} If all candidate paths violate physical feasibility ($\text{QoT}_{valid} = 0$), the state maps to Zone II (Suggest Replan). As shown at the Phase 6 checkpoint in Figure~\ref{fig:langgraph_execution_flow}, the node invokes an interrupt, suspending execution and presenting the operator with the calculated telemetry. When the operator responds with relaxed parameters (such as lowering the target GSNR), execution resumes and loops back to Phase 2 along the feedback edge.
+\end{itemize}
+
+\subsection{Proportional Human-in-the-Loop Engagement and Re-Entry Protocols}
+\label{subsec:hitl_reentry_protocols}
+
+Our architecture establishes a \textbf{Proportional HITL Engagement} model: human operators are engaged if and only if evaluated risk signals exceed acceptable tolerances. This mitigates cognitive overload while guaranteeing that physically infeasible configurations are blocked before deployment.
+
+The architecture establishes two strictly decoupled HITL interruption checkpoints, visible as the two suspension barriers in the execution flow of Figure~\ref{fig:langgraph_execution_flow}:
+\begin{enumerate}
+    \item \textbf{Semantic Clarification (Phase 3b):} Triggered when semantic uncertainty exceeds the tolerance threshold ($U_{sem} > \tau_{sem}$). Operators can clarify intent or use a fast-track manual override (bypassing re-parsing if the constraints are structurally valid).
+    \item \textbf{Physical Replan (Phase 6):} Triggered when physics calculations fail ($\text{QoT}_{valid} = 0$). Operators must relax constraints or physical margins.
+\end{enumerate}
+
+To prevent infinite negotiation loops, the orchestrator bounds the maximum number of clarification turns to $N_{max} = 3$ and enforces the formal Constraint Preservation condition formalized in Equation~\eqref{eq:constraint_preservation}. If iterations exceed the safety bound, execution terminates with an explicit escalation exception, preventing control-plane deadlocks.
+
+Once candidate paths are verified, Section~\ref{sec:plan_synthesis_verification} presents Phase 7 (Plan Synthesis) and the validation of the orchestrator across seven operational test scenarios.
+
+\section{Plan Synthesis and Verification}
+\label{sec:plan_synthesis_verification}
+
+\subsection{Plan Synthesis and Auditable Provisioning Trace}
+\label{subsec:plan_synthesis_trace}
+
+Phase 7 is executed by the synthesis module. When the Physical RADG approves the verified candidate paths, the synthesizer constructs a comprehensive, auditable Planning Report. 
+
+The report encapsulates the operational decision, intent traceability (ingress/egress), primary and secondary allocated lightpaths with computed physical telemetry (path length, active channels, GSNR margin, received power), and the decision metrics from the RADGs (structural validity, semantic divergence, token consumption).
+
+\begin{academicbox}{Listing 4.5: Structure of the Synthesized Planning Report}
+{
+  "status": "APPROVED",
+  "intent_id": "intent_nom_01",
+  "ingress_node": "Berlin",
+  "egress_node": "Frankfurt",
+  "allocated_lightpath": ["Berlin", "Hannover", "Frankfurt"],
+  "physical_telemetry": {
+    "computed_gsnr_db": 15.42,
+    "target_gsnr_db": 12.00,
+    "margin_db": 3.42,
+    "total_length_km": 540.0
+  },
+  "risk_metrics": {
+    "v_struct": 1,
+    "d_sem": 0.08,
+    "u_sem": 0.08,
+    "hitl_turns": 0
+  }
+}
+\end{academicbox}
+
+This synthesis serves as an auditable log for network operators, completing the pre-deployment intent translation loop. The construction of the final machine-readable payload for direct dispatch to the optical controller is delegated to downstream agents outside this core orchestration loop.
+
+\subsection{Verification of the Seven Execution Paths}
+\label{subsec:verification_seven_paths}
+
+To verify that the orchestrator handles operational contingencies deterministically, the pipeline was subjected to a verification suite executing the state graph. 
+
+Across the tests, seven canonical execution paths were verified, mapping directly onto the forward branches, decision checkpoints, and feedback loops of the LangGraph state machine depicted in Figure~\ref{fig:langgraph_execution_flow}:
+\begin{enumerate}
+    \item \textbf{Single-Pass Auto-Approve (Happy Path):} Unambiguous, physically valid intents traverse the direct forward edge through both gates with zero human interruptions.
+    \item \textbf{Semantic Clarification Loop:} Underspecified intents trigger an interruption at Phase 3b, routing operator feedback back to Phase 2 for reconciliation and re-parsing.
+    \item \textbf{Fast-Track Manual Override:} The operator forces approval of a structurally valid intent with marginal semantic divergence, traversing the bypass edge from Phase 3b directly to Phase 4.
+    \item \textbf{Physical Replan Loop:} Long-haul paths fail physics thresholds at Phase 6. The operator relaxes the bitrate constraint, traversing the loopback edge back to Phase 2 to yield a viable configuration.
+    \item \textbf{Complex Topological Constraints:} Negative constraints (\texttt{avoid-link}, \texttt{max-hops}) are honored by the symbolic solver in Phase 4, pruning topological paths before physical simulation.
+    \item \textbf{Topology Edge Cases \& Disconnection:} Requests for disconnected partitions yield empty candidate sets in Phase 4, triggering a graceful physical replan at Phase 6.
+    \item \textbf{Multi-Interruption Persistence:} State integrity is maintained across sequential semantic ambiguities followed by physical infeasibilities, exercising both feedback loops in series.
+\end{enumerate}
+
+All execution flows pass consistently, confirming the operational grounding of the neurosymbolic architecture and validating that the software execution map faithfully reproduces the action space $\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$ and multi-turn constraint preservation guarantees defined in Chapter~\ref{chap:system_model}.
+
+With the orchestrator implemented and verified, Chapter 5 presents the experimental evaluation, comparing pipeline performance across multiple language models and against non-adaptive baselines.
