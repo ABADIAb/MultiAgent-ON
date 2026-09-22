@@ -33,6 +33,7 @@ status: active
   - Formalized Section 4: *Woven Figure Narrative Integration*.
   - Formalized Section 5: *Storytelling, Flow & Inter-Section Transitions*.
   - Added *1:1 Markdown-to-LaTeX Synchronization (Zero Drift)* rule and automated pre-commit compilation checks.
+- **Chapter 3.4.3 Polish (2026-09-22):** Addressed professor feedback by incorporating the GN-model citation (`\cite{7poggiolini_gn-model_2014}`) and cleaning up remaining AI-like terminology (`overarching`, `paradigm`, `halts`) in Section 3.4. Conducted a strict codebase cross-check between the GN-Model implementation (`src/core/qot_calculator.py`, `src/core/radg.py`) and the thesis text, confirming mathematical parity for both ASE/NLI noise calculations and the fail-fast RADG logic.
 
 ## 2. Handover State
 - Chapters 3 and 4 are fully written, tone-cleansed, and consolidated into `chapter_3_system_model.txt` and `chapter_4_implementation.txt` ready for immediate Overleaf import and compilation.
