@@ -10,7 +10,7 @@ status: active
 ## 1. Architecture Placement
 **Phase 2: Intent Reconciliation & PDDL Parsing** | [[Architecture_v5]]
 
-The Intent Reconciler formalizes the semantic binding operator $\mathcal{I}_{\text{eff}}^{(k)} = \text{Reconcile}(\mathcal{I}_{\text{active}}^{(k-1)}, \mathcal{F}_k)$ during Human-in-the-Loop refinement loops (Phase 3b [[architecture/features/semantic_gate|Semantic Gate]] clarification and Phase 6 [[architecture/features/radg|RADG]] replanning). Instead of naive string concatenation (`base_intent + "\n" + feedback`) that causes semantic drift and contradictory prompts, an LLM reasoning engine systematically classifies the update scope (`FULL_REPLACEMENT` vs `PARTIAL_UPDATE`), performs constraint delta analysis, updates physical constraints, and synthesizes a single unified operational intent (`active_intent`).
+The Intent Reconciler formalizes the semantic binding operator $\mathcal{I}_{\text{eff}}^{(k)} = \text{Reconcile}(\mathcal{I}_{\text{active}}^{(k-1)}, \mathcal{F}_k)$ during Human-in-the-Loop refinement loops (Phase 3b [[architecture/features/semantic_gate|Semantic RADG]] clarification and Phase 6 [[architecture/features/radg|Physical RADG]] replanning). Instead of naive string concatenation (`base_intent + "\n" + feedback`) that causes semantic drift and contradictory prompts, an LLM reasoning engine systematically classifies the update scope (`FULL_REPLACEMENT` vs `PARTIAL_UPDATE`), performs constraint delta analysis, updates physical constraints, and synthesizes a single unified operational intent (`active_intent`).
 
 ## 2. Overview
 When an operator interacts with the system via `interrupt()` in Phase 3b or Phase 6:
@@ -89,6 +89,6 @@ uv run pytest tests/unit/test_pipeline_nodes.py -k "reconcil" -v
 ## 7. Cross-References
 - [[Architecture_v5]] — System architecture and Phase 2 description.
 - [[architecture/features/pddl_parser]] — Phase 2 PDDL translation.
-- [[architecture/features/semantic_gate]] — Semantic Gate evaluated against `active_intent`.
+- [[architecture/features/semantic_gate]] — Semantic RADG evaluated against `active_intent`.
 - [[architecture/features/plan_synthesizer]] — Planning report formatting.
 - [[experiments/bugs/bug009_Semantic_Gate_Refinement_Drift]] — Resolution of multi-turn semantic drift.

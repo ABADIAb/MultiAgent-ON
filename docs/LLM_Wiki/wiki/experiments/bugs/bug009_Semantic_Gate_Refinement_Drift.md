@@ -39,7 +39,7 @@ The agreement judge prompt (`_AGREEMENT_SYSTEM_PROMPT`) instructed the evaluator
 When the operator legitimately relaxed GSNR from 20 dB to 12 dB or added `avoid-node Munich`, the evaluator LLM observed these changes relative to the turn-0 prompt and classified them as unrequested alterations, assigning high divergence ($d_{sem} \ge 0.6$).
 
 ### 3.3 Lack of Loop Termination Guard ($N_{max} = 3$)
-As defined in [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|Thesis Section 3.5.4]], the system requires an explicit iteration bound $N_{max} = 3$ to prevent infinite negotiation cycles and protect the LLM context window from token saturation and attention degradation. No counter or cancellation boundary existed in `AgentState` or `hitl_clarify_node`.
+As defined in [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates|Thesis Section 3.4.4]], the system requires an explicit iteration bound $N_{max} = 3$ to prevent infinite negotiation cycles and protect the LLM context window from token saturation and attention degradation. No counter or cancellation boundary existed in `AgentState` or `hitl_clarify_node`.
 
 ---
 
@@ -84,5 +84,5 @@ A joint **structural state** and **prompt engineering** solution was enacted:
 - [[Architecture_v5]] — System architecture and Phase 3 workflow.
 - [[architecture/features/semantic_gate]] — Semantic gate feature documentation.
 - [[architecture/features/reverse_prompt]] — Reverse prompting and HITL feature documentation.
-- [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]] — Formal Monotonic Constraint Preservation and convergence proofs.
+- [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]] — Formal Monotonic Constraint Preservation and convergence proofs.
 - [[experiments/Bug_Registry]] — Bug index.

@@ -23,7 +23,7 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
 ## 1. What did I plan to accomplish this week?
 
 *(Carried forward from the previous report [[weekly_reports/Weekly_Report_20260901_Felipe_Abadia]] & Thesis [[thesis_drafts/Writing_Roadmap_v1|Writing Plan]])*
-1. **Thesis Chapter 3 Finalization & Figure Overhaul:** Complete and standardize all visual diagrams for Chapter 3 (*System Model: The Risk-Adaptive Neurosymbolic Architecture*), ensuring full alignment with section drafts ([[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition|Section 3.1]], [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|3.2]], [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation|3.3]], [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate|3.4]], [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|3.5]]) and IEEE/ACM academic standards.
+1. **Thesis Chapter 3 Finalization & Figure Overhaul:** Complete and standardize all visual diagrams for Chapter 3 (*System Model: The Risk-Adaptive Neurosymbolic Architecture*), ensuring full alignment with section drafts ([[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition|Section 3.1]], [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|3.2]], [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation|3.3]], [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates|3.4]]) and IEEE/ACM academic standards.
 2. **Elimination of Plain-Text Diagrams:** Replace all informal ASCII box-drawing diagrams across the chapter drafts with publication-ready vector and raster artifacts.
 3. **Overleaf LaTeX Consolidation:** Consolidate the entire chapter into a single LaTeX source file ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]) with formal figure environments and dynamic in-text cross-referencing.
 4. **Tooling & Skill Standardization:** Formalize visual production workflows, directory structures, and semantic naming within the `thesis-coauthor` skill.
@@ -38,7 +38,7 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - **Semantic Naming Standard:** Decoupled all filenames from hardcoded figure numbers (e.g., `conceptual_framework.drawio`, `radg_decision_space.py`), allowing dynamic reordering via LaTeX labels.
    - **Multi-Figure Decoupling for Sections 3.3 and 3.5:** Identified that Section 3.3 and Section 3.5 each required two independent diagrams. Authored from scratch in Draw.io XML:
      - `neural_symbolic_subsystems.drawio`: Functional division of responsibilities and PDDL boundary between the Neural Subsystem and Symbolic Subsystem ([[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]).
-     - `reverse_prompting_loop.drawio`: Closed-loop Reverse Prompting validation cycle with semantic divergence evaluation ($d_{sem}$) and conditional `interrupt()` ([[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting]]).
+     - `reverse_prompting_loop.drawio`: Closed-loop Reverse Prompting validation cycle with semantic divergence evaluation ($d_{sem}$) and conditional `interrupt()` ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]]).
    - **Full Chapter Visual Suite (7 Total Figures):**
      1. `problem_formulation`: High-level transformation pipeline ([[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition]]).
      2. `conceptual_framework`: Complete 7-phase architecture with Gate 1 ($U_{sem}$) and Gate 2 ($\text{QoT}_{valid}$) ([[Architecture_v5]], [[architecture/features/pipeline_graph]]).
@@ -59,7 +59,7 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - Exported all Draw.io models to vector `.pdf` and 300 DPI `.png` via native `draw.io.exe --crop` CLI.
    - Generated the 2D RADG operational plot via `radg_decision_space.py`.
    - Recreated `chapter_3_system_model.txt` ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]) with all 7 figures declared in formal `\begin{figure}` environments and in-text references (`Figure~\ref{fig:...}`) matching labels 1:1.
-   - Updated `figs/README.md` ([[thesis_drafts/3_SystemModel/figs/README]]) with the full catalog and ready-to-copy Overleaf snippets.
+   - Updated `figs_SystemModel/README.md` ([[thesis_drafts/3_SystemModel/figs_SystemModel/README]]) with the full catalog and ready-to-copy Overleaf snippets.
 
 5. **Tooling & Environment Diagnostics:**
    - Diagnosed Draw.io autosave lock-file behavior (`.$*.drawio*`) and hardened `.gitignore` to maintain clean repository hygiene.
@@ -80,7 +80,7 @@ Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployme
    - **Codebase Artifact Language Consistency:** Enforced 100% English UI copy and action labels across all CLI prompts and tables.
 
 8. **Thesis Chapter 3 Synchronization, Diagram Architecture Refinement & Draw.io Export Tooling:**
-   - **Ripple-Effect Thesis Alignment:** Synchronized Section 3.2 ([[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|Conceptual Framework]]), Section 3.5 ([[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|Formal HITL Reverse Prompting]]), and the merged Overleaf LaTeX document ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt|chapter_3_system_model.txt]]) with the Phase 3b fast-track operator approval edge ($v_{struct}=1 \implies$ Phase 4 direct bypass).
+   - **Ripple-Effect Thesis Alignment:** Synchronized Section 3.2 ([[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|Conceptual Framework]]), Section 3.4 ([[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates|Risk-Adaptive Decision Gates]]), and the merged Overleaf LaTeX document ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt|chapter_3_system_model.txt]]) with the Phase 3b fast-track operator approval edge ($v_{struct}=1 \implies$ Phase 4 direct bypass).
    - **Conceptual Framework Visual Refinement:** Injected the fast-track decision branch into `conceptual_framework.drawio`, adjusted element layouts, and re-exported production vector PDF and 300 DPI PNG previews.
    - **Diagram Exporter Script Integration:** Implemented and registered `scripts/export_diagram.py` into the `thesis-coauthor` skill, creating a cross-platform (Linux/WSL) automated compilation toolchain for Draw.io diagrams.
 

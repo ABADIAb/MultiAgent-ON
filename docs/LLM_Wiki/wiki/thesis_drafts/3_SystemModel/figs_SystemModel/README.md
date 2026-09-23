@@ -29,22 +29,22 @@ figs_SystemModel/
 
 ---
 
-## 2. Active Figure Catalog (Core 4)
+## 2. Active Figure Catalog (Core 2)
 
-To prevent cognitive overload and maintain a dense, purely mathematical focus on the system model, Chapter 3 concentrates on **4 core figures**:
+To maintain a dense, purely mathematical focus on the system model and avoid textual redundancy, Chapter 3 concentrates on **2 core figures**:
 
 | Semantic Label | Source File | Deliverable Files | Pathway | Section | Key Visual Concept |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `fig:conceptual_framework` | `src/diagrams/conceptual_framework.drawio` | `pdf/conceptual_framework.pdf`<br>`png/conceptual_framework.png` | **Pathway A** (Draw.io) | **3.2.1** | 7-Phase Fail-Fast Pipeline with Gate 1 (Semantic Uncertainty $U_{sem}$) and Gate 2 (Physical Risk Gate $\text{QoT}_{valid}$), including HITL clarify & replan loops. |
-| `fig:neural_symbolic_subsystems` | `src/diagrams/neural_symbolic_subsystems.drawio` | `pdf/neural_symbolic_subsystems.pdf`<br>`png/neural_symbolic_subsystems.png` | **Pathway A** (Draw.io) | **3.3.1** | Functional division: Neural Subsystem (linguistic reasoning) and Symbolic Subsystem (deterministic physics) bound by the typed PDDL predicates and CFG structural contract. |
 | `fig:radg_decision_space` | `src/plots/radg_decision_space.py` | `pdf/radg_decision_space.pdf`<br>`png/radg_decision_space.png` | **Pathway B** (Python Plot) | **3.4.1** | 2D Operational State Space: $U_{sem} \in [0, 1]$ vs. $\Delta\text{GSNR}$ (dB) demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify). |
-| `fig:reverse_prompting_loop` | `src/diagrams/reverse_prompting_loop.drawio` | `pdf/reverse_prompting_loop.pdf`<br>`png/reverse_prompting_loop.png` | **Pathway A** (Draw.io) | **3.5.2** | Closed-loop validation cycle: Forward translation $\mathcal{M}_{forward} \to \mathcal{S}_{PDDL} \to$ Reverse reconstruction $\mathcal{M}_{reverse} \to \mathcal{I}_{recon} \to$ Semantic divergence $d_{sem} \to$ LangGraph `interrupt()`. |
 
-### Archived Figures (`figs_SystemModel/archive/`)
-The following diagrams were archived to avoid redundancy and keep the chapter compact:
+### Archived & Deferred Figures (`figs_SystemModel/archive/`)
+The following diagrams were moved to archive or deferred to avoid redundancy:
+- `neural_symbolic_subsystems.drawio` (Archived; subsystem separation is mathematically detailed in Section 3.3).
+- `reverse_prompting_loop.drawio` (Deferred to Chapter 4, Section 4.3; implementation details of the two-layer semantic engine).
 - `problem_formulation.drawio` (Black-box inputs/outputs, fully superseded by `conceptual_framework`).
 - `neurosymbolic_comparison.drawio` (Comparative baseline analysis; prioritized for Chapter 1 or Chapter 2).
-- `hitl_sequence.drawio` (Software-engineering UML sequence; logic is formally captured in `reverse_prompting_loop`).
+- `hitl_sequence.drawio` (Software-engineering UML sequence; software lifecycle is captured in Chapter 4).
 
 ---
 
@@ -56,33 +56,17 @@ Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf pro
 % 1. Conceptual Framework
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.92\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
-    \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
+    \includegraphics[width=0.75\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
+    \caption{\small\itshape The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
 
-% 2. Subsystem Architecture
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=0.88\textwidth]{Figures/figs_SystemModel/neural_symbolic_subsystems.pdf}
-    \caption{Neurosymbolic subsystem division of responsibilities: decoupling linguistic formalization within the Neural Subsystem from deterministic constraint satisfaction and physical simulation in the Symbolic Subsystem via typed PDDL predicates.}
-    \label{fig:neural_symbolic_subsystems}
-\end{figure}
-
-% 3. RADG Decision Space
+% 2. RADG Decision Space
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.82\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
-    \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
+    \caption{\small\itshape Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
-\end{figure}
-
-% 4. Reverse Prompting Loop
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=0.88\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
-    \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
-    \label{fig:reverse_prompting_loop}
 \end{figure}
 ```
 
@@ -92,8 +76,9 @@ Copy the vector files from `figs_SystemModel/pdf/` directly to your Overleaf pro
 
 - **To re-export all Draw.io diagrams to PDF and PNG:**
   ```bash
-  python3 scratch/export_drawio_batch.py
+  python3 docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/export_diagrams.py
   ```
+  *(Or execute directly from `src/diagrams/`: `python3 export_diagrams.py`)*
 - **To re-generate the RADG scientific plot:**
   ```bash
   uv run python docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/plots/radg_decision_space.py

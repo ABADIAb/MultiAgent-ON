@@ -9,15 +9,15 @@ status: draft
 
 ## 3.1.1 Architectural Vulnerabilities in LLM-Driven Optical Intent Planning
 
-The automated translation of high-level operator intent into operational physical-layer configurations in Software-Defined Optical Networks (SDON) introduces fundamental architectural vulnerabilities when relying solely on generative Large Language Models (LLMs) \cite{bekri_bridging_2025} \cite{hachimi_flow-rule_2025} \cite{zacarias_enhancing_2026}. Optical transport networks operate under strict physical-layer limitations governed by nonlinear propagation physics, where configuration errors can cause widespread service degradation, optical amplifier saturation, or transponder damage \cite{soumplis_network_2017} \cite{cruzes_telemetry_2026} \cite{damico_gnpy_2026}. Current generative paradigms exhibit five interconnected failure modes that compromise operational integrity:
+The translation of high-level operator intent into physical-layer configurations in Intent-Based Optical Networks (IBON) presents operational risks when relying solely on Large Language Models (LLMs) \cite{bekri_bridging_2025} \cite{hachimi_flow-rule_2025} \cite{zacarias_enhancing_2026}. Optical transport networks operate under strict physical-layer limitations governed by nonlinear propagation physics. Configuration errors can cause service degradation, amplifier saturation, or transponder damage \cite{soumplis_network_2017} \cite{cruzes_telemetry_2026} \cite{damico_gnpy_2026}. Purely generative approaches present five failure modes that affect operational integrity:
 
-1. **Token Budget Saturation and Attention Degradation:** Modern optical topologies described via standard Network Configuration Protocol (NETCONF) or Representational State Transfer Configuration Protocol (RESTCONF) data models, or Transport API (T-API) northbound interfaces, generate extensive JSON/YANG payloads \cite{cruzes_telemetry_2026} \cite{gharbaoui_assurance_2026} \cite{ahmadian_t-api-compliant_2026}. Injecting complete network state representations into the LLM context window exhausts token budgets ($T_{context} \ge T_{max}$) and triggers attention degradation—commonly characterized as the "lost-in-the-middle" phenomenon \cite{ahmadian_t-api-compliant_2026} \cite{di_cicco_open_2024}. Consequently, long-horizon dependency constraints and critical intermediate node attributes are omitted during prompt synthesis \cite{du_memory_2026}.
+1. **Token Budget Saturation and Attention Degradation:** Modern optical topologies described via standard Network Configuration Protocol (NETCONF) or Representational State Transfer Configuration Protocol (RESTCONF) data models, or Transport API (T-API) northbound interfaces, generate extensive JSON/YANG payloads \cite{cruzes_telemetry_2026} \cite{gharbaoui_assurance_2026} \cite{ahmadian_t-api-compliant_2026}. Injecting complete network state representations into the LLM context window exhausts token budgets ($T_{context} \ge T_{max}$) and triggers attention degradation—commonly characterized as the "lost-in-the-middle" phenomenon \cite{ahmadian_t-api-compliant_2026} \cite{di_cicco_open_2024}. Consequently, long-horizon dependency constraints and intermediate node attributes are omitted during prompt synthesis \cite{du_memory_2026}.
 2. **Hallucinated Physical Feasibility:** Generative autoregressive models operate as probabilistic token predictors trained on textual distributions; they lack internal mathematical physics engines and cannot solve wave propagation equations. When tasked with route determination, the LLM hallucinates topological paths that appear syntactically plausible but violate Generalized Signal-to-Noise Ratio (GSNR) margins \cite{bekri_bridging_2025} \cite{zhang_autoonbench_2026}.
 3. **Semantic Drift in Iterative Intent Refinement:** Unconstrained multi-turn conversational interaction for intent disambiguation lacks formal convergence bounds \cite{bekri_bridging_2025} \cite{hachimi_flow-rule_2025}. When an operator introduces modifications in turn $t_k$, standard conversational memory may drop or mutate immutable boundary constraints established in turn $t_0$, causing semantic drift and infinite negotiation cycles \cite{wang_intent-driven_nodate} \cite{bekri_bridging_2025}.
-4. **Reactive Post-Deployment Failure Latency:** Automated networking frameworks can rely on trial-and-error post-deployment execution. In such architectures, an unverified candidate configuration is pushed directly to the network controller or southbound interface (SBI); only after hardware or controller-level rejection does the system invoke an LLM retry loop \cite{hachimi_flow-rule_2025}. However, in high-capacity optical backbones, pushing unverified configurations introduces substantial control-plane latency and risks transient link disruptions \cite{cruzes_telemetry_2026}.
-5. **Suboptimal Human-in-the-Loop Engagement:** Existing operational paradigms exhibit a binary interaction model: either mandatory operator review for every transaction (*always-on HITL*), causing cognitive fatigue and operational bottlenecks, or fully autonomous unverified deployment (*no-HITL*), exposing the transport layer to configuration faults \cite{zhang_ai_2026} \cite{zhang_autoonbench_2026} \cite{cruzes_telemetry_2026}. This is compounded by the fact that generative LLMs exhibit a documented failure to "fail early" and deterministically \cite{wang_intent-driven_nodate}. When presented with ambiguous operator inputs, rather than safely stopping and initiating a structured semantic clarification loop to resolve user-required errors, the model frequently fabricates missing physical parameters to force a deployment \cite{wang_intent-driven_nodate} \cite{bekri_bridging_2025}. Without mechanisms to dynamically assess the operational risk of a control command—distinguishing low-risk telemetry collection from high-risk optical power optimization—the agent cannot adapt its gating threshold to engage operators solely when calculated risks exceed acceptable safety boundaries \cite{cruzes_telemetry_2026} \cite{zhang_autoonbench_2026} \cite{liu_field_2026}.
+4. **Reactive Post-Deployment Failure Latency:** Automated networking frameworks can rely on trial-and-error post-deployment execution. In such architectures, an unverified candidate configuration is pushed directly to the network controller or southbound interface (SBI); only after hardware or controller-level rejection does the system invoke an LLM retry loop \cite{hachimi_flow-rule_2025}. In high-capacity optical backbones, pushing unverified configurations introduces control-plane latency and risks transient link disruptions \cite{cruzes_telemetry_2026}.
+5. **Suboptimal Human-in-the-Loop Engagement:** Operational paradigms present a binary interaction model: either mandatory operator review for every transaction (*always-on HITL*), causing cognitive fatigue, or fully autonomous unverified deployment (*no-HITL*), exposing the transport layer to configuration faults \cite{zhang_ai_2026} \cite{zhang_autoonbench_2026} \cite{cruzes_telemetry_2026}. Generative LLMs also fail to "fail early" deterministically \cite{wang_intent-driven_nodate}. When presented with ambiguous inputs, rather than safely stopping and initiating a structured clarification loop, the model frequently fabricates parameters to force a deployment \cite{wang_intent-driven_nodate} \cite{bekri_bridging_2025}. Without mechanisms to dynamically assess the operational risk of a control command, the agent cannot adapt its gating threshold to engage operators solely when calculated risks exceed acceptable boundaries \cite{cruzes_telemetry_2026} \cite{zhang_autoonbench_2026} \cite{liu_field_2026}.
 
-To resolve these vulnerabilities, the intent-to-configuration lifecycle must be formulated as a pre-deployment, risk-bounded optimization problem that evaluates both linguistic ambiguity and physical transmission feasibility prior to network actuation.
+To resolve these vulnerabilities, we formulate the intent-to-configuration lifecycle as a pre-deployment optimization problem that evaluates linguistic ambiguity and physical transmission feasibility prior to network actuation.
 
 ---
 
@@ -56,30 +56,15 @@ The intent planning architecture receives three primary inputs:
 
 The orchestration process is subject to finite operational and computational bounds:
 
-1. **Token Context Limit:** The prompt context length $T_{prompt}$ supplied to the reasoning engine must remain bounded by the maximum effective attention threshold $T_{max}$:
+1. **Token Context Limit:** The prompt context length $T_{prompt}$ supplied to the reasoning engine must remain bounded by the maximum effective attention threshold $T_{max}$, which is dictated by the LLM architecture's context window and available hardware VRAM constraints (in case of using locally installed models):
    $$T_{prompt}(\mathcal{I}_{NL}, G_{sub}) \le T_{max} \ll T_{full}(G)$$
    where $G_{sub} \subseteq G$ represents a localized $k$-hop subtopology extracted via topological retrieval.
-2. **Computational Inference Latency:** The end-to-end planning execution time $t_{exec}$ must satisfy:
+2. **Computational Inference Latency:** The end-to-end planning execution time $t_{exec}$ must satisfy $t_{max\_budget}$, a limit defined by the operator's Service Level Agreement (SLA) for automated provisioning (typically bounded to near real-time, order of seconds or minutes):
    $$t_{exec} = t_{LLM} + t_{solver} + t_{QoT} \le t_{max\_budget}$$
    where $t_{LLM}$ is the cumulative generative inference latency of the LLM, $t_{solver}$ is the execution time of the deterministic path-finding algorithm, and $t_{QoT}$ is the physical feasibility computation time.
 3. **Symbolic Solver Complexity:** Candidate path generation is restricted to the $K$-shortest loopless paths:
    $$\mathcal{K}_{path} = \{ \pi_1, \pi_2, \dots, \pi_K \}, \quad K \in [3, 5]$$
    Bounding $K$ mitigates the time complexity of Yen's algorithm in highly meshed topologies. A range of $K \in [3, 5]$ provides sufficient path diversity to ensure high probability of finding at least one physically feasible route, without violating the $t_{max\_budget}$.
-
----
-
-### Decision Variables and Operational Action Space
-
-The planning engine must determine:
-
-1. The formal symbolic specification $\mathcal{S}_{PDDL}$ translating $\mathcal{I}_{NL}$ into Planning Domain Definition Language predicates:
-   $$\mathcal{S}_{PDDL} = \mathcal{M}_{trans}(\mathcal{I}_{NL}, G_{sub})$$
-2. The optimal lightpath $\pi^* \in \mathcal{K}_{path}$, defined as a sequence of connected nodes:
-   $$\pi^* = (v_{(1)}, v_{(2)}, \dots, v_{(H)}), \quad v_{(1)} = s, \; v_{(H)} = d, \; (v_{(h)}, v_{(h+1)}) \in E$$
-3. The pre-deployment control action $a \in \mathcal{A}$:
-   $$\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$$
-
----
 
 ### Physical and Semantic Boundary Constraints
 
@@ -95,11 +80,20 @@ A candidate path $\pi \in \mathcal{K}_{path}$ is strictly admissible if and only
 
 ---
 
+### Decision Variables and Operational Action Space
+
+The planning engine must determine:
+
+1. The formal symbolic specification $\mathcal{S}_{PDDL}$ translating $\mathcal{I}_{NL}$ into Planning Domain Definition Language predicates:
+   $$\mathcal{S}_{PDDL} = \mathcal{M}_{trans}(\mathcal{I}_{NL}, G_{sub})$$
+2. The optimal lightpath $\pi^* \in \mathcal{K}_{path}$, defined as a sequence of connected nodes:
+   $$\pi^* = (v_{(1)}, v_{(2)}, \dots, v_{(H)}), \quad v_{(1)} = s, \; v_{(H)} = d, \; (v_{(h)}, v_{(h+1)}) \in E$$
+3. The pre-deployment control action $a \in \mathcal{A}$, mapping the evaluated risks to the appropriate operational behavior. By evaluating these risks, the action space dictates whether to engage the human in the loop (HITL) for clarification or replanning, or bypass them entirely when autonomous operation is verified:
+   $$\mathcal{A} = \{ \text{approve}, \text{clarify}, \text{replan} \}$$
+
 ### The Global Optimization Objective
 
-In mission-critical optical transport, physical transmission safety is non-negotiable. Consequently, rather than formulating safety as a soft penalty within an unconstrained objective, physical feasibility and semantic certainty are enforced as strict pre-deployment hard constraints. 
-
-The optimization objective minimizes composite operational and computational friction:
+The objective function aims to minimize both operational friction and computational overhead, where physical feasibility and semantic certainty are enforced as hard pre-deployment constraints:
 
 $$\min_{\mathcal{S}_{PDDL}, \pi^*} \mathcal{J} = \alpha \cdot N_{hitl}(\mathcal{I}_{NL}) + \beta \cdot T_{tokens}(\mathcal{I}_{NL})$$
 
@@ -110,15 +104,13 @@ $$\pi^* \in \mathcal{K}_{path}(G, \mathcal{S}_{PDDL})$$
 where:
 - $N_{hitl} \in \mathbb{N}_0$ denotes the number of operator interruptions triggered during the planning lifecycle.
 - $T_{tokens} \in \mathbb{N}^+$ represents the total cumulative LLM token consumption.
-- $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs. In this theoretical formulation, they act as operational policy parameters (OPEX) and normalization factors that project discrete human interaction events ($N_{hitl}$) and high-magnitude token consumption ($T_{tokens}$) into a unified evaluation scale. Exact empirical values for these parameters are defined by the specific testbed configuration during system evaluation; these coefficients directly inform the boundary conditions for the baseline experiments evaluated in Chapter~\ref{chap:implementation} \textcolor{red}{[TODO: Define chap:implementation label]} (Always-HITL vs. No-HITL).
-- $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved.
+- $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs. In this theoretical formulation, they act as operational policy parameters (OPEX) and normalization factors that project discrete human interaction events ($N_{hitl}$) and high-magnitude token consumption ($T_{tokens}$) into a unified evaluation scale. Exact empirical values for these parameters are defined by the specific testbed configuration during system evaluation; these coefficients directly inform the boundary conditions for the baseline experiments evaluated in Chapter~\ref{chap:implementation} (Always-HITL vs. No-HITL).
+- $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved. This hard constraint intrinsically governs the appropriate Human-in-the-Loop (HITL) engagement, guaranteeing that the system triggers an interruption if the intent is ambiguous or physically impossible, thereby achieving the goal of optimizing HITL without requiring a complex multi-objective formulation.
+
+To solve this pre-deployment optimization problem deterministically, Section~\ref{sec:proposed_framework} introduces the proposed Neurosymbolic Framework and its underlying multi-phase orchestration pipeline.
 
 ---
 
-## Drafting Recommendations & Figure Placement
-
 > [!NOTE]
-> **Figure Placement:** The high-level transformation flow of the problem formulation is directly mapped and visually detailed in the 7-Phase Conceptual Framework (`Figure~\ref{fig:conceptual_framework}`) in Section 3.2.
-
-> 
 > **Notation Consistency Check:** Ensure that $\text{GSNR}_{th}$, $U_{sem}$, and $\text{QoT}_{valid}$ symbols match identically across Chapter 3 and Chapter 5.
+

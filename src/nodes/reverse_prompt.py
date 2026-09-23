@@ -81,7 +81,7 @@ def reverse_prompt_node(state: AgentState) -> dict:
     """Automated Reverse Prompting node (Phase 3a: PDDL → English reconstruction).
 
     Translates the formal PDDL specification into a natural language paragraph
-    without pausing execution. This reconstruction is passed to the Semantic Gate
+    without pausing execution. This reconstruction is passed to the Semantic RADG
     to evaluate semantic divergence (d_sem) and uncertainty (U_sem).
 
     Args:
@@ -123,7 +123,7 @@ MAX_REFINEMENTS: int = 3
 def hitl_clarify_node(state: AgentState) -> dict:
     """HITL Clarification node (Phase 3b: Ambiguity Disambiguation).
 
-    Invoked strictly when Semantic Gate fails (U_sem > tau_sem or structural failure).
+    Invoked strictly when Semantic RADG fails (U_sem > tau_sem or structural failure).
     Suspends execution via interrupt(), presenting the system's ambiguous understanding
     and validation errors to the operator to gather targeted refinement feedback.
 

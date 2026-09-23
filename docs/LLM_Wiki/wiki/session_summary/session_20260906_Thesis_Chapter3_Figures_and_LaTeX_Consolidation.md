@@ -55,8 +55,8 @@ This session achieved full production readiness for all visual, architectural, a
   - [[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition|3_1_Formal_Problem_Definition.md]]: Inserted placeholder for `problem_formulation`.
   - [[thesis_drafts/3_SystemModel/3_2_Conceptual_Framework|3_2_Conceptual_Framework.md]]: Replaced 45 lines of ASCII art with placeholder for `conceptual_framework`.
   - [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation|3_3_Strict_Neurosymbolic_Separation.md]]: Replaced ASCII art with placeholder for `neural_symbolic_subsystems`, and added placeholder for `neurosymbolic_comparison`.
-  - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate|3_4_Risk_Adaptive_Decision_Gate.md]]: Inserted placeholder for `radg_decision_space` after Section 3.4.1.
-  - [[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|3_5_Formal_HITL_Reverse_Prompting.md]]: Replaced ASCII art with placeholder for `reverse_prompting_loop`, and added placeholder for `hitl_sequence`.
+  - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates|3_4_Risk_Adaptive_Decision_Gates.md]]: Inserted placeholder for `radg_decision_space` after Section 3.4.1.
+  - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates|3_4_Risk_Adaptive_Decision_Gates.md]]: Replaced ASCII art with placeholder for `reverse_prompting_loop`, and added placeholder for `hitl_sequence`.
 - Audit confirmed 0 remaining ASCII box-drawing characters in the markdown drafts.
 
 ### 4. Skill Updates (`thesis-coauthor`)
@@ -105,8 +105,8 @@ This session achieved full production readiness for all visual, architectural, a
 | **Section 3.1** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition.md` | MODIFIED | Dynamic LaTeX referencing (`\ref{chap:implementation}`) |
 | **Section 3.2** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_2_Conceptual_Framework.md` | MODIFIED | Placeholder for `conceptual_framework` |
 | **Section 3.3** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation.md` | MODIFIED | Added `academicbox` Listing 3.1, `formalbox` Spec 3.1, and 2-line math equations for $V_N$ and $\Sigma$ |
-| **Section 3.4** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gate.md` | MODIFIED | Placeholder for `radg_decision_space` and proportional wrapped columns for Table 3.2 |
-| **Section 3.5** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting.md` | MODIFIED | Consolidated to single core diagram `reverse_prompting_loop` and `academicbox` Listings 3.2–3.4 |
+| **Section 3.4** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md` | MODIFIED | Placeholder for `radg_decision_space` and proportional wrapped columns for Table 3.2 |
+| **Section 3.5** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md` | MODIFIED | Consolidated to single core diagram `reverse_prompting_loop` and `academicbox` Listings 3.2–3.4 |
 | **LaTeX Merged** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt` | MODIFIED | Consolidated LaTeX file with custom boxes, float barriers, margin overflow fixes, and clean chapter initialization |
 | **Figure Catalog** | `docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/README.md` | MODIFIED | Updated catalog focusing on the 4 core figures and `academicbox`/`formalbox` code examples |
 | **Weekly Report** | `docs/LLM_Wiki/wiki/weekly_reports/Weekly_Report_20260908_Felipe_Abadia.md` | MODIFIED | Added Item 6 and updated Section 6 with Overleaf typography and layout normalization |

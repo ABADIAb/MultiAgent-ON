@@ -69,13 +69,51 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Systematically replaced fatalistic terminology ("Unsafe Approval Rate", "safety guarantee") with academically precise operational terminology ("Unfeasible Approval Rate", "operational integrity") across the Wiki, LaTeX drafts, and the `tests/evaluation` Python harness.
    - Consolidated the theoretical metrics into a dedicated [[EvaluationFramework_v5]] to prevent redundancies and inconsistencies with the benchmark README.
 
+8. **Thesis Chapter 4 Drafting & Plural RADGs Architecture Refactor:**
+   - Drafted all three sections of Chapter 4 (`4_1_Network_State_and_GraphRAG.md`, `4_2_Semantic_and_QoT_Validation_Modules.md`, `4_3_Decision_Outcomes_and_Orchestration_Flow.md`), mathematically grounding network state abstraction, AST CFG validation, two-layer semantic uncertainty ($U_{sem}$), and analytical GN-model physics against `src/`.
+   - Standardized terminology across the thesis drafts, outlines, architecture feature docs, and codebase to "Risk-Adaptive Decision Gates (RADGs)" (plural), formally distinguishing the Semantic RADG (Phase 3) and Physical RADG (Phase 6).
+   - Renamed Section 3.4 to `3_4_Risk_Adaptive_Decision_Gates.md`, resolved merged Section 3.5 references, authored missing concept notes (`Human_in_the_Loop.md`, `Constraint_Isolation.md`, `PDDL.md`), and completed a repository-wide Wiki Deep Lint.
+
+9. **Chapter 3 and Chapter 4 Restructuring for Narrative Fluidity:**
+   - Consolidated all mathematical formulations (GN-model physics, $U_{sem}$) and formal grammars (PDDL CFG) into Chapter 3, establishing it purely as the theoretical system model.
+   - Completely redesigned Chapter 4 to trace the end-to-end software lifecycle across four newly defined sections: Orchestration and Network Context (4.1), The Semantic Engine (4.2), The Physical Engine and System Resilience (4.3), and Plan Synthesis and Verification (4.4).
+   - Removed raw PDDL code blocks and math proofs from Chapter 4 to focus on software implementation mechanics and storytelling.
+
+10. **Chapter 3 Top-Down Storytelling & Anti-AI Refactor:**
+    - Reordered and renamed the theoretical framework sections in Chapter 3 to enforce a top-down storytelling structure, introducing the End-to-End Conceptual Framework (3.2) before the deep mathematical dives into Strict Neurosymbolic Separation (3.3) and RADGs (3.4).
+    - Executed a comprehensive tone refactor across Chapter 3 to eliminate latent AI-like clichés (e.g., orthogonal, composite, monotonic) and consolidated the use of "operational integrity" over generic phrasing.
+    - Simplified the Context-Free Grammar (CFG) formalization to focus strictly on Abstract Syntax Tree parsing logic and corrected inaccuracies regarding GN-model complexity.
+    - Updated the `thesis-coauthor` skill to mandate top-down storytelling and expand the blacklist of prohibited AI vocabulary for future drafting sessions.
+
+11. **Overleaf LaTeX Chapter Consolidation & Woven Figure Narrative Integration:**
+    - Consolidated and mathematically validated standalone Overleaf-ready LaTeX chapter text files: [`chapter_3_system_model.txt`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt) and [`chapter_4_implementation.txt`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/chapter_4_implementation.txt), verifying line 1 `\chapter`, zero `\usepackage`, balanced environments, and strict float barrier placements.
+    - Integrated in-text explanatory narratives for all active figures and placeholders (`Figure~\ref{fig:conceptual_framework}`, `Figure~\ref{fig:radg_decision_space}`, `Figure~\ref{fig:reverse_prompting_loop}`, `Figure~\ref{fig:langgraph_execution_flow}`, `Figure~\ref{fig:semantic_engine}`), detailing axes, operational zones, structural stages, and feedback loops.
+    - Upgraded the `thesis-coauthor` skill (`SKILL.md`, `writing-standards.md`, `consistency-protocol.md`) with explicit rules on storytelling transitions, in-text figure walk-throughs, expanded anti-AI cliché blacklist (banning "swimlane", "paradigm", "mandates", "govern", "certified", "canonical", "empirical"), and 1:1 Markdown-to-LaTeX synchronization.
+    - Resolved Item 2 in [`Drafting_Backlog.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/Drafting_Backlog.md) (`\label{chap:implementation}`).
+
+12. **Thesis Chapter 3 Figure Refactoring, Archival & Caption Standardization (2026-09-23):**
+    - Refactored `conceptual_framework` (`figs_SystemModel/src/diagrams/conceptual_framework.drawio`): stripped redundant right-hand panel cards, significantly enlarged typography (titles to 15–16 pt bold, subtext to 13 pt, gates to 14 pt bold), and aligned symmetric HITL clarify and replan boxes without text collisions.
+    - Moved `neural_symbolic_subsystems` and `reverse_prompting_loop` to `figs_SystemModel/archive/`, deferring the reverse prompting diagram to Chapter 4 (Semantic Engine).
+    - Synchronized Chapter 3 text ([`3_4_Risk_Adaptive_Decision_Gates.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md) and [`chapter_3_system_model.txt`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt)) by removing the obsolete 5-step figure explanation and explicitly introducing the formal LLM-as-a-judge role in evaluating Layer 2 semantic divergence ($d_{sem}$).
+    - Eliminated hardcoded figure numbering across Drafting Recommendations in all markdown drafts to use semantic references exclusively.
+    - Authored a dedicated standalone compilation script ([`export_diagrams.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/export_diagrams.py)) in the diagrams directory with automated `--crop` for manual and headless batch generation.
+    - Standardized figure captions across Chapters 3 and 4 to academic thesis standard (`\small\itshape`).
+    - Upgraded the `thesis-coauthor` skill and `figure-guidelines.md` reference with strict rules on large typography, visual anti-redundancy, and anti-AI phrasing.
+
+13. **Thesis Chapter 4 Architectural Visual Suite, AST Verification & Overleaf Synchronization (2026-09-23):**
+    - Designed and generated the complete production visual suite for Chapter 4 (`figs_NPImp/`): `langgraph_execution_flow` (7-phase LangGraph StateGraph, conditional routing edges, explicit HITL clarify and replan interrupt boundaries) and `semantic_engine` (Two-Layer Semantic Engine: Layer 1 CFG AST PDDL validation, Layer 2 intent feed-forward, reverse prompting reconstruction, LLM-as-a-judge semantic divergence $d_{sem}$, and Semantic RADG gate).
+    - Engineered standalone headless Python builders and batch exporter (`export_diagrams.py`) in `figs_NPImp/src/diagrams/` with automated `--crop` yielding production vector PDFs and 300 DPI preview PNGs.
+    - Integrated in-text figure anchors and comprehensive descriptive narratives into [`4_1_The_LangGraph_Orchestrator.md`](docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/4_1_The_LangGraph_Orchestrator.md) and [`4_3_The_Semantic_Engine.md`](docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/4_3_The_Semantic_Engine.md), unifying the deferred reverse prompting loop directly into Layer 2.
+    - Consolidated Overleaf LaTeX chapter text ([`chapter_4_implementation.txt`](docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/chapter_4_implementation.txt)) replacing temporary `\fbox` placeholders with production `\includegraphics` environments bounded by `\FloatBarrier` guards, verifying zero broken references.
+    - Verified 321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`).
+
 ---
 
 ## 3. What do I plan to accomplish next week?
 
-1. **Comparative Baseline Benchmarking:** Execute automated evaluation across the 4 formal baselines (Proposed RADG, Baseline A Monolithic LLM, Baseline B Always-On HITL, Baseline C Traditional SDON) using the validated 20-demand compact corpus and export publication-ready telemetry.
-2. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and empirical benchmark figures on Slide 14 to Prof. Massimo Tornatore for formal academic review and feedback.
-3. **Thesis Chapter 4 Experimental Drafting:** Ingest validated empirical metrics into Chapter 4 of the thesis manuscript and prepare defense slide rehearsals.
+1. **Mejorar el entorno de pruebas:** Fortalecer y modernizar el harness y entorno de pruebas automatizadas (mejoras en test fixtures, integración con mock testbed, logging de telemetría de los Cuatro Pilares y optimización de ejecución de tests).
+2. **Redactar el capítulo 5 de la tesis:** Iniciar la redacción formal del Capítulo 5 de la tesis (Evaluación Experimental, Resultados y Benchmarks Comparativos) integrando los datos de telemetría empíricos sobre la topología Nobel-Germany de 17 nodos.
+3. **Comparative Baseline Benchmarking & Advisor Review:** Ejecutar los 4 baselines formales sobre la topología Nobel-Germany de 17 nodos y revisar los avances con el Prof. Massimo Tornatore.
 
 ---
 
@@ -88,4 +126,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I modernized the evaluation harness with full Four Pillars telemetry, validated the compact corpus on the 17-node Nobel-Germany topology, and executed a complete architectural tone refactor to emphasize HITL optimization and deterministic physical feasibility across all thesis drafts and codebase.
+I modernized the evaluation harness with full Four Pillars telemetry, validated the compact corpus on the 17-node Nobel-Germany topology, and executed a complete architectural tone refactor to emphasize HITL optimization and deterministic physical feasibility across all thesis drafts and codebase, followed by a major restructuring of Chapters 3 and 4 to optimize narrative fluidity.

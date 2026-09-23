@@ -1,16 +1,16 @@
 ---
-title: "Feature: Semantic Gate ($U_{sem}$)"
+title: "Feature: Semantic RADG ($U_{sem}$)"
 date: 2026-09-01
 tags: [feature, semantic-gate, hitl, phase3, nodes, core]
 status: active
 ---
 
-# Feature: Semantic Gate ($U_{sem}$)
+# Feature: Semantic RADG ($U_{sem}$)
 
 ## 1. Architecture Placement
-**Phase 3: Semantic Gate** | [[Architecture_v5]]
+**Phase 3: Semantic RADG** | [[Architecture_v5]]
 
-The Semantic Gate implements the fail-fast Semantic Uncertainty mechanism from Architecture V5. It evaluates the clarity of the operator's intent *before* running the expensive Symbolic Solver and QoT physics engine. If the intent is ambiguous or structurally invalid, it routes to [[architecture/features/reverse_prompt]] (`hitl_clarify`) for human intervention. If clear ($U_{sem} \le \tau_{sem}$), it passes autonomously to the Symbolic Solver with **0 human interruptions**.
+The Semantic RADG implements the fail-fast Semantic Uncertainty mechanism from Architecture V5. It evaluates the clarity of the operator's intent *before* running the expensive Symbolic Solver and QoT physics engine. If the intent is ambiguous or structurally invalid, it routes to [[architecture/features/reverse_prompt]] (`hitl_clarify`) for human intervention. If clear ($U_{sem} \le \tau_{sem}$), it passes autonomously to the Symbolic Solver with **0 human interruptions**.
 
 ## 2. Overview
 The gate computes a Semantic Uncertainty score ($U_{sem}$) based on two layers of validation:

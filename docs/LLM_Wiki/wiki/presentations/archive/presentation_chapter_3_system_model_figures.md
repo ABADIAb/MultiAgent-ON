@@ -154,7 +154,7 @@ $$D\left(U_{sem}, \text{QoT}_{valid}\right) = \begin{cases}
 
 ### Completed Deliverables & Transition to Sprint 4
 
-- **Chapter 3 Ready for Overleaf:** All 5 sections drafted ([[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition|Section 3.1]]–[[thesis_drafts/3_SystemModel/3_5_Formal_HITL_Reverse_Prompting|3.5]]) and consolidated into `chapter_3_system_model.txt` ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]) with LaTeX cross-references.
+- **Chapter 3 Ready for Overleaf:** All sections drafted ([[thesis_drafts/3_SystemModel/3_1_Formal_Problem_Definition|Section 3.1]]–[[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates|3.4]]) and consolidated into `chapter_3_system_model.txt` ([[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]) with LaTeX cross-references.
 - **Visual Suite Complete:** 7 figures (6 Draw.io models, 1 Matplotlib plot documented in [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]) exported to vector PDF and 300 DPI PNG.
 - **Immediate Next Steps (Sprint 4):**
   1. Synthetic test corpus construction across 17-node [[session_summary/session_20260817_Nobel_Germany_Topology_Migration|Nobel-Germany optical topology]] (`test_corpus.json`).
