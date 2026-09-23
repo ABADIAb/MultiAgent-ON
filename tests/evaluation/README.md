@@ -8,15 +8,29 @@ This directory contains the automated, reproducible benchmark suite for evaluati
 
 ```text
 tests/evaluation/
+├── main.py                     # Unified interactive CLI & benchmark runner (Rich + Questionary)
+├── baselines/                  # Modular baseline implementations reusing src/
+│   ├── common/                 # Shared runner, callback TokenTracker, metrics, and reporter
+│   │   ├── metrics.py          # Four Pillars telemetry formulas (CRR, CFG-PR, UAR, GDA)
+│   │   ├── runner.py           # Multi-turn execution loop with HITL recovery interception
+│   │   └── reporter.py         # Multi-format telemetry exporter (JSON, CSV, MD)
+│   ├── proposed_radg/          # Proposed System: Fail-fast Semantic & Physical RADGs
+│   │   ├── graph.py            # Wires standard src.core.graph
+│   │   └── evaluator.py        # Proposed RADG evaluator
+│   ├── always_on_hitl/         # Baseline: Always-On HITL (Paranoid Turn-1 Review on Nominals)
+│   │   ├── graph.py            # StateGraph with Turn-1 mandatory clarification
+│   │   └── evaluator.py        # Always-On HITL evaluator
+│   └── llm_only/               # Baseline: LLM-Only (No Semantic Gate / Controller Error Surrogate)
+│       ├── graph.py            # StateGraph with bypassed semantic gate + controller surrogate
+│       └── evaluator.py        # LLM-Only evaluator
 ├── test_corpus_compact.json    # Standard 20-demand benchmark corpus (4 balanced risk classes)
-├── run_evaluation.py           # Automated evaluation harness for all risk classes & 4 pillars
+├── test_corpus.json            # 107-demand full benchmark corpus
+├── run_evaluation.py           # Evaluation runner for Proposed RADG
 ├── generate_visuals.py         # Visualizer generating publication/slide figures (PNG/PDF)
-├── results/                    # Generated evaluation artifacts
-│   ├── evaluation_results/     # Self-contained per-run packages (run_<timestamp>/)
-│   │   └── run_<run_id>/       # Raw data (JSON, CSV, MD) + Visual figures (PNG, PDF)
-│   ├── evaluation_results.json # Latest telemetry records
-│   ├── evaluation_results.csv  # Latest tabular metrics
-│   └── evaluation_summary.md   # Latest consolidated markdown summary table
+├── results/                    # Generated evaluation artifacts per baseline and run
+│   ├── proposed_radg/          # Proposed RADG run snapshots and figures
+│   ├── always_on_hitl/         # Always-On HITL run snapshots and figures
+│   └── llm_only/               # LLM-Only run snapshots and figures
 └── README.md                   # Environment, methodology, and execution instructions
 ```
 
@@ -114,29 +128,34 @@ The dataset (`test_corpus_compact.json`) comprises 20 demands balanced equiproba
    LLM_TIMEOUT=120.0
    ```
 
-### Execution Commands
-Run the evaluation directly via `uv`:
+### 4.1 Unified Interactive CLI (`tests/evaluation/main.py`)
+Launch the rich, interactive terminal UI with arrow-key menus:
 ```bash
-# Evaluate all 20 demands in test_corpus_compact.json across all 4 risk classes:
-uv run python tests/evaluation/run_evaluation.py
-
-# Evaluate a specific risk class:
-uv run python tests/evaluation/run_evaluation.py --class I_Nominal
-uv run python tests/evaluation/run_evaluation.py --class II_Ambiguous
-uv run python tests/evaluation/run_evaluation.py --class III_Infeasible
-uv run python tests/evaluation/run_evaluation.py --class IV_Adversarial
-
-# Evaluate a single demand by ID:
-uv run python tests/evaluation/run_evaluation.py --id intent_amb_01
+uv run python tests/evaluation/main.py
 ```
+This interactive CLI allows you to:
+1. Choose between **Proposed RADG**, **Always-On HITL**, **LLM-Only**, or **All Baselines**.
+2. Select **Interactive Mode** (single intent with live phase tracking) or **Evaluation Benchmark Mode**.
+3. Select test corpus (**Compact 20-demands** or **Full 107-demands**) and risk class filters.
+4. Configure LLM provider (`ollama`, `openrouter`, `kimi`) and target model.
 
-Optional CLI flags:
+### 4.2 Direct Baseline Benchmark Execution
+Run specific baselines directly via CLI flags:
 ```bash
-# Override model or timeout
-uv run python tests/evaluation/run_evaluation.py --model qwen2.5:3b --timeout 120.0
+# Run Proposed RADG on the compact corpus:
+uv run python tests/evaluation/main.py --baseline proposed_radg --mode eval --corpus compact
 
-# Run with alternative providers
-uv run python tests/evaluation/run_evaluation.py --provider openrouter --model inclusionai/ling-3.0-flash-vl:free
+# Run Always-On HITL (evaluates Nominal intents):
+uv run python tests/evaluation/main.py --baseline always_on_hitl --mode eval --corpus compact
+
+# Run LLM-Only (evaluates all classes, simulating controller error):
+uv run python tests/evaluation/main.py --baseline llm_only --mode eval --corpus compact
+
+# Run all baselines sequentially:
+uv run python tests/evaluation/main.py --baseline all --mode eval --corpus compact
+
+# Interactive execution with custom intent:
+uv run python tests/evaluation/main.py --baseline proposed_radg --mode interactive --intent "Route 100G from Hamburg to Berlin with at least 15 dB GSNR"
 ```
 
 ---
