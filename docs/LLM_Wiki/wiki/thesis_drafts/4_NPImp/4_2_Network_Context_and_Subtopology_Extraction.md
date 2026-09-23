@@ -16,7 +16,7 @@ The optical topology is abstracted as an undirected graph $G(V, E)$ populated by
 1. **Network Nodes ($V$):** Represented by the `NetworkNode` model, each network element corresponds to a Reconfigurable Optical Add-Drop Multiplexer (ROADM) or optical cross-connect (OXC) hub.
 2. **Fiber Links ($E$):** Encapsulated by the `FiberLink` model, each edge represents an optical fiber transmission line connecting node pairs. To ensure physical fidelity during downstream Quality of Transmission (QoT) estimation, each link record stores structural and physical attributes, including the total span length in kilometers, the count of optical amplifiers, active WDM channels, port insertion loss, and the ordered chain of Erbium-Doped Fiber Amplifiers (EDFAs).
 
-To establish an experimentally reproducible evaluation baseline, the primary topology utilized throughout this work is a simulated version of the **Nobel-Germany optical backbone network** sourced from SNDlib \cite{orlowski_sndlib_2010}. The topology comprises 17 core ROADM switching nodes and 26 bidirectional physical fiber links interconnecting Germany's primary telecommunications hubs. Physical network access is unified behind an abstract client interface, which provides a static memory-backed topology for continuous benchmarking.
+To establish an experimentally reproducible evaluation baseline, the primary topology utilized throughout this work is a simulated version of the **17-node German topology network** sourced from SNDlib \cite{noauthor_sndlib_nodate}. The topology comprises 17 nodes and 26 bidirectional physical fiber links. Physical network access is unified behind a client interface, which provides a static memory-backed topology for continuous benchmarking.
 
 ---
 
