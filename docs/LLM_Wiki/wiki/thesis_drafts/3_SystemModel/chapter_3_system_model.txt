@@ -179,7 +179,7 @@ By ordering these validation checks sequentially, the architecture implements a 
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=1\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
-    \caption{\small\itshape The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
+    \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
 \FloatBarrier
@@ -377,7 +377,7 @@ While conceptualized as a unified mathematical function, the software implementa
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.9\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
-    \caption{\small\itshape Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
+    \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
 \end{figure}
 \FloatBarrier
