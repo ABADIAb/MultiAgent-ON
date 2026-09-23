@@ -44,6 +44,6 @@ By structurally aligning the codebase modules with the theoretical phases, the o
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 4.1 Placement:** LangGraph State Machine execution graph.
+> **Figure Placement (`langgraph_execution_flow`):** LangGraph State Machine execution graph.
 > - **Artifact Path:** `figs_NPImp/src/diagrams/langgraph_execution_flow.drawio`
 > - **LaTeX Figure Reference:** `Figure~\ref{fig:langgraph_execution_flow}`

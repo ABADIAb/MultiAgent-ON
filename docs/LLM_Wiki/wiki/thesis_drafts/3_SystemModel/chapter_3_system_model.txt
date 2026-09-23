@@ -178,8 +178,8 @@ By ordering these validation checks sequentially, the architecture implements a 
 
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.92\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
-    \caption{The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
+    \includegraphics[width=1\textwidth]{Figures/figs_SystemModel/conceptual_framework.pdf}
+    \caption{\small\itshape The 7-Phase Fail-Fast Risk-Adaptive Neurosymbolic Orchestration Pipeline, illustrating sequential evaluation across Gate 1 (Semantic Uncertainty $U_{\text{sem}}$) and Gate 2 (Physical Transmission Viability $\text{QoT}_{\text{valid}}$).}
     \label{fig:conceptual_framework}
 \end{figure}
 \FloatBarrier
@@ -376,8 +376,8 @@ While conceptualized as a unified mathematical function, the software implementa
 
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.82\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
-    \caption{Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
+    \includegraphics[width=0.9\textwidth]{Figures/figs_SystemModel/radg_decision_space.pdf}
+    \caption{\small\itshape Two-dimensional operational state space of the Risk-Adaptive Decision Gate (RADG) mapped across Semantic Uncertainty ($U_{\text{sem}}$) and Physical Feasibility Margin ($\Delta\text{GSNR}$), demarcating Zone I (Auto-Approve), Zone II (Suggest Replan), and Zone III (Early HITL Clarify).}
     \label{fig:radg_decision_space}
 \end{figure}
 \FloatBarrier
@@ -403,29 +403,12 @@ v_{struct} = \begin{cases} 1 & \text{if } \mathcal{S}_{PDDL} \in \mathcal{L}(\ma
 
 \subsubsection{Layer 2: Reverse Prompting Semantic Divergence ($d_{sem}$)}
 
-To prevent semantic drift across refinement turns, the architecture implements Reverse Prompting as a closed-loop validation cycle, illustrated in Figure~\ref{fig:reverse_prompting_loop}.
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=0.88\textwidth]{Figures/figs_SystemModel/reverse_prompting_loop.pdf}
-    \caption{Closed-loop Reverse Prompting validation cycle enforcing semantic convergence through forward formal translation, reverse natural language reconstruction, and automated semantic divergence scoring prior to human intervention.}
-    \label{fig:reverse_prompting_loop}
-\end{figure}
-\FloatBarrier
-
-As shown in Figure~\ref{fig:reverse_prompting_loop}, the validation cycle coordinates five sequential steps:
-\begin{enumerate}
-    \item \textbf{Forward Translation:} The linguistic compiler translates the raw intent $\mathcal{I}_{NL}$ into formal PDDL constraints $\mathcal{S}_{PDDL}$.
-    \item \textbf{Structural Audit:} The Context-Free Grammar parser deterministically verifies syntax validity ($v_{struct} \in \{0, 1\}$); syntax violations immediately bypass reverse reconstruction and force $U_{sem} = 1.0$.
-    \item \textbf{Reverse Reconstruction:} Assuming structural validity ($v_{struct} = 1$), an independent reconstruction LLM translates $\mathcal{S}_{PDDL}$ back into a natural language confirmation statement $\mathcal{I}_{recon}$.
-    \item \textbf{Agreement Evaluation:} A separate LLM Agreement Judge compares the original intent $\mathcal{I}_{NL}$ with $\mathcal{I}_{recon}$, computing the continuous semantic divergence metric $d_{sem} \in [0, 1]$ via Equation~\eqref{eq:d_sem}:
+To prevent semantic drift across multi-turn intent refinement, the architecture implements Reverse Prompting to quantify semantic divergence $d_{sem} \in [0, 1]$. Assuming structural validity ($v_{struct} = 1$), an independent LLM reconstructs the formal PDDL specification back into a natural language confirmation statement $\mathcal{I}_{recon}$. An automated LLM-as-a-judge is also employed to evaluate the semantic alignment between the original operator intent $\mathcal{I}_{NL}$ and the reconstructed statement $\mathcal{I}_{recon}$, computing the continuous semantic divergence metric:
 \begin{equation}
 \label{eq:d_sem}
 d_{sem} = \text{Score}_{divergence}\left( \mathcal{I}_{NL}, \mathcal{I}_{recon} \right)
 \end{equation}
-where $0.0$ indicates perfect semantic alignment and $1.0$ indicates total constraint loss.
-    \item \textbf{Threshold Routing:} If $d_{sem} \le \tau_{sem}$, the intent is approved for route computation; if $d_{sem} > \tau_{sem}$, execution branches out of the autonomous loop to prompt the human operator for clarification.
-\end{enumerate}
+where $d_{sem} = 0.0$ indicates perfect semantic agreement and $d_{sem} = 1.0$ indicates complete constraint loss. If $d_{sem} \le \tau_{sem}$, the intent is approved for deterministic route calculation; otherwise, the gate halts execution and prompts the human operator for clarification.
 
 \subsubsection{Composite $U_{sem}$ Evaluation}
 

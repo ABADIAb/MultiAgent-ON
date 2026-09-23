@@ -19,7 +19,7 @@ The state graph topology and conditional execution flow are shown in Figure~\ref
     \centering
     % \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/langgraph_execution_flow.pdf}
     \fbox{\parbox[c][0.28\textwidth][c]{0.88\textwidth}{\centering\sffamily\footnotesize [Figure Placeholder: LangGraph State Machine Execution Flow -- \texttt{Figures/figs\_NPImp/langgraph\_execution\_flow.pdf}]}}
-    \caption{LangGraph state machine execution graph and conditional routing flow across the seven neurosymbolic pipeline phases.}
+    \caption{\small\itshape LangGraph state machine execution graph and conditional routing flow across the seven neurosymbolic pipeline phases.}
     \label{fig:langgraph_execution_flow}
 \end{figure}
 \FloatBarrier
@@ -128,7 +128,7 @@ The Semantic Engine comprises Phases 2 and 3 of the neurosymbolic pipeline. It h
     \centering
     % \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/semantic_engine.pdf}
     \fbox{\parbox[c][0.28\textwidth][c]{0.88\textwidth}{\centering\sffamily\footnotesize [Figure Placeholder: Two-Layer Semantic Engine Architecture -- \texttt{Figures/figs\_NPImp/semantic\_engine.pdf}]}}
-    \caption{Two-layer Semantic Engine architecture illustrating intent ingestion, AST structural verification, automated PDDL-to-NL reconstruction, and Semantic RADG decision routing.}
+    \caption{\small\itshape Two-layer Semantic Engine architecture illustrating intent ingestion, AST structural verification, automated PDDL-to-NL reconstruction, and Semantic RADG decision routing.}
     \label{fig:semantic_engine}
 \end{figure}
 \FloatBarrier

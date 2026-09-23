@@ -75,6 +75,6 @@ To formalize the architectural boundary that decouples neural intent translation
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 3.4 Placement:** Insert the complete Swimlane/Flowchart diagram representing the 7 phases, highlighting the two decision gates with distinct visual boundaries.
+> **Figure Placement (`conceptual_framework`):** Insert the complete flowchart diagram representing the 7 phases, highlighting the two decision gates with distinct visual boundaries.
 > 
 > **Key Distinctions to Emphasize:** Highlight how the 2-gate sequential model differs from traditional single-pass LLM wrappers (such as raw ReAct agents or stateless chatbot interfaces).

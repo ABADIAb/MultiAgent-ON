@@ -150,6 +150,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260923_Chapter3_Figure_Refinement_and_Caption_Styling]]: Chapter 3 visual suite refactoring (stripping redundant cards and enlarging typography on conceptual_framework, archiving subsystems and reverse prompting diagrams), narrative and LaTeX synchronization, standalone batch export script, caption styling standardization (\small\itshape), and thesis-coauthor skill upgrades.
 - [[session_summary/session_20260922_Chapter4_Improvement]]: Overleaf $\text{\LaTeX}$ chapter consolidation (Chapters 3 & 4), in-text woven figure narrative integration across all 5 diagrams/placeholders, strict tone refactor eliminating AI clichés, upgrade of thesis-coauthor skill and references, and 1:1 Markdown-to-LaTeX synchronization.
 - [[session_summary/session_20260921_Chapter4_Restructure_and_Tone_Refactor]]: Chapter 4 structural expansion to 5 sections aligning with the 7-phase LangGraph pipeline, rigorous tone refactor of Chapters 3 and 4 eliminating AI clichés, update to `thesis-coauthor` skill enforcing precision and technical density.
 - [[session_summary/session_20260920_Chapter3_Storytelling_Refactor]]: Chapter 3 top-down storytelling restructure (renaming/reordering framework sections), elimination of AI clichés, terminology consolidation (operational integrity), and CFG/GN-model simplification.

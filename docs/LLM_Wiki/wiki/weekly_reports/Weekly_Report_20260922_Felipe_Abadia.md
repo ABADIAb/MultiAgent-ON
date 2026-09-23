@@ -91,6 +91,15 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Upgraded the `thesis-coauthor` skill (`SKILL.md`, `writing-standards.md`, `consistency-protocol.md`) with explicit rules on storytelling transitions, in-text figure walk-throughs, expanded anti-AI cliché blacklist (banning "swimlane", "paradigm", "mandates", "govern", "certified", "canonical", "empirical"), and 1:1 Markdown-to-LaTeX synchronization.
     - Resolved Item 2 in [`Drafting_Backlog.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/Drafting_Backlog.md) (`\label{chap:implementation}`).
 
+12. **Thesis Chapter 3 Figure Refactoring, Archival & Caption Standardization (2026-09-23):**
+    - Refactored `conceptual_framework` (`figs_SystemModel/src/diagrams/conceptual_framework.drawio`): stripped redundant right-hand panel cards, significantly enlarged typography (titles to 15–16 pt bold, subtext to 13 pt, gates to 14 pt bold), and aligned symmetric HITL clarify and replan boxes without text collisions.
+    - Moved `neural_symbolic_subsystems` and `reverse_prompting_loop` to `figs_SystemModel/archive/`, deferring the reverse prompting diagram to Chapter 4 (Semantic Engine).
+    - Synchronized Chapter 3 text ([`3_4_Risk_Adaptive_Decision_Gates.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates.md) and [`chapter_3_system_model.txt`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/chapter_3_system_model.txt)) by removing the obsolete 5-step figure explanation and explicitly introducing the formal LLM-as-a-judge role in evaluating Layer 2 semantic divergence ($d_{sem}$).
+    - Eliminated hardcoded figure numbering across Drafting Recommendations in all markdown drafts to use semantic references exclusively.
+    - Authored a dedicated standalone compilation script ([`export_diagrams.py`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/3_SystemModel/figs_SystemModel/src/diagrams/export_diagrams.py)) in the diagrams directory with automated `--crop` for manual and headless batch generation.
+    - Standardized figure captions across Chapters 3 and 4 to academic thesis standard (`\small\itshape`).
+    - Upgraded the `thesis-coauthor` skill and `figure-guidelines.md` reference with strict rules on large typography, visual anti-redundancy, and anti-AI phrasing.
+
 ---
 
 ## 3. What do I plan to accomplish next week?

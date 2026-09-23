@@ -78,6 +78,6 @@ Once the intent passes the Semantic RADG ($U_{sem} \le \tau_{sem}$), execution t
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Figure 4.2 Placement:** Flowchart illustrating the Two-Layer Semantic Engine: showing intent ingestion, structural AST verification, automated PDDL-to-NL reconstruction, and the final Semantic RADG decision routing.
+> **Figure Placement (`semantic_engine`):** Flowchart illustrating the Two-Layer Semantic Engine: showing intent ingestion, structural AST verification, automated PDDL-to-NL reconstruction, and the final Semantic RADG decision routing.
 > - **Artifact Path:** `figs_NPImp/src/diagrams/semantic_engine.drawio`
 > - **LaTeX Figure Reference:** `Figure~\ref{fig:semantic_engine}`
