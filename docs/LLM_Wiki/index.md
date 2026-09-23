@@ -143,13 +143,17 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
 - [[thesis_drafts/4_NPImp/chapter_4_implementation.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 4 (Overleaf-ready).
 - [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
-- [[thesis_drafts/4_NPImp/4_1_Network_State_and_GraphRAG]]: Chapter 4 Section 4.1 — Optical Network Abstraction, Nobel-Germany testbed modeling, token budget saturation, and Scoped Subtopology GraphRAG.
-- [[thesis_drafts/4_NPImp/4_2_Semantic_and_QoT_Validation_Modules]]: Chapter 4 Section 4.2 — Intent Ingest, Intent Reconciler (SLM ghost constraint prevention), CFG AST PDDL Validator ($v_{struct}$), Two-Layer Semantic RADG ($U_{sem}$), and analytical GN-model physics engine.
-- [[thesis_drafts/4_NPImp/4_3_Decision_Outcomes_and_Orchestration_Flow]]: Chapter 4 Section 4.3 — LangGraph StateGraph, AgentState schema, Physical RADG execution, decoupled HITL interruption checkpoints, and verification of the 7 canonical E2E execution paths.
+- [[thesis_drafts/4_NPImp/figs_NPImp/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 4 core figures, and bounding box specifications.
+- [[thesis_drafts/4_NPImp/4_1_The_LangGraph_Orchestrator]]: Chapter 4 Section 4.1 — LangGraph StateGraph pipeline architecture, AgentState channels, conditional routing, and HITL interrupt mechanics.
+- [[thesis_drafts/4_NPImp/4_2_Network_Context_and_Subtopology_Extraction]]: Chapter 4 Section 4.2 — Network State Abstraction, Nobel-Germany topology, and Mock GraphRAG k-hop subtopology scoping.
+- [[thesis_drafts/4_NPImp/4_3_The_Semantic_Engine]]: Chapter 4 Section 4.3 — Intent Ingest, Intent Reconciler, AST CFG Validator ($v_{struct}$), Two-Layer Reverse Prompting, and Semantic RADG ($U_{sem}$).
+- [[thesis_drafts/4_NPImp/4_4_The_Physical_Engine_and_System_Resilience]]: Chapter 4 Section 4.4 — Deterministic KSP Symbolic Solver, GN-model QoT physics calculation, and Physical RADG gate.
+- [[thesis_drafts/4_NPImp/4_5_Plan_Synthesis_and_Verification]]: Chapter 4 Section 4.5 — Multi-turn plan synthesis, JSON/PDF report generation, and E2E execution paths.
 - [[thesis_drafts/archive/Thesis_Outline_v3]]: (archived) V3 outline draft.
 - [[thesis_drafts/archive/Thesis_Outline_v2]]: (archived) V2 outline draft.
 
 ## Session Summaries
+- [[session_summary/session_20260923_Chapter4_Figures_and_Orchestration_Integration]]: Chapter 4 architectural visual suite design (langgraph_execution_flow, semantic_engine), standalone Python AST exporters, in-text narrative integration, Overleaf LaTeX chapter consolidation (\FloatBarrier, \includegraphics), and zero broken references.
 - [[session_summary/session_20260923_Chapter3_Figure_Refinement_and_Caption_Styling]]: Chapter 3 visual suite refactoring (stripping redundant cards and enlarging typography on conceptual_framework, archiving subsystems and reverse prompting diagrams), narrative and LaTeX synchronization, standalone batch export script, caption styling standardization (\small\itshape), and thesis-coauthor skill upgrades.
 - [[session_summary/session_20260922_Chapter4_Improvement]]: Overleaf $\text{\LaTeX}$ chapter consolidation (Chapters 3 & 4), in-text woven figure narrative integration across all 5 diagrams/placeholders, strict tone refactor eliminating AI clichés, upgrade of thesis-coauthor skill and references, and 1:1 Markdown-to-LaTeX synchronization.
 - [[session_summary/session_20260921_Chapter4_Restructure_and_Tone_Refactor]]: Chapter 4 structural expansion to 5 sections aligning with the 7-phase LangGraph pipeline, rigorous tone refactor of Chapters 3 and 4 eliminating AI clichés, update to `thesis-coauthor` skill enforcing precision and technical density.

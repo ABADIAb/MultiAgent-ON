@@ -15,6 +15,10 @@ The end-to-end coordination of the seven-phase neurosymbolic pipeline is orchest
 
 The state graph topology and conditional execution flow are shown in Figure~\ref{fig:langgraph_execution_flow}. As illustrated in the figure, the state machine coordinates seven primary execution nodes interconnected by forward state transitions and conditional feedback loops. The diagram highlights the two decision checkpoints—the Semantic RADG after Phase 3 and the Physical RADG after Phase 6—where conditional routing edges determine whether execution advances autonomously along the main pipeline or triggers an asynchronous interrupt (`interrupt()`) for human-in-the-loop intervention. In the event of an interrupt, the diagram illustrates how the active thread serializes its state into the checkpointer and establishes a feedback path directing refined parameters back to Phase 2.
 
+<!-- FIGURE_PLACEHOLDER: langgraph_execution_flow -->
+> **Figure: LangGraph State Machine Execution Flow** (`figs_NPImp/pdf/langgraph_execution_flow.pdf`)
+> LangGraph state machine execution graph and conditional routing flow across the seven neurosymbolic pipeline phases, showing thread checkpointer state persistence, asynchronous interruption boundaries (`interrupt()`), fast-track manual override, and iterative feedback trajectories.
+
 ### State Schema (`AgentState`)
 
 The shared memory across all execution stages is encapsulated within `AgentState`, a typed dictionary schema directly implementing the mathematical state tuple $\mathcal{S}_{state}$ formalized in Section~\ref{subsec:state_representation}. Every pipeline node operates as a pure or state-transforming function returning partial updates that LangGraph merges into the global checkpointed state. This design guarantees immutability of historical snapshots, facilitates modular unit testing, and ensures execution determinism. The state payload contains the active operator intent, topological context, PDDL constraints, quality of transmission (QoT) results, and historical execution traces.

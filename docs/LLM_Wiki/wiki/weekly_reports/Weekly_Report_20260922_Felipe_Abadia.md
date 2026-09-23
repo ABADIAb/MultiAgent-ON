@@ -100,13 +100,20 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Standardized figure captions across Chapters 3 and 4 to academic thesis standard (`\small\itshape`).
     - Upgraded the `thesis-coauthor` skill and `figure-guidelines.md` reference with strict rules on large typography, visual anti-redundancy, and anti-AI phrasing.
 
+13. **Thesis Chapter 4 Architectural Visual Suite, AST Verification & Overleaf Synchronization (2026-09-23):**
+    - Designed and generated the complete production visual suite for Chapter 4 (`figs_NPImp/`): `langgraph_execution_flow` (7-phase LangGraph StateGraph, conditional routing edges, explicit HITL clarify and replan interrupt boundaries) and `semantic_engine` (Two-Layer Semantic Engine: Layer 1 CFG AST PDDL validation, Layer 2 intent feed-forward, reverse prompting reconstruction, LLM-as-a-judge semantic divergence $d_{sem}$, and Semantic RADG gate).
+    - Engineered standalone headless Python builders and batch exporter (`export_diagrams.py`) in `figs_NPImp/src/diagrams/` with automated `--crop` yielding production vector PDFs and 300 DPI preview PNGs.
+    - Integrated in-text figure anchors and comprehensive descriptive narratives into [`4_1_The_LangGraph_Orchestrator.md`](docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/4_1_The_LangGraph_Orchestrator.md) and [`4_3_The_Semantic_Engine.md`](docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/4_3_The_Semantic_Engine.md), unifying the deferred reverse prompting loop directly into Layer 2.
+    - Consolidated Overleaf LaTeX chapter text ([`chapter_4_implementation.txt`](docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/chapter_4_implementation.txt)) replacing temporary `\fbox` placeholders with production `\includegraphics` environments bounded by `\FloatBarrier` guards, verifying zero broken references.
+    - Verified 321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`).
+
 ---
 
 ## 3. What do I plan to accomplish next week?
 
-1. **Comparative Baseline Benchmarking:** Execute automated evaluation across the 4 formal baselines (Proposed RADG, Baseline A Monolithic LLM, Baseline B Always-On HITL, Baseline C Traditional SDON) using the validated 20-demand compact corpus and export publication-ready telemetry.
-2. **Review Thesis Defense Deck with Academic Advisor:** Present the 16-slide draft, timing targets, and empirical benchmark figures on Slide 14 to Prof. Massimo Tornatore for formal academic review and feedback.
-3. **Thesis Chapter 4 Experimental Drafting:** Ingest validated empirical metrics into Chapter 4 of the thesis manuscript and prepare defense slide rehearsals.
+1. **Mejorar el entorno de pruebas:** Fortalecer y modernizar el harness y entorno de pruebas automatizadas (mejoras en test fixtures, integración con mock testbed, logging de telemetría de los Cuatro Pilares y optimización de ejecución de tests).
+2. **Redactar el capítulo 5 de la tesis:** Iniciar la redacción formal del Capítulo 5 de la tesis (Evaluación Experimental, Resultados y Benchmarks Comparativos) integrando los datos de telemetría empíricos sobre la topología Nobel-Germany de 17 nodos.
+3. **Comparative Baseline Benchmarking & Advisor Review:** Ejecutar los 4 baselines formales sobre la topología Nobel-Germany de 17 nodos y revisar los avances con el Prof. Massimo Tornatore.
 
 ---
 

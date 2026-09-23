@@ -17,9 +17,8 @@ The state graph topology and conditional execution flow are shown in Figure~\ref
 
 \begin{figure}[!htbp]
     \centering
-    % \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/langgraph_execution_flow.pdf}
-    \fbox{\parbox[c][0.28\textwidth][c]{0.88\textwidth}{\centering\sffamily\footnotesize [Figure Placeholder: LangGraph State Machine Execution Flow -- \texttt{Figures/figs\_NPImp/langgraph\_execution\_flow.pdf}]}}
-    \caption{\small\itshape LangGraph state machine execution graph and conditional routing flow across the seven neurosymbolic pipeline phases.}
+    \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/langgraph_execution_flow.pdf}
+    \caption{\small\itshape LangGraph state machine execution graph and conditional routing flow across the seven neurosymbolic pipeline phases, showing thread checkpointer state persistence, asynchronous interruption boundaries (\texttt{interrupt()}), fast-track manual override, and iterative feedback trajectories.}
     \label{fig:langgraph_execution_flow}
 \end{figure}
 \FloatBarrier
@@ -126,9 +125,8 @@ The Semantic Engine comprises Phases 2 and 3 of the neurosymbolic pipeline. It h
 
 \begin{figure}[!htbp]
     \centering
-    % \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/semantic_engine.pdf}
-    \fbox{\parbox[c][0.28\textwidth][c]{0.88\textwidth}{\centering\sffamily\footnotesize [Figure Placeholder: Two-Layer Semantic Engine Architecture -- \texttt{Figures/figs\_NPImp/semantic\_engine.pdf}]}}
-    \caption{\small\itshape Two-layer Semantic Engine architecture illustrating intent ingestion, AST structural verification, automated PDDL-to-NL reconstruction, and Semantic RADG decision routing.}
+    \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/semantic_engine.pdf}
+    \caption{\small\itshape Two-layer Semantic Engine architecture illustrating intent ingestion, multi-turn reconciliation, Layer 1 Abstract Syntax Tree (AST) structural syntax verification ($v_{\text{struct}}$), Layer 2 automated closed-loop Reverse Prompting ($I_{\text{recon}}$) with LLM-as-a-judge semantic divergence scoring ($d_{\text{sem}}$), and Semantic RADG decision multiplexing ($U_{\text{sem}}$).}
     \label{fig:semantic_engine}
 \end{figure}
 \FloatBarrier
@@ -193,7 +191,7 @@ Within the goal section, the parser isolates logical conjunctions and applies fo
 \subsection{Automated Reverse Prompting and Semantic Agreement Scoring}
 \label{subsec:reverse_prompting_scoring}
 
-To prevent semantic drift, Phase 3 implements an automated Reverse Prompting protocol, realizing the closed-loop validation contract illustrated in Figure~\ref{fig:reverse_prompting_loop}. Following structural confirmation ($v_{struct} = 1$), execution enters the Layer 2 processing stage shown in Figure~\ref{fig:semantic_engine}, where the PDDL specification is evaluated for linguistic fidelity without human involvement.
+To prevent semantic drift, Phase 3 implements an automated Reverse Prompting protocol, realizing the closed-loop validation contract illustrated in Figure~\ref{fig:semantic_engine} (Layer 2). Following structural confirmation ($v_{struct} = 1$), execution enters the Layer 2 processing stage shown in Figure~\ref{fig:semantic_engine}, where the PDDL specification is evaluated for linguistic fidelity without human involvement.
 
 \subsubsection{Automated PDDL-to-NL Reconstruction}
 

@@ -9,6 +9,10 @@ status: draft
 
 The Semantic Engine comprises Phases 2 and 3 of the neurosymbolic pipeline. It handles intent ingestion, Context-Free Grammar (CFG) AST validation of the translated PDDL, and automated Reverse Prompting. Figure~\ref{fig:semantic_engine} outlines the components of the Semantic Engine, illustrating the two-layer verification flow from intent ingestion to the Semantic RADG decision routing. As illustrated, the architecture organizes intent processing into two consecutive stages: Layer 1 (top block) verifies the structural syntax of the generated PDDL through a deterministic AST parser; Layer 2 (middle block) verifies semantic alignment by reconstructing natural language from the validated PDDL and computing the semantic divergence $d_{sem}$ via an independent judge. The outputs of both layers converge at the Semantic RADG decision multiplexer (bottom block), which routes execution either along an autonomous forward edge into the symbolic solver or halts at an asynchronous HITL interrupt for operator clarification.
 
+<!-- FIGURE_PLACEHOLDER: semantic_engine -->
+> **Figure: Two-Layer Semantic Engine Architecture** (`figs_NPImp/pdf/semantic_engine.pdf`)
+> Architectural schematic of the two-layer Semantic Engine, illustrating intent ingestion, multi-turn reconciliation, Layer 1 AST Context-Free Grammar (CFG) structural syntax verification ($v_{struct}$), Layer 2 automated closed-loop Reverse Prompting ($I_{recon}$) with LLM-as-a-judge semantic divergence scoring ($d_{sem}$), and Semantic RADG decision multiplexing ($U_{sem}$).
+
 ## 4.3.1 Natural Language Intent Ingestion and Structured Extraction
 
 Phase 2 begins by ingesting the informal operator communication. The ingestion module accepts the raw operator prompt string alongside the active network topology snapshot.
@@ -53,7 +57,7 @@ Within the goal section, the parser isolates logical conjunctions and applies fo
 
 ## 4.3.4 Automated Reverse Prompting and Semantic Agreement Scoring
 
-To prevent semantic drift, Phase 3 implements an automated Reverse Prompting protocol, realizing the closed-loop validation contract illustrated in Figure~\ref{fig:reverse_prompting_loop}. Following structural confirmation ($v_{struct} = 1$), execution enters the Layer 2 processing stage shown in Figure~\ref{fig:semantic_engine}, where the PDDL specification is evaluated for linguistic fidelity without human involvement.
+To prevent semantic drift, Phase 3 implements an automated Reverse Prompting protocol, realizing the closed-loop validation contract illustrated in Figure~\ref{fig:semantic_engine} (Layer 2). Following structural confirmation ($v_{struct} = 1$), execution enters the Layer 2 processing stage shown in Figure~\ref{fig:semantic_engine}, where the PDDL specification is evaluated for linguistic fidelity without human involvement.
 
 ### Automated PDDL-to-NL Reconstruction
 
