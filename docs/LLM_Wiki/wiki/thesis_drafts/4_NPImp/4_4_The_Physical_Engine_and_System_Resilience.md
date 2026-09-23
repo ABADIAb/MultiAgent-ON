@@ -27,14 +27,14 @@ The top-level evaluation function compares the computed Generalized Signal-to-No
 ## 4.4.3 Physical RADG Execution Mechanics (Phase 6)
 
 The Physical RADG evaluates the binary physical feasibility ($\text{QoT}_{valid}$) of the proposed paths, implementing the physical validation component of the decision function established in Section~\ref{subsec:radg_formulation} (Equation~\eqref{eq:radg_decision}):
-- **Branch A (Approve):** If at least one candidate lightpath meets or exceeds the required GSNR threshold and optical power budget ($\text{QoT}_{valid} = 1$), the intent resides in Zone I (Auto-Approve / Safe) of the RADG state space (Figure~\ref{fig:radg_decision_space}). In the orchestrator state machine (Figure~\ref{fig:langgraph_execution_flow}), execution transitions along the forward edge directly to Phase 7 (Plan Synthesis) with **zero human intervention**.
-- **Branch B (Replan):** If all candidate paths violate physical feasibility ($\text{QoT}_{valid} = 0$), the state maps to Zone II (Suggest Replan). As shown at the Phase 6 checkpoint in Figure~\ref{fig:langgraph_execution_flow}, the node invokes an interrupt, suspending execution and presenting the operator with the calculated telemetry. When the operator responds with relaxed parameters (such as lowering the target GSNR), execution resumes and loops back to Phase 2 along the feedback edge.
+- **Branch A (Approve):** If at least one candidate lightpath meets or exceeds the required GSNR threshold and optical power budget ($\text{QoT}_{valid} = 1$), the intent resides in Zone I (Auto-Approve / Safe) of the RADG state space (Figure~\ref{fig:radg_decision_space}). In the orchestrator state machine (Figure~\ref{fig:conceptual_framework}), execution transitions along the forward edge directly to Phase 7 (Plan Synthesis) with **zero human intervention**.
+- **Branch B (Replan):** If all candidate paths violate physical feasibility ($\text{QoT}_{valid} = 0$), the state maps to Zone II (Suggest Replan). As shown at the Phase 6 checkpoint in Figure~\ref{fig:conceptual_framework}, the node invokes an interrupt, suspending execution and presenting the operator with the calculated telemetry. When the operator responds with relaxed parameters (such as lowering the target GSNR), execution resumes and loops back to Phase 2 along the feedback edge.
 
 ## 4.4.4 Proportional HITL Engagement and Re-Entry Protocols
 
 Our architecture establishes a **Proportional HITL Engagement** model: human operators are engaged if and only if evaluated risk signals exceed acceptable tolerances. This mitigates cognitive overload while guaranteeing that physically infeasible configurations are blocked before deployment.
 
-The architecture establishes two strictly decoupled HITL interruption checkpoints, visible as the two suspension barriers in the execution flow of Figure~\ref{fig:langgraph_execution_flow}:
+The architecture establishes two strictly decoupled HITL interruption checkpoints, visible as the two decision barriers in the conceptual framework of Figure~\ref{fig:conceptual_framework}:
 1. **Semantic Clarification (Phase 3b):** Triggered when semantic uncertainty exceeds the tolerance threshold ($U_{sem} > \tau_{sem}$). Operators can clarify intent or use a fast-track manual override (bypassing re-parsing if the constraints are structurally valid).
 2. **Physical Replan (Phase 6):** Triggered when physics calculations fail ($\text{QoT}_{valid} = 0$). Operators must relax constraints or physical margins.
 

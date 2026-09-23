@@ -30,6 +30,10 @@ status: active
 - **Overleaf LaTeX Chapter Consolidation:**
   - Updated [`chapter_4_implementation.txt`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/chapter_4_implementation.txt) replacing temporary `\fbox{\parbox{...}}` mockups with production `\includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/...}` figure environments.
   - Verified 0 broken references, 0 missing labels, and full compatibility across Chapters 3 and 4.
+- **Narrative Refinement:**
+  - Enforced strict adherence to `thesis-coauthor` academic writing rules across Sections 4.1, 4.3, 4.4, and 4.5.
+  - Purged all verbose "AI clichés" (e.g., *leveraging*, *constitutes*, *governed*, *encapsulated within*, *composite*, *Furthermore*, *canonical*) in favor of austere, precise academic prose.
+  - Mirrored all refinements bidirectionally between individual markdown section drafts and the consolidated LaTeX chapter.
 
 ## 2. Verification
 - **XML AST Validation:** Verified clean XML parse and valid mxGraph structure for both `langgraph_execution_flow.drawio` and `semantic_engine.drawio`.
