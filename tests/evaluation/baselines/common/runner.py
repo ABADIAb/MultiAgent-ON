@@ -18,6 +18,7 @@ from src.services.testbed_client import MockTestbedClient
 from tests.evaluation.baselines.common.metrics import compute_constraint_retention
 
 STANDARD_FOLLOW_UP_INTENT = "Route traffic from Berlin to Frankfurt with at least 12 dB GSNR."
+DEFAULT_INTENT_TIMEOUT = 300.0  # 5 minutes default global wall-clock timeout per demand
 
 logger = logging.getLogger(__name__)
 
@@ -78,11 +79,13 @@ def evaluate_intent_with_graph(
     max_turns: int = 3,
     follow_up_intent: str = STANDARD_FOLLOW_UP_INTENT,
     baseline_name: str = "proposed_radg",
+    intent_timeout: float = DEFAULT_INTENT_TIMEOUT,
     verbose: bool = True,
 ) -> dict[str, Any]:
     """Execute a single intent demand through a compiled LangGraph state graph.
 
     Handles interrupts programmatically, supplying follow_up_intent on clarify/replan pauses.
+    Enforces intent_timeout (default 300.0s / 5 minutes) to protect against hanging models.
     """
     item_id = item.get("id", "intent_unknown")
     item_class = item.get("class", "I_Nominal")
@@ -118,6 +121,7 @@ def evaluate_intent_with_graph(
     hitl_count = 0
     initial_action: str | None = None
     final_action: str | None = None
+    execution_status: str = "completed"
     turn = 1
 
     turn_telemetry: list[dict[str, Any]] = []
@@ -127,6 +131,14 @@ def evaluate_intent_with_graph(
     turn_1_usem: float | None = None
 
     while turn <= max_turns:
+        elapsed_so_far = time.perf_counter() - t_start
+        if elapsed_so_far > intent_timeout:
+            if verbose:
+                print(f"  ⏱️  [!] Global intent timeout exceeded ({elapsed_so_far:.1f}s > {intent_timeout:.1f}s). Terminating.")
+            execution_status = "timeout"
+            diagnostics["fatal_error"] = f"Intent timeout ({elapsed_so_far:.1f}s > {intent_timeout:.1f}s)"
+            break
+
         if verbose:
             print(f"  [Turn {turn}] Running pipeline...")
         turn_t0 = time.perf_counter()
@@ -180,6 +192,7 @@ def evaluate_intent_with_graph(
                 print(f"    [!] Error during pipeline stream: {exc}")
             turn_data["error"] = str(exc)
             diagnostics["fatal_error"] = str(exc)
+            execution_status = "error"
             break
 
         turn_data["elapsed_s"] = round(time.perf_counter() - turn_t0, 2)
@@ -217,10 +230,20 @@ def evaluate_intent_with_graph(
             break
 
     total_time = round(time.perf_counter() - t_start, 2)
-    final_action = final_action or ("approve" if diagnostics.get("has_report") else "failed")
-    initial_action = initial_action or "failed"
 
-    success = check_action_success(item_class, expected_radg, initial_action)
+    if execution_status == "timeout":
+        final_action = "timeout"
+        initial_action = initial_action or "timeout"
+        success = False
+    elif execution_status == "completed" and turn > max_turns and not diagnostics.get("has_report"):
+        execution_status = "max_turns_exceeded"
+        final_action = "failed"
+        initial_action = initial_action or "failed"
+        success = False
+    else:
+        final_action = final_action or ("approve" if diagnostics.get("has_report") else "failed")
+        initial_action = initial_action or "failed"
+        success = check_action_success(item_class, expected_radg, initial_action)
 
     # Compute Pillar 1: CRR
     crr_info = compute_constraint_retention(explicit_constraints, turn_1_pddl)
@@ -243,6 +266,7 @@ def evaluate_intent_with_graph(
         "expected_radg_action": expected_radg,
         "initial_action": initial_action,
         "final_action": final_action,
+        "execution_status": execution_status,
         "success": success,
         "passed_first_try": (initial_action == "approve"),
         "hitl_count": hitl_count,

@@ -247,14 +247,37 @@ def render_interactive_execution(
                 )
             )
 
-            # Interactive prompt for operator
+            # Interactive choices for operator
+            choices = []
+            if action == "clarify" and interrupt_info.get("pddl_valid"):
+                choices.append(
+                    questionary.Choice(
+                        title="✅ Proceed with current understanding (Approve and continue to solver)",
+                        value="approve",
+                    )
+                )
+            choices.append(
+                questionary.Choice(
+                    title="✏️  Provide Refined Intent (Recommended)",
+                    value="refine",
+                )
+            )
+            choices.append(
+                questionary.Choice(
+                    title="⚡ Use Standard Benchmark Recovery Intent",
+                    value="standard",
+                )
+            )
+            choices.append(
+                questionary.Choice(
+                    title="❌ Abort Execution",
+                    value="abort",
+                )
+            )
+
             action_choice = questionary.select(
                 "How would you like to respond to this gate interrupt?",
-                choices=[
-                    questionary.Choice("Provide Refined Intent (Recommended)", "refine"),
-                    questionary.Choice("Use Standard Benchmark Recovery Intent", "standard"),
-                    questionary.Choice("Abort Execution", "abort"),
-                ],
+                choices=choices,
                 style=QUESTIONARY_STYLE,
             ).ask()
 
@@ -262,9 +285,16 @@ def render_interactive_execution(
                 console.print("\n[red]Execution aborted by operator.[/red]")
                 return
 
-            if action_choice == "standard":
+            if action_choice == "approve":
+                resume_payload = {"action": "approve"}
+                console.print("[dim]Operator approved current understanding — proceeding to solver.[/dim]")
+            elif action_choice == "standard":
                 feedback = STANDARD_FOLLOW_UP_INTENT
                 console.print(f"[dim]Injecting standard recovery intent:[/dim] \"{feedback}\"")
+                resume_payload = {
+                    "action": "refine" if action == "clarify" else "replan",
+                    "feedback": feedback,
+                }
             else:
                 feedback = questionary.text(
                     "Enter refined intent or constraint feedback:",
@@ -274,11 +304,11 @@ def render_interactive_execution(
                 if feedback is None:
                     console.print("\n[red]Execution aborted by operator.[/red]")
                     return
+                resume_payload = {
+                    "action": "refine" if action == "clarify" else "replan",
+                    "feedback": feedback,
+                }
 
-            resume_payload = {
-                "action": "refine" if action == "clarify" else "replan",
-                "feedback": feedback,
-            }
             stream_input = Command(resume=resume_payload)
             turn += 1
         else:
@@ -302,6 +332,19 @@ def render_interactive_execution(
                 console.print(Markdown(str(final_report)))
             break
 
+    if turn > max_turns:
+        elapsed = time.perf_counter() - t_start
+        console.print()
+        console.print(
+            Panel(
+                f"[bold red]Execution stopped: Maximum turns ({max_turns}) exceeded without resolution.[/bold red]\n"
+                f"[dim]Total time: {elapsed:.2f}s[/dim]",
+                title="❌ Turn Limit Exceeded",
+                border_style="red",
+                box=box.ROUNDED,
+            )
+        )
+
 
 def run_evaluation_mode(
     baseline_id: str,
@@ -309,6 +352,7 @@ def run_evaluation_mode(
     output_dir: Path,
     metadata: dict[str, Any],
     max_turns: int = 3,
+    intent_timeout: float = 300.0,
 ) -> list[dict[str, Any]]:
     """Execute evaluation benchmark and render Four Pillars summary table."""
     evaluator: Any
@@ -325,7 +369,8 @@ def run_evaluation_mode(
         Panel(
             f"[bold cyan]Baseline:[/bold cyan] {baseline_id.upper()}\n"
             f"[bold white]Demands to evaluate:[/bold white] {len(corpus)}\n"
-            f"[bold white]Output Directory:[/bold white] {output_dir}",
+            f"[bold white]Output Directory:[/bold white] {output_dir}\n"
+            f"[bold white]Intent Timeout:[/bold white] {intent_timeout}s (5 min)",
             title="📊 Benchmark Execution Starting",
             border_style="cyan",
             box=box.ROUNDED,
@@ -338,6 +383,7 @@ def run_evaluation_mode(
         output_dir=output_dir,
         metadata=metadata,
         max_turns=max_turns,
+        intent_timeout=intent_timeout,
         verbose=True,
         generate_visuals=True,
     )
@@ -634,6 +680,12 @@ def parse_args() -> argparse.Namespace:
         help=f"Per-request timeout (default: {DEFAULT_LLM_TIMEOUT}s)",
     )
     parser.add_argument(
+        "--intent-timeout",
+        type=float,
+        default=300.0,
+        help="Global wall-clock timeout per intent in seconds (default: 300.0s / 5 min)",
+    )
+    parser.add_argument(
         "--temperature",
         type=float,
         default=0.2,
@@ -832,6 +884,7 @@ def main() -> None:
                 corpus=corpus,
                 output_dir=b_output_dir,
                 metadata=metadata,
+                intent_timeout=args.intent_timeout,
             )
             all_eval_results[b_id] = eval_res
 

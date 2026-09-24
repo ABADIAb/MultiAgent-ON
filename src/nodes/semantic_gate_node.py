@@ -91,25 +91,45 @@ def _score_semantic_agreement(intent: str, reconstruction: str) -> float:
     response = llm.invoke(messages)
     raw = response.content.strip() if isinstance(response.content, str) else "0.5"
 
-    # Strip reasoning blocks (<think>...</think>) from reasoning models
+    # Robust multi-stage extraction
     cleaned = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
 
-    # Extract first valid decimal or integer float in [0.0, 1.0]
-    match = re.search(r"\b(0(?:\.\d+)?|1(?:\.0+)?)\b", cleaned)
-    if match:
-        score = float(match.group(1))
-        return max(0.0, min(1.0, score))
-
+    # 1. Direct float parse if the model simply replied with a number
     try:
         score = float(cleaned)
-        # Clamp to [0, 1] in case LLM returns out-of-range value
         return max(0.0, min(1.0, score))
     except ValueError:
-        logger.warning(
-            "Semantic agreement score parse failed for response '%s'. Defaulting to 0.5.",
-            raw,
-        )
-        return 0.5  # Unknown → treat as borderline
+        pass
+
+    # 2. Keyed pattern match (e.g. "Score: 0.1", "divergence: 0.0", "d_sem = 0.2")
+    key_match = re.search(
+        r"(?:d_sem|score|divergence|rating|agreement)\s*[:=]?\s*(0(?:\.\d+)?|1(?:\.0+)?)\b",
+        cleaned,
+        re.IGNORECASE,
+    )
+    if key_match:
+        return max(0.0, min(1.0, float(key_match.group(1))))
+
+    # 3. Explicit standalone line with just a number
+    line_match = re.search(r"(?:^|\n)\s*(0(?:\.\d+)?|1(?:\.0+)?)\s*(?:$|\n)", cleaned)
+    if line_match:
+        return max(0.0, min(1.0, float(line_match.group(1))))
+
+    # 4. Find all explicit decimal floats in [0.0, 1.0] (prefer decimals over bare integers '1' or '0')
+    decimal_matches = re.findall(r"\b(0\.\d+|1\.0+)\b", cleaned)
+    if decimal_matches:
+        return max(0.0, min(1.0, float(decimal_matches[-1])))
+
+    # 5. Any valid float or int in [0.0, 1.0], taking the last occurrence
+    all_matches = re.findall(r"\b(0(?:\.\d+)?|1(?:\.0+)?)\b", cleaned)
+    if all_matches:
+        return max(0.0, min(1.0, float(all_matches[-1])))
+
+    logger.warning(
+        "Semantic agreement score parse failed for response '%s'. Defaulting to 0.5.",
+        raw,
+    )
+    return 0.5  # Unknown → treat as borderline
 
 
 def semantic_gate_node(state: AgentState) -> dict:

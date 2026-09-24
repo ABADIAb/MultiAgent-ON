@@ -60,9 +60,15 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Archived the legacy monolithic runner [`run_evaluation.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/archive/run_evaluation.py) and historical test results into [`tests/evaluation/archive/`](file:///home/felipeab/MultiAgentON/tests/evaluation/archive/), establishing a clean separation between legacy artifacts and the active modular baseline architecture.
    - Updated [`tests/evaluation/README.md`](file:///home/felipeab/MultiAgentON/tests/evaluation/README.md) with comprehensive instructions for running individual baselines, configuring run selections, and executing comparative analyses.
 
-6. **Strict TDD Unit Testing Suite (337/337 Tests Passing):**
-   - Maintained full test suite integrity with 16 dedicated baseline tests in [`tests/unit/test_evaluation_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_evaluation_baselines.py).
-   - All 337 unit tests passing cleanly in ~2.8s under pytest (`pytest tests/unit/`).
+6. **Evaluation Harness Multi-Turn Resilience & Watchdog Hardening:**
+   - Engineered robust multi-stage extraction of semantic divergence $U_{sem}$ in [`src/nodes/semantic_gate_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/semantic_gate_node.py), prioritizing decimal scores and keyword indicators over bare integers to prevent false ambiguities from model reasoning text.
+   - Introduced an interactive direct operator approval bypass in [`tests/evaluation/main.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/main.py) when $v_{struct}=1$, alongside explicit turn-limit overrun alerts.
+   - Enforced a 5-minute (300.0s) global wall-clock watchdog per demand (`DEFAULT_INTENT_TIMEOUT`) and explicit outcome taxonomy (`completed`, `timeout`, `max_turns_exceeded`) in [`tests/evaluation/baselines/common/runner.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/common/runner.py) and baseline evaluators.
+   - Integrated Task Completion Rate (TCR) and timeout tracking in Four Pillars telemetry formulas ([`tests/evaluation/baselines/common/metrics.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/common/metrics.py)).
+
+7. **Strict TDD Unit Testing Suite (341/341 Tests Passing):**
+   - Maintained full test suite integrity with 20 dedicated baseline and gate parser tests in [`tests/unit/test_evaluation_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_evaluation_baselines.py) and [`tests/unit/test_semantic_gate.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_semantic_gate.py).
+   - All 341 unit tests passing cleanly in ~3.2s under pytest (`pytest tests/unit/`).
    - Static analysis verified 100% clean with zero warnings or errors across the entire codebase (`ruff check src/ tests/`).
 
 ---
@@ -84,4 +90,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I engineered the modular comparative baselines architecture, segregated per-baseline telemetry, historical run version picker, automated cross-baseline Four Pillars visual suite (Radar chart and Grouped Bar chart), and unified interactive CLI, verified under strict TDD with 337 passing unit tests.
+I engineered the modular comparative baselines architecture, segregated per-baseline telemetry, automated cross-baseline Four Pillars visual suite, robust multi-stage $U_{sem}$ parsing, and 5-minute intent watchdog, verified under strict TDD with 341 passing unit tests.

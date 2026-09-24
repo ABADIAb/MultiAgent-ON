@@ -232,3 +232,65 @@ class TestActionSuccessLogic:
         assert check_action_success("IV_Adversarial", "clarify", "clarify") is True
         assert check_action_success("IV_Adversarial", "replan", "replan") is True
         assert check_action_success("IV_Adversarial", "clarify", "approve") is False
+
+
+class TestRunnerTimeoutAndStatus:
+    """Verify intent timeout and execution outcome taxonomy in evaluate_intent_with_graph."""
+
+    def test_intent_timeout_triggers_timeout_status(self) -> None:
+        """When total elapsed time exceeds intent_timeout, execution terminates with timeout status."""
+        from unittest.mock import MagicMock
+        from tests.evaluation.baselines.common.runner import evaluate_intent_with_graph
+
+        mock_graph = MagicMock()
+        mock_graph.stream.return_value = [{"intent_ingest": {"active_intent": "foo"}}]
+        mock_state = MagicMock()
+        mock_state.next = ["hitl_clarify"]
+        mock_state.tasks = []
+        mock_graph.get_state.return_value = mock_state
+
+        # intent_timeout of 0.0 forces immediate timeout
+        res = evaluate_intent_with_graph(
+            graph_factory=lambda **kwargs: mock_graph,
+            item={"id": "test_01", "class": "I_Nominal", "intent_text": "Route A to B"},
+            max_turns=3,
+            intent_timeout=0.0,
+            verbose=False,
+        )
+        assert res["execution_status"] == "timeout"
+        assert res["final_action"] == "timeout"
+        assert res["success"] is False
+
+    def test_compute_pillar_metrics_includes_task_completion_rate(self) -> None:
+        """compute_pillar_metrics computes task completion rate and counts timeouts."""
+        results = [
+            {
+                "class": "I_Nominal",
+                "initial_action": "approve",
+                "final_action": "approve",
+                "execution_status": "completed",
+                "success": True,
+                "is_unfeasible_approval": False,
+                "pddl_valid": True,
+                "hitl_count": 0,
+                "total_elapsed_seconds": 5.0,
+                "total_tokens": 1000,
+            },
+            {
+                "class": "I_Nominal",
+                "initial_action": "timeout",
+                "final_action": "timeout",
+                "execution_status": "timeout",
+                "success": False,
+                "is_unfeasible_approval": False,
+                "pddl_valid": False,
+                "hitl_count": 1,
+                "total_elapsed_seconds": 300.0,
+                "total_tokens": 500,
+            },
+        ]
+        metrics = compute_pillar_metrics(results)
+        assert metrics["pillar_3"]["task_completion_rate"] == 50.0
+        assert metrics["pillar_3"]["completed_demands_count"] == 1
+        assert metrics["pillar_3"]["timeout_demands_count"] == 1
+

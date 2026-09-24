@@ -73,19 +73,30 @@ The implementation was verified using Strict TDD (16 new unit tests, 337 total p
 - Archived the legacy monolithic runner [`run_evaluation.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/archive/run_evaluation.py) and legacy results into [`tests/evaluation/archive/`](file:///home/felipeab/MultiAgentON/tests/evaluation/archive/).
 - Updated [`tests/evaluation/README.md`](file:///home/felipeab/MultiAgentON/tests/evaluation/README.md) with detailed commands for single baseline runs, comparative analysis mode, run selection flags, and metric definitions.
 
+### 2.6 Evaluation Harness Multi-Turn Resilience & Watchdogs Hardening
+
+- **Multi-Stage $U_{sem}$ Score Parsing ([`src/nodes/semantic_gate_node.py`](file:///home/felipeab/MultiAgentON/src/nodes/semantic_gate_node.py)):** Refactored `_score_semantic_agreement` with prioritized decimal float regex extraction, key phrase matching (`d_sem`, `score`, `divergence`), and concluding number selection, eliminating false ambiguity fallbacks caused by model chain-of-thought or numbered constraint lists.
+- **Direct Operator Approval Bypass ([`tests/evaluation/main.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/main.py)):** Enhanced the interactive CLI to offer `✅ Proceed with current understanding (Approve and continue to solver)` when `pddl_valid == True`, routing directly to Phase 4 (Symbolic Solver) without redundant re-parsing. Added explicit alerts when maximum turns are reached without resolution.
+- **5-Minute Global Wall-Clock Watchdog ([`tests/evaluation/baselines/common/runner.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/common/runner.py)):** Established `DEFAULT_INTENT_TIMEOUT = 300.0` (5 minutes) across the multi-turn execution loop and baseline evaluators to safeguard against hanging models during local SLM inference. Established an explicit execution status taxonomy (`completed`, `timeout`, `max_turns_exceeded`, `error`).
+- **Telemetry Formulas Extension ([`tests/evaluation/baselines/common/metrics.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/common/metrics.py)):** Added Task Completion Rate (TCR) and timeout tracking into Pillar 3 metrics.
+
 ---
 
 ## 3. Verification & Quality Gates
 
 1. **Unit Testing (Strict TDD):**
-   - Created [`tests/unit/test_evaluation_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_evaluation_baselines.py) with 16 comprehensive unit tests covering graph compilation, node policies across turns, and Four Pillars metrics aggregation.
-   - Full test suite verified: **337 passing unit tests** in ~2.8s (`uv run pytest tests/unit/`) with zero regressions.
+   - Created dedicated baseline, timeout watchdog, and robust score extraction tests in [`tests/unit/test_evaluation_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_evaluation_baselines.py) and [`tests/unit/test_semantic_gate.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_semantic_gate.py).
+   - Full test suite verified: **341 passing unit tests** in ~3.2s (`uv run pytest tests/unit/`) with zero regressions.
 2. **Code Quality & Linting:**
    - 100% clean check with zero errors across all modules (`uv run ruff check src/ tests/`).
 3. **Live Empirical Verification with Local Open-Weights Model (`qwen2.5:3b`):**
-   - **Proposed RADG:** Verified 1-turn autonomous pass on `intent_nom_01` (13.08s, $N_{hitl}=0$, $U_{sem}=0.100$, 1/5 QoT feasible, Synthesis complete).
-   - **Always-On HITL:** Verified Turn 1 forced clarification interrupt at `hitl_clarify`, followed by Turn 2 recovery and synthesis to completion ($N_{hitl}=1$, 11.09s, 7,937 tokens).
-   - **LLM-Only:** Verified Turn 1 semantic gate bypass, followed by Phase 6 controller rejection interrupt on ambiguous intent `intent_amb_01`, and Turn 2 recovery to completion (8,867 tokens).
+   - **Proposed RADG:** 
+     * Verified 1-turn autonomous pass on nominal traffic (`"Route 100G from Hamburg to Berlin with at least 15 dB GSNR."`, 11.18s, $N_{hitl}=0$, $U_{sem}=0.100$, 1/5 QoT feasible, Synthesis complete).
+     * Verified fail-fast pre-deployment catch on ambiguous intent (`"Route traffic to Berlin with high quality"`, $U_{sem}=0.500 > 0.300$), followed by 2-turn recovery to completion in 19.31s via standard recovery intent.
+   - **Always-On HITL:** 
+     * Verified Turn 1 forced clarification interrupt at `hitl_clarify` ($U_{sem}=1.000$), followed by verified direct operator approval bypass (`pddl_valid == True`) proceeding immediately to solver without re-parsing, completing in 18.71s ($N_{hitl}=1$).
+   - **LLM-Only:** 
+     * Verified Turn 1 semantic gate bypass ($U_{sem}=0.500$), demonstrating a False Positive where ambiguous traffic with hallucinated endpoints is deployed to the network (5.34s) solely due to physical feasibility.
 4. **Offline Comparative Generation:**
    - Verified that running `python -m tests.evaluation.main --mode compare` executes instantaneously (< 2 seconds) and generates publication-grade PNG and vector PDF charts without requiring LLM API connectivity.
 

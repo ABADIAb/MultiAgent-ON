@@ -20,6 +20,7 @@ class AlwaysOnHITLEvaluator:
         self,
         item: dict[str, Any],
         max_turns: int = 3,
+        intent_timeout: float = 300.0,
         verbose: bool = True,
     ) -> dict[str, Any]:
         """Evaluate a single nominal demand through Always-On HITL."""
@@ -32,9 +33,10 @@ class AlwaysOnHITLEvaluator:
             item=item_copy,
             max_turns=max_turns,
             baseline_name=self.baseline_name,
+            intent_timeout=intent_timeout,
             verbose=verbose,
         )
-        # Success for Always-On HITL means it intercepted Turn 1 with clarify and reached approve in Turn 2
+        # Success for Always-On HITL means it intercepted Turn 1 with clarify and reached approve in Turn 2+
         res["success"] = (res.get("initial_action") == "clarify" and res.get("final_action") == "approve")
         return res
 
@@ -44,6 +46,7 @@ class AlwaysOnHITLEvaluator:
         output_dir: Path,
         metadata: dict[str, Any],
         max_turns: int = 3,
+        intent_timeout: float = 300.0,
         verbose: bool = True,
         generate_visuals: bool = True,
     ) -> list[dict[str, Any]]:
@@ -60,7 +63,7 @@ class AlwaysOnHITLEvaluator:
         for idx, item in enumerate(nominal_items, 1):
             if verbose:
                 print(f"\n>>> [{idx}/{len(nominal_items)}] Processing demand: {item.get('id')}")
-            res = self.evaluate_single(item, max_turns=max_turns, verbose=verbose)
+            res = self.evaluate_single(item, max_turns=max_turns, intent_timeout=intent_timeout, verbose=verbose)
             results.append(res)
 
         save_evaluation_results(

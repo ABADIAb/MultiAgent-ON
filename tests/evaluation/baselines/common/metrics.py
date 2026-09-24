@@ -126,6 +126,11 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
     piir = (class_3_replan_count / len(class_3_demands) * 100.0) if class_3_demands else 100.0
 
     # --- Pillar 3: Orchestration & Resource Efficiency ---
+    completed_count = sum(1 for r in results if r.get("execution_status", "completed") == "completed")
+    tcr = (completed_count / n_total) * 100.0
+    timeout_count = sum(1 for r in results if r.get("execution_status") == "timeout")
+    max_turns_count = sum(1 for r in results if r.get("execution_status") == "max_turns_exceeded")
+
     mean_latency = sum(r.get("total_elapsed_seconds", 0.0) for r in results) / n_total
     total_tokens = sum(r.get("total_tokens", 0) for r in results)
     mean_tokens = total_tokens / n_total
@@ -168,6 +173,10 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
             "class_3_total": len(class_3_demands),
         },
         "pillar_3": {
+            "task_completion_rate": round(tcr, 2),
+            "completed_demands_count": completed_count,
+            "timeout_demands_count": timeout_count,
+            "max_turns_exceeded_count": max_turns_count,
             "mean_e2e_latency_seconds": round(mean_latency, 2),
             "total_tokens_consumed": total_tokens,
             "mean_tokens_per_intent": round(mean_tokens, 1),
