@@ -13,24 +13,26 @@ tests/evaluation/
 │   ├── common/                 # Shared runner, callback TokenTracker, metrics, and reporter
 │   │   ├── metrics.py          # Four Pillars telemetry formulas (CRR, CFG-PR, UAR, GDA)
 │   │   ├── runner.py           # Multi-turn execution loop with HITL recovery interception
-│   │   └── reporter.py         # Multi-format telemetry exporter (JSON, CSV, MD)
+│   │   ├── reporter.py         # Multi-format telemetry exporter (JSON, CSV, MD)
+│   │   └── results/            # Comparative multi-baseline aggregated summaries (run_<timestamp>/)
 │   ├── proposed_radg/          # Proposed System: Fail-fast Semantic & Physical RADGs
 │   │   ├── graph.py            # Wires standard src.core.graph
-│   │   └── evaluator.py        # Proposed RADG evaluator
+│   │   ├── evaluator.py        # Proposed RADG evaluator
+│   │   └── results/            # Run artifacts per execution (run_<timestamp>/)
 │   ├── always_on_hitl/         # Baseline: Always-On HITL (Paranoid Turn-1 Review on Nominals)
 │   │   ├── graph.py            # StateGraph with Turn-1 mandatory clarification
-│   │   └── evaluator.py        # Always-On HITL evaluator
+│   │   ├── evaluator.py        # Always-On HITL evaluator
+│   │   └── results/            # Run artifacts per execution (run_<timestamp>/)
 │   └── llm_only/               # Baseline: LLM-Only (No Semantic Gate / Controller Error Surrogate)
 │       ├── graph.py            # StateGraph with bypassed semantic gate + controller surrogate
-│       └── evaluator.py        # LLM-Only evaluator
+│       ├── evaluator.py        # LLM-Only evaluator
+│       └── results/            # Run artifacts per execution (run_<timestamp>/)
 ├── test_corpus_compact.json    # Standard 20-demand benchmark corpus (4 balanced risk classes)
 ├── test_corpus.json            # 107-demand full benchmark corpus
-├── run_evaluation.py           # Evaluation runner for Proposed RADG
 ├── generate_visuals.py         # Visualizer generating publication/slide figures (PNG/PDF)
-├── results/                    # Generated evaluation artifacts per baseline and run
-│   ├── proposed_radg/          # Proposed RADG run snapshots and figures
-│   ├── always_on_hitl/         # Always-On HITL run snapshots and figures
-│   └── llm_only/               # LLM-Only run snapshots and figures
+├── archive/                    # Archived legacy scripts and previous evaluation runs
+│   ├── run_evaluation.py       # (Legacy) Replaced by tests/evaluation/main.py
+│   └── results_legacy/         # (Legacy) Historical test snapshots
 └── README.md                   # Environment, methodology, and execution instructions
 ```
 
@@ -158,6 +160,20 @@ uv run python tests/evaluation/main.py --baseline all --mode eval --corpus compa
 uv run python tests/evaluation/main.py --baseline proposed_radg --mode interactive --intent "Route 100G from Hamburg to Berlin with at least 15 dB GSNR"
 ```
 
+### 4.3 Cross-Baseline Comparative Mode & Version Selection
+Generate comparative executive matrices and figures (Four Pillars breakdown + 5-axis Radar chart) comparing runs across baselines:
+```bash
+# Compare the latest run of each baseline automatically:
+uv run python tests/evaluation/main.py --mode compare
+
+# Compare specific timestamped runs per baseline:
+uv run python tests/evaluation/main.py --mode compare \
+  --proposed-run 20260924_135646 \
+  --hitl-run 20260924_120000 \
+  --llm-run 20260924_113000
+```
+In interactive mode, select **Comparative Analysis Mode** from the main menu; if a baseline has multiple historical runs, the CLI provides an arrow-key selector with `(Latest)` as the default. Output artifacts are persisted into `tests/evaluation/baselines/common/results/run_<timestamp>/`.
+
 ---
 
 ## 5. Automated Recovery Protocol (Multi-Turn HITL)
@@ -172,10 +188,18 @@ When an intent triggers a decision gate:
 
 ---
 
-## 6. Output Artifacts
+## 6. Output Artifacts & Results Organization
 
-All evaluation outputs are saved to `tests/evaluation/results/`:
-- `evaluation_results.json`: Full diagnostic trace including PDDL strings, AST CFG pass status, reconstructed natural language, $U_{sem}$ scores, candidate routes, token counts, and QoT SNR margins.
-- `evaluation_results.csv`: Tabular spreadsheet format for rapid plotting and aggregation.
-- `evaluation_summary.md`: Publication-ready summary table featuring the Executive Four Core Validation Pillars matrix, Class Breakdown, and Detailed Trace.
-- `evaluation_results_<timestamp>.*`: Timestamped snapshots of each run to prevent historical data loss.
+All evaluation outputs are strictly segregated by baseline and timestamped per execution:
+- **Baseline Runs (`tests/evaluation/baselines/<baseline>/results/run_<timestamp>/`):**
+  - `evaluation_results.json`: Full diagnostic trace including PDDL strings, AST CFG pass status, reconstructed natural language, $U_{sem}$ scores, candidate routes, token counts, and QoT SNR margins.
+  - `evaluation_results.csv`: Tabular spreadsheet format for rapid plotting and aggregation.
+  - `evaluation_summary.md`: Publication-ready summary table featuring the Executive Four Core Validation Pillars matrix, Class Breakdown, and Detailed Trace.
+  - `gate_accuracy_matrix.png / .pdf`: Gate Interception breakdown chart.
+  - `latency_tokens_overhead.png / .pdf`: Latency & Token Distribution across Risk Classes.
+  - `presentation_slide_dashboard.png / .pdf`: 16:9 Widescreen Composite Visual for thesis defense slides.
+
+- **Comparative Aggregations (`tests/evaluation/baselines/common/results/run_<timestamp>/`):**
+  When running all baselines (`--baseline all`), the common framework synthesizes:
+  - `comparative_results.json`: Cross-baseline metrics across all four pillars.
+  - `comparative_summary.md`: Side-by-side executive comparison matrix contrasting Proposed RADG vs Always-On HITL vs LLM-Only.

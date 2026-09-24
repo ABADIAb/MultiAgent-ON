@@ -217,6 +217,7 @@ def save_evaluation_results(
 
             generate_run_visuals(
                 ts_json_path,
+                target_dir=output_dir,
                 csv_source=ts_csv_path,
                 md_source=ts_md_path,
             )
@@ -228,6 +229,114 @@ def save_evaluation_results(
         "ts_json": ts_json_path,
         "csv": csv_path,
         "ts_csv": ts_csv_path,
+        "md": md_path,
+        "ts_md": ts_md_path,
+    }
+
+
+def generate_comparative_report(
+    all_results: dict[str, list[dict[str, Any]]],
+    output_dir: Path,
+    metadata: dict[str, Any],
+) -> dict[str, Path]:
+    """Compile comparative multi-baseline evaluation metrics into JSON and Markdown."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_timestamp = metadata.get("run_id") or time.strftime("%Y%m%d_%H%M%S")
+
+    comparative_data: dict[str, Any] = {
+        "metadata": {
+            **metadata,
+            "comparison_type": "multi_baseline_ablation",
+            "baselines_evaluated": list(all_results.keys()),
+        },
+        "baselines": {},
+    }
+
+    for b_id, results in all_results.items():
+        comparative_data["baselines"][b_id] = {
+            "total_demands": len(results),
+            "pillar_metrics": compute_pillar_metrics(results),
+        }
+
+    # 1. JSON Export
+    json_path = output_dir / "comparative_results.json"
+    ts_json_path = output_dir / f"comparative_results_{run_timestamp}.json"
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(comparative_data, f, indent=2)
+    with open(ts_json_path, "w", encoding="utf-8") as f:
+        json.dump(comparative_data, f, indent=2)
+
+    # 2. Markdown Comparative Table
+    md_path = output_dir / "comparative_summary.md"
+    ts_md_path = output_dir / f"comparative_summary_{run_timestamp}.md"
+
+    p_radg = comparative_data["baselines"].get("proposed_radg", {}).get("pillar_metrics", {})
+    p_hitl = comparative_data["baselines"].get("always_on_hitl", {}).get("pillar_metrics", {})
+    p_llm = comparative_data["baselines"].get("llm_only", {}).get("pillar_metrics", {})
+
+    p1_radg, p2_radg, p3_radg, p4_radg = (
+        p_radg.get("pillar_1", {}),
+        p_radg.get("pillar_2", {}),
+        p_radg.get("pillar_3", {}),
+        p_radg.get("pillar_4", {}),
+    )
+    p1_hitl, p2_hitl, p3_hitl, p4_hitl = (
+        p_hitl.get("pillar_1", {}),
+        p_hitl.get("pillar_2", {}),
+        p_hitl.get("pillar_3", {}),
+        p_hitl.get("pillar_4", {}),
+    )
+    p1_llm, p2_llm, p3_llm, p4_llm = (
+        p_llm.get("pillar_1", {}),
+        p_llm.get("pillar_2", {}),
+        p_llm.get("pillar_3", {}),
+        p_llm.get("pillar_4", {}),
+    )
+
+    md_lines = [
+        "# 📊 Comparative Multi-Baseline Evaluation Report",
+        "",
+        f"- **Run ID:** `{run_timestamp}`",
+        f"- **Date:** {metadata.get('date', time.strftime('%Y-%m-%d %H:%M:%S'))}",
+        f"- **Provider / Model:** `{metadata.get('provider')}` / `{metadata.get('model')}`",
+        f"- **Corpus:** `{metadata.get('corpus', 'compact')}`",
+        "",
+        "## Four Core Validation Pillars: Comparative Executive Matrix",
+        "",
+        "| Validation Pillar | Evaluated Metric | Target | Proposed RADG (V5) | Always-On HITL | LLM-Only | Comparative Insight |",
+        "| :--- | :--- | :---: | :---: | :---: | :---: | :--- |",
+        f"| **Pillar 1: Semantic Translation** | Constraint Retention Rate (CRR) | $100\\%$ | **{p1_radg.get('operable_crr_rate', 0.0):.1f}%** | {p1_hitl.get('operable_crr_rate', 0.0):.1f}% | {p1_llm.get('operable_crr_rate', 0.0):.1f}% | Preserved across all neural translation phases |",
+        f"| | Context-Free Grammar Pass (CFG-PR) | $\\ge 95\\%$ | **{p1_radg.get('cfg_pass_rate', 0.0):.1f}%** | {p1_hitl.get('cfg_pass_rate', 0.0):.1f}% | {p1_llm.get('cfg_pass_rate', 0.0):.1f}% | Deterministic AST syntactical verification |",
+        f"| | Semantic Agreement ($1 - d_{{sem}}$) | $> 0.850$ | **{p1_radg.get('mean_well_formed_agreement', 0.0):.3f}** | {p1_hitl.get('mean_well_formed_agreement', 0.0):.3f} | N/A (Bypassed) | Reverse prompting concordance |",
+        f"| **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | **$0.0\\%$** | **{p2_radg.get('uar_rate', 0.0):.1f}%** | {p2_hitl.get('uar_rate', 0.0):.1f}% | **{p2_llm.get('uar_rate', 0.0):.1f}%** | **Strict Safety Invariant**: zero unfeasible approvals |",
+        f"| | Physical Infeasibility Interception (PIIR) | $100\\%$ | **{p2_radg.get('piir_rate', 0.0):.1f}%** | N/A (Nominals only) | {p2_llm.get('piir_rate', 0.0):.1f}% | Intercepts GN-model reach violations |",
+        f"| **Pillar 3: Efficiency & Friction** | Mean End-to-End Latency ($T_{{E2E}}$) | Contextual | **{p3_radg.get('mean_e2e_latency_seconds', 0.0):.2f}s** | {p3_hitl.get('mean_e2e_latency_seconds', 0.0):.2f}s | {p3_llm.get('mean_e2e_latency_seconds', 0.0):.2f}s | Turnaround duration across pipeline |",
+        f"| | Mean Token Footprint ($T_{{tokens}}$) | Monitored | **{p3_radg.get('mean_tokens_per_intent', 0.0):.0f} tok** | {p3_hitl.get('mean_tokens_per_intent', 0.0):.0f} tok | {p3_llm.get('mean_tokens_per_intent', 0.0):.0f} tok | Multi-turn prompt accumulation friction |",
+        f"| | Mean HITL Interventions ($N_{{hitl}}$) | $0$ (Nominal) | **{p3_radg.get('mean_hitl_turns', 0.0):.2f}** | **{p3_hitl.get('mean_hitl_turns', 0.0):.2f}** | {p3_llm.get('mean_hitl_turns', 0.0):.2f} | **Zero-fatigue autonomous nominal pass** |",
+        f"| **Pillar 4: Gate Reliability** | Gate Decision Accuracy (GDA) | $> 98\\%$ | **{p4_radg.get('gda_rate', 0.0):.1f}%** | {p4_hitl.get('gda_rate', 0.0):.1f}% | {p4_llm.get('gda_rate', 0.0):.1f}% | Multi-class routing fidelity |",
+        f"| | False Positive Rate (FPR) | **$0.0\\%$** | **{p4_radg.get('fpr_rate', 0.0):.1f}%** | {p4_hitl.get('fpr_rate', 0.0):.1f}% | **{p4_llm.get('fpr_rate', 0.0):.1f}%** | Risky traffic deployed without validation |",
+    ]
+
+    summary_text = "\n".join(md_lines) + "\n"
+    with open(md_path, "w", encoding="utf-8") as f:
+        f.write(summary_text)
+    with open(ts_md_path, "w", encoding="utf-8") as f:
+        f.write(summary_text)
+
+    # 3. Attempt comparative visual figure generation
+    try:
+        from tests.evaluation.generate_visuals import generate_comparative_visuals
+
+        generate_comparative_visuals(
+            comparative_json_path=ts_json_path,
+            target_dir=output_dir,
+        )
+    except Exception as e:
+        logger.warning("Could not generate comparative visual figures automatically: %s", e)
+
+    return {
+        "json": json_path,
+        "ts_json": ts_json_path,
         "md": md_path,
         "ts_md": ts_md_path,
     }

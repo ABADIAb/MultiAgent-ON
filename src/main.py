@@ -777,4 +777,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Execution interrupted by operator. Exiting...[/yellow]")
+        sys.exit(0)

@@ -519,6 +519,216 @@ def generate_run_visuals(
     return target_dir
 
 
+def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate 4-panel grouped bar comparison across baselines for key Four Pillars metrics."""
+    baselines_info = comparative_data.get("baselines", {})
+    if not baselines_info:
+        return
+
+    all_b_keys = ["proposed_radg", "always_on_hitl", "llm_only"]
+    b_keys = [k for k in all_b_keys if k in baselines_info]
+    if not b_keys:
+        b_keys = list(baselines_info.keys())
+
+    baseline_labels = {
+        "proposed_radg": "Proposed RADG",
+        "always_on_hitl": "Always-On HITL",
+        "llm_only": "LLM-Only",
+    }
+    baseline_colors = {
+        "proposed_radg": COLOR_NAVY,
+        "always_on_hitl": COLOR_CLARIFY,
+        "llm_only": COLOR_BURGUNDY,
+    }
+
+    labels = [baseline_labels.get(k, k) for k in b_keys]
+    colors = [baseline_colors.get(k, COLOR_MUTED) for k in b_keys]
+    x = np.arange(len(b_keys))
+    bar_width = 0.50
+
+    fig, axs = plt.subplots(2, 2, figsize=(13, 9), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    # 1. Top-Left: Physical Safety (UAR & FPR)
+    ax1 = axs[0, 0]
+    ax1.set_facecolor(COLOR_CARD_BG)
+    uar_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0) for k in b_keys]
+    bars1 = ax1.bar(x, uar_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
+    ax1.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target Invariant (0.0%)")
+    ax1.set_title("Pillar 2: Unfeasible Approval Rate (UAR, %)\n[Lower is Better - Target: 0.0%]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(labels, fontsize=10, fontweight="bold")
+    ax1.set_ylabel("UAR (%)", fontsize=10)
+    ax1.set_ylim(-0.5, max(max(uar_vals, default=0.0) + 15.0, 10.0))
+    for bar in bars1:
+        h = bar.get_height()
+        ax1.text(bar.get_x() + bar.get_width() / 2, h + 0.5, f"{h:.1f}%", ha="center", va="bottom", fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.legend(loc="upper left", fontsize=9)
+
+    # 2. Top-Right: Operator Fatigue (Mean HITL Turns on Nominals)
+    ax2 = axs[0, 1]
+    ax2.set_facecolor(COLOR_CARD_BG)
+    hitl_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_3", {}).get("mean_hitl_turns", 0.0) for k in b_keys]
+    bars2 = ax2.bar(x, hitl_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
+    ax2.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Proposed Target (0 Turns)")
+    ax2.set_title("Pillar 3: Mean Operator Interrupts (N_hitl)\n[Nominal Traffic Friction - Target: 0]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(labels, fontsize=10, fontweight="bold")
+    ax2.set_ylabel("Mean N_hitl Turns", fontsize=10)
+    ax2.set_ylim(-0.05, max(max(hitl_vals, default=0.0) + 0.4, 1.2))
+    for bar in bars2:
+        h = bar.get_height()
+        ax2.text(bar.get_x() + bar.get_width() / 2, h + 0.03, f"{h:.2f}", ha="center", va="bottom", fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.legend(loc="upper left", fontsize=9)
+
+    # 3. Bottom-Left: Mean End-to-End Latency
+    ax3 = axs[1, 0]
+    ax3.set_facecolor(COLOR_CARD_BG)
+    lat_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_3", {}).get("mean_e2e_latency_seconds", 0.0) for k in b_keys]
+    bars3 = ax3.bar(x, lat_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
+    ax3.set_title("Pillar 3: Mean End-to-End Orchestration Latency\n[Turnaround Duration in Seconds]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax3.set_xticks(x)
+    ax3.set_xticklabels(labels, fontsize=10, fontweight="bold")
+    ax3.set_ylabel("Latency (s)", fontsize=10)
+    ax3.set_ylim(0, max(max(lat_vals, default=0.0) * 1.25, 10.0))
+    for bar in bars3:
+        h = bar.get_height()
+        ax3.text(bar.get_x() + bar.get_width() / 2, h + 0.3, f"{h:.2f}s", ha="center", va="bottom", fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+
+    # 4. Bottom-Right: Mean Token Consumption
+    ax4 = axs[1, 1]
+    ax4.set_facecolor(COLOR_CARD_BG)
+    tok_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_3", {}).get("mean_tokens_per_intent", 0.0) for k in b_keys]
+    bars4 = ax4.bar(x, tok_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
+    ax4.set_title("Pillar 3: Mean Token Footprint per Demand\n[Cumulative Prompt + Completion Tokens]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax4.set_xticks(x)
+    ax4.set_xticklabels(labels, fontsize=10, fontweight="bold")
+    ax4.set_ylabel("Total Tokens", fontsize=10)
+    ax4.set_ylim(0, max(max(tok_vals, default=0.0) * 1.25, 2000.0))
+    for bar in bars4:
+        h = bar.get_height()
+        ax4.text(bar.get_x() + bar.get_width() / 2, h + 50.0, f"{h:,.0f}", ha="center", va="bottom", fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+
+    for ax in (ax1, ax2, ax3, ax4):
+        ax.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+    plt.suptitle("MultiAgent-ON: Four Pillars Baseline Comparison", fontsize=14, fontweight="bold", color=COLOR_NAVY, y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
+    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
+    plt.close()
+
+
+def plot_comparative_radar_chart(comparative_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate 5-axis Radar / Spider chart comparing baselines across the Four Core Pillars."""
+    baselines_info = comparative_data.get("baselines", {})
+    if not baselines_info:
+        return
+
+    categories = [
+        "Constraint Retention\n(CRR %)",
+        "Grammar Rigor\n(CFG-PR %)",
+        "Physical Safety\n(100 - UAR %)",
+        "Operator Autonomy\n(Zero-HITL %)",
+        "Gate Accuracy\n(GDA %)",
+    ]
+    num_vars = len(categories)
+
+    angles = [n / float(num_vars) * 2 * np.pi for n in range(num_vars)]
+    angles += angles[:1]
+
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+    ax.set_facecolor(COLOR_CARD_BG)
+
+    ax.set_theta_offset(np.pi / 2)
+    ax.set_theta_direction(-1)
+    plt.xticks(angles[:-1], categories, fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax.set_rscale("linear")
+    plt.yticks([25, 50, 75, 100], ["25%", "50%", "75%", "100%"], color=COLOR_MUTED, fontsize=8)
+    plt.ylim(0, 105)
+
+    all_b_keys = ["proposed_radg", "always_on_hitl", "llm_only"]
+    b_keys = [k for k in all_b_keys if k in baselines_info]
+    if not b_keys:
+        b_keys = list(baselines_info.keys())
+
+    baseline_labels = {
+        "proposed_radg": "Proposed RADG (V5)",
+        "always_on_hitl": "Always-On HITL",
+        "llm_only": "LLM-Only",
+    }
+    baseline_styles = {
+        "proposed_radg": (COLOR_NAVY, "o", "-", 0.25),
+        "always_on_hitl": (COLOR_CLARIFY, "s", "--", 0.15),
+        "llm_only": (COLOR_BURGUNDY, "^", "-.", 0.15),
+    }
+
+    for b_id in b_keys:
+        b_data = baselines_info[b_id].get("pillar_metrics", {})
+        p1 = b_data.get("pillar_1", {})
+        p2 = b_data.get("pillar_2", {})
+        p3 = b_data.get("pillar_3", {})
+        p4 = b_data.get("pillar_4", {})
+
+        crr = float(p1.get("operable_crr_rate", 0.0))
+        cfg_pr = float(p1.get("cfg_pass_rate", 0.0))
+        uar = float(p2.get("uar_rate", 0.0))
+        safety = max(0.0, 100.0 - uar)
+
+        hitl_turns = float(p3.get("mean_hitl_turns", 0.0))
+        if b_id == "always_on_hitl":
+            autonomy = 0.0
+        else:
+            autonomy = max(0.0, min(100.0, (1.0 - min(hitl_turns, 1.0)) * 100.0))
+
+        gda = float(p4.get("gda_rate", 0.0))
+
+        values = [crr, cfg_pr, safety, autonomy, gda]
+        values += values[:1]
+
+        color, marker, lstyle, fill_alpha = baseline_styles.get(b_id, (COLOR_MUTED, "o", "-", 0.10))
+        lbl = baseline_labels.get(b_id, b_id)
+
+        ax.plot(angles, values, color=color, linewidth=2, linestyle=lstyle, marker=marker, label=lbl)
+        ax.fill(angles, values, color=color, alpha=fill_alpha)
+
+    ax.grid(color=COLOR_CARD_BORDER, linestyle=":")
+    plt.legend(loc="upper right", bbox_to_anchor=(1.25, 1.1), fontsize=9)
+    plt.title("Four Core Validation Pillars: Holistic Trade-Off", fontsize=13, fontweight="bold", color=COLOR_NAVY, y=1.08)
+    plt.tight_layout()
+
+    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
+    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
+    plt.close()
+
+
+def generate_comparative_visuals(
+    comparative_json_path: Path,
+    target_dir: Path | None = None,
+) -> Path:
+    """Generate comparative figures from comparative_results.json."""
+    with open(comparative_json_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    if target_dir is None:
+        target_dir = comparative_json_path.parent
+
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    plot_comparative_pillars_bar(data, target_dir / "comparative_pillars_breakdown")
+    plot_comparative_radar_chart(data, target_dir / "comparative_radar_pillars")
+
+    print(f"[✓] Comparative visual assets generated in: {target_dir}")
+    print("    ├── comparative_pillars_breakdown.png / .pdf")
+    print("    └── comparative_radar_pillars.png / .pdf")
+
+    return target_dir
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate publication visuals from evaluation results.",

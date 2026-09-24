@@ -55,6 +55,9 @@ from tests.evaluation.baselines.always_on_hitl import (  # noqa: E402
     compile_always_on_graph,
 )
 from tests.evaluation.baselines.common.metrics import compute_pillar_metrics  # noqa: E402
+from tests.evaluation.baselines.common.reporter import (  # noqa: E402
+    generate_comparative_report,
+)
 from tests.evaluation.baselines.common.runner import STANDARD_FOLLOW_UP_INTENT  # noqa: E402
 from tests.evaluation.baselines.llm_only import (  # noqa: E402
     LLMOnlyEvaluator,
@@ -74,7 +77,7 @@ console = Console()
 
 COMPACT_CORPUS_PATH = PROJECT_ROOT / "tests" / "evaluation" / "test_corpus_compact.json"
 FULL_CORPUS_PATH = PROJECT_ROOT / "tests" / "evaluation" / "test_corpus.json"
-RESULTS_ROOT = PROJECT_ROOT / "tests" / "evaluation" / "results"
+BASELINES_DIR = PROJECT_ROOT / "tests" / "evaluation" / "baselines"
 
 QUESTIONARY_STYLE = questionary.Style(
     [
@@ -87,6 +90,27 @@ QUESTIONARY_STYLE = questionary.Style(
         ("placeholder", "fg:#666666 italic"),
     ]
 )
+
+
+def prompt_select(message: str, choices: list[Any], default: Any = None) -> Any:
+    """Prompt user with questionary select and exit cleanly on cancel / Ctrl+C."""
+    val = questionary.select(message, choices=choices, default=default, style=QUESTIONARY_STYLE).ask()
+    if val is None:
+        console.print("\n[yellow]Execution cancelled by operator.[/yellow]")
+        sys.exit(0)
+    return val
+
+
+def prompt_text(message: str, default: str = "", validate: Any = None) -> str:
+    """Prompt user with questionary text and exit cleanly on cancel / Ctrl+C."""
+    kwargs: dict[str, Any] = {"style": QUESTIONARY_STYLE, "default": default}
+    if validate:
+        kwargs["validate"] = validate
+    val = questionary.text(message, **kwargs).ask()
+    if val is None:
+        console.print("\n[yellow]Execution cancelled by operator.[/yellow]")
+        sys.exit(0)
+    return val
 
 BASELINE_DESCRIPTIONS: dict[str, str] = {
     "proposed_radg": "Proposed RADG: Author's solution with fail-fast Semantic & Physical RADGs",
@@ -195,6 +219,9 @@ def render_interactive_execution(
                         color = "green" if dec == "approve" else "yellow"
                         console.print(f"    [dim]Gate Verdict:[/dim] [{color}]{dec.upper()}[/{color}]")
 
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Interactive execution interrupted by operator.[/yellow]")
+            return
         except Exception as exc:
             console.print(f"\n[bold red][!] Error during execution stream:[/bold red] {exc}")
             break
@@ -231,8 +258,8 @@ def render_interactive_execution(
                 style=QUESTIONARY_STYLE,
             ).ask()
 
-            if action_choice == "abort":
-                console.print("[red]Execution aborted by operator.[/red]")
+            if action_choice is None or action_choice == "abort":
+                console.print("\n[red]Execution aborted by operator.[/red]")
                 return
 
             if action_choice == "standard":
@@ -244,6 +271,9 @@ def render_interactive_execution(
                     default=STANDARD_FOLLOW_UP_INTENT,
                     style=QUESTIONARY_STYLE,
                 ).ask()
+                if feedback is None:
+                    console.print("\n[red]Execution aborted by operator.[/red]")
+                    return
 
             resume_payload = {
                 "action": "refine" if action == "clarify" else "replan",
@@ -269,7 +299,7 @@ def render_interactive_execution(
             )
             if final_report:
                 console.print("\n[bold cyan]Planning Report Summary:[/bold cyan]")
-                console.print(Markdown(str(final_report)[:1000] + ("..." if len(str(final_report)) > 1000 else "")))
+                console.print(Markdown(str(final_report)))
             break
 
 
@@ -397,6 +427,127 @@ def run_evaluation_mode(
     return results
 
 
+def list_available_runs(baseline_id: str) -> list[str]:
+    """Find all timestamped run directories for a specific baseline."""
+    b_dir = BASELINES_DIR / baseline_id / "results"
+    if not b_dir.exists():
+        return []
+    runs = [
+        d.name for d in b_dir.iterdir()
+        if d.is_dir() and d.name.startswith("run_") and (d / "evaluation_results.json").exists()
+    ]
+    runs.sort(reverse=True)  # Newest first
+    return runs
+
+
+def resolve_baseline_run(
+    baseline_id: str,
+    explicit_run: str | None = None,
+    interactive: bool = False,
+) -> tuple[str, Path] | None:
+    """Resolve which run folder to use for a baseline, defaulting to latest."""
+    available = list_available_runs(baseline_id)
+    if not available:
+        console.print(f"[yellow]⚠️ No historical evaluation runs found for baseline '{baseline_id}'.[/yellow]")
+        return None
+
+    if explicit_run:
+        target = explicit_run if explicit_run.startswith("run_") else f"run_{explicit_run}"
+        target_path = BASELINES_DIR / baseline_id / "results" / target
+        if target_path.exists() and (target_path / "evaluation_results.json").exists():
+            return target, target_path
+        console.print(f"[red]Specified run '{explicit_run}' not found for baseline '{baseline_id}'.[/red]")
+        return None
+
+    if interactive and len(available) > 1:
+        choices = [
+            questionary.Choice(f"{r} (Latest)" if idx == 0 else r, r)
+            for idx, r in enumerate(available)
+        ]
+        chosen = prompt_select(
+            f"Select evaluation run version for {baseline_id.upper()}:",
+            choices=choices,
+            default=available[0],
+        )
+        return chosen, BASELINES_DIR / baseline_id / "results" / chosen
+
+    # Default to newest
+    latest = available[0]
+    return latest, BASELINES_DIR / baseline_id / "results" / latest
+
+
+def run_comparative_mode(
+    proposed_run: str | None = None,
+    hitl_run: str | None = None,
+    llm_run: str | None = None,
+    is_interactive: bool = False,
+) -> None:
+    """Execute comparative analysis across existing runs of baselines."""
+    console.print(
+        Panel(
+            "[bold cyan]Mode: Cross-Baseline Comparative Evaluation[/bold cyan]\n"
+            "[dim]Resolving runs across Proposed RADG, Always-On HITL, and LLM-Only...[/dim]",
+            title="📊 Multi-Baseline Comparison Orchestrator",
+            border_style="cyan",
+            box=box.ROUNDED,
+        )
+    )
+
+    baseline_runs_map = {
+        "proposed_radg": proposed_run,
+        "always_on_hitl": hitl_run,
+        "llm_only": llm_run,
+    }
+
+    resolved_runs: dict[str, Path] = {}
+    all_results: dict[str, list[dict[str, Any]]] = {}
+
+    for b_id, explicit in baseline_runs_map.items():
+        res = resolve_baseline_run(b_id, explicit_run=explicit, interactive=is_interactive)
+        if res is not None:
+            r_id, r_path = res
+            resolved_runs[b_id] = r_path
+            with open(r_path / "evaluation_results.json", encoding="utf-8") as f:
+                data = json.load(f)
+            all_results[b_id] = data.get("demands", [])
+            console.print(f"  [green]✓[/green] [bold white]{b_id.upper()}:[/bold white] Using [cyan]{r_id}[/cyan] ({len(all_results[b_id])} demands)")
+
+    if len(all_results) < 2:
+        console.print("[red]Need at least 2 baselines with completed runs to generate comparative metrics.[/red]")
+        return
+
+    run_id = time.strftime("%Y%m%d_%H%M%S")
+    common_output_dir = BASELINES_DIR / "common" / "results" / f"run_{run_id}"
+
+    metadata = {
+        "date": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "run_id": run_id,
+        "mode": "comparative_analysis",
+        "included_runs": {b: p.name for b, p in resolved_runs.items()},
+    }
+
+    generate_comparative_report(
+        all_results=all_results,
+        output_dir=common_output_dir,
+        metadata=metadata,
+    )
+
+    console.print()
+    console.print(
+        Panel(
+            f"[bold green]✓ Comparative Multi-Baseline Evaluation Complete![/bold green]\n\n"
+            f"[bold white]Output Directory:[/bold white] [cyan]{common_output_dir}[/cyan]\n"
+            f"  ├── comparative_results.json\n"
+            f"  ├── comparative_summary.md\n"
+            f"  ├── comparative_pillars_breakdown.png / .pdf\n"
+            f"  └── comparative_radar_pillars.png / .pdf",
+            title="🏆 Comparison Synthesized Successfully",
+            border_style="green",
+            box=box.ROUNDED,
+        )
+    )
+
+
 def parse_args() -> argparse.Namespace:
     """Parse CLI flags."""
     parser = argparse.ArgumentParser(
@@ -413,8 +564,26 @@ def parse_args() -> argparse.Namespace:
         "--mode",
         type=str,
         default=None,
-        choices=["interactive", "eval"],
-        help="Execution mode (interactive single intent vs evaluation benchmark)",
+        choices=["interactive", "eval", "compare"],
+        help="Execution mode (interactive single intent, evaluation benchmark, or cross-baseline comparison)",
+    )
+    parser.add_argument(
+        "--proposed-run",
+        type=str,
+        default=None,
+        help="Run ID or timestamp for proposed_radg baseline in comparison mode (default: latest)",
+    )
+    parser.add_argument(
+        "--hitl-run",
+        type=str,
+        default=None,
+        help="Run ID or timestamp for always_on_hitl baseline in comparison mode (default: latest)",
+    )
+    parser.add_argument(
+        "--llm-run",
+        type=str,
+        default=None,
+        help="Run ID or timestamp for llm_only baseline in comparison mode (default: latest)",
     )
     parser.add_argument(
         "--corpus",
@@ -479,17 +648,59 @@ def main() -> None:
     args = parse_args()
     print_banner()
 
-    # 1. Resolve Provider and Model
+    # Check if comparative mode was requested via CLI flags
+    if args.mode == "compare":
+        run_comparative_mode(
+            proposed_run=args.proposed_run,
+            hitl_run=args.hitl_run,
+            llm_run=args.llm_run,
+            is_interactive=False,
+        )
+        return
+
+    # Interactive configuration if neither baseline nor mode is specified
+    is_fully_interactive = (args.baseline is None and args.mode is None and args.intent is None)
+
+    # 1. Resolve Mode first
+    mode = args.mode
+    if is_fully_interactive:
+        mode = prompt_select(
+            "Select Execution Mode:",
+            choices=[
+                questionary.Choice("Interactive Mode (Single intent, live node tracking, no metrics export)", "interactive"),
+                questionary.Choice("Evaluation Benchmark Mode (Automated test corpus, Four Pillars metrics, export results)", "eval"),
+                questionary.Choice("Comparative Analysis Mode (Compare existing baseline runs with custom/latest run selection)", "compare"),
+            ],
+        )
+    elif args.intent:
+        mode = "interactive"
+    elif mode is None:
+        mode = prompt_select(
+            "Select Execution Mode:",
+            choices=[
+                questionary.Choice("Interactive Mode (Single intent, live node tracking, no metrics export)", "interactive"),
+                questionary.Choice("Evaluation Benchmark Mode (Automated test corpus, Four Pillars metrics, export results)", "eval"),
+                questionary.Choice("Comparative Analysis Mode (Compare existing baseline runs with custom/latest run selection)", "compare"),
+            ],
+        )
+
+    if mode == "compare":
+        run_comparative_mode(
+            proposed_run=args.proposed_run,
+            hitl_run=args.hitl_run,
+            llm_run=args.llm_run,
+            is_interactive=True,
+        )
+        return
+
+    # 2. Resolve Provider and Model (only needed for interactive and eval modes)
     provider = args.provider
     model = args.model
     timeout = resolve_llm_timeout(args.timeout)
     temperature = args.temperature
 
-    # Interactive configuration if neither baseline nor mode is specified
-    is_fully_interactive = (args.baseline is None and args.mode is None and args.intent is None)
-
     if is_fully_interactive:
-        provider = questionary.select(
+        provider = prompt_select(
             "Select LLM Provider:",
             choices=[
                 questionary.Choice("Ollama (Local Open-Weights)", "ollama"),
@@ -497,15 +708,13 @@ def main() -> None:
                 questionary.Choice("Kimi / Moonshot (Cloud API)", "kimi"),
             ],
             default=provider,
-            style=QUESTIONARY_STYLE,
-        ).ask()
+        )
 
         default_model = "qwen2.5:3b" if provider == "ollama" else ("inclusionai/ling-3.0-flash-vl:free" if provider == "openrouter" else "moonshot-v1-8k")
-        model = questionary.text(
+        model = prompt_text(
             f"Enter Model Name for {provider}:",
             default=default_model,
-            style=QUESTIONARY_STYLE,
-        ).ask()
+        )
 
     # Initialize shared LLM instance
     console.print(f"[dim]Configuring LLM provider: {provider} | Model: {model} | Timeout: {timeout}s...[/dim]")
@@ -517,10 +726,10 @@ def main() -> None:
     )
     set_llm(llm)
 
-    # 2. Select Baseline
+    # 3. Select Baseline
     baseline = args.baseline
     if baseline is None:
-        baseline = questionary.select(
+        baseline = prompt_select(
             "Select Baseline Architecture to Run:",
             choices=[
                 questionary.Choice("Proposed RADG (Dual Fail-Fast Risk Gates)", "proposed_radg"),
@@ -528,22 +737,7 @@ def main() -> None:
                 questionary.Choice("LLM-Only (No Semantic Gate / Controller Error Simulation)", "llm_only"),
                 questionary.Choice("Run All Baselines (Comparative Suite)", "all"),
             ],
-            style=QUESTIONARY_STYLE,
-        ).ask()
-
-    # 3. Select Mode
-    mode = args.mode
-    if mode is None and args.intent is None:
-        mode = questionary.select(
-            "Select Execution Mode:",
-            choices=[
-                questionary.Choice("Interactive Mode (Single intent, live node tracking, no metrics export)", "interactive"),
-                questionary.Choice("Evaluation Benchmark Mode (Automated test corpus, Four Pillars metrics, export results)", "eval"),
-            ],
-            style=QUESTIONARY_STYLE,
-        ).ask()
-    elif args.intent:
-        mode = "interactive"
+        )
 
     # -------------------------------------------------------------------------
     # Mode A: Interactive Execution
@@ -551,14 +745,13 @@ def main() -> None:
     if mode == "interactive":
         intent_text = args.intent
         if not intent_text:
-            intent_source = questionary.select(
+            intent_source = prompt_select(
                 "How would you like to provide the intent?",
                 choices=[
                     questionary.Choice("Select from Benchmark Presets (Nominal, Ambiguous, Infeasible, Adversarial)", "preset"),
                     questionary.Choice("Enter Custom Natural Language Intent", "custom"),
                 ],
-                style=QUESTIONARY_STYLE,
-            ).ask()
+            )
 
             if intent_source == "preset":
                 with open(COMPACT_CORPUS_PATH, encoding="utf-8") as f:
@@ -567,17 +760,15 @@ def main() -> None:
                     questionary.Choice(f"[{p['id']}] ({p['class']}) {p['intent_text'][:60]}...", p['intent_text'])
                     for p in presets
                 ]
-                intent_text = questionary.select(
+                intent_text = prompt_select(
                     "Choose a preset demand:",
                     choices=preset_choices,
-                    style=QUESTIONARY_STYLE,
-                ).ask()
+                )
             else:
-                intent_text = questionary.text(
+                intent_text = prompt_text(
                     "Enter your optical network intent:",
                     default="Route 100G from Berlin to Frankfurt with at least 15 dB GSNR.",
-                    style=QUESTIONARY_STYLE,
-                ).ask()
+                )
 
         target_baselines = ["proposed_radg", "always_on_hitl", "llm_only"] if baseline == "all" else [baseline]
 
@@ -604,14 +795,13 @@ def main() -> None:
     else:
         corpus_choice = args.corpus
         if is_fully_interactive and args.corpus == "compact":
-            corpus_choice = questionary.select(
+            corpus_choice = prompt_select(
                 "Select Benchmark Corpus:",
                 choices=[
                     questionary.Choice("Compact Corpus (20 Demands - 4 Balanced Classes)", "compact"),
                     questionary.Choice("Full Corpus (107 Demands)", "full"),
                 ],
-                style=QUESTIONARY_STYLE,
-            ).ask()
+            )
 
         target_corpus_file = COMPACT_CORPUS_PATH if corpus_choice == "compact" else FULL_CORPUS_PATH
         with open(target_corpus_file, encoding="utf-8") as f:
@@ -633,16 +823,41 @@ def main() -> None:
         }
 
         target_baselines = ["proposed_radg", "always_on_hitl", "llm_only"] if baseline == "all" else [baseline]
+        all_eval_results: dict[str, list[dict[str, Any]]] = {}
 
         for b_id in target_baselines:
-            b_output_dir = RESULTS_ROOT / b_id / f"run_{run_id}"
-            run_evaluation_mode(
+            b_output_dir = BASELINES_DIR / b_id / "results" / f"run_{run_id}"
+            eval_res = run_evaluation_mode(
                 baseline_id=b_id,
                 corpus=corpus,
                 output_dir=b_output_dir,
                 metadata=metadata,
             )
+            all_eval_results[b_id] = eval_res
+
+        if baseline == "all" and len(all_eval_results) > 1:
+            common_output_dir = BASELINES_DIR / "common" / "results" / f"run_{run_id}"
+            generate_comparative_report(
+                all_results=all_eval_results,
+                output_dir=common_output_dir,
+                metadata=metadata,
+            )
+            console.print(
+                Panel(
+                    f"[bold green]✓ Comparative Multi-Baseline Summary Compiled![/bold green]\n"
+                    f"Saved in: [bold cyan]{common_output_dir}[/bold cyan]\n"
+                    f"├── comparative_results.json\n"
+                    f"└── comparative_summary.md",
+                    title="🏆 Multi-Baseline Benchmark Complete",
+                    border_style="green",
+                    box=box.ROUNDED,
+                )
+            )
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Execution interrupted by operator. Exiting...[/yellow]")
+        sys.exit(0)
