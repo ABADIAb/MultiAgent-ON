@@ -33,9 +33,10 @@ All changes were validated against the full unit test suite (344/344 passing tes
 - **Gate Metric Omission & Executive Reporting:** Gate Decision Accuracy (GDA) is formally marked as **N/A** in specialized `evaluation_summary.md` reports for `llm_only`, shifting the focus to pre-deployment risk interception ($0.0\%$), controller incident rate ($75.0\%$), and wasted compute penalties.
 
 ### 2.2 Tailored Visual Analytics Suite
-- **Deployment Failure Matrix (`deployment_failure_matrix.png` / `.pdf`):** Juxtaposes the 100% blind pre-deployment approval against controller runtime incident distributions across all 4 risk classes.
-- **Wasted Compute Overhead (`wasted_compute_overhead.png` / `.pdf`):** Dual-panel visualization quantifying the latency and token waste incurred during aborted Turn 1 deployment attempts prior to reactive recovery.
-- **Ablation Dashboard (`llm_only_ablation_dashboard.png` / `.pdf`):** 16:9 composite slide summarizing the architectural fragility and compute overhead of eliminating pre-deployment neurosymbolic gates.
+- **Deployment Flow Sankey (`deployment_flow_sankey.png` / `.pdf`):** Visualizes the intent lifecycle, breaking down the massive block of controller runtime incidents into distinct cascading error flows by Root Cause (Missing Params, GN-Model Violations, Syntax Conflicts).
+- **Wasted Compute Overhead (`wasted_compute_overhead.png` / `.pdf`):** Dual-panel visualization quantifying the latency and token waste incurred during aborted Turn 1 deployment attempts prior to reactive recovery, explicitly contrasting base cost versus algorithmic overhead.
+- **Ablation Dashboard (`llm_only_ablation_dashboard.png` / `.pdf`):** 16:9 composite slide summarizing the architectural fragility. Now features a fully integrated Sankey Diagram with Root Cause Fusion, and explicitly tracks Unsafe Approval Rate (UAR) and Reactive HITL Interventions as key executive metrics.
+- **Redundancy Pruning:** Removed redundant baseline figures (`deployment_failure_matrix`, `gate_accuracy_matrix`, etc.) from the `llm_only` generation pipeline to ensure a focused, high-impact evaluation footprint.
 
 ### 2.3 Telemetry Artifact Refactoring & Git Hygiene
 - **Elimination of Duplicate Files:** Refactored [`reporter.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/common/reporter.py) to write only a single set of timestamped files per run (`evaluation_results_<timestamp>.json`, `.csv`, `.md`, and comparative equivalents), removing redundant unversioned copies.

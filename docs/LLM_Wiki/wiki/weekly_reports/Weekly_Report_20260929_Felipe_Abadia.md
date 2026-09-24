@@ -82,6 +82,11 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Upgraded [`main.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/main.py) and [`generate_visuals.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/generate_visuals.py) with dynamic globbing to resolve runs robustly.
    - Deleted all 14 redundant unversioned copies from existing baseline directories and updated [`.gitignore`](file:///home/felipeab/MultiAgentON/.gitignore) to exclude generated evaluation PNG/PDF figures while preserving thesis documentation assets.
 
+10. **LLM-Only Analytics Polish & Root Cause Fusion:**
+   - Upgraded the LLM-only ablation dashboard by integrating a cascading Sankey Diagram that visually breaks down controller incidents by Root Cause (Missing Params, GN-Model Violations, Syntax Conflicts).
+   - Hardened executive KPIs to explicitly track Unsafe Approval Rate (UAR) and Reactive HITL Interventions, linking the absence of defensive gating directly to operator fatigue and system compromise.
+   - Pruned redundant figures from the `llm_only` baseline output, ensuring a concise and focused evaluation asset footprint.
+
 ---
 
 ## 3. What do I plan to accomplish next week?

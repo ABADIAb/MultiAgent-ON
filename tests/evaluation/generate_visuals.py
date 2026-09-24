@@ -443,6 +443,129 @@ def resolve_target_json(target: str, results_dir: Path) -> Path:
         f"Run 'uv run python tests/evaluation/generate_visuals.py --list' to see all."
     )
 
+def plot_deployment_flow_sankey(results_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate a Sankey diagram showing the flow of intents to failure."""
+    import matplotlib.path as mpath
+    import matplotlib.patches as mpatches
+
+    demands = results_data.get("demands", [])
+    if not demands:
+        return
+
+    n_total = len(demands)
+    n_intercepted = sum(1 for d in demands if d.get("initial_action") in ["clarify", "replan"])
+    n_approved = sum(1 for d in demands if d.get("initial_action") == "approve")
+
+    approved_demands = [d for d in demands if d.get("initial_action") == "approve"]
+    n_success = sum(1 for d in approved_demands if not d.get("controller_error", (d.get("class") != "I_Nominal")))
+    
+    n_fail_ambig = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "II_Ambiguous")
+    n_fail_infeas = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "III_Infeasible")
+    n_fail_adver = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "IV_Adversarial")
+
+    fig, ax = plt.subplots(figsize=(10.5, 6.5), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+    ax.set_facecolor(COLOR_BG)
+    ax.axis('off')
+
+    # Coordinates
+    x0, x1, x2 = 0.1, 0.45, 0.75
+    y_center = 0.5
+    height_total = 0.7
+    
+    h_intercepted = height_total * (n_intercepted / n_total) if n_total else 0
+    h_approved = height_total * (n_approved / n_total) if n_total else 0
+    h_success = height_total * (n_success / n_total) if n_total else 0
+    h_fail_ambig = height_total * (n_fail_ambig / n_total) if n_total else 0
+    h_fail_infeas = height_total * (n_fail_infeas / n_total) if n_total else 0
+    h_fail_adver = height_total * (n_fail_adver / n_total) if n_total else 0
+
+    def draw_flow(start_x, start_y, start_h, end_x, end_y, end_h, color):
+        if start_h <= 0 or end_h <= 0: return
+        path_data = [
+            (mpath.Path.MOVETO, (start_x, start_y + start_h/2)),
+            (mpath.Path.CURVE4, (start_x + 0.15, start_y + start_h/2)),
+            (mpath.Path.CURVE4, (end_x - 0.15, end_y + end_h/2)),
+            (mpath.Path.CURVE4, (end_x, end_y + end_h/2)),
+            (mpath.Path.LINETO, (end_x, end_y - end_h/2)),
+            (mpath.Path.CURVE4, (end_x - 0.15, end_y - end_h/2)),
+            (mpath.Path.CURVE4, (start_x + 0.15, start_y - start_h/2)),
+            (mpath.Path.CURVE4, (start_x, start_y - start_h/2)),
+            (mpath.Path.CLOSEPOLY, (start_x, start_y + start_h/2)),
+        ]
+        codes, verts = zip(*path_data)
+        path = mpath.Path(verts, codes)
+        patch = mpatches.PathPatch(path, facecolor=color, alpha=0.5, edgecolor='none')
+        ax.add_patch(patch)
+        
+    # Flow 1: Total -> Intercepted
+    if h_intercepted > 0:
+        y_int = y_center - height_total/2 + h_intercepted/2
+        draw_flow(x0, y_center - height_total/2 + h_intercepted/2, h_intercepted, 
+                  x1, y_center - 0.25, h_intercepted, COLOR_CLARIFY)
+        ax.add_patch(mpatches.Rectangle((x1-0.02, y_center - 0.25 - h_intercepted/2), 0.04, h_intercepted, color=COLOR_CLARIFY))
+        ax.text(x1, y_center - 0.25 - h_intercepted/2 - 0.02, f"Pre-Deployment Intercept\n{n_intercepted} ({n_intercepted/n_total*100:.0f}%)", ha='center', va='top', fontsize=10, fontweight='bold', color=COLOR_DARK_SLATE)
+
+    # Flow 2: Total -> Approved
+    if h_approved > 0:
+        y_app = y_center + height_total/2 - h_approved/2
+        draw_flow(x0, y_app, h_approved, x1, y_center + 0.05, h_approved, COLOR_NAVY)
+        ax.add_patch(mpatches.Rectangle((x1-0.02, y_center + 0.05 - h_approved/2), 0.04, h_approved, color=COLOR_NAVY))
+        ax.text(x1, y_center + 0.05 + h_approved/2 + 0.02, f"Approved (Forwarded)\n{n_approved} ({n_approved/n_total*100:.0f}%)", ha='center', va='bottom', fontsize=10, fontweight='bold', color=COLOR_DARK_SLATE)
+
+        # Cascading Flows from Approved
+        curr_y = y_center + 0.05 + h_approved/2
+        
+        # Flow 3: Approved -> Success
+        if h_success > 0:
+            y_succ_end = y_center + 0.35
+            y_succ_start = curr_y - h_success/2
+            draw_flow(x1, y_succ_start, h_success, x2, y_succ_end, h_success, COLOR_APPROVE)
+            ax.add_patch(mpatches.Rectangle((x2-0.02, y_succ_end - h_success/2), 0.04, h_success, color=COLOR_APPROVE))
+            ax.text(x2 + 0.04, y_succ_end, f"Runtime Success\n{n_success} ({n_success/n_approved*100:.0f}%)", ha='left', va='center', fontsize=9.5, fontweight='bold', color=COLOR_APPROVE)
+            curr_y -= h_success
+
+        # Flow 4: Approved -> Fail Ambig
+        if h_fail_ambig > 0:
+            y_fail_end = y_center + 0.10
+            y_fail_start = curr_y - h_fail_ambig/2
+            draw_flow(x1, y_fail_start, h_fail_ambig, x2, y_fail_end, h_fail_ambig, COLOR_REPLAN)
+            ax.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_ambig/2), 0.04, h_fail_ambig, color=COLOR_REPLAN))
+            ax.text(x2 + 0.04, y_fail_end, f"Incident: Missing Params\n{n_fail_ambig} ({n_fail_ambig/n_approved*100:.0f}%)", ha='left', va='center', fontsize=9.5, fontweight='bold', color=COLOR_REPLAN)
+            curr_y -= h_fail_ambig
+            
+        # Flow 5: Approved -> Fail Infeas
+        if h_fail_infeas > 0:
+            y_fail_end = y_center - 0.10
+            y_fail_start = curr_y - h_fail_infeas/2
+            draw_flow(x1, y_fail_start, h_fail_infeas, x2, y_fail_end, h_fail_infeas, COLOR_REPLAN)
+            ax.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_infeas/2), 0.04, h_fail_infeas, color=COLOR_REPLAN))
+            ax.text(x2 + 0.04, y_fail_end, f"Incident: GN-Model Violation\n{n_fail_infeas} ({n_fail_infeas/n_approved*100:.0f}%)", ha='left', va='center', fontsize=9.5, fontweight='bold', color=COLOR_REPLAN)
+            curr_y -= h_fail_infeas
+            
+        # Flow 6: Approved -> Fail Adver
+        if h_fail_adver > 0:
+            y_fail_end = y_center - 0.30
+            y_fail_start = curr_y - h_fail_adver/2
+            draw_flow(x1, y_fail_start, h_fail_adver, x2, y_fail_end, h_fail_adver, COLOR_REPLAN)
+            ax.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_adver/2), 0.04, h_fail_adver, color=COLOR_REPLAN))
+            ax.text(x2 + 0.04, y_fail_end, f"Incident: Syntax Conflict\n{n_fail_adver} ({n_fail_adver/n_approved*100:.0f}%)", ha='left', va='center', fontsize=9.5, fontweight='bold', color=COLOR_REPLAN)
+            curr_y -= h_fail_adver
+
+    # Input Bar
+    ax.add_patch(mpatches.Rectangle((x0-0.02, y_center - height_total/2), 0.04, height_total, color=COLOR_DARK_SLATE))
+    ax.text(x0, y_center + height_total/2 + 0.02, f"Total Intents\n{n_total} (100%)", ha='center', va='bottom', fontsize=10, fontweight='bold', color=COLOR_DARK_SLATE)
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-0.1, 1.1)
+    ax.set_title("Intent Deployment Flow & Incident Rate (Sankey Diagram)", fontsize=14, fontweight='bold', color=COLOR_NAVY)
+
+    plt.tight_layout()
+    fig.savefig(f"{output_prefix}.png", dpi=300, bbox_inches="tight")
+    fig.savefig(f"{output_prefix}.pdf", bbox_inches="tight")
+    plt.close(fig)
+
+
 
 
 def plot_llm_only_deployment_outcomes(results_data: dict[str, Any], output_prefix: Path) -> None:
@@ -574,25 +697,32 @@ def plot_llm_only_wasted_compute(results_data: dict[str, Any], output_prefix: Pa
     mean_lat_wasted = [np.mean(class_lat_wasted[c]) if class_lat_wasted[c] else 0.0 for c in CLASS_SHORT_NAMES]
     mean_lat_useful = [np.mean(class_lat_useful[c]) if class_lat_useful[c] else 0.0 for c in CLASS_SHORT_NAMES]
 
-    ax_lat.bar(x, mean_lat_wasted, bar_width, label="Wasted Latency (Turn 1 Controller Crash)", color=COLOR_REPLAN, edgecolor="white", hatch="///")
-    ax_lat.bar(x, mean_lat_useful, bar_width, bottom=mean_lat_wasted, label="Useful Recovery Latency (Turn 2)", color=COLOR_NAVY, edgecolor="white")
+    ax_lat.bar(x, mean_lat_useful, bar_width, label="Base Agent Compute (Nominal Equivalent)", color=COLOR_NAVY, edgecolor="white")
+    ax_lat.bar(x, mean_lat_wasted, bar_width, bottom=mean_lat_useful, label="Algorithmic Overhead (Wasted Turn 1)", color=COLOR_REPLAN, edgecolor="white", hatch="///")
+
+    nominal_base_lat = mean_lat_useful[0] if len(mean_lat_useful) > 0 else 0.0
+    ax_lat.axhline(nominal_base_lat, color=COLOR_NAVY, linestyle="--", linewidth=1.5, alpha=0.8)
+    if nominal_base_lat > 0:
+        ax_lat.text(3.4, nominal_base_lat + 0.2, "Baseline Cost\n(Nominal Eq.)", color=COLOR_NAVY, 
+                    fontsize=9, fontweight="bold", ha="right", va="bottom",
+                    bbox=dict(facecolor='white', edgecolor='none', alpha=0.85, pad=1.5))
 
     for i in range(len(CLASS_SHORT_NAMES)):
         tot = mean_lat_wasted[i] + mean_lat_useful[i]
         wasted = mean_lat_wasted[i]
         useful = mean_lat_useful[i]
-        if wasted > 0:
-            ax_lat.text(x[i], wasted / 2, f"{wasted:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
         if useful > 0:
-            ax_lat.text(x[i], wasted + useful / 2, f"{useful:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+            ax_lat.text(x[i], useful / 2, f"{useful:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+        if wasted > 0:
+            ax_lat.text(x[i], useful + wasted / 2, f"{wasted:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
         overhead_pct = f"+{(tot/mean_lat_useful[0] - 1)*100:.0f}%" if mean_lat_useful[0] > 0 and i > 0 else "Baseline"
         ax_lat.text(x[i], tot + 0.6, f"{tot:.1f}s\n({overhead_pct})", ha="center", va="bottom", color=COLOR_DARK_SLATE, fontweight="bold", fontsize=9.5)
 
     ax_lat.set_xticks(x)
     ax_lat.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax_lat.set_ylabel("Mean End-to-End Latency (s)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
+    ax_lat.set_ylabel("Agent Computational Latency (s)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
     ax_lat.set_ylim(0, max([w + u for w, u in zip(mean_lat_wasted, mean_lat_useful)], default=15.0) * 1.35)
-    ax_lat.set_title("End-to-End Latency: Wasted vs. Useful Execution", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax_lat.set_title("Agent Latency: Overhead vs. Base Cost (Excl. Network)", fontsize=12, fontweight="bold", color=COLOR_NAVY)
     ax_lat.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax_lat.legend(loc="upper left", fontsize=8.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
 
@@ -601,25 +731,32 @@ def plot_llm_only_wasted_compute(results_data: dict[str, Any], output_prefix: Pa
     mean_tok_wasted = [np.mean(class_tok_wasted[c]) if class_tok_wasted[c] else 0.0 for c in CLASS_SHORT_NAMES]
     mean_tok_useful = [np.mean(class_tok_useful[c]) if class_tok_useful[c] else 0.0 for c in CLASS_SHORT_NAMES]
 
-    ax_tok.bar(x, mean_tok_wasted, bar_width, label="Wasted Tokens (Turn 1 Dead-End Run)", color=COLOR_CLARIFY, edgecolor="white", hatch="///")
-    ax_tok.bar(x, mean_tok_useful, bar_width, bottom=mean_tok_wasted, label="Useful Tokens (Turn 2 Recovery)", color=COLOR_NAVY, edgecolor="white")
+    ax_tok.bar(x, mean_tok_useful, bar_width, label="Base Agent Compute (Nominal Equivalent)", color=COLOR_NAVY, edgecolor="white")
+    ax_tok.bar(x, mean_tok_wasted, bar_width, bottom=mean_tok_useful, label="Algorithmic Overhead (Wasted Turn 1)", color=COLOR_CLARIFY, edgecolor="white", hatch="///")
+
+    nominal_base_tok = mean_tok_useful[0] if len(mean_tok_useful) > 0 else 0
+    ax_tok.axhline(nominal_base_tok, color=COLOR_NAVY, linestyle="--", linewidth=1.5, alpha=0.8)
+    if nominal_base_tok > 0:
+        ax_tok.text(3.4, nominal_base_tok + 200, "Baseline Cost\n(Nominal Eq.)", color=COLOR_NAVY, 
+                    fontsize=9, fontweight="bold", ha="right", va="bottom",
+                    bbox=dict(facecolor='white', edgecolor='none', alpha=0.85, pad=1.5))
 
     for i in range(len(CLASS_SHORT_NAMES)):
         tot = mean_tok_wasted[i] + mean_tok_useful[i]
         wasted = mean_tok_wasted[i]
         useful = mean_tok_useful[i]
-        if wasted > 0:
-            ax_tok.text(x[i], wasted / 2, f"{wasted/1000:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
         if useful > 0:
-            ax_tok.text(x[i], wasted + useful / 2, f"{useful/1000:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+            ax_tok.text(x[i], useful / 2, f"{useful/1000:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+        if wasted > 0:
+            ax_tok.text(x[i], useful + wasted / 2, f"{wasted/1000:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
         tok_overhead = f"~{tot/mean_tok_useful[0]:.1f}x" if mean_tok_useful[0] > 0 and i > 0 else "1.0x"
         ax_tok.text(x[i], tot + 300, f"{tot/1000:.1f}k tok\n({tok_overhead})", ha="center", va="bottom", color=COLOR_DARK_SLATE, fontweight="bold", fontsize=9.5)
 
     ax_tok.set_xticks(x)
     ax_tok.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax_tok.set_ylabel("Mean Token Consumption (Tokens)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
+    ax_tok.set_ylabel("Agent Token Footprint (Tokens)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
     ax_tok.set_ylim(0, max([w + u for w, u in zip(mean_tok_wasted, mean_tok_useful)], default=10000) * 1.35)
-    ax_tok.set_title("Token Footprint: Wasted vs. Useful Token Budget", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax_tok.set_title("Token Footprint: Algorithmic Overhead vs. Base Cost", fontsize=12, fontweight="bold", color=COLOR_NAVY)
     ax_tok.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax_tok.legend(loc="upper left", fontsize=8.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
 
@@ -656,11 +793,14 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
     )
     fig.text(0.05, 0.905, subtitle, fontsize=10.5, color=COLOR_MUTED)
 
+    n_approved = sum(1 for d in demands if d.get("initial_action") == "approve")
+    uar = (false_positives / n_approved * 100.0) if n_approved > 0 else 0.0
+
     # 4 Top KPI Stat Banners
     kpi_cards = [
-        ("0.0%", "Pre-Deployment Gate Filter", "Zero pre-deployment screening (blind forwarding)", COLOR_DARK_SLATE),
+        (f"{uar:.1f}%", "Unsafe Approval Rate (UAR)", f"{false_positives}/{n_approved} approved intents were unsafe", COLOR_REPLAN),
         (f"{fpr:.1f}%", "False Positive Rate (FPR)", f"{false_positives}/{n_risky} risky demands approved blindly", COLOR_REPLAN),
-        (f"{controller_error_rate:.1f}%", "Controller Incident Rate", f"{controller_errors}/{n_total} demands crashed controller", COLOR_REPLAN),
+        (f"{controller_errors}", "Reactive HITL Interventions", "Post-mortem manual cleanups required by operator", COLOR_REPLAN),
         ("~2x", "Latency & Token Inflation", "Trial-and-error reactive recovery overhead", COLOR_CLARIFY),
     ]
 
@@ -686,44 +826,117 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
         fig.text(cx + 0.012, card_y + 0.038, title_val, fontsize=9.2, fontweight="bold", color=COLOR_DARK_SLATE)
         fig.text(cx + 0.012, card_y + 0.015, sub_val, fontsize=7.8, color=COLOR_MUTED)
 
-    # Subplot Left: Controller Deployment Outcomes
+    # Subplot Left: Controller Deployment Outcomes -> Sankey Diagram
     ax_left = fig.add_axes([0.05, 0.10, 0.43, 0.58])
     ax_left.set_facecolor(COLOR_CARD_BG)
+    ax_left.set_xticks([])
+    ax_left.set_yticks([])
+    for spine in ax_left.spines.values():
+        spine.set_color(COLOR_CARD_BORDER)
 
-    counts = {c: {"provisioned": 0, "controller_error": 0} for c in CLASS_SHORT_NAMES}
-    for d in demands:
-        c = d.get("class", "")
-        is_error = d.get("controller_error", (c != "I_Nominal"))
-        if c in counts:
-            if is_error:
-                counts[c]["controller_error"] += 1
-            else:
-                counts[c]["provisioned"] += 1
+    n_intercepted = sum(1 for d in demands if d.get("initial_action") in ["clarify", "replan"])
+    n_approved = sum(1 for d in demands if d.get("initial_action") == "approve")
 
-    x = np.arange(len(CLASS_SHORT_NAMES))
-    bar_width = 0.52
-    prov_vals = [counts[c]["provisioned"] for c in CLASS_SHORT_NAMES]
-    err_vals = [counts[c]["controller_error"] for c in CLASS_SHORT_NAMES]
+    approved_demands = [d for d in demands if d.get("initial_action") == "approve"]
+    n_success = sum(1 for d in approved_demands if not d.get("controller_error", (d.get("class") != "I_Nominal")))
+    
+    # Break down the errors by class (Root Cause Fusion)
+    n_fail_ambig = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "II_Ambiguous")
+    n_fail_infeas = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "III_Infeasible")
+    n_fail_adver = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "IV_Adversarial")
 
-    ax_left.bar(x, prov_vals, bar_width, label="Provision Succeeded (Nominal)", color=COLOR_APPROVE, edgecolor="white")
-    ax_left.bar(x, err_vals, bar_width, bottom=prov_vals, label="Controller Rejection (Deployment Error)", color=COLOR_REPLAN, edgecolor="white", hatch="///")
+    import matplotlib.path as mpath
+    import matplotlib.patches as mpatches
 
-    for i, c in enumerate(CLASS_SHORT_NAMES):
-        tot = sum(counts[c].values())
-        y_off = 0
-        for val in [counts[c]["provisioned"], counts[c]["controller_error"]]:
-            if val > 0:
-                ax_left.text(x[i], y_off + val / 2, f"{val}", ha="center", va="center", color="white", fontweight="bold", fontsize=11)
-                y_off += val
+    # Coordinates
+    x0, x1, x2 = 0.08, 0.45, 0.70
+    y_center = 0.5
+    height_total = 0.75
+    
+    h_intercepted = height_total * (n_intercepted / n_total) if n_total else 0
+    h_approved = height_total * (n_approved / n_total) if n_total else 0
+    h_success = height_total * (n_success / n_total) if n_total else 0
+    h_fail_ambig = height_total * (n_fail_ambig / n_total) if n_total else 0
+    h_fail_infeas = height_total * (n_fail_infeas / n_total) if n_total else 0
+    h_fail_adver = height_total * (n_fail_adver / n_total) if n_total else 0
 
-    ax_left.set_xticks(x)
-    ax_left.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax_left.set_ylabel("Demands (Count)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
-    ax_left.set_ylim(0, 6.2)
-    ax_left.set_yticks(range(0, 7))
-    ax_left.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
-    ax_left.set_title("Controller Deployment Outcomes (FPR = 100%)", fontsize=12, fontweight="bold", color=COLOR_NAVY)
-    ax_left.legend(loc="upper center", bbox_to_anchor=(0.5, 1.10), ncol=2, fontsize=8.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+    def draw_flow(ax, start_x, start_y, start_h, end_x, end_y, end_h, color):
+        if start_h <= 0 or end_h <= 0: return
+        path_data = [
+            (mpath.Path.MOVETO, (start_x, start_y + start_h/2)),
+            (mpath.Path.CURVE4, (start_x + 0.15, start_y + start_h/2)),
+            (mpath.Path.CURVE4, (end_x - 0.15, end_y + end_h/2)),
+            (mpath.Path.CURVE4, (end_x, end_y + end_h/2)),
+            (mpath.Path.LINETO, (end_x, end_y - end_h/2)),
+            (mpath.Path.CURVE4, (end_x - 0.15, end_y - end_h/2)),
+            (mpath.Path.CURVE4, (start_x + 0.15, start_y - start_h/2)),
+            (mpath.Path.CURVE4, (start_x, start_y - start_h/2)),
+            (mpath.Path.CLOSEPOLY, (start_x, start_y + start_h/2)),
+        ]
+        codes, verts = zip(*path_data)
+        path = mpath.Path(verts, codes)
+        patch = mpatches.PathPatch(path, facecolor=color, alpha=0.55, edgecolor='none')
+        ax.add_patch(patch)
+        
+    # Flow 1: Total -> Intercepted
+    if h_intercepted > 0:
+        draw_flow(ax_left, x0, y_center - height_total/2 + h_intercepted/2, h_intercepted, 
+                  x1, y_center - 0.2, h_intercepted, COLOR_CLARIFY)
+        ax_left.add_patch(mpatches.Rectangle((x1-0.02, y_center - 0.2 - h_intercepted/2), 0.04, h_intercepted, color=COLOR_CLARIFY))
+        ax_left.text(x1, y_center - 0.2 - h_intercepted/2 - 0.02, f"Intercepted\n{n_intercepted}", ha='center', va='top', fontsize=9, fontweight='bold', color=COLOR_DARK_SLATE)
+
+    # Flow 2: Total -> Approved
+    if h_approved > 0:
+        y_app = y_center + height_total/2 - h_approved/2
+        draw_flow(ax_left, x0, y_app, h_approved, x1, y_center + 0.0, h_approved, COLOR_NAVY)
+        ax_left.add_patch(mpatches.Rectangle((x1-0.02, y_center + 0.0 - h_approved/2), 0.04, h_approved, color=COLOR_NAVY))
+        ax_left.text(x1, y_center + 0.0 + h_approved/2 + 0.02, f"Blind Forward\n{n_approved} ({n_approved/n_total*100:.0f}%)", ha='center', va='bottom', fontsize=9.5, fontweight='bold', color=COLOR_DARK_SLATE)
+
+        # Flow 3: Approved -> Success
+        curr_y = y_center + 0.0 + h_approved/2
+        if h_success > 0:
+            y_succ_end = y_center + 0.30
+            y_succ_start = curr_y - h_success/2
+            draw_flow(ax_left, x1, y_succ_start, h_success, x2, y_succ_end, h_success, COLOR_APPROVE)
+            ax_left.add_patch(mpatches.Rectangle((x2-0.02, y_succ_end - h_success/2), 0.04, h_success, color=COLOR_APPROVE))
+            ax_left.text(x2 + 0.03, y_succ_end, f"Nominal Success\n(0 Overhead)\n{n_success} Demands", ha='left', va='center', fontsize=9, fontweight='bold', color=COLOR_APPROVE)
+            curr_y -= h_success
+            
+        # Flow 4: Approved -> Fail Ambig
+        if h_fail_ambig > 0:
+            y_fail_end = y_center + 0.05
+            y_fail_start = curr_y - h_fail_ambig/2
+            draw_flow(ax_left, x1, y_fail_start, h_fail_ambig, x2, y_fail_end, h_fail_ambig, COLOR_REPLAN)
+            ax_left.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_ambig/2), 0.04, h_fail_ambig, color=COLOR_REPLAN))
+            ax_left.text(x2 + 0.03, y_fail_end, f"Incident: Missing Params\n(+ Latency Overhead)\n{n_fail_ambig} Demands", ha='left', va='center', fontsize=9, fontweight='bold', color=COLOR_REPLAN)
+            curr_y -= h_fail_ambig
+
+        # Flow 5: Approved -> Fail Infeas
+        if h_fail_infeas > 0:
+            y_fail_end = y_center - 0.15
+            y_fail_start = curr_y - h_fail_infeas/2
+            draw_flow(ax_left, x1, y_fail_start, h_fail_infeas, x2, y_fail_end, h_fail_infeas, COLOR_REPLAN)
+            ax_left.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_infeas/2), 0.04, h_fail_infeas, color=COLOR_REPLAN))
+            ax_left.text(x2 + 0.03, y_fail_end, f"Incident: GN-Model Violation\n(+ Token/Latency Overhead)\n{n_fail_infeas} Demands", ha='left', va='center', fontsize=9, fontweight='bold', color=COLOR_REPLAN)
+            curr_y -= h_fail_infeas
+            
+        # Flow 6: Approved -> Fail Adver
+        if h_fail_adver > 0:
+            y_fail_end = y_center - 0.35
+            y_fail_start = curr_y - h_fail_adver/2
+            draw_flow(ax_left, x1, y_fail_start, h_fail_adver, x2, y_fail_end, h_fail_adver, COLOR_REPLAN)
+            ax_left.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_adver/2), 0.04, h_fail_adver, color=COLOR_REPLAN))
+            ax_left.text(x2 + 0.03, y_fail_end, f"Incident: Syntax Conflict\n(+ Token Overhead)\n{n_fail_adver} Demands", ha='left', va='center', fontsize=9, fontweight='bold', color=COLOR_REPLAN)
+            curr_y -= h_fail_adver
+
+    # Input Bar
+    ax_left.add_patch(mpatches.Rectangle((x0-0.02, y_center - height_total/2), 0.04, height_total, color=COLOR_DARK_SLATE))
+    ax_left.text(x0, y_center + height_total/2 + 0.02, f"Total Intents\n{n_total}", ha='center', va='bottom', fontsize=10.5, fontweight='bold', color=COLOR_DARK_SLATE)
+
+    ax_left.set_xlim(0, 1)
+    ax_left.set_ylim(-0.1, 1.1)
+    
+    ax_left.set_title("Controller Incident Flow & Root Cause Breakdown", fontsize=12, fontweight="bold", color=COLOR_NAVY)
 
     # Subplot Right: Wasted Compute vs Useful Compute
     ax_right = fig.add_axes([0.53, 0.10, 0.42, 0.58])
@@ -753,24 +966,34 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
     m_wasted = [np.mean(class_lat_wasted[c]) if class_lat_wasted[c] else 0.0 for c in CLASS_SHORT_NAMES]
     m_useful = [np.mean(class_lat_useful[c]) if class_lat_useful[c] else 0.0 for c in CLASS_SHORT_NAMES]
 
-    ax_right.bar(x, m_wasted, bar_width, label="Wasted Latency (Turn 1 Crash)", color=COLOR_REPLAN, edgecolor="white", hatch="///")
-    ax_right.bar(x, m_useful, bar_width, bottom=m_wasted, label="Useful Recovery Latency (Turn 2)", color=COLOR_NAVY, edgecolor="white")
+    x = np.arange(len(CLASS_SHORT_NAMES))
+    bar_width = 0.52
+
+    ax_right.bar(x, m_useful, bar_width, label="Base Agent Compute (Nominal Equivalent)", color=COLOR_NAVY, edgecolor="white")
+    ax_right.bar(x, m_wasted, bar_width, bottom=m_useful, label="Algorithmic Overhead (Wasted Turn 1)", color=COLOR_REPLAN, edgecolor="white", hatch="///")
+
+    nominal_base_lat_dash = m_useful[0] if len(m_useful) > 0 else 0.0
+    ax_right.axhline(nominal_base_lat_dash, color=COLOR_NAVY, linestyle="--", linewidth=1.5, alpha=0.8)
+    if nominal_base_lat_dash > 0:
+        ax_right.text(3.4, nominal_base_lat_dash + 0.2, "Baseline Cost\n(Nominal Eq.)", color=COLOR_NAVY, 
+                      fontsize=8, fontweight="bold", ha="right", va="bottom",
+                      bbox=dict(facecolor='white', edgecolor='none', alpha=0.85, pad=1.5))
 
     for i in range(len(CLASS_SHORT_NAMES)):
         tot = m_wasted[i] + m_useful[i]
-        if m_wasted[i] > 0:
-            ax_right.text(x[i], m_wasted[i] / 2, f"{m_wasted[i]:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
         if m_useful[i] > 0:
-            ax_right.text(x[i], m_wasted[i] + m_useful[i] / 2, f"{m_useful[i]:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
+            ax_right.text(x[i], m_useful[i] / 2, f"{m_useful[i]:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
+        if m_wasted[i] > 0:
+            ax_right.text(x[i], m_useful[i] + m_wasted[i] / 2, f"{m_wasted[i]:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
         overhead = f"+{(tot/m_useful[0] - 1)*100:.0f}%" if m_useful[0] > 0 and i > 0 else "Nominal"
         ax_right.text(x[i], tot + 0.4, f"{tot:.1f}s\n({overhead})", ha="center", va="bottom", color=COLOR_DARK_SLATE, fontweight="bold", fontsize=9)
 
     ax_right.set_xticks(x)
     ax_right.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax_right.set_ylabel("Mean End-to-End Latency (s)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
+    ax_right.set_ylabel("Agent Computational Latency (s)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
     ax_right.set_ylim(0, max([w + u for w, u in zip(m_wasted, m_useful)], default=15.0) * 1.35)
     ax_right.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
-    ax_right.set_title("Operational Latency Inflation & Wasted Compute", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax_right.set_title("Agent Latency: Overhead vs. Base Cost", fontsize=12, fontweight="bold", color=COLOR_NAVY)
     ax_right.legend(loc="upper center", bbox_to_anchor=(0.5, 1.10), ncol=2, fontsize=8.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
 
     fig.savefig(f"{output_prefix}.png", dpi=300, bbox_inches="tight")
@@ -837,23 +1060,22 @@ def generate_run_visuals(
     # 4. Generate figures based on baseline type
     baseline_id = meta.get("baseline_id") or "proposed_radg"
     if baseline_id == "llm_only":
-        plot_llm_only_deployment_outcomes(data, target_dir / "deployment_failure_matrix")
-        plot_llm_only_deployment_outcomes(data, target_dir / "gate_accuracy_matrix")
+        plot_deployment_flow_sankey(data, target_dir / "deployment_flow_sankey")
         plot_llm_only_wasted_compute(data, target_dir / "wasted_compute_overhead")
-        plot_llm_only_wasted_compute(data, target_dir / "latency_tokens_overhead")
         plot_llm_only_dashboard(data, target_dir / "llm_only_ablation_dashboard")
-        plot_llm_only_dashboard(data, target_dir / "presentation_slide_dashboard")
 
         print(f"[✓] Visual assets updated for LLM-Only in: {target_dir}")
-        print("    ├── deployment_failure_matrix.png / .pdf")
-        print("    ├── wasted_compute_overhead.png / .pdf")
+        print("    ├── deployment_flow_sankey.png / .pdf (Sankey Diagram)")
+        print("    ├── wasted_compute_overhead.png / .pdf (Stacked Bar Chart)")
         print("    └── llm_only_ablation_dashboard.png / .pdf")
     else:
+        plot_deployment_flow_sankey(data, target_dir / "deployment_flow_sankey")
         plot_gate_accuracy_matrix(data, target_dir / "gate_accuracy_matrix")
         plot_latency_tokens_overhead(data, target_dir / "latency_tokens_overhead")
         plot_presentation_slide_dashboard(data, target_dir / "presentation_slide_dashboard")
 
         print(f"[✓] Visual assets updated in: {target_dir}")
+        print("    ├── deployment_flow_sankey.png / .pdf (Sankey Diagram)")
         print("    ├── gate_accuracy_matrix.png / .pdf")
         print("    ├── latency_tokens_overhead.png / .pdf")
         print("    └── presentation_slide_dashboard.png / .pdf")
