@@ -24,7 +24,7 @@ To resolve these vulnerabilities, we formulate the intent-to-configuration lifec
 \subsection{Formal Mathematical Formulation}
 \label{subsec:mathematical_formulation}
 
-Given an unstructured natural language intent ($\mathcal{I}_{NL}$), an active topological and physical network state ($G, \mathbf{P}$), and a physical-layer feasibility threshold ($\text{GSNR}_{th}$), the system decides the formal symbolic specification ($\mathcal{S}_{PDDL}$), the optimal lightpath ($\pi^*$), and the pre-deployment control action ($a \in \mathcal{A}$), with the objective of minimizing the composite operational and computational friction ($\mathcal{J}$).
+Given an unstructured natural language intent ($\mathcal{I}_{NL}$), an active topological and physical network state ($G, \mathbf{P}$), and a physical-layer feasibility threshold ($\text{GSNR}_{th}$), the system decides the formal symbolic specification ($\mathcal{S}_{PDDL}$), the optimal lightpath ($\pi^*$), and the pre-deployment control action ($a \in \mathcal{A}$), with the objective of minimizing the aggregated operational and computational friction ($\mathcal{J}$).
 
 Let the optical physical topology be represented as a directed graph:
 \begin{equation}
@@ -93,7 +93,7 @@ The orchestration process is subject to finite operational and computational bou
 
 A candidate path $\pi \in \mathcal{K}_{path}$ is strictly admissible if and only if it satisfies both deterministic physical-layer feasibility and semantic alignment:
 \begin{enumerate}
-    \item \textbf{Deterministic Physical QoT Feasibility:} The accumulated Generalized Signal-to-Noise Ratio over path $\pi$, evaluated via the coherent Gaussian Noise (GN) model, and the received power $P_{rx}(\pi)$ at destination $d$ must meet their respective target thresholds:
+    \item \textbf{Deterministic Physical QoT Feasibility:} The accumulated Generalized Signal-to-Noise Ratio over path $\pi$, evaluated via the Gaussian Noise (GN) model, and the received power $P_{rx}(\pi)$ at destination $d$ must meet their respective target thresholds:
     \begin{equation}
     \label{eq:qot_valid_def}
     \text{QoT}_{valid}(\pi) = \mathbb{I}\left( \text{GSNR}(\pi, \mathbf{P}) \ge \text{GSNR}_{th} \land P_{rx}(\pi) \ge P_{rx, min} \right) = 1
@@ -160,7 +160,7 @@ To solve this pre-deployment optimization problem deterministically, Section~\re
 
 To address the optimization objective in Section~\ref{sec:problem_definition}—minimizing human interventions and token usage while ensuring zero unsafe approvals ($UAR = 0\%$)—the system separates intent translation from physical calculation. The framework applies deterministic checks at each stage before sending configurations to the network.
 
-\subsection{The Fail-Fast Pre-Deployment Paradigm}
+\subsection{The Fail-Fast Pre-Deployment Architecture}
 \label{subsec:fail_fast_paradigm}
 
 To overcome the latency penalties and rework inherent in trial-and-error network configuration, the proposed architecture introduces a \textbf{Fail-Fast Risk-Adaptive Neurosymbolic Framework}. The core principle is a pre-deployment verification condition: \textit{no configuration directive is dispatched to the optical controller until it has been verified through a sequence of independent validation gates}.
@@ -372,7 +372,7 @@ D\left(U_{sem}, \text{QoT}_{valid}\right) = \begin{cases}
 \end{equation}
 where the constant $\tau_{sem} \in (0, 1)$ represents the operational semantic tolerance threshold (calibrated to $\tau_{sem} = 0.30$ in our evaluation).
 
-While conceptualized as a unified mathematical function, the software implementation decouples $D$ hierarchically to enforce a fail-fast execution paradigm. Semantic uncertainty ($U_{sem}$) is evaluated exclusively at Phase 3, halting execution prior to complex route computation if $\tau_{sem}$ is exceeded. The subsequent physical viability ($\text{QoT}_{valid}$) is assessed exclusively at Phase 6, ensuring that the GN-model calculations are reserved strictly for semantically verified intents.
+While conceptualized as a unified mathematical function, the software implementation decouples $D$ hierarchically to enforce a fail-fast execution architecture. Semantic uncertainty ($U_{sem}$) is evaluated exclusively at Phase 3, halting execution prior to complex route computation if $\tau_{sem}$ is exceeded. The subsequent physical viability ($\text{QoT}_{valid}$) is assessed exclusively at Phase 6, ensuring that the GN-model calculations are reserved strictly for semantically verified intents.
 
 \begin{figure}[!htbp]
     \centering
@@ -410,9 +410,9 @@ d_{sem} = \text{Score}_{divergence}\left( \mathcal{I}_{NL}, \mathcal{I}_{recon} 
 \end{equation}
 where $d_{sem} = 0.0$ indicates perfect semantic agreement and $d_{sem} = 1.0$ indicates complete constraint loss. If $d_{sem} \le \tau_{sem}$, the intent is approved for deterministic route calculation; otherwise, the gate halts execution and prompts the human operator for clarification.
 
-\subsubsection{Composite $U_{sem}$ Evaluation}
+\subsubsection{Aggregated $U_{sem}$ Evaluation}
 
-The composite uncertainty metric combines both layers into a strict fail-fast formulation:
+The aggregated uncertainty metric combines both layers into a strict fail-fast formulation:
 \begin{equation}
 \label{eq:u_sem_composite}
 U_{sem} = \begin{cases} 1.0 & \text{if } v_{struct} = 0 \\ d_{sem} & \text{if } v_{struct} = 1 \end{cases}
@@ -421,7 +421,7 @@ U_{sem} = \begin{cases} 1.0 & \text{if } v_{struct} = 0 \\ d_{sem} & \text{if } 
 \subsection{Deterministic Physical-Layer QoT Evaluation}
 \label{subsec:qot_evaluation}
 
-Following semantic validation, physical feasibility is assessed deterministically utilizing the analytical coherent Gaussian Noise (GN) model for uncompensated optical fiber transmission \cite{poggiolini_gn-model_2014}. The GN-model is essential as it treats both the Amplified Spontaneous Emission (ASE) generated by optical amplifiers and the Non-Linear Interference (NLI) generated by fiber Kerr non-linearities as independent, additive Gaussian noise sources. This unified mathematical abstraction allows the analytical computation of the end-to-end transmission quality.
+Following semantic validation, physical feasibility is assessed deterministically utilizing the analytical Gaussian Noise (GN) model for uncompensated optical fiber transmission \cite{poggiolini_gn-model_2014}. The GN-model is essential as it treats both the Amplified Spontaneous Emission (ASE) generated by optical amplifiers and the Non-Linear Interference (NLI) generated by fiber Kerr non-linearities as independent, additive Gaussian noise sources. This unified mathematical abstraction allows the analytical computation of the end-to-end transmission quality.
 
 \subsubsection{Amplified Spontaneous Emission (ASE)}
 
@@ -441,7 +441,7 @@ where $P_{ch}$ denotes launch channel power in Watts.
 
 \subsubsection{Non-Linear Interference (NLI)}
 
-Using the coherent GN model, Non-Linear Interference (NLI) generated by Kerr non-linearities (Self-Phase Modulation and Cross-Phase Modulation) is approximated as an additive Gaussian noise disturbance that degrades performance at high transmission powers:
+Using the GN model, Non-Linear Interference (NLI) generated by Kerr non-linearities (Self-Phase Modulation and Cross-Phase Modulation) is approximated as an additive Gaussian noise disturbance that degrades performance at high transmission powers:
 \begin{equation}
 \label{eq:nli_noise}
 \eta_0 = \frac{8}{27} \frac{\alpha \gamma^2}{\pi |\beta_2| R_s^2} \ln\left( \frac{\pi^2 |\beta_2| R_s^2 N_{ch}^{2 R_s / \Delta f}}{\alpha} \right), \quad P_{NLI, m} = \eta_0 L_{eff}^2 P_{ch}^3

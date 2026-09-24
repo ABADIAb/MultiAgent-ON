@@ -9,7 +9,7 @@ status: draft
 
 To address the optimization objective in Section~\ref{sec:problem_definition}—minimizing human interventions and token usage while ensuring zero unsafe approvals ($UAR = 0\%$)—the system separates intent translation from physical calculation. The framework applies deterministic checks at each stage before sending configurations to the network.
 
-## 3.2.1 The Fail-Fast Pre-Deployment Paradigm
+## 3.2.1 The Fail-Fast Pre-Deployment Architecture
 
 To overcome the latency penalties and rework inherent in trial-and-error network configuration, the proposed architecture introduces a **Fail-Fast Risk-Adaptive Neurosymbolic Framework**. The core principle is a pre-deployment verification condition: *no configuration directive is dispatched to the optical controller until it has been verified through a sequence of independent validation gates*.
 

@@ -15,7 +15,7 @@ The solver executes Yen's $K$-Shortest Paths algorithm over the pruned context g
 
 ## 4.4.2 Deterministic GN-Model Physical-Layer Physics Engine (Phase 5)
 
-When candidate lightpaths are extracted by the Symbolic Solver in Phase 4, their transmission feasibility must be verified against the physical optical layer. In our architecture, physical validation is isolated within an analytical software engine implementing the incoherent Gaussian Noise (GN) model derived in Section~\ref{subsec:qot_evaluation}.
+When candidate lightpaths are extracted by the Symbolic Solver in Phase 4, their transmission feasibility must be verified against the physical optical layer. In our architecture, physical validation is isolated within an analytical software engine implementing the Gaussian Noise (GN) model derived in Section~\ref{subsec:qot_evaluation}.
 
 The software execution flow traces the continuous optical path across cascading spans and intermediate nodes:
 1. **Per-Span Evaluation:** The engine computes Amplified Spontaneous Emission (ASE) noise from EDFAs via Equation~\eqref{eq:ase_noise} and Non-Linear Interference (NLI) distortion via Equation~\eqref{eq:nli_noise}, parameterizing fiber attenuation $\alpha$, chromatic dispersion $D$, and the non-linear Kerr coefficient $\gamma$.
