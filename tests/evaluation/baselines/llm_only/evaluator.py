@@ -34,15 +34,21 @@ class LLMOnlyEvaluator:
         )
 
         item_class = item.get("class", "I_Nominal")
-        # In LLM-Only:
-        # Reaching controller on Turn 1 with a non-nominal intent is considered an unsafe/false-positive arrival
+        # In LLM-Only baseline:
+        # All pre-deployment initial actions are "approve" (blind forwarding to SDON controller)
+        res["initial_action"] = "approve"
         if item_class != "I_Nominal":
+            res["controller_verdict"] = "replan"
+            res["controller_error"] = True
+            # Pre-deployment gate match failed because risky config was blindly approved
+            res["success"] = False
+            # Physical unfeasibility for Class III (or any demand failing QoT)
             res["is_unfeasible_approval"] = True
-            # The gate match failed from a pre-deployment perspective because bad config reached the controller
-            res["success"] = (res.get("initial_action") == "replan" and res.get("final_action") == "approve")
         else:
+            res["controller_verdict"] = "approve"
+            res["controller_error"] = False
             res["is_unfeasible_approval"] = False
-            res["success"] = (res.get("initial_action") == "approve")
+            res["success"] = (res.get("final_action") == "approve")
 
         return res
 

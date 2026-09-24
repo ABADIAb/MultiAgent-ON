@@ -75,10 +75,12 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
                     "radg_decision": "approve",
                     "error_context": None,
                     "controller_reached": True,
+                    "controller_error": False,
+                    "controller_verdict": "approve",
                     "messages": [AIMessage(content=summary, name="radg")],
                 }
 
-        # Non-nominal intent reached the controller: simulate controller deployment error
+        # Non-nominal intent (Class II, III, IV) reached the controller: simulate controller deployment error
         summary = (
             "Controller Deployment Error: Configuration rejected at controller level. "
             "Physical or semantic constraints violated (LLM-Only baseline)."
@@ -116,6 +118,8 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
             "radg_decision": "replan",
             "error_context": resolved_fb,
             "controller_reached": True,
+            "controller_error": True,
+            "controller_verdict": "replan",
             "refinement_history": refinement_history,
             "refinement_count": new_count,
             "messages": [AIMessage(content=summary, name="radg")],
@@ -129,6 +133,8 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
             "radg_decision": "approve",
             "error_context": None,
             "controller_reached": True,
+            "controller_error": False,
+            "controller_verdict": "approve",
             "messages": [AIMessage(content=summary, name="radg")],
         }
 
@@ -138,6 +144,8 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
         "radg_decision": "replan",
         "error_context": summary,
         "controller_reached": True,
+        "controller_error": True,
+        "controller_verdict": "replan",
         "messages": [AIMessage(content=summary, name="radg")],
     }
 

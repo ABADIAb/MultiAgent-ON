@@ -66,10 +66,21 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Enforced a 5-minute (300.0s) global wall-clock watchdog per demand (`DEFAULT_INTENT_TIMEOUT`) and explicit outcome taxonomy (`completed`, `timeout`, `max_turns_exceeded`) in [`tests/evaluation/baselines/common/runner.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/common/runner.py) and baseline evaluators.
    - Integrated Task Completion Rate (TCR) and timeout tracking in Four Pillars telemetry formulas ([`tests/evaluation/baselines/common/metrics.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/common/metrics.py)).
 
-7. **Strict TDD Unit Testing Suite (341/341 Tests Passing):**
-   - Maintained full test suite integrity with 20 dedicated baseline and gate parser tests in [`tests/unit/test_evaluation_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_evaluation_baselines.py) and [`tests/unit/test_semantic_gate.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_semantic_gate.py).
-   - All 341 unit tests passing cleanly in ~3.2s under pytest (`pytest tests/unit/`).
+7. **Strict TDD Unit Testing Suite (344/344 Tests Passing):**
+   - Maintained full test suite integrity with dedicated baseline and gate parser tests in [`tests/unit/test_evaluation_baselines.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_evaluation_baselines.py) and [`tests/unit/test_semantic_gate.py`](file:///home/felipeab/MultiAgentON/tests/unit/test_semantic_gate.py).
+   - All 344 unit tests passing cleanly in ~6.7s under pytest (`pytest tests/unit/`).
    - Static analysis verified 100% clean with zero warnings or errors across the entire codebase (`ruff check src/ tests/`).
+
+8. **LLM-Only Baseline Calibration & Controller Incident Model:**
+   - Enforced blind pre-deployment admission policy ($\mathcal{A}_{pre} = \{\text{approve}\}$), formally exposing a 100% False Positive Rate ($FPR$) on risky demands.
+   - Modeled reactive SDON controller runtime rejections: Class I (Nominal) provisions cleanly in Turn 1, whereas Classes II (Ambiguous), III (Infeasible), and IV (Adversarial) trigger controller deployment errors ($75\%$ incident rate on the balanced corpus), forcing a reactive replan and human recovery turn.
+   - Omitted inapplicable gate metrics (Gate Decision Accuracy marked N/A) and instrumented cumulative latency and token accounting to capture compute wasted during aborted Turn 1 deployments.
+   - Designed custom visual outputs: `deployment_failure_matrix`, `wasted_compute_overhead`, and a 16:9 `llm_only_ablation_dashboard`.
+
+9. **Telemetry Artifact Refactoring & Repository Hygiene:**
+   - Refactored [`reporter.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/common/reporter.py) to output only a single set of self-describing timestamped files per run (`evaluation_results_<timestamp>.json`, `.csv`, `.md`, and comparative equivalents), completely eliminating redundant unversioned duplicates.
+   - Upgraded [`main.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/main.py) and [`generate_visuals.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/generate_visuals.py) with dynamic globbing to resolve runs robustly.
+   - Deleted all 14 redundant unversioned copies from existing baseline directories and updated [`.gitignore`](file:///home/felipeab/MultiAgentON/.gitignore) to exclude generated evaluation PNG/PDF figures while preserving thesis documentation assets.
 
 ---
 
@@ -90,4 +101,4 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 5. One-Sentence Summary
 
-I engineered the modular comparative baselines architecture, segregated per-baseline telemetry, automated cross-baseline Four Pillars visual suite, robust multi-stage $U_{sem}$ parsing, and 5-minute intent watchdog, verified under strict TDD with 341 passing unit tests.
+I calibrated the un-gated LLM-Only ablation baseline with controller runtime error modeling, wasted compute profiling, and custom visual analytics, eliminated duplicate telemetry artifacts across all baselines, and established repository-level hygiene rules for generated figures, validated with 344 passing unit tests.

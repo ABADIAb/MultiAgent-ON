@@ -480,7 +480,7 @@ def list_available_runs(baseline_id: str) -> list[str]:
         return []
     runs = [
         d.name for d in b_dir.iterdir()
-        if d.is_dir() and d.name.startswith("run_") and (d / "evaluation_results.json").exists()
+        if d.is_dir() and d.name.startswith("run_") and any(f.name.startswith("evaluation_results") and f.name.endswith(".json") for f in d.iterdir())
     ]
     runs.sort(reverse=True)  # Newest first
     return runs
@@ -500,7 +500,7 @@ def resolve_baseline_run(
     if explicit_run:
         target = explicit_run if explicit_run.startswith("run_") else f"run_{explicit_run}"
         target_path = BASELINES_DIR / baseline_id / "results" / target
-        if target_path.exists() and (target_path / "evaluation_results.json").exists():
+        if target_path.exists() and any(f.name.startswith("evaluation_results") and f.name.endswith(".json") for f in target_path.iterdir()):
             return target, target_path
         console.print(f"[red]Specified run '{explicit_run}' not found for baseline '{baseline_id}'.[/red]")
         return None
@@ -553,7 +553,8 @@ def run_comparative_mode(
         if res is not None:
             r_id, r_path = res
             resolved_runs[b_id] = r_path
-            with open(r_path / "evaluation_results.json", encoding="utf-8") as f:
+            json_file = next(r_path.glob("evaluation_results*.json"), r_path / "evaluation_results.json")
+            with open(json_file, encoding="utf-8") as f:
                 data = json.load(f)
             all_results[b_id] = data.get("demands", [])
             console.print(f"  [green]✓[/green] [bold white]{b_id.upper()}:[/bold white] Using [cyan]{r_id}[/cyan] ({len(all_results[b_id])} demands)")

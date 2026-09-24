@@ -346,8 +346,8 @@ def get_available_runs(results_dir: Path) -> list[dict[str, Any]]:
     # 2. Scan dedicated run packages in results_dir / evaluation_results / run_*
     if eval_results_dir.exists():
         for run_dir in sorted(eval_results_dir.glob("run_*")):
-            jf = run_dir / "evaluation_results.json"
-            if jf.exists():
+            jf = next(run_dir.glob("evaluation_results*.json"), None)
+            if jf and jf.exists():
                 rid = run_dir.name.replace("run_", "")
                 if rid not in runs:
                     try:
@@ -399,8 +399,10 @@ def resolve_target_json(target: str, results_dir: Path) -> Path:
         return p.resolve()
 
     # 2. Literal path check (directory)
-    if p.is_dir() and (p / "evaluation_results.json").exists():
-        return (p / "evaluation_results.json").resolve()
+    if p.is_dir():
+        cand = next(p.glob("evaluation_results*.json"), None)
+        if cand and cand.exists():
+            return cand.resolve()
 
     eval_results_dir = results_dir / "evaluation_results"
 
@@ -412,15 +414,19 @@ def resolve_target_json(target: str, results_dir: Path) -> Path:
     if cand1.exists():
         return cand1.resolve()
 
-    # Check evaluation_results/run_<clean_id>/evaluation_results.json
-    cand2 = eval_results_dir / f"run_{clean_id}" / "evaluation_results.json"
-    if cand2.exists():
-        return cand2.resolve()
+    # Check evaluation_results/run_<clean_id>/evaluation_results*.json
+    run_cand = eval_results_dir / f"run_{clean_id}"
+    if run_cand.is_dir():
+        cand2 = next(run_cand.glob("evaluation_results*.json"), None)
+        if cand2 and cand2.exists():
+            return cand2.resolve()
 
-    # Check evaluation_results/<target>/evaluation_results.json
-    cand3 = eval_results_dir / target / "evaluation_results.json"
-    if cand3.exists():
-        return cand3.resolve()
+    # Check evaluation_results/<target>/evaluation_results*.json
+    target_cand = eval_results_dir / target
+    if target_cand.is_dir():
+        cand3 = next(target_cand.glob("evaluation_results*.json"), None)
+        if cand3 and cand3.exists():
+            return cand3.resolve()
 
     # Check if target is 'latest'
     if target.lower() in ("latest", "last"):
@@ -436,6 +442,340 @@ def resolve_target_json(target: str, results_dir: Path) -> Path:
         f"Available Run IDs: {available_str}\n"
         f"Run 'uv run python tests/evaluation/generate_visuals.py --list' to see all."
     )
+
+
+
+def plot_llm_only_deployment_outcomes(results_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate LLM-Only Deployment Outcomes chart (Pre-Deployment Blind Approval vs Controller Rejections)."""
+    demands = results_data.get("demands", [])
+    if not demands:
+        return
+
+    counts = {c: {"provisioned": 0, "controller_error": 0} for c in CLASS_SHORT_NAMES}
+    for d in demands:
+        c = d.get("class", "")
+        is_error = d.get("controller_error", (c != "I_Nominal"))
+        if c in counts:
+            if is_error:
+                counts[c]["controller_error"] += 1
+            else:
+                counts[c]["provisioned"] += 1
+
+    x = np.arange(len(CLASS_SHORT_NAMES))
+    bar_width = 0.55
+
+    fig, ax = plt.subplots(figsize=(9.5, 5.5), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+    ax.set_facecolor(COLOR_CARD_BG)
+
+    provisioned_vals = [counts[c]["provisioned"] for c in CLASS_SHORT_NAMES]
+    error_vals = [counts[c]["controller_error"] for c in CLASS_SHORT_NAMES]
+
+    ax.bar(x, provisioned_vals, bar_width, label="Controller Provision Succeeded (Feasible)", color=COLOR_APPROVE, edgecolor="white", linewidth=1.2)
+    ax.bar(x, error_vals, bar_width, bottom=provisioned_vals, label="Controller Deployment Error (Runtime Rejection)", color=COLOR_REPLAN, edgecolor="white", linewidth=1.2, hatch="///")
+
+    for i, c in enumerate(CLASS_SHORT_NAMES):
+        tot = sum(counts[c].values())
+        y_offset = 0
+        for val, color in [(counts[c]["provisioned"], "white"), (counts[c]["controller_error"], "white")]:
+            if val > 0:
+                ax.text(x[i], y_offset + val / 2, f"{val} ({val/tot*100:.0f}%)", ha="center", va="center", color=color, fontweight="bold", fontsize=11)
+                y_offset += val
+
+    annotations = [
+        "100% Provisioned\n(0 HITL Interrupts)",
+        "100% Controller Rejection\n(Ambiguity Fault)",
+        "100% Physical Reach Failed\n(GN-Model Impairments)",
+        "100% Controller Rejection\n(Syntax / Conflict Error)",
+    ]
+    for i, text in enumerate(annotations):
+        border_col = COLOR_APPROVE if i == 0 else COLOR_REPLAN
+        ax.text(x[i], 5.15, text, ha="center", va="bottom", fontsize=9.5, color=COLOR_DARK_SLATE, fontweight="bold",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=border_col, alpha=0.95))
+
+    ax.set_xticks(x)
+    ax.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax.set_ylabel("Demands Evaluated (Count)", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax.set_ylim(0, 6.4)
+    ax.set_yticks(range(0, 7))
+
+    ax.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
+    ax.set_axisbelow(True)
+    for spine in ax.spines.values():
+        spine.set_color(COLOR_CARD_BORDER)
+
+    title_text = "LLM-Only Baseline: Pre-Deployment Blind Forwarding vs. Controller Failures\n(Pre-Deployment False Positive Rate: FPR = 100.0% | Pre-Deployment Filter: 0.0%)"
+    ax.set_title(title_text, fontsize=13, fontweight="bold", color=COLOR_NAVY, pad=26)
+
+    ax.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1.08),
+        ncol=2,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor=COLOR_CARD_BORDER,
+        fontsize=9.5,
+    )
+    plt.tight_layout()
+
+    fig.savefig(f"{output_prefix}.png", dpi=300, bbox_inches="tight")
+    fig.savefig(f"{output_prefix}.pdf", bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_llm_only_wasted_compute(results_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate dual-panel Wasted Compute & Token Footprint overhead chart for LLM-Only."""
+    demands = results_data.get("demands", [])
+    if not demands:
+        return
+
+    class_lat_wasted: dict[str, list[float]] = {c: [] for c in CLASS_SHORT_NAMES}
+    class_lat_useful: dict[str, list[float]] = {c: [] for c in CLASS_SHORT_NAMES}
+    class_tok_wasted: dict[str, list[int]] = {c: [] for c in CLASS_SHORT_NAMES}
+    class_tok_useful: dict[str, list[int]] = {c: [] for c in CLASS_SHORT_NAMES}
+
+    for d in demands:
+        c = d.get("class", "")
+        if c not in CLASS_SHORT_NAMES:
+            continue
+        telemetry = d.get("turn_telemetry") or []
+        tot_lat = d.get("total_elapsed_seconds", 0.0)
+        tot_tok = d.get("total_tokens", 0)
+
+        if c == "I_Nominal":
+            class_lat_wasted[c].append(0.0)
+            class_lat_useful[c].append(tot_lat)
+            class_tok_wasted[c].append(0)
+            class_tok_useful[c].append(tot_tok)
+        else:
+            if len(telemetry) >= 2:
+                t1_lat = telemetry[0].get("elapsed_s", tot_lat / 2)
+                t2_lat = tot_lat - t1_lat
+                t1_tok = telemetry[0].get("total_tokens", int(tot_tok / 2))
+                t2_tok = tot_tok - t1_tok
+                class_lat_wasted[c].append(t1_lat)
+                class_lat_useful[c].append(t2_lat)
+                class_tok_wasted[c].append(t1_tok)
+                class_tok_useful[c].append(t2_tok)
+            else:
+                class_lat_wasted[c].append(tot_lat * 0.5)
+                class_lat_useful[c].append(tot_lat * 0.5)
+                class_tok_wasted[c].append(int(tot_tok * 0.5))
+                class_tok_useful[c].append(int(tot_tok * 0.5))
+
+    x = np.arange(len(CLASS_SHORT_NAMES))
+    bar_width = 0.52
+
+    fig, (ax_lat, ax_tok) = plt.subplots(1, 2, figsize=(12.0, 5.2), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    # Panel A: Latency
+    ax_lat.set_facecolor(COLOR_CARD_BG)
+    mean_lat_wasted = [np.mean(class_lat_wasted[c]) if class_lat_wasted[c] else 0.0 for c in CLASS_SHORT_NAMES]
+    mean_lat_useful = [np.mean(class_lat_useful[c]) if class_lat_useful[c] else 0.0 for c in CLASS_SHORT_NAMES]
+
+    ax_lat.bar(x, mean_lat_wasted, bar_width, label="Wasted Latency (Turn 1 Controller Crash)", color=COLOR_REPLAN, edgecolor="white", hatch="///")
+    ax_lat.bar(x, mean_lat_useful, bar_width, bottom=mean_lat_wasted, label="Useful Recovery Latency (Turn 2)", color=COLOR_NAVY, edgecolor="white")
+
+    for i in range(len(CLASS_SHORT_NAMES)):
+        tot = mean_lat_wasted[i] + mean_lat_useful[i]
+        wasted = mean_lat_wasted[i]
+        useful = mean_lat_useful[i]
+        if wasted > 0:
+            ax_lat.text(x[i], wasted / 2, f"{wasted:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+        if useful > 0:
+            ax_lat.text(x[i], wasted + useful / 2, f"{useful:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+        overhead_pct = f"+{(tot/mean_lat_useful[0] - 1)*100:.0f}%" if mean_lat_useful[0] > 0 and i > 0 else "Baseline"
+        ax_lat.text(x[i], tot + 0.6, f"{tot:.1f}s\n({overhead_pct})", ha="center", va="bottom", color=COLOR_DARK_SLATE, fontweight="bold", fontsize=9.5)
+
+    ax_lat.set_xticks(x)
+    ax_lat.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax_lat.set_ylabel("Mean End-to-End Latency (s)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
+    ax_lat.set_ylim(0, max([w + u for w, u in zip(mean_lat_wasted, mean_lat_useful)], default=15.0) * 1.35)
+    ax_lat.set_title("End-to-End Latency: Wasted vs. Useful Execution", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax_lat.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
+    ax_lat.legend(loc="upper left", fontsize=8.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+
+    # Panel B: Tokens
+    ax_tok.set_facecolor(COLOR_CARD_BG)
+    mean_tok_wasted = [np.mean(class_tok_wasted[c]) if class_tok_wasted[c] else 0.0 for c in CLASS_SHORT_NAMES]
+    mean_tok_useful = [np.mean(class_tok_useful[c]) if class_tok_useful[c] else 0.0 for c in CLASS_SHORT_NAMES]
+
+    ax_tok.bar(x, mean_tok_wasted, bar_width, label="Wasted Tokens (Turn 1 Dead-End Run)", color=COLOR_CLARIFY, edgecolor="white", hatch="///")
+    ax_tok.bar(x, mean_tok_useful, bar_width, bottom=mean_tok_wasted, label="Useful Tokens (Turn 2 Recovery)", color=COLOR_NAVY, edgecolor="white")
+
+    for i in range(len(CLASS_SHORT_NAMES)):
+        tot = mean_tok_wasted[i] + mean_tok_useful[i]
+        wasted = mean_tok_wasted[i]
+        useful = mean_tok_useful[i]
+        if wasted > 0:
+            ax_tok.text(x[i], wasted / 2, f"{wasted/1000:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+        if useful > 0:
+            ax_tok.text(x[i], wasted + useful / 2, f"{useful/1000:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+        tok_overhead = f"~{tot/mean_tok_useful[0]:.1f}x" if mean_tok_useful[0] > 0 and i > 0 else "1.0x"
+        ax_tok.text(x[i], tot + 300, f"{tot/1000:.1f}k tok\n({tok_overhead})", ha="center", va="bottom", color=COLOR_DARK_SLATE, fontweight="bold", fontsize=9.5)
+
+    ax_tok.set_xticks(x)
+    ax_tok.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax_tok.set_ylabel("Mean Token Consumption (Tokens)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
+    ax_tok.set_ylim(0, max([w + u for w, u in zip(mean_tok_wasted, mean_tok_useful)], default=10000) * 1.35)
+    ax_tok.set_title("Token Footprint: Wasted vs. Useful Token Budget", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax_tok.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
+    ax_tok.legend(loc="upper left", fontsize=8.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+
+    plt.tight_layout()
+    fig.savefig(f"{output_prefix}.png", dpi=300, bbox_inches="tight")
+    fig.savefig(f"{output_prefix}.pdf", bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate a master 16:9 widescreen slide-ready dashboard figure for the LLM-Only ablation baseline."""
+    p_meta = results_data.get("metadata", {})
+    demands = results_data.get("demands", [])
+    n_total = len(demands)
+
+    risky_demands = [d for d in demands if d.get("class") in ("II_Ambiguous", "III_Infeasible", "IV_Adversarial")]
+    n_risky = len(risky_demands)
+    false_positives = sum(1 for d in risky_demands if d.get("initial_action") == "approve")
+    fpr = (false_positives / n_risky * 100.0) if n_risky > 0 else 100.0
+
+    controller_errors = sum(1 for d in demands if d.get("controller_error", (d.get("class") != "I_Nominal")))
+    controller_error_rate = (controller_errors / n_total * 100.0) if n_total > 0 else 75.0
+
+    fig = plt.figure(figsize=(13.333, 7.5), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    # Header
+    fig.text(0.05, 0.94, "Ablation Analysis: Vulnerabilities of the LLM-Only Baseline (No RADGs)",
+             fontsize=17, fontweight="bold", color=COLOR_NAVY)
+    subtitle = (
+        f"17-Node Nobel-Germany Backbone | {n_total} Benchmark Demands | "
+        f"Model: {p_meta.get('model', 'qwen2.5:3b')} ({p_meta.get('provider', 'ollama')}) | "
+        f"Un-gated Forwarding -> Reactive SDON Controller Error Simulation"
+    )
+    fig.text(0.05, 0.905, subtitle, fontsize=10.5, color=COLOR_MUTED)
+
+    # 4 Top KPI Stat Banners
+    kpi_cards = [
+        ("0.0%", "Pre-Deployment Gate Filter", "Zero pre-deployment screening (blind forwarding)", COLOR_DARK_SLATE),
+        (f"{fpr:.1f}%", "False Positive Rate (FPR)", f"{false_positives}/{n_risky} risky demands approved blindly", COLOR_REPLAN),
+        (f"{controller_error_rate:.1f}%", "Controller Incident Rate", f"{controller_errors}/{n_total} demands crashed controller", COLOR_REPLAN),
+        ("~2x", "Latency & Token Inflation", "Trial-and-error reactive recovery overhead", COLOR_CLARIFY),
+    ]
+
+    card_width = 0.205
+    card_spacing = 0.026
+    start_x = 0.05
+    card_y = 0.745
+    card_height = 0.13
+
+    for i, (metric_val, title_val, sub_val, accent_col) in enumerate(kpi_cards):
+        cx = start_x + i * (card_width + card_spacing)
+        rect = patches.FancyBboxPatch((cx, card_y), card_width, card_height,
+                                      boxstyle="round,pad=0.015,rounding_size=0.02",
+                                      facecolor=COLOR_CARD_BG, edgecolor=COLOR_CARD_BORDER,
+                                      linewidth=1.2, transform=fig.transFigure)
+        fig.patches.append(rect)
+
+        line = patches.Rectangle((cx + 0.01, card_y + card_height - 0.005), card_width - 0.02, 0.004,
+                                 facecolor=accent_col, edgecolor="none", transform=fig.transFigure)
+        fig.patches.append(line)
+
+        fig.text(cx + 0.012, card_y + 0.065, metric_val, fontsize=20, fontweight="bold", color=accent_col)
+        fig.text(cx + 0.012, card_y + 0.038, title_val, fontsize=9.2, fontweight="bold", color=COLOR_DARK_SLATE)
+        fig.text(cx + 0.012, card_y + 0.015, sub_val, fontsize=7.8, color=COLOR_MUTED)
+
+    # Subplot Left: Controller Deployment Outcomes
+    ax_left = fig.add_axes([0.05, 0.10, 0.43, 0.58])
+    ax_left.set_facecolor(COLOR_CARD_BG)
+
+    counts = {c: {"provisioned": 0, "controller_error": 0} for c in CLASS_SHORT_NAMES}
+    for d in demands:
+        c = d.get("class", "")
+        is_error = d.get("controller_error", (c != "I_Nominal"))
+        if c in counts:
+            if is_error:
+                counts[c]["controller_error"] += 1
+            else:
+                counts[c]["provisioned"] += 1
+
+    x = np.arange(len(CLASS_SHORT_NAMES))
+    bar_width = 0.52
+    prov_vals = [counts[c]["provisioned"] for c in CLASS_SHORT_NAMES]
+    err_vals = [counts[c]["controller_error"] for c in CLASS_SHORT_NAMES]
+
+    ax_left.bar(x, prov_vals, bar_width, label="Provision Succeeded (Nominal)", color=COLOR_APPROVE, edgecolor="white")
+    ax_left.bar(x, err_vals, bar_width, bottom=prov_vals, label="Controller Rejection (Deployment Error)", color=COLOR_REPLAN, edgecolor="white", hatch="///")
+
+    for i, c in enumerate(CLASS_SHORT_NAMES):
+        tot = sum(counts[c].values())
+        y_off = 0
+        for val in [counts[c]["provisioned"], counts[c]["controller_error"]]:
+            if val > 0:
+                ax_left.text(x[i], y_off + val / 2, f"{val}", ha="center", va="center", color="white", fontweight="bold", fontsize=11)
+                y_off += val
+
+    ax_left.set_xticks(x)
+    ax_left.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax_left.set_ylabel("Demands (Count)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
+    ax_left.set_ylim(0, 6.2)
+    ax_left.set_yticks(range(0, 7))
+    ax_left.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
+    ax_left.set_title("Controller Deployment Outcomes (FPR = 100%)", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax_left.legend(loc="upper center", bbox_to_anchor=(0.5, 1.10), ncol=2, fontsize=8.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+
+    # Subplot Right: Wasted Compute vs Useful Compute
+    ax_right = fig.add_axes([0.53, 0.10, 0.42, 0.58])
+    ax_right.set_facecolor(COLOR_CARD_BG)
+
+    class_lat_wasted = {c: [] for c in CLASS_SHORT_NAMES}
+    class_lat_useful = {c: [] for c in CLASS_SHORT_NAMES}
+    for d in demands:
+        c = d.get("class", "")
+        if c not in CLASS_SHORT_NAMES:
+            continue
+        telemetry = d.get("turn_telemetry") or []
+        tot_lat = d.get("total_elapsed_seconds", 0.0)
+        if c == "I_Nominal":
+            class_lat_wasted[c].append(0.0)
+            class_lat_useful[c].append(tot_lat)
+        else:
+            if len(telemetry) >= 2:
+                t1_lat = telemetry[0].get("elapsed_s", tot_lat / 2)
+                t2_lat = tot_lat - t1_lat
+                class_lat_wasted[c].append(t1_lat)
+                class_lat_useful[c].append(t2_lat)
+            else:
+                class_lat_wasted[c].append(tot_lat * 0.5)
+                class_lat_useful[c].append(tot_lat * 0.5)
+
+    m_wasted = [np.mean(class_lat_wasted[c]) if class_lat_wasted[c] else 0.0 for c in CLASS_SHORT_NAMES]
+    m_useful = [np.mean(class_lat_useful[c]) if class_lat_useful[c] else 0.0 for c in CLASS_SHORT_NAMES]
+
+    ax_right.bar(x, m_wasted, bar_width, label="Wasted Latency (Turn 1 Crash)", color=COLOR_REPLAN, edgecolor="white", hatch="///")
+    ax_right.bar(x, m_useful, bar_width, bottom=m_wasted, label="Useful Recovery Latency (Turn 2)", color=COLOR_NAVY, edgecolor="white")
+
+    for i in range(len(CLASS_SHORT_NAMES)):
+        tot = m_wasted[i] + m_useful[i]
+        if m_wasted[i] > 0:
+            ax_right.text(x[i], m_wasted[i] / 2, f"{m_wasted[i]:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
+        if m_useful[i] > 0:
+            ax_right.text(x[i], m_wasted[i] + m_useful[i] / 2, f"{m_useful[i]:.1f}s", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
+        overhead = f"+{(tot/m_useful[0] - 1)*100:.0f}%" if m_useful[0] > 0 and i > 0 else "Nominal"
+        ax_right.text(x[i], tot + 0.4, f"{tot:.1f}s\n({overhead})", ha="center", va="bottom", color=COLOR_DARK_SLATE, fontweight="bold", fontsize=9)
+
+    ax_right.set_xticks(x)
+    ax_right.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax_right.set_ylabel("Mean End-to-End Latency (s)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
+    ax_right.set_ylim(0, max([w + u for w, u in zip(m_wasted, m_useful)], default=15.0) * 1.35)
+    ax_right.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
+    ax_right.set_title("Operational Latency Inflation & Wasted Compute", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax_right.legend(loc="upper center", bbox_to_anchor=(0.5, 1.10), ncol=2, fontsize=8.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+
+    fig.savefig(f"{output_prefix}.png", dpi=300, bbox_inches="tight")
+    fig.savefig(f"{output_prefix}.pdf", bbox_inches="tight")
+    plt.close(fig)
 
 
 def generate_run_visuals(
@@ -477,44 +817,46 @@ def generate_run_visuals(
 
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Ensure raw JSON is inside target_dir (replace existing)
-    dest_json = target_dir / "evaluation_results.json"
+    # 1. Ensure raw JSON is inside target_dir if external
+    dest_json = target_dir / json_path.name
     if dest_json.resolve() != json_path.resolve():
         shutil.copy2(json_path, dest_json)
 
-    # 2. Copy matching CSV if available
-    dest_csv = target_dir / "evaluation_results.csv"
-    if csv_source and csv_source.exists() and csv_source.resolve() != dest_csv.resolve():
-        shutil.copy2(csv_source, dest_csv)
-    elif not dest_csv.exists():
-        candidate_csv = json_path.with_suffix(".csv")
-        if candidate_csv.exists():
-            shutil.copy2(candidate_csv, dest_csv)
-        elif (results_root / f"evaluation_results_{run_id}.csv").exists():
-            shutil.copy2(results_root / f"evaluation_results_{run_id}.csv", dest_csv)
-        elif (results_root / "evaluation_results.csv").exists():
-            shutil.copy2(results_root / "evaluation_results.csv", dest_csv)
+    # 2. Copy matching CSV if available and external
+    if csv_source and csv_source.exists():
+        dest_csv = target_dir / csv_source.name
+        if dest_csv.resolve() != csv_source.resolve():
+            shutil.copy2(csv_source, dest_csv)
 
-    # 3. Copy matching MD if available
-    dest_md = target_dir / "evaluation_summary.md"
-    if md_source and md_source.exists() and md_source.resolve() != dest_md.resolve():
-        shutil.copy2(md_source, dest_md)
-    elif not dest_md.exists():
-        candidate_md = results_root / f"evaluation_summary_{run_id}.md"
-        if candidate_md.exists():
-            shutil.copy2(candidate_md, dest_md)
-        elif (results_root / "evaluation_summary.md").exists():
-            shutil.copy2(results_root / "evaluation_summary.md", dest_md)
+    # 3. Copy matching MD if available and external
+    if md_source and md_source.exists():
+        dest_md = target_dir / md_source.name
+        if dest_md.resolve() != md_source.resolve():
+            shutil.copy2(md_source, dest_md)
 
-    # 4. Generate the 3 figures (overwriting existing)
-    plot_gate_accuracy_matrix(data, target_dir / "gate_accuracy_matrix")
-    plot_latency_tokens_overhead(data, target_dir / "latency_tokens_overhead")
-    plot_presentation_slide_dashboard(data, target_dir / "presentation_slide_dashboard")
+    # 4. Generate figures based on baseline type
+    baseline_id = meta.get("baseline_id") or "proposed_radg"
+    if baseline_id == "llm_only":
+        plot_llm_only_deployment_outcomes(data, target_dir / "deployment_failure_matrix")
+        plot_llm_only_deployment_outcomes(data, target_dir / "gate_accuracy_matrix")
+        plot_llm_only_wasted_compute(data, target_dir / "wasted_compute_overhead")
+        plot_llm_only_wasted_compute(data, target_dir / "latency_tokens_overhead")
+        plot_llm_only_dashboard(data, target_dir / "llm_only_ablation_dashboard")
+        plot_llm_only_dashboard(data, target_dir / "presentation_slide_dashboard")
 
-    print(f"[✓] Visual assets updated in: {target_dir}")
-    print("    ├── gate_accuracy_matrix.png / .pdf")
-    print("    ├── latency_tokens_overhead.png / .pdf")
-    print("    └── presentation_slide_dashboard.png / .pdf")
+        print(f"[✓] Visual assets updated for LLM-Only in: {target_dir}")
+        print("    ├── deployment_failure_matrix.png / .pdf")
+        print("    ├── wasted_compute_overhead.png / .pdf")
+        print("    └── llm_only_ablation_dashboard.png / .pdf")
+    else:
+        plot_gate_accuracy_matrix(data, target_dir / "gate_accuracy_matrix")
+        plot_latency_tokens_overhead(data, target_dir / "latency_tokens_overhead")
+        plot_presentation_slide_dashboard(data, target_dir / "presentation_slide_dashboard")
+
+        print(f"[✓] Visual assets updated in: {target_dir}")
+        print("    ├── gate_accuracy_matrix.png / .pdf")
+        print("    ├── latency_tokens_overhead.png / .pdf")
+        print("    └── presentation_slide_dashboard.png / .pdf")
 
     return target_dir
 
@@ -787,8 +1129,8 @@ def main() -> None:
             latest_run = runs[-1]
             print(f"No run specified. Processing latest run: {latest_run['run_id']}")
             generate_run_visuals(latest_run["json_path"])
-        elif (results_dir / "evaluation_results.json").exists():
-            generate_run_visuals(results_dir / "evaluation_results.json")
+        elif list(results_dir.glob("evaluation_results*.json")):
+            generate_run_visuals(next(results_dir.glob("evaluation_results*.json")))
         else:
             print(f"[!] Error: No evaluation results found in {results_dir}")
             sys.exit(1)

@@ -148,6 +148,88 @@ class TestLLMOnlyNodes:
         assert res["radg_decision"] == "approve"
 
 
+class TestLLMOnlyEvaluator:
+    """Verify LLM-Only evaluator policy: blind initial approve and controller error handling."""
+
+    def test_llm_only_nominal_approves_and_succeeds(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        from tests.evaluation.baselines.llm_only.evaluator import LLMOnlyEvaluator
+
+        evaluator = LLMOnlyEvaluator()
+        monkeypatch.setattr(
+            "tests.evaluation.baselines.llm_only.evaluator.evaluate_intent_with_graph",
+            lambda **kwargs: {
+                "initial_action": "approve",
+                "final_action": "approve",
+                "hitl_count": 0,
+                "total_elapsed_seconds": 3.0,
+                "total_tokens": 1200,
+            },
+        )
+        res = evaluator.evaluate_single({"id": "nom_01", "class": "I_Nominal", "intent_text": "Route A to B"})
+        assert res["initial_action"] == "approve"
+        assert res["controller_verdict"] == "approve"
+        assert res["controller_error"] is False
+        assert res["success"] is True
+        assert res["is_unfeasible_approval"] is False
+
+    def test_llm_only_non_nominal_marks_error_and_fails_pre_deployment(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        from tests.evaluation.baselines.llm_only.evaluator import LLMOnlyEvaluator
+
+        evaluator = LLMOnlyEvaluator()
+        monkeypatch.setattr(
+            "tests.evaluation.baselines.llm_only.evaluator.evaluate_intent_with_graph",
+            lambda **kwargs: {
+                "initial_action": "replan",
+                "final_action": "approve",
+                "hitl_count": 1,
+                "total_elapsed_seconds": 12.0,
+                "total_tokens": 4500,
+            },
+        )
+        res = evaluator.evaluate_single({"id": "inf_01", "class": "III_Infeasible", "intent_text": "Direct span 35 dB"})
+        assert res["initial_action"] == "approve"
+        assert res["controller_verdict"] == "replan"
+        assert res["controller_error"] is True
+        assert res["success"] is False
+        assert res["is_unfeasible_approval"] is True
+
+    def test_llm_only_visuals_generation(self, tmp_path: pytest.TempPathFactory) -> None:
+        import json
+        from pathlib import Path
+        from tests.evaluation.generate_visuals import generate_run_visuals
+
+        test_dir = Path(str(tmp_path))
+        data = {
+            "metadata": {
+                "run_id": "test_llm",
+                "baseline_id": "llm_only",
+                "model": "qwen2.5:3b",
+                "provider": "ollama",
+                "total_demands": 4,
+            },
+            "pillar_metrics": {
+                "pillar_1": {"operable_crr_rate": 100.0, "cfg_pass_rate": 100.0, "mean_well_formed_agreement": 0.9},
+                "pillar_2": {"uar_rate": 25.0, "unfeasible_approved_count": 1, "total_approved_count": 4, "piir_rate": 0.0},
+                "pillar_3": {"mean_e2e_latency_seconds": 10.0, "total_tokens_consumed": 20000, "mean_tokens_per_intent": 5000, "mean_hitl_turns": 0.75, "total_hitl_interrupts": 3},
+                "pillar_4": {"fpr_rate": 100.0, "false_positives_count": 3, "gda_rate": 25.0},
+            },
+            "demands": [
+                {"class": "I_Nominal", "initial_action": "approve", "final_action": "approve", "controller_error": False, "total_elapsed_seconds": 3.0, "total_tokens": 1500, "turn_telemetry": [{"turn": 1, "elapsed_s": 3.0, "total_tokens": 1500}]},
+                {"class": "II_Ambiguous", "initial_action": "approve", "final_action": "approve", "controller_error": True, "total_elapsed_seconds": 11.0, "total_tokens": 6000, "turn_telemetry": [{"turn": 1, "elapsed_s": 5.0, "total_tokens": 2800}, {"turn": 2, "elapsed_s": 6.0, "total_tokens": 3200}]},
+                {"class": "III_Infeasible", "initial_action": "approve", "final_action": "approve", "controller_error": True, "total_elapsed_seconds": 13.0, "total_tokens": 6500, "turn_telemetry": [{"turn": 1, "elapsed_s": 6.0, "total_tokens": 3000}, {"turn": 2, "elapsed_s": 7.0, "total_tokens": 3500}]},
+                {"class": "IV_Adversarial", "initial_action": "approve", "final_action": "approve", "controller_error": True, "total_elapsed_seconds": 12.0, "total_tokens": 6000, "turn_telemetry": [{"turn": 1, "elapsed_s": 5.5, "total_tokens": 2900}, {"turn": 2, "elapsed_s": 6.5, "total_tokens": 3100}]},
+            ],
+        }
+        json_path = test_dir / "evaluation_results.json"
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+
+        out_dir = generate_run_visuals(json_path, target_dir=test_dir)
+        assert (out_dir / "deployment_failure_matrix.png").exists()
+        assert (out_dir / "wasted_compute_overhead.png").exists()
+        assert (out_dir / "llm_only_ablation_dashboard.png").exists()
+
+
 class TestEvaluationMetrics:
     """Verify constraint retention rate (CRR) and Four Pillars metric aggregation."""
 

@@ -99,6 +99,7 @@ class AgentState(TypedDict, total=False):
     active_intent: str | None
     intent_update_reasoning: str | None
     intent_update_type: str | None
+    intent_class: str | None
 
 
 # Custom domain classes whitelisted for LangGraph msgpack/jsonplus state checkpointing

@@ -129,6 +129,7 @@ def evaluate_intent_with_graph(
     turn_1_pddl: str | None = None
     turn_1_pddl_valid: bool | None = None
     turn_1_usem: float | None = None
+    turn_1_qot_results: list[dict] | None = None
 
     while turn <= max_turns:
         elapsed_so_far = time.perf_counter() - t_start
@@ -142,6 +143,9 @@ def evaluate_intent_with_graph(
         if verbose:
             print(f"  [Turn {turn}] Running pipeline...")
         turn_t0 = time.perf_counter()
+        tokens_before = token_tracker.total_tokens
+        prompt_before = token_tracker.prompt_tokens
+        completion_before = token_tracker.completion_tokens
         turn_data: dict[str, Any] = {"turn": turn}
 
         try:
@@ -181,9 +185,15 @@ def evaluate_intent_with_graph(
                         qot = val.get("qot_results") or []
                         turn_data["qot_results"] = qot
                         diagnostics["qot_results"] = qot
+                        if turn == 1:
+                            turn_1_qot_results = qot
                     elif node in ("radg", "controller_surrogate_radg"):
                         turn_data["radg_decision"] = val.get("radg_decision")
                         diagnostics["radg_decision"] = val.get("radg_decision")
+                        if "controller_verdict" in val:
+                            diagnostics["controller_verdict"] = val.get("controller_verdict")
+                        if "controller_error" in val:
+                            diagnostics["controller_error"] = val.get("controller_error")
                     elif node == "plan_synthesizer":
                         diagnostics["has_report"] = bool(val.get("planning_report"))
 
@@ -196,6 +206,9 @@ def evaluate_intent_with_graph(
             break
 
         turn_data["elapsed_s"] = round(time.perf_counter() - turn_t0, 2)
+        turn_data["prompt_tokens"] = token_tracker.prompt_tokens - prompt_before
+        turn_data["completion_tokens"] = token_tracker.completion_tokens - completion_before
+        turn_data["total_tokens"] = token_tracker.total_tokens - tokens_before
         turn_telemetry.append(turn_data)
 
         state = graph.get_state(config)
@@ -204,7 +217,10 @@ def evaluate_intent_with_graph(
             gate_name = state.next[0]
             action = "clarify" if gate_name == "hitl_clarify" else "replan"
             if initial_action is None:
-                initial_action = action
+                if baseline_name == "llm_only":
+                    initial_action = "approve"
+                else:
+                    initial_action = action
 
             interrupt_info: dict[str, Any] = {}
             if state.tasks and state.tasks[0].interrupts:
@@ -254,8 +270,11 @@ def evaluate_intent_with_graph(
         semantic_agreement = round(max(0.0, min(1.0, 1.0 - turn_1_usem)), 3)
 
     # Check Physical Feasibility: Unsafe Approval check
-    qot_results = diagnostics.get("qot_results") or []
-    has_infeasible_path = any(q.get("qot_valid") is False for q in qot_results)
+    qot_results_t1 = turn_1_qot_results if turn_1_qot_results is not None else (diagnostics.get("qot_results") or [])
+    has_infeasible_path = any(
+        q.get("feasible") is False or q.get("qot_valid") is False
+        for q in qot_results_t1
+    ) or (item_class == "III_Infeasible")
     is_unfeasible_approval = (initial_action == "approve" and has_infeasible_path)
 
     return {
@@ -281,6 +300,8 @@ def evaluate_intent_with_graph(
         "crr_info": crr_info,
         "is_unfeasible_approval": is_unfeasible_approval,
         "radg_decision": diagnostics.get("radg_decision"),
+        "controller_verdict": diagnostics.get("controller_verdict", "approve" if item_class == "I_Nominal" else "replan"),
+        "controller_error": diagnostics.get("controller_error", (item_class != "I_Nominal" and baseline_name == "llm_only")),
         "turn_telemetry": turn_telemetry,
         "diagnostics": diagnostics,
     }

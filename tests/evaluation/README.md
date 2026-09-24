@@ -99,6 +99,12 @@ Stress-tests the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ ac
    $$\text{Precision}_{HITL} = \frac{|\{\text{intent interrupted} \mid \text{Class} \neq \text{Nominal}\}|}{|\text{intents interrupted}|} \times 100\%$$
    - **Target:** $100.0\%$.
 
+> [!NOTE]
+> **Baseline-Specific Applicability (Pillar 4):**
+> - **Proposed RADG:** Evaluates the full two-stage pre-deployment gate mechanism ($GDA > 98\%$, $FPR = 0\%$, $UAR = 0\%$).
+> - **Always-On HITL:** Evaluates the operator friction and token penalty of manual human confirmation for every request.
+> - **LLM-Only:** Pre-deployment decision gates do not exist ($N_{gates} = 0$). Therefore, **Gate Decision Accuracy (GDA) is inapplicable (N/A)**. Instead, this baseline models blind pre-deployment forwarding (`initial_action = "approve"` for all intents), exposing complete pre-deployment safety collapse ($FPR = 100\%$, elevated $UAR$). Safety failure is detected reactively at the SDON Controller Runtime level ($75\%$ incident rate on equiprobable corpus), forcing reactive recovery and imposing severe wasted compute penalties (aborted Turn 1 latency and tokens).
+
 ---
 
 ## 3. Test Corpus: 4 Balanced Risk Classes
@@ -195,9 +201,12 @@ All evaluation outputs are strictly segregated by baseline and timestamped per e
   - `evaluation_results.json`: Full diagnostic trace including PDDL strings, AST CFG pass status, reconstructed natural language, $U_{sem}$ scores, candidate routes, token counts, and QoT SNR margins.
   - `evaluation_results.csv`: Tabular spreadsheet format for rapid plotting and aggregation.
   - `evaluation_summary.md`: Publication-ready summary table featuring the Executive Four Core Validation Pillars matrix, Class Breakdown, and Detailed Trace.
-  - `gate_accuracy_matrix.png / .pdf`: Gate Interception breakdown chart.
-  - `latency_tokens_overhead.png / .pdf`: Latency & Token Distribution across Risk Classes.
-  - `presentation_slide_dashboard.png / .pdf`: 16:9 Widescreen Composite Visual for thesis defense slides.
+  - `gate_accuracy_matrix.png / .pdf`: Gate Interception breakdown chart (*Proposed RADG* and *Always-On HITL*).
+  - `latency_tokens_overhead.png / .pdf`: Latency & Token Distribution across Risk Classes (*Proposed RADG* and *Always-On HITL*).
+  - `presentation_slide_dashboard.png / .pdf`: 16:9 Widescreen Composite Visual for thesis defense slides (*Proposed RADG* and *Always-On HITL*).
+  - `deployment_failure_matrix.png / .pdf`: Pre-Deployment Blind Forwarding vs Controller Runtime Incidents (*LLM-Only* specialized).
+  - `wasted_compute_overhead.png / .pdf`: Wasted Latency and Token Overhead from aborted Turn 1 deployments (*LLM-Only* specialized).
+  - `llm_only_ablation_dashboard.png / .pdf`: 16:9 Widescreen Ablation Dashboard highlighting safety collapse and recovery costs (*LLM-Only* specialized).
 
 - **Comparative Aggregations (`tests/evaluation/baselines/common/results/run_<timestamp>/`):**
   When running all baselines (`--baseline all`), the common framework synthesizes:
