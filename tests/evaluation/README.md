@@ -29,7 +29,7 @@ tests/evaluation/
 │       ├── evaluator.py        # LLM-Only evaluator
 │       └── results/            # Run artifacts per execution (run_<timestamp>/)
 ├── test_corpus_compact.json    # Standard 20-demand benchmark corpus (4 balanced risk classes)
-├── test_corpus.json            # 107-demand full benchmark corpus
+├── test_corpus.json            # 120-demand full benchmark corpus (4 balanced risk classes)
 ├── generate_visuals.py         # Visualizer generating publication/slide figures (PNG/PDF)
 ├── archive/                    # Archived legacy scripts and previous evaluation runs
 │   ├── run_evaluation.py       # (Legacy) Replaced by tests/evaluation/main.py
@@ -111,14 +111,16 @@ Stress-tests the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ ac
 
 ## 3. Test Corpus: 4 Balanced Risk Classes
 
-The dataset (`test_corpus_compact.json`) comprises 20 demands balanced equiprobably across 4 risk classes:
+The dataset is provided in two configurations, both balanced equiprobably across the 4 thesis risk classes:
+- **Compact Corpus (`test_corpus_compact.json`):** 20 demands (5 per class) for rapid pre-deployment iteration.
+- **Full Benchmark Corpus (`test_corpus.json`):** 120 demands (30 per class) for statistical rigor and thesis validation.
 
-| Class | Name | Size | Expected RADG Action | Key Objective |
-| :---: | :--- | :--: | :------------------: | :------------ |
-| **I** | **Nominal** | 5 | `approve` (0 interrupts) | Feasible requests with valid optical paths and realistic GSNR ($\le 18\text{ dB}$). |
-| **II** | **Ambiguous** | 5 | `clarify` (Phase 3b HITL) | Underspecified endpoints or colloquial SLA, caught fail-fast by Semantic Gate. |
-| **III** | **Physically Infeasible** | 5 | `replan` (Phase 6 RADG) | Demands violating GN-model physical reach ($> 28\text{ dB}$ GSNR on multi-hop). |
-| **IV** | **Adversarial** | 5 | `clarify` / `replan` (CFG / Gate) | Contradictory constraints or hallucinated node names intercepted by CFG / Gate. |
+| Class | Name | Compact | Full | Expected RADG Action | Key Objective |
+| :---: | :--- | :--: | :--: | :------------------: | :------------ |
+| **I** | **Nominal** | 5 | 30 | `approve` (0 interrupts) | Feasible requests with valid optical paths and realistic GSNR ($\le 18\text{ dB}$). |
+| **II** | **Ambiguous** | 5 | 30 | `clarify` (Phase 3b HITL) | Underspecified endpoints or colloquial SLA, caught fail-fast by Semantic Gate. |
+| **III** | **Physically Infeasible** | 5 | 30 | `replan` (Phase 6 RADG) | Demands violating GN-model physical reach ($> 28\text{ dB}$ GSNR on multi-hop). |
+| **IV** | **Adversarial** | 5 | 30 | `clarify` / `replan` (CFG / Gate) | Contradictory constraints or hallucinated node names intercepted by CFG / Gate. |
 
 ---
 
@@ -146,7 +148,7 @@ uv run python tests/evaluation/main.py
 This interactive CLI allows you to:
 1. Choose between **Proposed RADG**, **Always-On HITL**, **LLM-Only**, or **All Baselines**.
 2. Select **Interactive Mode** (single intent with live phase tracking) or **Evaluation Benchmark Mode**.
-3. Select test corpus (**Compact 20-demands** or **Full 107-demands**) and risk class filters.
+3. Select test corpus (**Compact 20-demands** or **Full 120-demands**) and risk class filters.
 4. Configure LLM provider (`ollama`, `openrouter`, `kimi`) and target model.
 
 ### 4.2 Direct Baseline Benchmark Execution

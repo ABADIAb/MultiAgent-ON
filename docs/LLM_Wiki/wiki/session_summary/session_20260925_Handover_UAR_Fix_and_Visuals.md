@@ -19,6 +19,7 @@ Diagnose and resolve the 60.0% UAR anomaly in Proposed RADG, introduce an un-met
 
 ## 3. Test & Code Health
 - **Unit Suite:** 349 passed in 6.49s (`uv run pytest tests/unit/`).
+- **Benchmark Corpus:** Synchronized evaluation CLI and documentation across `tests/evaluation/` to reflect the full 120-demand corpus (30 per class) and 20-demand compact corpus.
 - **Baseline Telemetry:** All runs (`run_20260925_135330` and `run_20260925_163513`) fully regenerated and synchronized in PDF and PNG.
 
 ## 4. Exact Cursor & Next Prompt

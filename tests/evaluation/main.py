@@ -640,7 +640,7 @@ def parse_args() -> argparse.Namespace:
         type=str,
         default="compact",
         choices=["compact", "full"],
-        help="Evaluation corpus (default: 'compact')",
+        help="Evaluation corpus ('compact': 20 demands, 'full': 120 demands, default: 'compact')",
     )
     parser.add_argument(
         "--class",
@@ -860,7 +860,7 @@ def main() -> None:
                 "Select Benchmark Corpus:",
                 choices=[
                     questionary.Choice("Compact Corpus (20 Demands - 4 Balanced Classes)", "compact"),
-                    questionary.Choice("Full Corpus (107 Demands)", "full"),
+                    questionary.Choice("Full Corpus (120 Demands - 4 Balanced Classes)", "full"),
                 ],
             )
 
