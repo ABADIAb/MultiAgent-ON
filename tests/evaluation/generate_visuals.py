@@ -103,6 +103,10 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
                 ax.text(x[i], y_offset + val / 2, f"{val} ({val/tot*100:.0f}%)", ha="center", va="center", color=color, fontweight="bold", fontsize=11)
                 y_offset += val
 
+    totals = [counts[c]["approve"] + counts[c]["clarify"] + counts[c]["replan"] for c in CLASS_SHORT_NAMES]
+    max_demands = max(totals) if totals else 5
+    y_limit = max_demands * 1.25
+
     # Benchmark annotations above bars
     annotations = [
         "100% Autonomous\n(0 HITL Interrupts)",
@@ -111,14 +115,15 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
         "100% Filtered\n(Syntax / Semantics)",
     ]
     for i, text in enumerate(annotations):
-        ax.text(x[i], 5.15, text, ha="center", va="bottom", fontsize=9.5, color=COLOR_DARK_SLATE, fontweight="bold",
+        ax.text(x[i], totals[i] + max_demands * 0.03, text, ha="center", va="bottom", fontsize=9.5, color=COLOR_DARK_SLATE, fontweight="bold",
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=COLOR_CARD_BORDER, alpha=0.9))
 
     ax.set_xticks(x)
     ax.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
     ax.set_ylabel("Demands Evaluated (Count)", fontsize=12, fontweight="bold", color=COLOR_NAVY)
-    ax.set_ylim(0, 6.2)
-    ax.set_yticks(range(0, 7))
+    ax.set_ylim(0, y_limit)
+    tick_step = max(1, int(round(max_demands / 6)))
+    ax.set_yticks(range(0, int(y_limit) + 1, tick_step))
 
     ax.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax.set_axisbelow(True)
@@ -137,7 +142,6 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
         edgecolor=COLOR_CARD_BORDER,
         fontsize=10,
     )
-    ax.set_ylim(0, 6.3)
     plt.tight_layout()
 
     fig.savefig(f"{output_prefix}.png", dpi=300, bbox_inches="tight")
@@ -168,16 +172,18 @@ def plot_latency_tokens_overhead(results_data: dict[str, Any], output_prefix: Pa
 
     # 1. Latency Panel
     ax1.set_facecolor(COLOR_CARD_BG)
-    mean_lats = [np.mean(class_latencies[c]) if class_latencies[c] else 0.0 for c in CLASS_SHORT_NAMES]
-    bars1 = ax1.bar(x, mean_lats, width, color=COLOR_NAVY, edgecolor="white", linewidth=1.2)
+    med_lats = [float(np.median(class_latencies[c])) if class_latencies[c] else 0.0 for c in CLASS_SHORT_NAMES]
+    bars1 = ax1.bar(x, med_lats, width, color=COLOR_NAVY, edgecolor="white", linewidth=1.2)
 
-    for bar, val in zip(bars1, mean_lats):
-        ax1.text(bar.get_x() + bar.get_width() / 2, val + 3.0, f"{val:.1f}s", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    max_l = max(med_lats) if med_lats else 10.0
+    for bar, val in zip(bars1, med_lats):
+        ax1.text(bar.get_x() + bar.get_width() / 2, val + max_l * 0.04, f"{val:.1f}s", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
 
     ax1.set_xticks(x)
     ax1.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax1.set_ylabel("Mean Turnaround Latency (seconds)", fontsize=11.5, fontweight="bold", color=COLOR_NAVY)
+    ax1.set_ylabel("Median Turnaround Latency (seconds)", fontsize=11.5, fontweight="bold", color=COLOR_NAVY)
     ax1.set_title("End-to-End Orchestration Latency ($T_{E2E}$)", fontsize=13, fontweight="bold", color=COLOR_NAVY, pad=12)
+    ax1.set_ylim(0, max_l * 1.25)
     ax1.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax1.set_axisbelow(True)
     for spine in ax1.spines.values():
@@ -185,16 +191,18 @@ def plot_latency_tokens_overhead(results_data: dict[str, Any], output_prefix: Pa
 
     # 2. Token Footprint Panel
     ax2.set_facecolor(COLOR_CARD_BG)
-    mean_toks = [np.mean(class_tokens[c]) if class_tokens[c] else 0.0 for c in CLASS_SHORT_NAMES]
-    bars2 = ax2.bar(x, mean_toks, width, color=COLOR_BURGUNDY, edgecolor="white", linewidth=1.2)
+    med_toks = [float(np.median(class_tokens[c])) if class_tokens[c] else 0.0 for c in CLASS_SHORT_NAMES]
+    bars2 = ax2.bar(x, med_toks, width, color=COLOR_BURGUNDY, edgecolor="white", linewidth=1.2)
 
-    for bar, val in zip(bars2, mean_toks):
-        ax2.text(bar.get_x() + bar.get_width() / 2, val + 150.0, f"{val:,.0f}", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_BURGUNDY)
+    max_t = max(med_toks) if med_toks else 1000.0
+    for bar, val in zip(bars2, med_toks):
+        ax2.text(bar.get_x() + bar.get_width() / 2, val + max_t * 0.04, f"{val:,.0f}", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_BURGUNDY)
 
     ax2.set_xticks(x)
     ax2.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax2.set_ylabel("Mean Token Footprint (tokens / demand)", fontsize=11.5, fontweight="bold", color=COLOR_BURGUNDY)
+    ax2.set_ylabel("Median Token Footprint (tokens / demand)", fontsize=11.5, fontweight="bold", color=COLOR_BURGUNDY)
     ax2.set_title("Cumulative Token Consumption ($T_{tokens}$)", fontsize=13, fontweight="bold", color=COLOR_BURGUNDY, pad=12)
+    ax2.set_ylim(0, max_t * 1.25)
     ax2.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax2.set_axisbelow(True)
     for spine in ax2.spines.values():
@@ -284,10 +292,12 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
                 ax_left.text(x[i], y_off + val / 2, f"{val}", ha="center", va="center", color="white", fontweight="bold", fontsize=11)
                 y_off += val
 
+    totals_left = [counts[c]["approve"] + counts[c]["clarify"] + counts[c]["replan"] for c in CLASS_SHORT_NAMES]
+    max_left = max(totals_left) if totals_left else 5
     ax_left.set_xticks(x)
     ax_left.set_xticklabels(["Nominal", "Ambiguous", "Infeasible", "Adversarial"], fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax_left.set_ylabel("Demands (Count)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
-    ax_left.set_ylim(0, 5.8)
+    ax_left.set_ylim(0, max_left * 1.18)
     ax_left.set_title("Initial Risk Gate Decisions by Class (Integrity vs. Catch)", fontsize=12.5, fontweight="bold", color=COLOR_NAVY, pad=10)
     ax_left.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax_left.set_axisbelow(True)
@@ -299,20 +309,23 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
     ax_right = fig.add_axes([0.53, 0.10, 0.42, 0.58])
     ax_right.set_facecolor(COLOR_CARD_BG)
 
-    class_lats = [np.mean([d["total_elapsed_seconds"] for d in demands if d.get("class") == c]) if demands else 0 for c in CLASS_SHORT_NAMES]
+    class_lats = [float(np.median([d["total_elapsed_seconds"] for d in demands if d.get("class") == c])) if demands else 0.0 for c in CLASS_SHORT_NAMES]
     bars_r = ax_right.bar(x, class_lats, bar_width, color=COLOR_NAVY, edgecolor="white")
 
     hitl_badges = ["0 HITL", "1 HITL", "1 HITL", "1 HITL"]
+    max_lat = max(class_lats) if class_lats else 10.0
     for bar, val, badge in zip(bars_r, class_lats, hitl_badges):
-        ax_right.text(bar.get_x() + bar.get_width() / 2, val + 2.5, f"{val:.1f}s", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
-        ax_right.text(bar.get_x() + bar.get_width() / 2, val / 2 if val > 20 else val + 15, badge, ha="center", va="center", fontsize=9.5, fontweight="bold",
-                      color="white" if val > 20 else COLOR_BURGUNDY,
-                      bbox=dict(boxstyle="round,pad=0.25", facecolor=COLOR_BURGUNDY if val > 20 else "white", edgecolor=COLOR_BURGUNDY, alpha=0.85))
+        ax_right.text(bar.get_x() + bar.get_width() / 2, val + max_lat * 0.04, f"{val:.1f}s", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+        badge_y = val * 0.5 if val > max_lat * 0.4 else val + max_lat * 0.22
+        ax_right.text(bar.get_x() + bar.get_width() / 2, badge_y, badge, ha="center", va="center", fontsize=9.5, fontweight="bold",
+                      color="white" if val > max_lat * 0.4 else COLOR_BURGUNDY,
+                      bbox=dict(boxstyle="round,pad=0.25", facecolor=COLOR_BURGUNDY if val > max_lat * 0.4 else "white", edgecolor=COLOR_BURGUNDY, alpha=0.85))
 
     ax_right.set_xticks(x)
     ax_right.set_xticklabels(["Nominal", "Ambiguous", "Infeasible", "Adversarial"], fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax_right.set_ylabel("Turnaround Latency (seconds)", fontsize=11, fontweight="bold", color=COLOR_NAVY)
-    ax_right.set_title("Operational Latency & Selective HITL Engagement", fontsize=12.5, fontweight="bold", color=COLOR_NAVY, pad=10)
+    ax_right.set_title("Operational Latency & Selective HITL Engagement (Median)", fontsize=12.5, fontweight="bold", color=COLOR_NAVY, pad=10)
+    ax_right.set_ylim(0, max_lat * 1.35)
     ax_right.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax_right.set_axisbelow(True)
     for spine in ax_right.spines.values():
@@ -677,6 +690,10 @@ def plot_llm_only_deployment_outcomes(results_data: dict[str, Any], output_prefi
                 ax.text(x[i], y_offset + val / 2, f"{val} ({val/tot*100:.0f}%)", ha="center", va="center", color=color, fontweight="bold", fontsize=11)
                 y_offset += val
 
+    totals_llm = [counts[c]["provisioned"] + counts[c]["controller_error"] for c in CLASS_SHORT_NAMES]
+    max_llm = max(totals_llm) if totals_llm else 5
+    y_limit_llm = max_llm * 1.25
+
     annotations = [
         "100% Provisioned\n(0 HITL Interrupts)",
         "100% Controller Rejection\n(Ambiguity Fault)",
@@ -685,14 +702,15 @@ def plot_llm_only_deployment_outcomes(results_data: dict[str, Any], output_prefi
     ]
     for i, text in enumerate(annotations):
         border_col = COLOR_APPROVE if i == 0 else COLOR_REPLAN
-        ax.text(x[i], 5.15, text, ha="center", va="bottom", fontsize=9.5, color=COLOR_DARK_SLATE, fontweight="bold",
+        ax.text(x[i], totals_llm[i] + max_llm * 0.03, text, ha="center", va="bottom", fontsize=9.5, color=COLOR_DARK_SLATE, fontweight="bold",
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=border_col, alpha=0.95))
 
     ax.set_xticks(x)
     ax.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
     ax.set_ylabel("Demands Evaluated (Count)", fontsize=12, fontweight="bold", color=COLOR_NAVY)
-    ax.set_ylim(0, 6.4)
-    ax.set_yticks(range(0, 7))
+    ax.set_ylim(0, y_limit_llm)
+    tick_step_llm = max(1, int(round(max_llm / 6)))
+    ax.set_yticks(range(0, int(y_limit_llm) + 1, tick_step_llm))
 
     ax.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax.set_axisbelow(True)
@@ -1088,8 +1106,8 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
                 class_lat_wasted[c].append(tot_lat * 0.5)
                 class_lat_useful[c].append(tot_lat * 0.5)
 
-    m_wasted = [np.mean(class_lat_wasted[c]) if class_lat_wasted[c] else 0.0 for c in CLASS_SHORT_NAMES]
-    m_useful = [np.mean(class_lat_useful[c]) if class_lat_useful[c] else 0.0 for c in CLASS_SHORT_NAMES]
+    m_wasted = [float(np.median(class_lat_wasted[c])) if class_lat_wasted[c] else 0.0 for c in CLASS_SHORT_NAMES]
+    m_useful = [float(np.median(class_lat_useful[c])) if class_lat_useful[c] else 0.0 for c in CLASS_SHORT_NAMES]
 
     x = np.arange(len(CLASS_SHORT_NAMES))
     bar_width = 0.52

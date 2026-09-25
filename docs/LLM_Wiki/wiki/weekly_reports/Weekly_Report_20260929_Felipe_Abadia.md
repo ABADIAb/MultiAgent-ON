@@ -87,23 +87,33 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Hardened executive KPIs to explicitly track Unsafe Approval Rate (UAR) and Reactive HITL Interventions, linking the absence of defensive gating directly to operator fatigue and system compromise.
    - Pruned redundant figures from the `llm_only` baseline output, ensuring a concise and focused evaluation asset footprint.
 
+11. **Full-Corpus Benchmarking & UAR/FPR Invariant Realignment:**
+    - Executed the full 120-demand benchmark corpus across all three baselines. Diagnosed and resolved the UAR calculation anomaly (`not any(feasible is True)`), restoring the theoretical $0.0\%$ physical safety invariant.
+    - Realigned False Positive Rate ($FPR$) and Gate Decision Accuracy ($GDA$) as the primary pre-deployment metrics for non-nominal traffic, capturing semantic and adversarial anomalies that bypass physical reach checking.
+    - Added an un-metered nominal warm-up pass in the evaluation harness to eliminate $\sim 35\text{s}$ of GPU weight-loading cold-start inflation from telemetry.
+
+12. **Adversarial Robustness Hardening & Median Telemetry Migration:**
+    - Hardened Rule 4 in [`src/nodes/pddl_parser.py`](file:///home/felipeab/MultiAgentON/src/nodes/pddl_parser.py) to preserve corrupted and non-numeric literals (e.g. `NaN dB`), forbidding default type conversions to $0$ and forcing deterministic AST CFG validation failure and immediate Phase 3b HITL clarification fail-fast ($U_{sem}=1.000$).
+    - Migrated all latency and token telemetry across `metrics.py`, `reporter.py`, and `generate_visuals.py` from mean to robust median statistics, eliminating non-normal latency skew from local model stalls.
+    - Dynamically parameterized [`generate_visuals.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/generate_visuals.py) to scale visual assets (`gate_accuracy_matrix`, 16:9 presentation dashboard, multi-class wasted compute) seamlessly across both compact (20) and full (120) corpora.
+
 ---
 
 ## 3. What do I plan to accomplish next week?
 
-1. **Execute Comprehensive Comparative Benchmarking:** Run full batch evaluation across all 20 demands in `test_corpus_compact.json` comparing Proposed RADG against Always-On HITL and LLM-Only baselines, analyzing latency, token consumption, and safety tradeoffs.
-2. **Draft Thesis Chapter 5 (Experimental Results & Evaluation):** Begin formal drafting of Chapter 5 integrating empirical tables, Four Pillars radar charts, and comparative ablation figures.
-3. **Academic Presentation Rehearsal:** Review the comparative baseline outcomes and updated slide deck with academic advisor Prof. Massimo Tornatore.
+1. **Draft Thesis Chapter 5 (Experimental Results & Evaluation):** Begin formal drafting of Chapter 5 integrating empirical tables, Four Pillars radar charts, multi-class grouped breakdowns, and comparative ablation figures.
+2. **Academic Presentation Rehearsal:** Review the full-corpus comparative baseline outcomes and updated slide deck with academic advisor Prof. Massimo Tornatore.
 
 ---
 
 ## 4. Do You Need Support?
 
-- **Current Status:** The comparative baselines, segregated telemetry architecture, cross-baseline visual generators, and interactive CLI are fully functional and tested.
-- **Advisor Review:** Ready to schedule presentation rehearsal and benchmark review with Prof. Massimo Tornatore once the full batch comparison run is generated.
+- **Current Status:** The comparative baselines, segregated telemetry architecture, cross-baseline visual generators, and interactive CLI are fully functional and tested with 349 passing unit tests.
+- **Advisor Review:** Ready to schedule presentation rehearsal and benchmark review with Prof. Massimo Tornatore based on the full 120-demand corpus comparative data.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I calibrated the un-gated LLM-Only ablation baseline with controller runtime error modeling, wasted compute profiling, and custom visual analytics, eliminated duplicate telemetry artifacts across all baselines, and established repository-level hygiene rules for generated figures, validated with 344 passing unit tests.
+I completed full-corpus benchmarking across all three baselines, restored the $0.0\%$ UAR physical invariant, migrated telemetry to robust median statistics, hardened adversarial intent parsing against corrupted literals, and scaled the complete visual suite, validated with 349 passing unit tests.
+
