@@ -114,11 +114,15 @@ All baseline telemetry and visual figures are generated in `tests/evaluation/bas
   3. **Stage 3 (SDON Controller Execution):** The controller accepts only 5 nominal intents (25%), while 15 intents (75%) trigger severe deployment rejections (Syntax/Domain Conflicts, Missing Parameters, and GN-Model Physical Reach Violations).
   4. **Stage 4 (Operational Impact):** Explicitly contrasts **Touchless Production Provisioning (5 demands, 25%)** against **Post-Deployment Operator Emergency Interruptions (15 demands, 75%)**, proving that omitting pre-deployment decision mechanisms does not eliminate human labor—it converts controlled pre-flight checks into chaotic, urgent production incident responses.
 
-### 5.2 Wasted Compute & Token Overhead (`wasted_compute_overhead.png / .pdf`)
-- **Focus:** Pure computational efficiency and resource waste.
-- **Dual Stacked Bars:**
-  - **Latency:** Decomposes total turnaround duration into Turn 1 (aborted controller deployment) and Turn 2 (autonomous blind retry consuming error logs), demonstrating the substantial latency tax imposed by un-gated retries.
-  - **Tokens:** Highlights the severe token explosion resulting from embedding verbose RFC 8040 RESTConf error payloads into the LLM context during Turn 2 self-repair attempts.
+### 5.2 Multi-Class Comparative Wasted Compute (`wasted_compute_overhead.png / .pdf`)
+- **Focus:** Pure computational efficiency, recovery penalties, and direct side-by-side comparison against Proposed RADG.
+- **Visual Design:** Grouped side-by-side bar chart disaggregated across **Class I (Nominal)**, **Class II (Ambiguous)**, **Class III (Infeasible)**, **Class IV (Adversarial)**, and the **Overall** population using robust median metrics:
+  - **Proposed RADG Floor (PoliMi Navy `#0F2C53`):** Baseline single-turn or controlled pre-deployment recovery compute floor.
+  - **LLM-Only Stacked Bar:** Decomposed into:
+    - *Useful Compute (Dark Slate `#1E293B`):* Turn 2/3 remediation compute that eventually yielded an approved planning report.
+    - *Wasted Overhead (Hatched Burgundy `#85200C`):* Aborted Turn 1 execution where un-gated neural translation crashed into the SDON controller, entirely squandering compute before emergency incident recovery.
+  - **Left Panel (Median Latency):** Exposes that on non-nominal traffic, blind controller rejection and multi-turn error parsing escalate median latency by up to $+150\%-200\%$ compared to safe pre-deployment gating.
+  - **Right Panel (Median Tokens):** Highlights the severe token explosion resulting from ingesting verbose RFC 8040 RESTConf error payloads into LLM context windows during Turn 2 self-repair attempts.
 
 ### 5.3 16:9 Master Ablation Dashboard (`llm_only_ablation_dashboard.png / .pdf`)
 - **Presentation Target:** Publication and thesis defense slide-ready composite layout.

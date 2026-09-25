@@ -63,8 +63,8 @@ To prevent Ollama model weight loading, CUDA context initialization, and LangGra
 | | Ambiguity / Adversarial Catch | $100\%$ | **$80.0\% - 100.0\%$** | Upstream interception before invoking physical solver |
 | **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | **$0.0\%$** | **$0.0\%$** | Zero reach-violating lightpaths approved (Invariant) |
 | | Physical Infeasibility Catch (PIIR) | $100\%$ | **$80.0\% - 100.0\%$** | Class III infeasible demands intercepted and replanned |
-| **Pillar 3: Efficiency & Friction** | Mean E2E Latency ($T_{E2E}$, Nominal) | Contextual | **$4.4\text{s} - 5.2\text{s}$** | Steady-state turnaround after warm-up |
-| | Mean Token Footprint (Nominal) | Monitored | **$3,740\text{ tok}$** | Minimal token consumption (single-turn pass) |
+| **Pillar 3: Efficiency & Friction** | Median E2E Latency ($\tilde{T}_{E2E}$, Nominal) | Contextual | **$3.8\text{s} - 4.5\text{s}$** (Mean: $5.2\text{s}$) | Steady-state turnaround (robust to outliers) |
+| | Median Token Footprint (Nominal) | Monitored | **$3,740 - 3,762\text{ tok}$** | Minimal token consumption (single-turn pass) |
 | | Nominal HITL Interruptions | $0$ | **$0.00$** ($100\%$ Efficiency) | Zero-friction autonomous operational pass |
 | **Pillar 4: Gate Reliability** | Gate Decision Accuracy (GDA) | $> 98\%$ | **$95.0\% - 100.0\%$** | Multi-class decision boundary fidelity |
 | | False Positive Rate (FPR) | **$0.0\%$** | **$0.0\%$** | Zero risky traffic forwarded without validation |

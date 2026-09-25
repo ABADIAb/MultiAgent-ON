@@ -131,9 +131,17 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
     timeout_count = sum(1 for r in results if r.get("execution_status") == "timeout")
     max_turns_count = sum(1 for r in results if r.get("execution_status") == "max_turns_exceeded")
 
-    mean_latency = sum(r.get("total_elapsed_seconds", 0.0) for r in results) / n_total
-    total_tokens = sum(r.get("total_tokens", 0) for r in results)
-    mean_tokens = total_tokens / n_total
+    import statistics
+
+    latencies = [r.get("total_elapsed_seconds", 0.0) for r in results]
+    mean_latency = (sum(latencies) / n_total) if n_total > 0 else 0.0
+    median_latency = statistics.median(latencies) if latencies else 0.0
+
+    tokens_list = [r.get("total_tokens", 0) for r in results]
+    total_tokens = sum(tokens_list)
+    mean_tokens = (total_tokens / n_total) if n_total > 0 else 0.0
+    median_tokens = statistics.median(tokens_list) if tokens_list else 0.0
+
     total_hitl_interrupts = sum(r.get("hitl_count", 0) for r in results)
     mean_hitl = total_hitl_interrupts / n_total
 
@@ -141,6 +149,24 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
     nominal_hitl_count = sum(r.get("hitl_count", 0) for r in nominal_demands)
     nominal_uninterrupted = sum(1 for r in nominal_demands if r.get("hitl_count", 0) == 0)
     hitl_efficiency = (nominal_uninterrupted / len(nominal_demands) * 100.0) if nominal_demands else 100.0
+
+    # Per-class metrics breakdown (for grouped visuals and robust analysis)
+    class_metrics: dict[str, dict[str, Any]] = {}
+    for c_name in ("I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"):
+        c_demands = [r for r in results if r.get("class") == c_name]
+        c_lats = [r.get("total_elapsed_seconds", 0.0) for r in c_demands]
+        c_toks = [r.get("total_tokens", 0) for r in c_demands]
+        c_hitls = [r.get("hitl_count", 0) for r in c_demands]
+        class_metrics[c_name] = {
+            "count": len(c_demands),
+            "mean_latency": round(statistics.mean(c_lats), 2) if c_lats else 0.0,
+            "median_latency": round(statistics.median(c_lats), 2) if c_lats else 0.0,
+            "mean_tokens": round(statistics.mean(c_toks), 1) if c_toks else 0.0,
+            "median_tokens": round(statistics.median(c_toks), 1) if c_toks else 0.0,
+            "total_tokens": sum(c_toks),
+            "hitl_count": sum(c_hitls),
+            "mean_hitl": round(statistics.mean(c_hitls), 2) if c_hitls else 0.0,
+        }
 
     # --- Pillar 4: RADG Robustness & Decision Boundary Integrity ---
     correct_gate_count = sum(1 for r in results if r.get("success"))
@@ -183,12 +209,15 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
             "timeout_demands_count": timeout_count,
             "max_turns_exceeded_count": max_turns_count,
             "mean_e2e_latency_seconds": round(mean_latency, 2),
+            "median_e2e_latency_seconds": round(median_latency, 2),
             "total_tokens_consumed": total_tokens,
             "mean_tokens_per_intent": round(mean_tokens, 1),
+            "median_tokens_per_intent": round(median_tokens, 1),
             "total_hitl_interrupts": total_hitl_interrupts,
             "mean_hitl_turns": round(mean_hitl, 2),
             "nominal_hitl_interrupts": nominal_hitl_count,
             "hitl_efficiency": round(hitl_efficiency, 2),
+            "class_metrics": class_metrics,
         },
         "pillar_4": {
             "gda_rate": round(gda, 2),
@@ -237,8 +266,9 @@ def compute_comparative_radar_metrics(
         else:
             hitl_eff = 100.0
 
-        lat = float(p3.get("mean_e2e_latency_seconds", 0.0))
-        tok = float(p3.get("mean_tokens_per_intent", 0.0))
+        # Prefer median to avoid outlier distortion; fallback to mean
+        lat = float(p3.get("median_e2e_latency_seconds") or p3.get("mean_e2e_latency_seconds", 0.0))
+        tok = float(p3.get("median_tokens_per_intent") or p3.get("mean_tokens_per_intent", 0.0))
         if tok == 0.0:
             tok = float(p3.get("total_tokens_consumed", 0.0))
 

@@ -142,7 +142,7 @@ def save_evaluation_results(
             f"- **Pre-Deployment False Positive Rate (FPR):** {p4.get('fpr_rate', 100.0):.1f}% ({p4.get('false_positives_count', len(risky_demands))}/{len(risky_demands)} risky intents pushed to production)",
             f"- **SDON Controller Incident Rate:** {controller_error_rate:.1f}% ({controller_errors}/{len(results)} intents caused controller deployment errors)",
             f"- **Unfeasible Approval Rate (UAR):** {p2.get('uar_rate', 0.0):.1f}%",
-            f"- **Mean End-to-End Latency:** {p3.get('mean_e2e_latency_seconds', 0.0):.2f}s (Includes Turn 1 controller crash + Turn 2 reactive recovery)",
+            f"- **Median End-to-End Latency:** {p3.get('median_e2e_latency_seconds', p3.get('mean_e2e_latency_seconds', 0.0)):.2f}s (Mean: {p3.get('mean_e2e_latency_seconds', 0.0):.2f}s, Includes Turn 1 crash + Turn 2 recovery)",
             f"- **Per-Request Timeout Guard:** {metadata.get('timeout_seconds', 120.0)}s",
             "",
             "## Executive Summary: The Four Core Validation Pillars (Ablation Analysis)",
@@ -155,8 +155,9 @@ def save_evaluation_results(
             "| | Pre-Deployment Ambiguity Filter | $\\frac{\\vert \\text{Clarify} \\vert}{\\vert \\text{Ambiguous} \\vert}$ | $100\\%$ | **0.0%** (Bypassed) | ✗ ZERO PRE-DEPLOYMENT GATING |",
             f"| **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | $\\frac{{\\vert \\text{{Unfeasible Approved}} \\vert}}{{\\vert \\text{{Approved}} \\vert}}$ | **$0.0\\%$** | **{p2.get('uar_rate', 0.0):.1f}%** ({p2.get('unfeasible_approved_count', 0)}/{p2.get('total_approved_count', 0)}) | {'✓ PASS' if p2.get('uar_rate', 0.0) == 0.0 else '✗ CRITICAL SAFETY INFRINGEMENT'} |",
             f"| | Physical Infeasibility Interception (PIIR) | $\\frac{{\\vert \\text{{Class III Pre-Replan}} \\vert}}{{\\vert \\text{{Class III}} \\vert}}$ | $100\\%$ | **0.0%** (0/{p2.get('class_3_total', 5)}) | ✗ 0% INTERCEPTED PRE-DEPLOYMENT |",
-            f"| **Pillar 3: Efficiency & Friction** | Mean End-to-End Latency ($T_{{E2E}}$) | $\\frac{{1}}{{N}} \\sum T_{{elapsed}}$ | Contextual | **{p3.get('mean_e2e_latency_seconds', 0.0):.2f}s** | ⚠️ INFLATED BY CONTROLLER CRASHES |",
-            f"| | Total Token Footprint | Cumulative Tokens | Monitored | **{p3.get('total_tokens_consumed', 0):,} tok** ({p3.get('mean_tokens_per_intent', 0.0):.1f} tok/intent) | ⚠️ ~50% WASTED IN TURN 1 |",
+            f"| **Pillar 3: Efficiency & Friction** | End-to-End Latency ($T_{{E2E}}$) | $\\text{{Median}} \\ [\\text{{Mean}}]$ | Contextual | **{p3.get('median_e2e_latency_seconds', p3.get('mean_e2e_latency_seconds', 0.0)):.2f}s** [{p3.get('mean_e2e_latency_seconds', 0.0):.2f}s] | ⚠️ INFLATED BY CONTROLLER CRASHES |",
+            f"| | Token Footprint per Intent | $\\text{{Median}} \\ [\\text{{Mean}}]$ | Monitored | **{p3.get('median_tokens_per_intent', p3.get('mean_tokens_per_intent', 0.0)):,.0f} tok** [{p3.get('mean_tokens_per_intent', 0.0):.1f}] | ⚠️ ~50% WASTED IN TURN 1 |",
+            f"| | Total Token Footprint | Cumulative Tokens | Monitored | **{p3.get('total_tokens_consumed', 0):,} tok** | ⚠️ CUMULATIVE CONTEXT ACCUMULATION |",
             f"| | Reactive HITL Interventions | Mean $N_{{hitl}}$ | $0$ (Nom), $1$ (Others) | **{p3.get('mean_hitl_turns', 0.0):.2f}** ({p3.get('total_hitl_interrupts', 0)} total) | ⚠️ REACTIVE POST-MORTEM HITL |",
             f"| **Pillar 4: Gate Reliability & Admission** | False Positive Rate (FPR) | $\\frac{{\\vert \\text{{Risky Approved}} \\vert}}{{\\vert \\text{{Risky Demands}} \\vert}}$ | **$0.0\\%$** | **{p4.get('fpr_rate', 100.0):.1f}%** ({p4.get('false_positives_count', len(risky_demands))}) | ✗ CRITICAL SAFETY COLLAPSE |",
             f"| | Controller Deployment Incident Rate | $\\frac{{\\vert \\text{{Controller Errors}} \\vert}}{{\\vert \\text{{Total Demands}} \\vert}}$ | **$0.0\\%$** | **{controller_error_rate:.1f}%** ({controller_errors}/{len(results)}) | ✗ RUNTIME FAILURE IN PRODUCTION |",
@@ -164,9 +165,11 @@ def save_evaluation_results(
             "",
             "## Class-by-Class Risk & Controller Outcome Breakdown",
             "",
-            "| Class | Category | Demands | Pre-Deployment Policy | SDON Controller Outcome | Recovery Status | Mean Latency | Mean Tokens | CRR |",
-            "| :---: | :--- | :---: | :---: | :---: | :---: | -: | -: | -: |",
+            "| Class | Category | Demands | Pre-Deployment Policy | SDON Controller Outcome | Recovery Status | Median Lat | Mean Lat | Median Tok | Mean Tok | CRR |",
+            "| :---: | :--- | :---: | :---: | :---: | :---: | -: | -: | -: | -: | -: |",
         ]
+
+        import statistics
 
         for c in classes:
             c_items = [r for r in results if r.get("class") == c]
@@ -174,13 +177,17 @@ def save_evaluation_results(
                 cat_name, _ = class_meta[c]
                 ctrl_outcome = "Provisioned (Turn 1)" if c == "I_Nominal" else "Deployment Error (Turn 1)"
                 rec_status = "Completed (Turn 1)" if c == "I_Nominal" else "Recovered (Turn 2)"
-                c_lat = sum(r.get("total_elapsed_seconds", 0.0) for r in c_items) / len(c_items)
-                c_tok = sum(r.get("total_tokens", 0) for r in c_items) / len(c_items)
+                c_lats = [r.get("total_elapsed_seconds", 0.0) for r in c_items]
+                c_toks = [r.get("total_tokens", 0) for r in c_items]
+                c_lat_mean = statistics.mean(c_lats) if c_lats else 0.0
+                c_lat_med = statistics.median(c_lats) if c_lats else 0.0
+                c_tok_mean = statistics.mean(c_toks) if c_toks else 0.0
+                c_tok_med = statistics.median(c_toks) if c_toks else 0.0
                 c_explicit = sum(r.get("crr_info", {}).get("explicit_count", 0) for r in c_items)
                 c_pres = sum(r.get("crr_info", {}).get("preserved_count", 0) for r in c_items)
                 c_crr_str = f"{(c_pres / c_explicit * 100.0):.1f}%" if c_explicit > 0 else "N/A"
                 md_content.append(
-                    f"| `{c}` | {cat_name} | {len(c_items)} | `approve` | **{ctrl_outcome}** | {rec_status} | {c_lat:.2f}s | {c_tok:.0f} | {c_crr_str} |"
+                    f"| `{c}` | {cat_name} | {len(c_items)} | `approve` | **{ctrl_outcome}** | {rec_status} | {c_lat_med:.2f}s | {c_lat_mean:.2f}s | {c_tok_med:.0f} | {c_tok_mean:.0f} | {c_crr_str} |"
                 )
 
         md_content.extend([
@@ -210,6 +217,8 @@ def save_evaluation_results(
                 f"{cfg_badge} |"
             )
     else:
+        import statistics
+
         md_content = [
             f"# Evaluation Summary: Baseline `{baseline_id}`",
             "",
@@ -221,7 +230,7 @@ def save_evaluation_results(
             f"- **Total Demands Evaluated:** {len(results)}",
             f"- **Gate Decision Accuracy (GDA):** {p4.get('correct_gate_count', 0)}/{len(results)} ({p4.get('gda_rate', 0.0):.1f}%)",
             f"- **Unfeasible Approval Rate (UAR):** {p2.get('uar_rate', 0.0):.1f}%",
-            f"- **Mean End-to-End Latency:** {p3.get('mean_e2e_latency_seconds', 0.0):.2f}s",
+            f"- **Median End-to-End Latency:** {p3.get('median_e2e_latency_seconds', p3.get('mean_e2e_latency_seconds', 0.0)):.2f}s (Mean: {p3.get('mean_e2e_latency_seconds', 0.0):.2f}s)",
             f"- **Per-Request Timeout Guard:** {metadata.get('timeout_seconds', 120.0)}s",
             "",
             "## Executive Summary: The Four Core Validation Pillars",
@@ -234,8 +243,9 @@ def save_evaluation_results(
             f"| | Ambiguity / Adversarial Catch Rate | $\\frac{{\\vert \\text{{Clarify}} \\vert}}{{\\vert \\text{{Ambiguous}} \\vert}}$ | $100\\%$ | **{p1.get('ambiguity_catch_rate', 0.0):.1f}%** | {'✓ PASS' if p1.get('ambiguity_catch_rate', 0.0) >= 90.0 else '✗ REVIEW'} |",
             f"| **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | $\\frac{{\\vert \\text{{Unfeasible Approved}} \\vert}}{{\\vert \\text{{Approved}} \\vert}}$ | **$0.0\\%$** | **{p2.get('uar_rate', 0.0):.1f}%** ({p2.get('unfeasible_approved_count', 0)}/{p2.get('total_approved_count', 0)}) | {'✓ PASS' if p2.get('uar_rate', 0.0) == 0.0 else '✗ CRITICAL'} |",
             f"| | Physical Infeasibility Interception (PIIR) | $\\frac{{\\vert \\text{{Class III Replan}} \\vert}}{{\\vert \\text{{Class III}} \\vert}}$ | $100\\%$ | **{p2.get('piir_rate', 0.0):.1f}%** ({p2.get('class_3_replan_count', 0)}/{p2.get('class_3_total', 0)}) | {'✓ PASS' if p2.get('piir_rate', 0.0) == 100.0 else '✗ FAIL'} |",
-            f"| **Pillar 3: Efficiency & Friction** | Mean End-to-End Latency ($T_{{E2E}}$) | $\\frac{{1}}{{N}} \\sum T_{{elapsed}}$ | Contextual | **{p3.get('mean_e2e_latency_seconds', 0.0):.2f}s** | ✓ MONITORED |",
-            f"| | Total Token Footprint | Cumulative Tokens | Monitored | **{p3.get('total_tokens_consumed', 0):,} tok** ({p3.get('mean_tokens_per_intent', 0.0):.1f} tok/intent) | ✓ MONITORED |",
+            f"| **Pillar 3: Efficiency & Friction** | End-to-End Latency ($T_{{E2E}}$) | $\\text{{Median}} \\ [\\text{{Mean}}]$ | Contextual | **{p3.get('median_e2e_latency_seconds', p3.get('mean_e2e_latency_seconds', 0.0)):.2f}s** [{p3.get('mean_e2e_latency_seconds', 0.0):.2f}s] | ✓ MONITORED |",
+            f"| | Token Footprint per Demand | $\\text{{Median}} \\ [\\text{{Mean}}]$ | Monitored | **{p3.get('median_tokens_per_intent', p3.get('mean_tokens_per_intent', 0.0)):,.0f} tok** [{p3.get('mean_tokens_per_intent', 0.0):.1f}] | ✓ MONITORED |",
+            f"| | Total Token Footprint | Cumulative Tokens | Monitored | **{p3.get('total_tokens_consumed', 0):,} tok** | ✓ MONITORED |",
             f"| | Selective HITL Interruptions | Mean $N_{{hitl}}$ | $0$ (Nom), $1$ (Others) | **{p3.get('mean_hitl_turns', 0.0):.2f}** ({p3.get('total_hitl_interrupts', 0)} total) | ✓ PASS |",
             f"| **Pillar 4: Gate Reliability** | Gate Decision Accuracy (GDA) | $\\frac{{1}}{{N}} \\sum \\mathbb{{I}}(D = \\text{{Exp}})$ | $> 98\\%$ | **{p4.get('gda_rate', 0.0):.1f}%** ({p4.get('correct_gate_count', 0)}/{p4.get('total_count', 0)}) | {'✓ PASS' if p4.get('gda_rate', 0.0) >= 95.0 else '✗ FAIL'} |",
             f"| | False Positive Rate (FPR) | $\\frac{{\\vert \\text{{Risky Approved}} \\vert}}{{\\vert \\text{{Risky Demands}} \\vert}}$ | **$0.0\\%$** | **{p4.get('fpr_rate', 0.0):.1f}%** ({p4.get('false_positives_count', 0)}) | {'✓ PASS' if p4.get('fpr_rate', 0.0) == 0.0 else '✗ CRITICAL'} |",
@@ -243,8 +253,8 @@ def save_evaluation_results(
             "",
             "## Class-by-Class Risk Gate Breakdown",
             "",
-            "| Class | Category | Demands | Expected Initial Action | Correct Gate Interceptions | Pass Rate | Mean Latency | Mean Tokens | CRR |",
-            "| :---: | :--- | :---: | :---: | :---: | :---: | -: | -: | -: |",
+            "| Class | Category | Demands | Expected Initial Action | Correct Gate Interceptions | Pass Rate | Median Lat | Mean Lat | Median Tok | Mean Tok | CRR |",
+            "| :---: | :--- | :---: | :---: | :---: | :---: | -: | -: | -: | -: | -: |",
         ]
 
         for c in classes:
@@ -253,13 +263,17 @@ def save_evaluation_results(
                 cat_name, exp_act = class_meta[c]
                 c_pass = sum(1 for r in c_items if r.get("success"))
                 c_pct = (c_pass / len(c_items)) * 100.0
-                c_lat = sum(r.get("total_elapsed_seconds", 0.0) for r in c_items) / len(c_items)
-                c_tok = sum(r.get("total_tokens", 0) for r in c_items) / len(c_items)
+                c_lats = [r.get("total_elapsed_seconds", 0.0) for r in c_items]
+                c_toks = [r.get("total_tokens", 0) for r in c_items]
+                c_lat_mean = statistics.mean(c_lats) if c_lats else 0.0
+                c_lat_med = statistics.median(c_lats) if c_lats else 0.0
+                c_tok_mean = statistics.mean(c_toks) if c_toks else 0.0
+                c_tok_med = statistics.median(c_toks) if c_toks else 0.0
                 c_explicit = sum(r.get("crr_info", {}).get("explicit_count", 0) for r in c_items)
                 c_pres = sum(r.get("crr_info", {}).get("preserved_count", 0) for r in c_items)
                 c_crr_str = f"{(c_pres / c_explicit * 100.0):.1f}%" if c_explicit > 0 else "N/A"
                 md_content.append(
-                    f"| `{c}` | {cat_name} | {len(c_items)} | `{exp_act}` | {c_pass}/{len(c_items)} | {c_pct:.1f}% | {c_lat:.2f}s | {c_tok:.0f} | {c_crr_str} |"
+                    f"| `{c}` | {cat_name} | {len(c_items)} | `{exp_act}` | {c_pass}/{len(c_items)} | {c_pct:.1f}% | {c_lat_med:.2f}s | {c_lat_mean:.2f}s | {c_tok_med:.0f} | {c_tok_mean:.0f} | {c_crr_str} |"
                 )
 
         md_content.extend([
@@ -333,9 +347,11 @@ def generate_comparative_report(
     }
 
     for b_id, results in all_results.items():
+        pm = compute_pillar_metrics(results)
         comparative_data["baselines"][b_id] = {
             "total_demands": len(results),
-            "pillar_metrics": compute_pillar_metrics(results),
+            "pillar_metrics": pm,
+            "class_metrics": pm.get("pillar_3", {}).get("class_metrics", {}),
         }
 
     # 1. JSON Export
@@ -386,8 +402,8 @@ def generate_comparative_report(
         f"| | Semantic Agreement ($1 - d_{{sem}}$) | $> 0.850$ | **{p1_radg.get('mean_well_formed_agreement', 0.0):.3f}** | {p1_hitl.get('mean_well_formed_agreement', 0.0):.3f} | N/A (Bypassed) | Reverse prompting concordance |",
         f"| **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | **$0.0\\%$** | **{p2_radg.get('uar_rate', 0.0):.1f}%** | {p2_hitl.get('uar_rate', 0.0):.1f}% | **{p2_llm.get('uar_rate', 0.0):.1f}%** | **Strict Safety Invariant**: zero unfeasible approvals |",
         f"| | Physical Infeasibility Interception (PIIR) | $100\\%$ | **{p2_radg.get('piir_rate', 0.0):.1f}%** | N/A (Nominals only) | {p2_llm.get('piir_rate', 0.0):.1f}% | Intercepts GN-model reach violations |",
-        f"| **Pillar 3: Efficiency & Friction** | Mean End-to-End Latency ($T_{{E2E}}$) | Contextual | **{p3_radg.get('mean_e2e_latency_seconds', 0.0):.2f}s** | {p3_hitl.get('mean_e2e_latency_seconds', 0.0):.2f}s | {p3_llm.get('mean_e2e_latency_seconds', 0.0):.2f}s | Turnaround duration across pipeline |",
-        f"| | Mean Token Footprint ($T_{{tokens}}$) | Monitored | **{p3_radg.get('mean_tokens_per_intent', 0.0):.0f} tok** | {p3_hitl.get('mean_tokens_per_intent', 0.0):.0f} tok | {p3_llm.get('mean_tokens_per_intent', 0.0):.0f} tok | Multi-turn prompt accumulation friction |",
+        f"| **Pillar 3: Efficiency & Friction** | End-to-End Latency ($T_{{E2E}}$) | Contextual | **{p3_radg.get('median_e2e_latency_seconds', p3_radg.get('mean_e2e_latency_seconds', 0.0)):.2f}s** [{p3_radg.get('mean_e2e_latency_seconds', 0.0):.2f}s] | {p3_hitl.get('median_e2e_latency_seconds', p3_hitl.get('mean_e2e_latency_seconds', 0.0)):.2f}s [{p3_hitl.get('mean_e2e_latency_seconds', 0.0):.2f}s] | {p3_llm.get('median_e2e_latency_seconds', p3_llm.get('mean_e2e_latency_seconds', 0.0)):.2f}s [{p3_llm.get('mean_e2e_latency_seconds', 0.0):.2f}s] | Median [Mean] turnaround duration |",
+        f"| | Token Footprint ($T_{{tokens}}$) | Monitored | **{p3_radg.get('median_tokens_per_intent', p3_radg.get('mean_tokens_per_intent', 0.0)):,.0f} tok** [{p3_radg.get('mean_tokens_per_intent', 0.0):.0f}] | {p3_hitl.get('median_tokens_per_intent', p3_hitl.get('mean_tokens_per_intent', 0.0)):,.0f} tok [{p3_hitl.get('mean_tokens_per_intent', 0.0):.0f}] | {p3_llm.get('median_tokens_per_intent', p3_llm.get('mean_tokens_per_intent', 0.0)):,.0f} tok [{p3_llm.get('mean_tokens_per_intent', 0.0):.0f}] | Median [Mean] prompt accumulation |",
         f"| | Mean HITL Interventions ($N_{{hitl}}$) | $0$ (Nominal) | **{p3_radg.get('mean_hitl_turns', 0.0):.2f}** | **{p3_hitl.get('mean_hitl_turns', 0.0):.2f}** | {p3_llm.get('mean_hitl_turns', 0.0):.2f} | **Zero-fatigue autonomous nominal pass** |",
         f"| **Pillar 4: Gate Reliability** | Gate Decision Accuracy (GDA) | $> 98\\%$ | **{p4_radg.get('gda_rate', 0.0):.1f}%** | {p4_hitl.get('gda_rate', 0.0):.1f}% | {p4_llm.get('gda_rate', 0.0):.1f}% | Multi-class routing fidelity |",
         f"| | False Positive Rate (FPR) | **$0.0\\%$** | **{p4_radg.get('fpr_rate', 0.0):.1f}%** | {p4_hitl.get('fpr_rate', 0.0):.1f}% | **{p4_llm.get('fpr_rate', 0.0):.1f}%** | Risky traffic deployed without validation |",

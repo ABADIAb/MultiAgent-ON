@@ -16,15 +16,17 @@ tests/evaluation/
 │   │   ├── reporter.py         # Multi-format telemetry exporter (JSON, CSV, MD)
 │   │   └── results/            # Comparative multi-baseline aggregated summaries (run_<timestamp>/)
 │   ├── proposed_radg/          # Proposed System: Fail-fast Semantic & Physical RADGs
+│   │   ├── README.md           # Detailed explanations of what is evaluated and graphed for Proposed RADG
 │   │   ├── graph.py            # Wires standard src.core.graph
 │   │   ├── evaluator.py        # Proposed RADG evaluator
 │   │   └── results/            # Run artifacts per execution (run_<timestamp>/)
 │   ├── always_on_hitl/         # Baseline: Always-On HITL (Paranoid Turn-1 Review on Nominals)
-│   │   ├── README.md           # Authoritative baseline guide & Chapter 5 thesis specification
+│   │   ├── README.md           # Authoritative baseline guide, evaluation details, and graphed metrics
 │   │   ├── graph.py            # StateGraph with Turn-1 mandatory clarification
 │   │   ├── evaluator.py        # Always-On HITL evaluator (scoped to Nominal intents)
 │   │   └── results/            # Run artifacts per execution (run_<timestamp>/)
 │   └── llm_only/               # Baseline: LLM-Only (No Semantic Gate / Controller Error Surrogate)
+│   │   ├── README.md           # Detailed explanations of what is evaluated and graphed for LLM-Only
 │       ├── graph.py            # StateGraph with bypassed semantic gate + controller surrogate
 │       ├── evaluator.py        # LLM-Only evaluator
 │       └── results/            # Run artifacts per execution (run_<timestamp>/)
@@ -35,6 +37,9 @@ tests/evaluation/
 │   ├── run_evaluation.py       # (Legacy) Replaced by tests/evaluation/main.py
 │   └── results_legacy/         # (Legacy) Historical test snapshots
 └── README.md                   # Environment, methodology, and execution instructions
+
+> [!IMPORTANT]
+> **Detailed Explanations**: The precise explanations of what is evaluated, how the metrics are calculated, and what is graphed for each baseline are detailed in the `README.md` file located inside each baseline's respective folder (`tests/evaluation/baselines/<baseline>/README.md`).
 ```
 
 ---
@@ -217,12 +222,12 @@ All evaluation outputs are strictly segregated by baseline and timestamped per e
     - `latency_tokens_overhead.png / .pdf`: Latency & Token Distribution across Risk Classes.
     - `presentation_slide_dashboard.png / .pdf`: 16:9 Widescreen Composite Visual for thesis defense slides.
   - **Always-On HITL Visuals (see [always_on_hitl/README.md](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_on_hitl/README.md)):**
-    - `wasted_compute_overhead.png / .pdf`: Dual-panel stacked bar chart quantifying unnecessary overhead on Class I (Nominal) traffic ($+143\%$ latency, $+118\%$ tokens).
+    - `wasted_compute_overhead.png / .pdf`: Dual-panel stacked bar chart across all intent classes (Nominal, Ambiguous, Infeasible, Adversarial, and Overall) contrasting the Proposed RADG floor with Always-On overhead using median metrics ($+212\%$ median latency, $+118\%$ tokens on nominals).
     - `scalability_projection.png / .pdf`: Cumulative step chart proving operational scalability and human cognitive fatigue savings over mixed traffic.
     - `always_on_ablation_dashboard.png / .pdf`: 16:9 Widescreen Master Slide-Ready Dashboard combining KPI stat cards, nominal compute tax, and cognitive savings.
   - **LLM-Only Visuals (see [llm_only/README.md](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/llm_only/README.md)):**
     - `deployment_flow_sankey.png / .pdf`: 4-stage Sankey showing blind admission (100% forwarded) leading to 75% controller crashes and 15 post-deployment emergency operator interruptions.
-    - `wasted_compute_overhead.png / .pdf`: Wasted Latency and Token Overhead from aborted Turn 1 deployments and Turn 2 RFC 8040 error log parsing.
+    - `wasted_compute_overhead.png / .pdf`: Side-by-side grouped bar chart across all intent classes (Nominal, Ambiguous, Infeasible, Adversarial, and Overall) comparing Proposed RADG floor against LLM-Only Useful vs. Turn 1 Wasted compute from aborted deployments.
     - `llm_only_ablation_dashboard.png / .pdf`: 16:9 Widescreen Ablation Dashboard highlighting safety collapse and recovery costs.
 
 - **Comparative Aggregations (`tests/evaluation/baselines/common/results/run_<timestamp>/`):**
@@ -230,8 +235,9 @@ All evaluation outputs are strictly segregated by baseline and timestamped per e
   - `comparative_results.json`: Cross-baseline metrics across all four pillars.
   - `comparative_summary.md`: Side-by-side executive comparison matrix contrasting Proposed RADG vs Always-On HITL vs LLM-Only.
   - `comparative_radar_pillars.png / .pdf`: 4-axis polar radar chart mapping Pre-Deployment Safety ($100 - \text{UAR}$), HITL Efficiency (Zero-Friction Nominal), Speed, and Token Economy. Proposed RADG achieves the optimal 100% perimeter across all 4 axes.
+  - `comparative_deployment_flow_sankey.png / .pdf`: Combined dual-panel Sankey diagram directly contrasting **Panel A: Proposed RADG** (Safe Autonomous Pre-Deployment Gating, Zero Controller Incidents) with **Panel B: LLM-Only Baseline** (Blind Forwarding, 75% Controller Safety Collapse and Emergency Human Remediation).
   - `comparative_pillars_breakdown.png / .pdf`: 4-panel grouped comparative figure displaying:
     - **Panel 1 (Physical Safety):** UAR rate ($0.0\%$ for Proposed RADG and Always-On vs. $75.0\%$ for LLM-Only).
     - **Panel 2 (Operator Friction):** Grouped bars contrasting nominal zero-fatigue ($0.00$ turns for Proposed RADG vs. $1.00$ for Always-On) with selective risk oversight across all traffic.
-    - **Panel 3 (Latency):** Turnaround duration across all baselines.
-    - **Panel 4 (Token Consumption):** Cumulative prompt and completion token footprint.
+    - **Panel 3 (Latency):** Orchestration latency grouped by baseline and disaggregated by intent class (Nominal, Ambiguous, Infeasible, Adversarial) using robust median seconds per class.
+    - **Panel 4 (Token Consumption):** Token footprint grouped by baseline and disaggregated by intent class using median tokens per demand.
