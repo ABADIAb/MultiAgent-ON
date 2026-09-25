@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from tests.evaluation.baselines.common.reporter import save_evaluation_results
-from tests.evaluation.baselines.common.runner import evaluate_intent_with_graph
+from tests.evaluation.baselines.common.runner import evaluate_intent_with_graph, warmup_evaluator
 from tests.evaluation.baselines.proposed_radg.graph import compile_proposed_graph
 
 
@@ -15,6 +15,10 @@ class ProposedRADGEvaluator:
 
     def __init__(self, baseline_name: str = "proposed_radg") -> None:
         self.baseline_name = baseline_name
+
+    def warmup(self, verbose: bool = True) -> None:
+        """Prime LLM weights and pipeline caches with an un-metered pass."""
+        warmup_evaluator(compile_proposed_graph, verbose=verbose)
 
     def evaluate_single(
         self,
@@ -42,8 +46,11 @@ class ProposedRADGEvaluator:
         intent_timeout: float = 300.0,
         verbose: bool = True,
         generate_visuals: bool = True,
+        warmup: bool = False,
     ) -> list[dict[str, Any]]:
         """Evaluate a list of demands and export telemetry snapshots."""
+        if warmup:
+            self.warmup(verbose=verbose)
         results = []
         for idx, item in enumerate(corpus, 1):
             if verbose:

@@ -26,7 +26,11 @@ from src.nodes.radg_node import radg_route
 from src.nodes.reverse_prompt import reverse_prompt_node
 from src.nodes.semantic_gate_node import semantic_gate_node
 
+from pathlib import Path
+
 logger = logging.getLogger(__name__)
+
+MOCK_ERROR_FILE = Path(__file__).resolve().parent / "mock_restconf_error.json"
 
 
 def bypassed_semantic_gate_node(state: AgentState) -> dict:
@@ -47,17 +51,22 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
     """Physical Gate acting as a surrogate for the network controller.
 
     Reaching this node represents that the configuration has arrived at the controller.
-    - Class I (Nominal): Passes through if feasible -> auto-approve -> Phase 7 Synthesis.
-    - Class II (Ambiguous), Class III (Infeasible), Class IV (Adversarial):
-      The controller rejects the unfeasible/ambiguous configuration and triggers
-      a HITL replan interrupt.
-    - Turn 2+ (Recovery): Operator follow-up nominal intent is evaluated and approved.
+    - Turn 1:
+        * Class I (Nominal): Passes through if feasible -> auto-approve -> Phase 7 Synthesis.
+        * Non-nominal (Class II, III, IV): Controller rejects deployment. Does NOT interrupt.
+          Injects raw RFC 8040 RESTConf error payload into state messages and loops back to
+          Phase 2 (PDDL Parsing) for autonomous blind retry (hallucination & token penalty).
+    - Turn 2:
+        * If blind retry fails again (expected for unfeasible/ambiguous demands), fires HITL
+          operator interrupt requiring incident response intervention.
+    - Turn 3+ (Incident Response Recovery):
+        * Evaluates operator-provided nominal recovery intent and approves when feasible.
     """
     qot_results: list[dict] = state.get("qot_results") or []
     intent_class: str | None = state.get("intent_class")
     refinement_count: int = state.get("refinement_count") or 0
 
-    # Turn 1 handling
+    # Turn 1 handling (Initial Deployment Attempt)
     if refinement_count == 0:
         is_nominal = (intent_class == "I_Nominal") if intent_class else None
 
@@ -80,10 +89,60 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
                     "messages": [AIMessage(content=summary, name="radg")],
                 }
 
-        # Non-nominal intent (Class II, III, IV) reached the controller: simulate controller deployment error
+        # Non-nominal intent (Class II, III, IV) reached controller in Turn 1:
+        # Simulate controller deployment error, inject raw RESTConf error log, DO NOT interrupt.
+        if MOCK_ERROR_FILE.exists():
+            with open(MOCK_ERROR_FILE, "r", encoding="utf-8") as f:
+                raw_restconf_error = f.read().strip()
+        else:
+            raw_restconf_error = (
+                '{"ietf-restconf:errors": {"error": [{"error-message": "Deployment aborted. Physical impairment validation failed."}]}}'
+            )
+
         summary = (
-            "Controller Deployment Error: Configuration rejected at controller level. "
-            "Physical or semantic constraints violated (LLM-Only baseline)."
+            "Controller Deployment Rejection (RFC 8040 RESTCONF Error Log):\n"
+            f"{raw_restconf_error}"
+        )
+        logger.warning(
+            "Controller rejected deployment in Turn 1. Injecting raw RESTConf error log into state "
+            "and looping back to Phase 2 (PDDL Parsing) for autonomous blind retry."
+        )
+
+        refinement_history = list(state.get("refinement_history") or [])
+        refinement_history.append(summary)
+
+        return {
+            "radg_decision": "replan",
+            "error_context": summary,
+            "controller_reached": True,
+            "controller_error": True,
+            "controller_verdict": "replan",
+            "refinement_history": refinement_history,
+            "refinement_count": 1,
+            "messages": [AIMessage(content=summary, name="controller")],
+        }
+
+    # Turn 2 handling (Autonomous Blind Retry Evaluation)
+    if refinement_count == 1:
+        has_feasible = any(r.get("feasible") for r in qot_results)
+        is_nominal = (intent_class == "I_Nominal") if intent_class else has_feasible
+
+        if is_nominal and evaluate_radg(qot_results) == "approve":
+            summary = "Controller (Physical Gate): Autonomous repair successfully APPROVED."
+            return {
+                "radg_decision": "approve",
+                "error_context": None,
+                "controller_reached": True,
+                "controller_error": False,
+                "controller_verdict": "approve",
+                "messages": [AIMessage(content=summary, name="radg")],
+            }
+
+        # If blind retry failed in Turn 2, trigger human operator incident response interrupt
+        summary = (
+            "Controller Deployment Error (Turn 2 Blind Retry Failed): "
+            "Autonomous recovery failed to resolve physical/semantic violations. "
+            "Operator incident response required."
         )
         logger.warning(summary)
 
@@ -91,8 +150,9 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
             "decision": "replan",
             "reason": summary,
             "suggestion": (
-                "The configuration reached the network controller but was rejected. "
-                "Please provide a refined, feasible intent to recover."
+                "The LLM attempted autonomous blind recovery from the RESTCONF error log, "
+                "but physical and semantic constraints remain violated. "
+                "Operator intervention required: provide a refined, feasible intent to recover."
             ),
             "qot_results": qot_results,
             "controller_error": True,
@@ -112,7 +172,6 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
         resolved_fb = feedback if feedback else summary
         refinement_history = list(state.get("refinement_history") or [])
         refinement_history.append(resolved_fb)
-        new_count = refinement_count + 1
 
         return {
             "radg_decision": "replan",
@@ -121,14 +180,14 @@ def controller_surrogate_radg_node(state: AgentState) -> dict:
             "controller_error": True,
             "controller_verdict": "replan",
             "refinement_history": refinement_history,
-            "refinement_count": new_count,
-            "messages": [AIMessage(content=summary, name="radg")],
+            "refinement_count": 2,
+            "messages": [AIMessage(content=summary, name="controller")],
         }
 
-    # Turn 2+ (Recovery): standard evaluation of follow-up nominal intent
+    # Turn 3+ (Human Incident Response Recovery)
     decision = evaluate_radg(qot_results)
     if decision == "approve":
-        summary = "Controller (Physical Gate): Recovery intent successfully APPROVED."
+        summary = "Controller (Physical Gate): Incident response recovery intent successfully APPROVED."
         return {
             "radg_decision": "approve",
             "error_context": None,

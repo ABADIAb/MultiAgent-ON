@@ -113,15 +113,7 @@ class TestLLMOnlyNodes:
         assert res["radg_decision"] == "approve"
         assert res.get("controller_reached") is True
 
-    def test_controller_surrogate_turn_1_non_nominal_triggers_interrupt(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        interrupt_called = {}
-
-        def mock_interrupt(payload):
-            interrupt_called["payload"] = payload
-            return {"action": "replan", "feedback": "Route traffic from Berlin to Frankfurt with at least 12 dB GSNR."}
-
-        monkeypatch.setattr("tests.evaluation.baselines.llm_only.graph.interrupt", mock_interrupt)
-
+    def test_controller_surrogate_turn_1_non_nominal_injects_restconf_error(self) -> None:
         state = {
             "refinement_count": 0,
             "intent_class": "III_Infeasible",
@@ -133,12 +125,36 @@ class TestLLMOnlyNodes:
         res = controller_surrogate_radg_node(state)  # type: ignore
         assert res["radg_decision"] == "replan"
         assert res["refinement_count"] == 1
+        assert res["controller_error"] is True
+        assert "RFC 8040 RESTCONF" in res["refinement_history"][0]
+        assert "ietf-restconf:errors" in res["error_context"]
+
+    def test_controller_surrogate_turn_2_blind_retry_failure_triggers_interrupt(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        interrupt_called = {}
+
+        def mock_interrupt(payload):
+            interrupt_called["payload"] = payload
+            return {"action": "replan", "feedback": "Route traffic from Berlin to Frankfurt with at least 12 dB GSNR."}
+
+        monkeypatch.setattr("tests.evaluation.baselines.llm_only.graph.interrupt", mock_interrupt)
+
+        state = {
+            "refinement_count": 1,
+            "intent_class": "III_Infeasible",
+            "qot_results": [
+                {"path": ["Berlin", "Frankfurt"], "feasible": False, "snr_dB": 8.0, "power_dBm": -12.0}
+            ],
+            "refinement_history": [],
+        }
+        res = controller_surrogate_radg_node(state)  # type: ignore
+        assert res["radg_decision"] == "replan"
+        assert res["refinement_count"] == 2
         assert "Route traffic from Berlin to Frankfurt" in res["refinement_history"][0]
         assert interrupt_called["payload"]["decision"] == "replan"
 
-    def test_controller_surrogate_turn_2_recovery_approves(self) -> None:
+    def test_controller_surrogate_turn_3_recovery_approves(self) -> None:
         state = {
-            "refinement_count": 1,
+            "refinement_count": 2,
             "intent_class": "III_Infeasible",
             "qot_results": [
                 {"path": ["Berlin", "Frankfurt"], "feasible": True, "snr_dB": 16.5, "power_dBm": -12.0}
@@ -146,6 +162,7 @@ class TestLLMOnlyNodes:
         }
         res = controller_surrogate_radg_node(state)  # type: ignore
         assert res["radg_decision"] == "approve"
+        assert res["controller_error"] is False
 
 
 class TestLLMOnlyEvaluator:
@@ -417,4 +434,152 @@ class TestRunnerTimeoutAndStatus:
         assert metrics["pillar_3"]["task_completion_rate"] == 50.0
         assert metrics["pillar_3"]["completed_demands_count"] == 1
         assert metrics["pillar_3"]["timeout_demands_count"] == 1
+
+
+class TestComparativeRadarMetrics:
+    """Verify 4 orthogonal normalized radar metrics calculations."""
+
+    def test_radar_metrics_penalties(self) -> None:
+        from tests.evaluation.baselines.common.metrics import compute_comparative_radar_metrics
+
+        baselines_info = {
+            "proposed_radg": {
+                "pillar_metrics": {
+                    "pillar_2": {"uar_rate": 0.0},
+                    "pillar_3": {
+                        "hitl_efficiency": 100.0,
+                        "mean_e2e_latency_seconds": 5.0,
+                        "mean_tokens_per_intent": 2000,
+                    },
+                }
+            },
+            "always_on_hitl": {
+                "pillar_metrics": {
+                    "pillar_2": {"uar_rate": 0.0},
+                    "pillar_3": {
+                        "hitl_efficiency": 0.0,
+                        "mean_e2e_latency_seconds": 12.5,
+                        "mean_tokens_per_intent": 5000,
+                    },
+                }
+            },
+            "llm_only": {
+                "pillar_metrics": {
+                    "pillar_2": {"uar_rate": 75.0},
+                    "pillar_3": {
+                        "hitl_efficiency": 100.0,
+                        "mean_e2e_latency_seconds": 15.0,
+                        "mean_tokens_per_intent": 8000,
+                    },
+                }
+            },
+        }
+
+        radar = compute_comparative_radar_metrics(baselines_info)
+
+        # Proposed RADG is optimal across all 4 axes
+        assert radar["proposed_radg"]["pre_deployment_safety"] == 100.0
+        assert radar["proposed_radg"]["hitl_efficiency"] == 100.0
+        assert radar["proposed_radg"]["execution_latency"] == 100.0
+        assert radar["proposed_radg"]["token_economy"] == 100.0
+
+        # Always-On HITL is severely penalized in HITL efficiency (0%) and latency (40%)
+        assert radar["always_on_hitl"]["pre_deployment_safety"] == 100.0
+        assert radar["always_on_hitl"]["hitl_efficiency"] == 0.0
+        assert radar["always_on_hitl"]["execution_latency"] == 40.0
+        assert radar["always_on_hitl"]["token_economy"] == 40.0
+
+        # LLM-Only is severely penalized in safety (25%) and token economy (25%)
+        assert radar["llm_only"]["pre_deployment_safety"] == 25.0
+        assert radar["llm_only"]["hitl_efficiency"] == 100.0
+        assert radar["llm_only"]["execution_latency"] == 33.33
+        assert radar["llm_only"]["token_economy"] == 25.0
+
+
+class TestAlwaysOnCorpusConvergence:
+    """Verify that AlwaysOnHITLEvaluator populates non-nominal demands from Proposed RADG."""
+
+    def test_evaluate_corpus_merges_non_nominals(self, monkeypatch: pytest.MonkeyPatch, tmp_path: pytest.TempPathFactory) -> None:
+        from pathlib import Path
+        from tests.evaluation.baselines.always_on_hitl import AlwaysOnHITLEvaluator
+
+        evaluator = AlwaysOnHITLEvaluator()
+        test_dir = Path(str(tmp_path))
+
+        corpus = [
+            {"id": "nom_01", "class": "I_Nominal", "intent_text": "Route A to B"},
+            {"id": "amb_01", "class": "II_Ambiguous", "intent_text": "Vague route"},
+            {"id": "inf_01", "class": "III_Infeasible", "intent_text": "Direct span 30 dB"},
+        ]
+
+        monkeypatch.setattr(
+            evaluator,
+            "evaluate_single",
+            lambda item, **kw: {
+                "id": item["id"],
+                "class": item["class"],
+                "baseline": "always_on_hitl",
+                "initial_action": "clarify",
+                "final_action": "approve",
+                "success": True,
+                "hitl_count": 1,
+                "total_elapsed_seconds": 12.0,
+                "total_tokens": 8000,
+                "pddl_valid": True,
+                "crr_info": {"explicit_count": 1, "preserved_count": 1, "crr": 1.0},
+            },
+        )
+
+        mock_proposed = {
+            "amb_01": {
+                "id": "amb_01",
+                "class": "II_Ambiguous",
+                "baseline": "proposed_radg",
+                "initial_action": "clarify",
+                "final_action": "approve",
+                "success": True,
+                "hitl_count": 1,
+                "total_elapsed_seconds": 11.0,
+                "total_tokens": 5000,
+                "pddl_valid": True,
+                "crr_info": {"explicit_count": 1, "preserved_count": 1, "crr": 1.0},
+            },
+            "inf_01": {
+                "id": "inf_01",
+                "class": "III_Infeasible",
+                "baseline": "proposed_radg",
+                "initial_action": "replan",
+                "final_action": "approve",
+                "success": True,
+                "hitl_count": 1,
+                "total_elapsed_seconds": 13.0,
+                "total_tokens": 5500,
+                "pddl_valid": True,
+                "crr_info": {"explicit_count": 1, "preserved_count": 1, "crr": 1.0},
+            },
+        }
+
+        monkeypatch.setattr(
+            "tests.evaluation.baselines.always_on_hitl.evaluator._load_proposed_radg_demands",
+            lambda run_id=None: mock_proposed,
+        )
+
+        results = evaluator.evaluate_corpus(
+            corpus=corpus,
+            output_dir=test_dir,
+            metadata={"run_id": "test_conv"},
+            generate_visuals=False,
+        )
+
+        assert len(results) == 3
+        # Check that nominal item has always_on_hitl baseline
+        assert results[0]["id"] == "nom_01"
+        assert results[0]["baseline"] == "always_on_hitl"
+        # Check that non-nominal items were populated and re-tagged
+        assert results[1]["id"] == "amb_01"
+        assert results[1]["baseline"] == "always_on_hitl"
+        assert results[2]["id"] == "inf_01"
+        assert results[2]["baseline"] == "always_on_hitl"
+        assert results[2]["initial_action"] == "replan"
+
 

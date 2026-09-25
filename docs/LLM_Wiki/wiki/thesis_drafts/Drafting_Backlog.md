@@ -36,3 +36,7 @@ Review this list before finalizing each chapter.
 ### 3. Dynamic Subtopology Scoping (Ellipsoid GraphRAG)
 - **Context:** In Phase 1 and 4, the initial theoretical design proposed a naive static $k$-hop neighborhood extraction to bound the context size. However, if the shortest path distance $d > 2k$, the extracted subgraph becomes disconnected, causing the LLM to falsely conclude infeasibility.
 - **Action:** Ensure that the final architecture description (and future work section) explicitly clarifies the migration from naive $k$-hop to an **Ellipsoid Subtopology Scoping** (or dynamic $k$-hop), where nodes are extracted conditionally based on $d(S, v) + d(v, T) \le d(S, T) + \Delta$ to guarantee subgraph connectivity and optimal token efficiency regardless of network diameter.
+
+### 4. RESTConf Error Mock Reference (LLM-Only Baseline)
+- **Context:** To empirically prove the token inflation and latency penalties of the `LLM-Only` baseline (which lacks Physical RADG), a mock SDON controller error payload was injected into the LLM context during failure recovery.
+- **Action:** In Chapter 5 (Evaluation) or Chapter 3 (System Model), ensure you formally cite **RFC 8040 (RESTCONF Protocol) Section 7.1.1 (Error Response Message)** and ONF TAPI conventions as the architectural foundation for the mock error trace used to evaluate the baseline. [https://datatracker.ietf.org/doc/html/rfc8040#section-7.1]

@@ -108,6 +108,7 @@ def evaluate_intent_with_graph(
     config = {
         "configurable": {"thread_id": f"eval-{baseline_name}-{item_id}"},
         "callbacks": [token_tracker],
+        "recursion_limit": 50,
     }
 
     initial_state = {
@@ -162,7 +163,7 @@ def evaluate_intent_with_graph(
                         turn_data["pddl_constraints"] = val.get("pddl_constraints")
                         diagnostics["pddl_valid"] = val.get("pddl_valid")
                         diagnostics["pddl_constraints"] = val.get("pddl_constraints")
-                        if turn == 1:
+                        if turn_1_pddl is None:
                             turn_1_pddl = val.get("pddl_constraints")
                             turn_1_pddl_valid = val.get("pddl_valid")
                     elif node == "reverse_prompt":
@@ -175,7 +176,7 @@ def evaluate_intent_with_graph(
                         diagnostics["usem_score"] = val.get("usem_score")
                         diagnostics["usem_passed"] = val.get("usem_passed")
                         diagnostics["error_context"] = val.get("error_context")
-                        if turn == 1:
+                        if turn_1_usem is None:
                             turn_1_usem = val.get("usem_score")
                     elif node == "symbolic_solver":
                         cands = val.get("candidate_paths") or []
@@ -185,7 +186,7 @@ def evaluate_intent_with_graph(
                         qot = val.get("qot_results") or []
                         turn_data["qot_results"] = qot
                         diagnostics["qot_results"] = qot
-                        if turn == 1:
+                        if turn_1_qot_results is None:
                             turn_1_qot_results = qot
                     elif node in ("radg", "controller_surrogate_radg"):
                         turn_data["radg_decision"] = val.get("radg_decision")
@@ -271,11 +272,8 @@ def evaluate_intent_with_graph(
 
     # Check Physical Feasibility: Unsafe Approval check
     qot_results_t1 = turn_1_qot_results if turn_1_qot_results is not None else (diagnostics.get("qot_results") or [])
-    has_infeasible_path = any(
-        q.get("feasible") is False or q.get("qot_valid") is False
-        for q in qot_results_t1
-    ) or (item_class == "III_Infeasible")
-    is_unfeasible_approval = (initial_action == "approve" and has_infeasible_path)
+    has_no_feasible_path = (not any(q.get("feasible") is True for q in qot_results_t1)) if qot_results_t1 else True
+    is_unfeasible_approval = bool(initial_action == "approve" and (has_no_feasible_path or item_class == "III_Infeasible"))
 
     return {
         "id": item_id,
@@ -305,3 +303,35 @@ def evaluate_intent_with_graph(
         "turn_telemetry": turn_telemetry,
         "diagnostics": diagnostics,
     }
+
+
+def warmup_evaluator(
+    graph_factory: Callable[..., CompiledStateGraph],
+    verbose: bool = True,
+) -> None:
+    """Prime LLM weights in VRAM and initialize JIT execution caches.
+
+    Executes a throwaway nominal intent without recording metrics or telemetry.
+    """
+    dummy_item = {
+        "id": "warmup_dummy",
+        "class": "I_Nominal",
+        "intent_text": "Establish an optical connection from Hamburg to Berlin with 100G capacity.",
+        "expected_radg_action": "approve",
+        "ground_truth_constraints": {"source": "Hamburg", "target": "Berlin", "bandwidth": 100},
+    }
+    if verbose:
+        print("\n[Warmup] Priming LLM weights and pipeline caches (un-metered pass)...")
+    try:
+        evaluate_intent_with_graph(
+            graph_factory=graph_factory,
+            item=dummy_item,
+            max_turns=1,
+            intent_timeout=60.0,
+            verbose=False,
+        )
+        if verbose:
+            print("[Warmup] Pipeline primed successfully. Commencing benchmark evaluation.\n")
+    except Exception as exc:
+        if verbose:
+            print(f"[Warmup] Non-critical warning during warmup pass: {exc}\n")

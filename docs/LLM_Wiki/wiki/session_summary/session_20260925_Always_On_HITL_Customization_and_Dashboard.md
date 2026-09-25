@@ -25,4 +25,4 @@ Tailor the evaluation presentation for the `always_on_hitl` baseline, isolating 
 - **Git Status:** Clean, strictly adhering to `.gitignore` (no `.agents/`, PNGs, or PDFs tracked).
 
 ## 4. Exact Cursor & Next Prompt
-Execute full 120-intent benchmark across baselines (`--corpus full`) or perform cross-baseline comparative analysis (`--mode compare`).
+- Improve the graph visualization of the Proposed RADG baseline.

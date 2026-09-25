@@ -1,0 +1,18 @@
+{
+  "ietf-restconf:errors": {
+    "error": [
+      {
+        "error-type": "application",
+        "error-tag": "operation-failed",
+        "error-app-tag": "path-computation-failed",
+        "error-path": "/tapi-connectivity:connectivity-context/connectivity-service=srv-01a4-req",
+        "error-message": "Deployment aborted. Physical impairment validation failed during Path Computation Element (PCE) route assignment. Calculated Generalized SNR (GSNR) for candidate lightpath [Node-7 -> Node-14] falls below the strict 15.0 dB threshold required for DP-QPSK 100G SLA. Computed end-to-end GSNR: 12.43 dB. Associated ASE noise accumulation exceeds margin at EDFA-amp-stage-3.",
+        "error-info": {
+          "tapi-path-computation:routing-problem": "UNACCEPTABLE_OSNR_PENALTY",
+          "ietf-te:path-metric-bound-violated": true,
+          "timestamp": "2026-09-25T12:15:43Z"
+        }
+      }
+    ]
+  }
+}

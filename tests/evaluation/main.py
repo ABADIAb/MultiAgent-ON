@@ -353,6 +353,7 @@ def run_evaluation_mode(
     metadata: dict[str, Any],
     max_turns: int = 3,
     intent_timeout: float = 300.0,
+    warmup: bool = True,
 ) -> list[dict[str, Any]]:
     """Execute evaluation benchmark and render Four Pillars summary table."""
     evaluator: Any
@@ -370,7 +371,8 @@ def run_evaluation_mode(
             f"[bold cyan]Baseline:[/bold cyan] {baseline_id.upper()}\n"
             f"[bold white]Demands to evaluate:[/bold white] {len(corpus)}\n"
             f"[bold white]Output Directory:[/bold white] {output_dir}\n"
-            f"[bold white]Intent Timeout:[/bold white] {intent_timeout}s (5 min)",
+            f"[bold white]Intent Timeout:[/bold white] {intent_timeout}s (5 min)\n"
+            f"[bold white]Warmup Pass:[/bold white] {'Enabled (Un-metered prime)' if warmup else 'Disabled'}",
             title="📊 Benchmark Execution Starting",
             border_style="cyan",
             box=box.ROUNDED,
@@ -386,6 +388,7 @@ def run_evaluation_mode(
         intent_timeout=intent_timeout,
         verbose=True,
         generate_visuals=True,
+        warmup=warmup,
     )
     elapsed = time.perf_counter() - t0
 
@@ -692,6 +695,11 @@ def parse_args() -> argparse.Namespace:
         default=0.2,
         help="Sampling temperature (default: 0.2)",
     )
+    parser.add_argument(
+        "--no-warmup",
+        action="store_true",
+        help="Skip un-metered LLM warmup pass before evaluation benchmark",
+    )
     return parser.parse_args()
 
 
@@ -886,6 +894,7 @@ def main() -> None:
                 output_dir=b_output_dir,
                 metadata=metadata,
                 intent_timeout=args.intent_timeout,
+                warmup=not args.no_warmup,
             )
             all_eval_results[b_id] = eval_res
 

@@ -67,6 +67,7 @@ Guarantees that all approved lightpaths strictly satisfy physical-layer transmis
    $$\text{UAR} = \frac{|\{\text{plan} \in \text{Approved} \mid \text{GSNR}_{\text{actual}} < \text{GSNR}_{th} \lor P_{rx} < P_{rx,min}\}|}{|\text{Approved}|} \times 100\%$$
    - **Definition:** Fraction of intents producing physically infeasible lightpaths that receive an `approve` verdict.
    - **Hard Target:** **$0.0\%$ (Absolute Physical Integrity Invariant)**.
+   - **Candidate Path Invariant:** In Yen's K-Shortest Paths ($K=5$), the physical solver evaluates $K$ candidate lightpaths. Provisioning is approved as long as the primary viable path satisfies $\text{GSNR} \ge 14\text{ dB}$. An unfeasible approval is recorded only if *no* candidate path is feasible, or if a Class III (Infeasible) request receives an `approve` action.
 2. **Physical Infeasibility Interception Rate (PIIR):**
    $$\text{PIIR} = \frac{|\{\text{intent} \in \text{Class III} \mid \text{Action} = \text{replan}\}|}{|\text{Class III}|} \times 100\%$$
    - **Definition:** Fraction of demands requesting physically impossible optical reaches that are intercepted and flagged for replanning.
@@ -160,24 +161,30 @@ uv run python tests/evaluation/main.py --baseline always_on_hitl --mode eval --c
 # Run LLM-Only (evaluates all classes, simulating controller error):
 uv run python tests/evaluation/main.py --baseline llm_only --mode eval --corpus compact
 
-# Run all baselines sequentially:
+# Run all baselines sequentially (warmup enabled by default):
 uv run python tests/evaluation/main.py --baseline all --mode eval --corpus compact
+
+# Run without the un-metered dummy warm-up pass:
+uv run python tests/evaluation/main.py --baseline proposed_radg --mode eval --corpus compact --no-warmup
 
 # Interactive execution with custom intent:
 uv run python tests/evaluation/main.py --baseline proposed_radg --mode interactive --intent "Route 100G from Hamburg to Berlin with at least 15 dB GSNR"
 ```
 
 ### 4.3 Cross-Baseline Comparative Mode & Version Selection
-Generate comparative executive matrices and figures (Four Pillars breakdown + 5-axis Radar chart) comparing runs across baselines:
+Generate comparative executive matrices and figures (Four Pillars breakdown + 4-axis Radar chart) comparing runs across baselines:
 ```bash
 # Compare the latest run of each baseline automatically:
 uv run python tests/evaluation/main.py --mode compare
 
 # Compare specific timestamped runs per baseline:
 uv run python tests/evaluation/main.py --mode compare \
-  --proposed-run 20260924_135646 \
-  --hitl-run 20260924_120000 \
-  --llm-run 20260924_113000
+  --proposed-run 20260925_135330 \
+  --hitl-run 20260925_135330 \
+  --llm-run 20260925_135330
+
+# Regenerate comparative figures directly from results folder:
+uv run python tests/evaluation/generate_visuals.py tests/evaluation/baselines/common/results/run_20260925_135330
 ```
 In interactive mode, select **Comparative Analysis Mode** from the main menu; if a baseline has multiple historical runs, the CLI provides an arrow-key selector with `(Latest)` as the default. Output artifacts are persisted into `tests/evaluation/baselines/common/results/run_<timestamp>/`.
 
@@ -203,20 +210,26 @@ All evaluation outputs are strictly segregated by baseline and timestamped per e
   - `evaluation_results.csv`: Tabular spreadsheet format for rapid plotting and aggregation.
   - `evaluation_summary.md`: Publication-ready summary table featuring the Executive Four Core Validation Pillars matrix, Class Breakdown, and Detailed Trace.
   - **Proposed RADG Visuals:**
-    - `deployment_flow_sankey.png / .pdf`: End-to-end intent lifecycle Sankey flow diagram.
-    - `gate_accuracy_matrix.png / .pdf`: Gate Interception breakdown chart.
+    - `deployment_flow_sankey.png / .pdf`: 4-stage operational Sankey flow (Ingest $\to$ Admission $\to$ SDON Execution $\to$ Operational Outcome), confirming 100% pre-deployment interception of risky intents and zero production alarms.
+    - `gate_accuracy_matrix.png / .pdf`: Gate Interception breakdown confusion matrix across all 4 risk classes.
     - `latency_tokens_overhead.png / .pdf`: Latency & Token Distribution across Risk Classes.
     - `presentation_slide_dashboard.png / .pdf`: 16:9 Widescreen Composite Visual for thesis defense slides.
   - **Always-On HITL Visuals (see [always_on_hitl/README.md](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_on_hitl/README.md)):**
     - `wasted_compute_overhead.png / .pdf`: Dual-panel stacked bar chart quantifying unnecessary overhead on Class I (Nominal) traffic ($+143\%$ latency, $+118\%$ tokens).
     - `scalability_projection.png / .pdf`: Cumulative step chart proving operational scalability and human cognitive fatigue savings over mixed traffic.
     - `always_on_ablation_dashboard.png / .pdf`: 16:9 Widescreen Master Slide-Ready Dashboard combining KPI stat cards, nominal compute tax, and cognitive savings.
-  - **LLM-Only Visuals:**
-    - `deployment_flow_sankey.png / .pdf`: Pre-Deployment Blind Forwarding vs Controller Runtime Incidents.
-    - `wasted_compute_overhead.png / .pdf`: Wasted Latency and Token Overhead from aborted Turn 1 deployments.
+  - **LLM-Only Visuals (see [llm_only/README.md](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/llm_only/README.md)):**
+    - `deployment_flow_sankey.png / .pdf`: 4-stage Sankey showing blind admission (100% forwarded) leading to 75% controller crashes and 15 post-deployment emergency operator interruptions.
+    - `wasted_compute_overhead.png / .pdf`: Wasted Latency and Token Overhead from aborted Turn 1 deployments and Turn 2 RFC 8040 error log parsing.
     - `llm_only_ablation_dashboard.png / .pdf`: 16:9 Widescreen Ablation Dashboard highlighting safety collapse and recovery costs.
 
 - **Comparative Aggregations (`tests/evaluation/baselines/common/results/run_<timestamp>/`):**
-  When running all baselines (`--baseline all`), the common framework synthesizes:
+  When running all baselines (`--baseline all`) or executing comparative mode, the common framework synthesizes:
   - `comparative_results.json`: Cross-baseline metrics across all four pillars.
   - `comparative_summary.md`: Side-by-side executive comparison matrix contrasting Proposed RADG vs Always-On HITL vs LLM-Only.
+  - `comparative_radar_pillars.png / .pdf`: 4-axis polar radar chart mapping Pre-Deployment Safety ($100 - \text{UAR}$), HITL Efficiency (Zero-Friction Nominal), Speed, and Token Economy. Proposed RADG achieves the optimal 100% perimeter across all 4 axes.
+  - `comparative_pillars_breakdown.png / .pdf`: 4-panel grouped comparative figure displaying:
+    - **Panel 1 (Physical Safety):** UAR rate ($0.0\%$ for Proposed RADG and Always-On vs. $75.0\%$ for LLM-Only).
+    - **Panel 2 (Operator Friction):** Grouped bars contrasting nominal zero-fatigue ($0.00$ turns for Proposed RADG vs. $1.00$ for Always-On) with selective risk oversight across all traffic.
+    - **Panel 3 (Latency):** Turnaround duration across all baselines.
+    - **Panel 4 (Token Consumption):** Cumulative prompt and completion token footprint.

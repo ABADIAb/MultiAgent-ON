@@ -63,5 +63,4 @@ All changes were validated against the full unit test suite (344/344 passing tes
 ---
 
 ## 4. Next Steps
-- Run the full 107-demand benchmark corpus across all three baselines using the local `qwen2.5:3b` model to collect final publication data.
-- Integrate the comparative radar and bar charts into the Overleaf manuscript for Thesis Chapter 5.
+- Improve the graph visualization of the Always-On HITL baseline.

@@ -81,6 +81,13 @@ The **only** condition under which Proposed RADG and Always-On HITL diverge is o
 
 Therefore, evaluating non-nominal traffic on Always-On HITL produces zero discriminative scientific value. The entire scientific delta of the baseline is encapsulated within the **computational overhead and operator fatigue inflicted on benign nominal traffic**.
 
+### 3.3 Default Convergence Population Strategy
+
+To support consistent, multi-class reporting across all Four Validation Pillars without wasting redundant compute:
+- `AlwaysOnHITLEvaluator.evaluate_corpus` empirically evaluates all Class I (Nominal) demands.
+- For all non-nominal demands (Classes II, III, and IV), the evaluator by default **consumes the matching empirical evaluation data from Proposed RADG** (or loads the latest run from `tests/evaluation/baselines/proposed_radg/results/`), re-tagging them to `baseline = "always_on_hitl"`.
+- This reflects the architectural truth of full convergence on non-nominals, guaranteeing that all 20 demands are represented in CSV/JSON/MD outputs, dashboards, and comparative radar charts.
+
 ---
 
 ## 4. Telemetry Analysis: Discriminative vs. Non-Discriminative Metrics
@@ -93,7 +100,15 @@ When reporting results for the Always-On HITL baseline, standard aggregate metri
 - **Unfeasible Approval Rate (UAR):** Identical ($0.0\%$). Both baselines strictly preserve the physical safety invariant; neither allows an infeasible lightpath to reach production.
 - **Gate Decision Accuracy (GDA):** Redundant ($100.0\%$). Because the gate is hardcoded to `clarify`, measuring "accuracy" merely reflects compliance with the forced policy override rather than autonomous decision fidelity.
 
-### 4.2 Discriminative Metrics (Pillar 3: Efficiency & Operational Friction)
+### 4.2 Four Orthogonal Radar Coordinates
+
+When plotted on the **Comparative Radar Chart (0 to 100, 100 optimal)**:
+1. **Pre-Deployment Safety ($100 - UAR$):** **$100.0\%$** (Strict physical safety preserved).
+2. **HITL Efficiency (Zero-Friction Nominal):** **$0.0\%$** (Severely penalized: 100% interruption rate on nominals).
+3. **Execution Latency (Normalized Speed):** **$\approx 40.0\%$** (Severely penalized by mandatory human wait and Turn 2 replay).
+4. **Token Economy (Normalized Frugality):** **$\approx 40.0\% - 50.0\%$** (Penalized by multi-turn context re-injection).
+
+### 4.3 Operational Friction Analysis (Pillar 3)
 The true differentiators are purely operational:
 
 1. **Turnaround Latency Inflation ($\Delta T_{E2E}$):**
