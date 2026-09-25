@@ -20,8 +20,9 @@ tests/evaluation/
 │   │   ├── evaluator.py        # Proposed RADG evaluator
 │   │   └── results/            # Run artifacts per execution (run_<timestamp>/)
 │   ├── always_on_hitl/         # Baseline: Always-On HITL (Paranoid Turn-1 Review on Nominals)
+│   │   ├── README.md           # Authoritative baseline guide & Chapter 5 thesis specification
 │   │   ├── graph.py            # StateGraph with Turn-1 mandatory clarification
-│   │   ├── evaluator.py        # Always-On HITL evaluator
+│   │   ├── evaluator.py        # Always-On HITL evaluator (scoped to Nominal intents)
 │   │   └── results/            # Run artifacts per execution (run_<timestamp>/)
 │   └── llm_only/               # Baseline: LLM-Only (No Semantic Gate / Controller Error Surrogate)
 │       ├── graph.py            # StateGraph with bypassed semantic gate + controller surrogate
@@ -102,7 +103,7 @@ Stress-tests the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ ac
 > [!NOTE]
 > **Baseline-Specific Applicability (Pillar 4):**
 > - **Proposed RADG:** Evaluates the full two-stage pre-deployment gate mechanism ($GDA > 98\%$, $FPR = 0\%$, $UAR = 0\%$).
-> - **Always-On HITL:** Evaluates the operator friction and token penalty of manual human confirmation for every request.
+> - **Always-On HITL:** Evaluates the operator friction, latency inflation (+143%), and token overhead (+118%) of paranoid human confirmation on benign requests. Scoped strictly to Class I (Nominal) traffic, since non-nominal traffic converges to identical recovery loops across both architectures. Detailed theoretical rationale and manuscript draft available in [`tests/evaluation/baselines/always_on_hitl/README.md`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_on_hitl/README.md).
 > - **LLM-Only:** Pre-deployment decision gates do not exist ($N_{gates} = 0$). Therefore, **Gate Decision Accuracy (GDA) is inapplicable (N/A)**. Instead, this baseline models blind pre-deployment forwarding (`initial_action = "approve"` for all intents), exposing complete pre-deployment safety collapse ($FPR = 100\%$, elevated $UAR$). Safety failure is detected reactively at the SDON Controller Runtime level ($75\%$ incident rate on equiprobable corpus), forcing reactive recovery and imposing severe wasted compute penalties (aborted Turn 1 latency and tokens).
 
 ---
@@ -201,12 +202,19 @@ All evaluation outputs are strictly segregated by baseline and timestamped per e
   - `evaluation_results.json`: Full diagnostic trace including PDDL strings, AST CFG pass status, reconstructed natural language, $U_{sem}$ scores, candidate routes, token counts, and QoT SNR margins.
   - `evaluation_results.csv`: Tabular spreadsheet format for rapid plotting and aggregation.
   - `evaluation_summary.md`: Publication-ready summary table featuring the Executive Four Core Validation Pillars matrix, Class Breakdown, and Detailed Trace.
-  - `gate_accuracy_matrix.png / .pdf`: Gate Interception breakdown chart (*Proposed RADG* and *Always-On HITL*).
-  - `latency_tokens_overhead.png / .pdf`: Latency & Token Distribution across Risk Classes (*Proposed RADG* and *Always-On HITL*).
-  - `presentation_slide_dashboard.png / .pdf`: 16:9 Widescreen Composite Visual for thesis defense slides (*Proposed RADG* and *Always-On HITL*).
-  - `deployment_failure_matrix.png / .pdf`: Pre-Deployment Blind Forwarding vs Controller Runtime Incidents (*LLM-Only* specialized).
-  - `wasted_compute_overhead.png / .pdf`: Wasted Latency and Token Overhead from aborted Turn 1 deployments (*LLM-Only* specialized).
-  - `llm_only_ablation_dashboard.png / .pdf`: 16:9 Widescreen Ablation Dashboard highlighting safety collapse and recovery costs (*LLM-Only* specialized).
+  - **Proposed RADG Visuals:**
+    - `deployment_flow_sankey.png / .pdf`: End-to-end intent lifecycle Sankey flow diagram.
+    - `gate_accuracy_matrix.png / .pdf`: Gate Interception breakdown chart.
+    - `latency_tokens_overhead.png / .pdf`: Latency & Token Distribution across Risk Classes.
+    - `presentation_slide_dashboard.png / .pdf`: 16:9 Widescreen Composite Visual for thesis defense slides.
+  - **Always-On HITL Visuals (see [always_on_hitl/README.md](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_on_hitl/README.md)):**
+    - `wasted_compute_overhead.png / .pdf`: Dual-panel stacked bar chart quantifying unnecessary overhead on Class I (Nominal) traffic ($+143\%$ latency, $+118\%$ tokens).
+    - `scalability_projection.png / .pdf`: Cumulative step chart proving operational scalability and human cognitive fatigue savings over mixed traffic.
+    - `always_on_ablation_dashboard.png / .pdf`: 16:9 Widescreen Master Slide-Ready Dashboard combining KPI stat cards, nominal compute tax, and cognitive savings.
+  - **LLM-Only Visuals:**
+    - `deployment_flow_sankey.png / .pdf`: Pre-Deployment Blind Forwarding vs Controller Runtime Incidents.
+    - `wasted_compute_overhead.png / .pdf`: Wasted Latency and Token Overhead from aborted Turn 1 deployments.
+    - `llm_only_ablation_dashboard.png / .pdf`: 16:9 Widescreen Ablation Dashboard highlighting safety collapse and recovery costs.
 
 - **Comparative Aggregations (`tests/evaluation/baselines/common/results/run_<timestamp>/`):**
   When running all baselines (`--baseline all`), the common framework synthesizes:

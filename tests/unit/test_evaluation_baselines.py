@@ -225,9 +225,51 @@ class TestLLMOnlyEvaluator:
             json.dump(data, f)
 
         out_dir = generate_run_visuals(json_path, target_dir=test_dir)
-        assert (out_dir / "deployment_failure_matrix.png").exists()
+        assert (out_dir / "deployment_flow_sankey.png").exists()
         assert (out_dir / "wasted_compute_overhead.png").exists()
         assert (out_dir / "llm_only_ablation_dashboard.png").exists()
+
+    def test_always_on_hitl_visuals_generation(self, tmp_path: pytest.TempPathFactory) -> None:
+        import json
+        from pathlib import Path
+        from tests.evaluation.generate_visuals import generate_run_visuals
+
+        test_dir = Path(str(tmp_path))
+        data = {
+            "metadata": {
+                "run_id": "test_always_on",
+                "baseline_id": "always_on_hitl",
+                "model": "qwen2.5:3b",
+                "provider": "ollama",
+                "total_demands": 2,
+            },
+            "pillar_metrics": {
+                "pillar_1": {"operable_crr_rate": 100.0, "cfg_pass_rate": 100.0, "mean_well_formed_agreement": 0.0},
+                "pillar_2": {"uar_rate": 0.0, "unfeasible_approved_count": 0, "total_approved_count": 0, "piir_rate": 100.0},
+                "pillar_3": {"mean_e2e_latency_seconds": 12.0, "total_tokens_consumed": 16000, "mean_tokens_per_intent": 8000, "mean_hitl_turns": 1.0, "total_hitl_interrupts": 2},
+                "pillar_4": {"gda_rate": 100.0, "fpr_rate": 0.0, "selective_hitl_precision": 0.0},
+            },
+            "demands": [
+                {"id": "intent_nom_01", "class": "I_Nominal", "initial_action": "clarify", "final_action": "approve", "total_elapsed_seconds": 12.5, "total_tokens": 8100, "hitl_count": 1, "turn_telemetry": [{"turn": 1, "elapsed_s": 5.5, "total_tokens": 3700}, {"turn": 2, "elapsed_s": 7.0, "total_tokens": 4400}]},
+                {"id": "intent_nom_02", "class": "I_Nominal", "initial_action": "clarify", "final_action": "approve", "total_elapsed_seconds": 11.5, "total_tokens": 7900, "hitl_count": 1, "turn_telemetry": [{"turn": 1, "elapsed_s": 5.0, "total_tokens": 3600}, {"turn": 2, "elapsed_s": 6.5, "total_tokens": 4300}]},
+            ],
+        }
+        json_path = test_dir / "evaluation_results.json"
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+
+        # Place a dummy old matrix to verify cleanup
+        old_file = test_dir / "gate_accuracy_matrix.png"
+        old_file.write_text("dummy")
+
+        out_dir = generate_run_visuals(json_path, target_dir=test_dir)
+        assert (out_dir / "wasted_compute_overhead.png").exists()
+        assert (out_dir / "wasted_compute_overhead.pdf").exists()
+        assert (out_dir / "scalability_projection.png").exists()
+        assert (out_dir / "scalability_projection.pdf").exists()
+        assert (out_dir / "always_on_ablation_dashboard.png").exists()
+        assert (out_dir / "always_on_ablation_dashboard.pdf").exists()
+        assert not (out_dir / "gate_accuracy_matrix.png").exists()
 
 
 class TestEvaluationMetrics:
