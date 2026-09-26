@@ -163,5 +163,5 @@ When running comparative mode or full multi-baseline evaluations, cross-baseline
 - `comparative_radar_pillars.png / .pdf`: 4-axis Polar Radar Chart evaluating Speed, Token Frugality, Pre-Deployment Integrity ($100 - \text{FPR}$), and Zero-Touch Autonomy.
 - `comparative_pillars_breakdown.png / .pdf`: 4-panel disaggregated breakdown comparing Pre-Deployment Integrity ($FPR$), Operator Friction ($N_{hitl}$), End-to-End Latency & Replan Overhead, and Token Footprint & Wasted Compute.
 - `comparative_deployment_flow_sankey.png / .pdf`: Publication-grade dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
-- `comparative_scalability_projection.png / .pdf`: 2-panel multi-baseline scalability projection modeling cumulative operator interventions ($N_{hitl}$ cognitive fatigue) and cumulative controller outages across the 120-demand diurnal operational stream.
+- `comparative_scalability_projection.png / .pdf`: Scalability projection modeling cumulative operator interventions ($N_{hitl}$ cognitive fatigue) across the 120-demand diurnal operational stream, comparing Proposed RADG against Always-On HITL.
 - `gate_accuracy_matrix.png / .pdf`: Multi-class confusion matrix and gate decision accuracy breakdown for Proposed RADG across all 4 risk classes, tracking first-try gating accuracy and timeout mitigation.

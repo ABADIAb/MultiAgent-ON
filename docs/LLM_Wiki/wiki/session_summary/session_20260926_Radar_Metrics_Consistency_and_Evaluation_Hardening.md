@@ -1,20 +1,20 @@
 ---
-title: "Technical Handover: Evaluation Environment Restructuring & Visuals Sanitization"
+title: "Technical Handover: Evaluation Hierarchy Restructuring & Visuals Refinement"
 date: 2026-09-26
-tags: [session-summary, handover, evaluation-restructure, sanitized-models, visual-cleanup]
+tags: [session-summary, handover, evaluation-restructure, sanitized-models, visual-cleanup, scalability-projection]
 status: active
 ---
 
-# Technical Handover Card: 2026-09-26 (Evaluation Hierarchy & Visuals Cleanup)
+# Technical Handover Card: 2026-09-26 (Evaluation Hierarchy & Visuals Refinement)
 
 ## 1. Scope & Objective
-Restructure evaluation environment hierarchy by model (`<LLM>/<timestamp>`), sanitize model identifiers, move global comparative results to `tests/evaluation/results/`, consolidate `gate_accuracy_matrix` into comparative outputs, and prune redundant baseline charts.
+Restructure evaluation hierarchy by sanitized model (`<LLM>/<timestamp>`), consolidate comparative visual assets, and refine `comparative_scalability_projection` into a focused single-panel operator intervention comparison.
 
 ## 2. Key Architectural Decisions
-- **Hierarchical Output Schema:** All runs are stored in `<baseline>/results/<LLM>/<timestamp>/` and comparative runs in `tests/evaluation/results/<LLM>/<timestamp>/`.
-- **Model Sanitization:** Implemented `sanitize_model_name()` converting `:` and `/` to `_` (e.g. `qwen2.5:3b` -> `qwen2.5_3b`) to avoid filesystem issues.
-- **Visuals Pruning & Relocation:** `gate_accuracy_matrix` relocated to global comparative suite. Individual baseline folders retain strictly their 16:9 executive dashboards (`presentation_slide_dashboard`, `always_on_ablation_dashboard`, `llm_only_ablation_dashboard`).
-- **Archive Migration:** Legacy `run_*` directories moved to `tests/evaluation/archive/legacy_runs/` while preserving backward compatibility in run discovery.
+- **Hierarchical Output Schema:** Runs stored in `<baseline>/results/<LLM>/<timestamp>/`; comparative results in `tests/evaluation/results/<LLM>/<timestamp>/`.
+- **Model Identifier Sanitization:** `sanitize_model_name()` sanitizes `:` and `/` to `_` across directory paths and run resolvers.
+- **Visuals Consolidation:** Moved `gate_accuracy_matrix` to comparative suite; pruned redundant charts from baseline folders, preserving 16:9 dashboards.
+- **Scalability Projection Refactoring:** Single-panel chart comparing Proposed RADG vs. Always-On HITL ($N_{hitl}$), removing redundant controller incidents panel and LLM-Only baseline.
 
 ## 3. Test & Code Health
 - **Unit Suite:** 352/352 passing (`uv run pytest tests/unit/`).
@@ -23,4 +23,4 @@ Restructure evaluation environment hierarchy by model (`<LLM>/<timestamp>`), san
 
 ## 4. Exact Cursor & Next Prompt
 - **Cursor:** `tests/evaluation/generate_visuals.py`.
-- **Next Prompt:** "Vamos a mejorar el contenido y el aspecto visual de las gráficas de evaluación."
+- **Next Prompt:** "Continuemos revisando las demás gráficas comparativas de evaluación."

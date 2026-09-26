@@ -97,6 +97,12 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
     - Migrated all latency and token telemetry across `metrics.py`, `reporter.py`, and `generate_visuals.py` from mean to robust median statistics, eliminating non-normal latency skew from local model stalls.
     - Dynamically parameterized [`generate_visuals.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/generate_visuals.py) to scale visual assets (`gate_accuracy_matrix`, 16:9 presentation dashboard, multi-class wasted compute) seamlessly across both compact (20) and full (120) corpora.
 
+13. **Evaluation Hierarchy Restructuring, Visual Consolidation & Scalability Projection Refinement:**
+    - Restructured the evaluation results hierarchy by sanitized model identifier (`<baseline>/results/<LLM>/<timestamp>/` and comparative results in `tests/evaluation/results/<LLM>/<timestamp>/`), implementing `sanitize_model_name()` to ensure path hygiene across platforms.
+    - Consolidated evaluation visuals: migrated `gate_accuracy_matrix` to the comparative suite, pruned redundant charts from per-baseline folders (retaining strictly their 16:9 executive dashboards), and archived legacy un-sanitized runs.
+    - Streamlined [`comparative_scalability_projection`](file:///home/felipeab/MultiAgentON/tests/evaluation/results/qwen2.5_3b/20260926_154258/comparative_scalability_projection.png) into a single-panel publication figure focused on operator fatigue ($N_{hitl}$), removing redundant controller incident subplots (already articulated in the comparative Sankey diagram) and LLM-Only traces to highlight Proposed RADG zero-fatigue savings ($28$ interventions averted) vs. Always-On HITL burnout.
+    - Maintained full test suite integrity with 352 passing unit tests (`uv run pytest tests/unit/`) and 100% clean static analysis (`uv run ruff check src/ tests/`).
+
 ---
 
 ## 3. What do I plan to accomplish next week?
@@ -108,12 +114,12 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 
 ## 4. Do You Need Support?
 
-- **Current Status:** The comparative baselines, segregated telemetry architecture, cross-baseline visual generators, and interactive CLI are fully functional and tested with 349 passing unit tests.
+- **Current Status:** The comparative baselines, segregated telemetry architecture, cross-baseline visual generators, and interactive CLI are fully functional and tested with 352 passing unit tests.
 - **Advisor Review:** Ready to schedule presentation rehearsal and benchmark review with Prof. Massimo Tornatore based on the full 120-demand corpus comparative data.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I completed full-corpus benchmarking across all three baselines, restored the $0.0\%$ UAR physical invariant, migrated telemetry to robust median statistics, hardened adversarial intent parsing against corrupted literals, and scaled the complete visual suite, validated with 349 passing unit tests.
+I restructured the evaluation hierarchy by sanitized model, consolidated comparative visual assets, streamlined the scalability projection to focus on operator cognitive relief, and maintained full test integrity with 352 passing unit tests.
 

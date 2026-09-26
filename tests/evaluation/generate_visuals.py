@@ -106,9 +106,9 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
 
     # Stacked bars
     ax.bar(x, approve_vals, bar_width, label="Approve (Direct Auto-Route)", color=COLOR_APPROVE, edgecolor="white", linewidth=1.2)
-    ax.bar(x, clarify_vals, bar_width, bottom=approve_vals, label="Clarify (Phase 3b HITL Reverse Prompt)", color=COLOR_CLARIFY, edgecolor="white", linewidth=1.2)
+    ax.bar(x, clarify_vals, bar_width, bottom=approve_vals, label="Clarify (Semantic RADG)", color=COLOR_CLARIFY, edgecolor="white", linewidth=1.2)
     bottom_replan = [a + b for a, b in zip(approve_vals, clarify_vals)]
-    ax.bar(x, replan_vals, bar_width, bottom=bottom_replan, label="Replan (Phase 6 RADG Replan HITL)", color=COLOR_REPLAN, edgecolor="white", linewidth=1.2)
+    ax.bar(x, replan_vals, bar_width, bottom=bottom_replan, label="Replan (Physical RADG)", color=COLOR_REPLAN, edgecolor="white", linewidth=1.2)
     bottom_timeout = [r + b for r, b in zip(replan_vals, bottom_replan)]
     ax.bar(x, timeout_vals, bar_width, bottom=bottom_timeout, label="Timeout / Aborted", color=COLOR_BURGUNDY, edgecolor="white", linewidth=1.2)
 
@@ -131,16 +131,16 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
     max_demands = max(totals) if totals else 5
     y_limit = max_demands * 1.25
 
-    # Benchmark annotations above bars
-    annotations = [
-        "100% Autonomous\n(0 HITL Interrupts)",
-        "100% Caught Fail-Fast\n(Semantic Gate)",
-        "0.0% False Positives\n(FPR = 0.0% Invariant)",
-        "100% Filtered\n(Syntax / Semantics)",
-    ]
-    for i, text in enumerate(annotations):
-        ax.text(x[i], totals[i] + max_demands * 0.03, text, ha="center", va="bottom", fontsize=8.8, color=COLOR_DARK_SLATE, fontweight="bold",
-                bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=COLOR_CARD_BORDER, alpha=0.9))
+    # Benchmark annotation above Nominal bar (autonomy and HITL interrupts)
+    c1_tot = totals[0]
+    c1_app = counts["I_Nominal"]["approve"]
+    c1_hitl = counts["I_Nominal"]["clarify"] + counts["I_Nominal"]["replan"]
+    c1_auto_pct = (c1_app / c1_tot * 100) if c1_tot else 100.0
+    c1_pct_str = f"{c1_auto_pct:.0f}%" if c1_auto_pct.is_integer() else f"{c1_auto_pct:.1f}%"
+    c1_text = f"{c1_pct_str} Autonomous\n({c1_hitl} HITL Interrupt{'s' if c1_hitl != 1 else ''})"
+
+    ax.text(x[0], totals[0] + max_demands * 0.03, c1_text, ha="center", va="bottom", fontsize=8.8, color=COLOR_DARK_SLATE, fontweight="bold",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=COLOR_CARD_BORDER, alpha=0.9))
 
     ax.set_xticks(x)
     ax.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -2147,24 +2147,21 @@ def plot_comparative_scalability_projection(
     comparative_data: dict[str, Any],
     output_prefix: Path,
 ) -> None:
-    """Generate Cumulative Scalability Projection chart comparing Proposed RADG, Always-On HITL, and LLM-Only.
+    """Generate Cumulative Scalability Projection chart comparing Proposed RADG and Always-On HITL.
 
     Simulates a 24-hour diurnal operational shift with a non-homogeneous stream of 120 demands.
-    - Panel A: Cumulative Human Interventions (N_hitl — Cognitive Fatigue vs. Autonomous Zero-Fatigue).
-    - Panel B: Cumulative SDON Controller Incidents (0% Invariant vs. 75% Collapse) & Latency Penalty.
+    Compares cumulative operator interventions (N_hitl — Cognitive Fatigue vs. Autonomous Zero-Fatigue).
     """
     import random
 
     prop_data = resolve_baseline_data("proposed_radg", comparative_data) or {}
     ao_data = resolve_baseline_data("always_on_hitl", comparative_data) or {}
-    llm_data = resolve_baseline_data("llm_only", comparative_data) or {}
 
     prop_demands = prop_data.get("demands", [])
     if not prop_demands:
         return
 
     ao_by_id = {d.get("id"): d for d in ao_data.get("demands", [])}
-    llm_by_id = {d.get("id"): d for d in llm_data.get("demands", [])}
 
     paired_stream = []
     for d in prop_demands:
@@ -2177,31 +2174,11 @@ def plot_comparative_scalability_projection(
         else:
             ao_hitl = 1 if d_class == "I_Nominal" else prop_hitl
 
-        # LLM-Only: In Turn 1 it never prompts human, but in Turn 2 reactive emergency recovery is needed for incidents
-        if d_id in llm_by_id:
-            llm_hitl = llm_by_id[d_id].get("hitl_count", 0)
-            llm_err = 1 if llm_by_id[d_id].get("controller_error", (d_class != "I_Nominal")) else 0
-            llm_lat = llm_by_id[d_id].get("total_elapsed_seconds", d.get("total_elapsed_seconds", 0.0))
-        else:
-            llm_err = 0 if d_class == "I_Nominal" else 1
-            llm_hitl = llm_err
-            llm_lat = d.get("total_elapsed_seconds", 0.0)
-
-        prop_lat = d.get("total_elapsed_seconds", 0.0)
-        ao_lat = ao_by_id[d_id].get("total_elapsed_seconds", prop_lat) if d_id in ao_by_id else prop_lat
-
         paired_stream.append({
             "id": d_id,
             "class": d_class,
             "prop_hitl": prop_hitl,
             "ao_hitl": ao_hitl,
-            "llm_hitl": llm_hitl,
-            "prop_err": 0,
-            "ao_err": 0,
-            "llm_err": llm_err,
-            "prop_lat": prop_lat,
-            "ao_lat": ao_lat,
-            "llm_lat": llm_lat,
         })
 
     # Deterministic pseudo-random shuffle to simulate non-homogeneous diurnal operational arrival
@@ -2212,133 +2189,58 @@ def plot_comparative_scalability_projection(
     x = list(range(len(stream) + 1))
     y_prop_hitl = [0]
     y_ao_hitl = [0]
-    y_llm_hitl = [0]
-    y_prop_err = [0]
-    y_llm_err = [0]
-    y_prop_lat = [0.0]
-    y_ao_lat = [0.0]
-    y_llm_lat = [0.0]
 
     for item in stream:
         y_prop_hitl.append(y_prop_hitl[-1] + item["prop_hitl"])
         y_ao_hitl.append(y_ao_hitl[-1] + item["ao_hitl"])
-        y_llm_hitl.append(y_llm_hitl[-1] + item["llm_hitl"])
-        y_prop_err.append(y_prop_err[-1] + item["prop_err"])
-        y_llm_err.append(y_llm_err[-1] + item["llm_err"])
-        y_prop_lat.append(y_prop_lat[-1] + item["prop_lat"])
-        y_ao_lat.append(y_ao_lat[-1] + item["ao_lat"])
-        y_llm_lat.append(y_llm_lat[-1] + item["llm_lat"])
 
     total_demands = len(stream)
     final_ao_hitl = y_ao_hitl[-1]
     final_prop_hitl = y_prop_hitl[-1]
-    final_llm_hitl = y_llm_hitl[-1]
-    final_llm_err = y_llm_err[-1]
     cognitive_savings = final_ao_hitl - final_prop_hitl
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.2, 5.8), dpi=300)
+    fig, ax = plt.subplots(figsize=(10.0, 5.8), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
-
-    # ---------------- PANEL A: Operator Interventions (Cognitive Fatigue) ----------------
-    ax1.set_facecolor(COLOR_CARD_BG)
+    ax.set_facecolor(COLOR_CARD_BG)
 
     # Shaded Cognitive Savings Region
-    ax1.fill_between(
+    ax.fill_between(
         x, y_prop_hitl, y_ao_hitl,
         color=COLOR_APPROVE, alpha=0.20, hatch="..",
         label=f"Cognitive Savings ({cognitive_savings} Interventions Averted)",
     )
 
     # Always-On line (Paranoid)
-    ax1.plot(
+    ax.plot(
         x, y_ao_hitl,
         color=COLOR_CLARIFY, linewidth=2.6, linestyle="--",
         label=f"Always-On HITL ({final_ao_hitl} Turns: 100% Interruption)",
     )
 
     # Proposed RADG line (Risk-Adaptive)
-    ax1.step(
+    ax.step(
         x, y_prop_hitl, where="post",
         color=COLOR_NAVY, linewidth=2.8, linestyle="-",
         label=f"Proposed RADG ({final_prop_hitl} Turns: Zero on Nominals)",
     )
 
-    # LLM-Only line (Reactive)
-    ax1.plot(
-        x, y_llm_hitl,
-        color=COLOR_BURGUNDY, linewidth=2.2, linestyle=":",
-        label=f"LLM-Only Reactive ({final_llm_hitl} Turns: Post-Incident Cleanups)",
-    )
-
     # Markers at end
-    ax1.plot(total_demands, final_ao_hitl, marker="o", markersize=7, color=COLOR_CLARIFY, markeredgecolor="white")
-    ax1.plot(total_demands, final_prop_hitl, marker="o", markersize=7, color=COLOR_NAVY, markeredgecolor="white")
-    ax1.plot(total_demands, final_llm_hitl, marker="s", markersize=6, color=COLOR_BURGUNDY, markeredgecolor="white")
+    ax.plot(total_demands, final_ao_hitl, marker="o", markersize=7, color=COLOR_CLARIFY, markeredgecolor="white")
+    ax.plot(total_demands, final_prop_hitl, marker="o", markersize=7, color=COLOR_NAVY, markeredgecolor="white")
 
-    ax1.set_title("Panel A: Cumulative Operator Interventions ($N_{hitl}$)\n[Operator Cognitive Attention Fatigue]", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax1.set_xlabel("Operational Stream Sequence (Demands)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax1.set_ylabel("Cumulative HITL Interventions", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
-    ax1.set_xlim(0, total_demands + 2)
-    ax1.set_ylim(0, max(final_ao_hitl, final_llm_hitl) * 1.25)
-    ax1.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
-    ax1.legend(loc="upper left", fontsize=8.8, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
-
-    # ---------------- PANEL B: Production Incidents & Cumulative Latency ----------------
-    ax2.set_facecolor(COLOR_CARD_BG)
-
-    line_llm_err, = ax2.plot(
-        x, y_llm_err,
-        color="#831843", linewidth=3.0, linestyle="-",
-        label=f"LLM-Only Incidents ({final_llm_err} Outages / {total_demands})",
-    )
-    line_prop_err, = ax2.step(
-        x, y_prop_err, where="post",
-        color=COLOR_APPROVE, linewidth=2.8, linestyle="-",
-        label="Proposed RADG (0 Incidents | 100% Intercepted)",
-    )
-    line_ao_err, = ax2.step(
-        x, y_prop_err, where="post",
-        color=COLOR_CLARIFY, linewidth=1.5, linestyle="--",
-        label="Always-On HITL (0 Incidents)",
-    )
-
-    ax2.set_title("Panel B: Cumulative SDON Controller Incidents (Outages)\n[Pre-Deployment Integrity vs. Controller Collapse]", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax2.set_xlabel("Operational Stream Sequence (Demands)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax2.set_ylabel("Cumulative Controller Deployment Incidents", fontsize=10.5, fontweight="bold", color="#831843")
-    ax2.set_xlim(0, total_demands + 2)
-    ax2.set_ylim(-1, max(final_llm_err, 10) * 1.25)
-    ax2.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
-
-    ax2.plot(total_demands, final_llm_err, marker="X", markersize=8, color="#831843", markeredgecolor="white")
-    ax2.annotate(
-        f"LLM-Only Collapse: {final_llm_err} Incidents\n(75% Failure Rate)",
-        xy=(total_demands, final_llm_err),
-        xytext=(total_demands - 30, final_llm_err - 10),
-        ha="center", va="top", fontsize=9.0, fontweight="bold", color="#831843",
-        arrowprops=dict(arrowstyle="->", color="#831843", lw=1.2),
-        bbox=dict(facecolor="white", edgecolor="#831843", boxstyle="round,pad=0.3", alpha=0.95),
-    )
-
-    ax2.plot(total_demands, 0, marker="o", markersize=7, color=COLOR_APPROVE, markeredgecolor="white")
-    ax2.annotate(
-        "✓ Strict 0.0% Invariant (0 Outages)",
-        xy=(total_demands, 0),
-        xytext=(total_demands - 35, 12),
-        ha="center", va="bottom", fontsize=9.0, fontweight="bold", color=COLOR_APPROVE,
-        arrowprops=dict(arrowstyle="->", color=COLOR_APPROVE, lw=1.2),
-        bbox=dict(facecolor="white", edgecolor=COLOR_APPROVE, boxstyle="round,pad=0.3", alpha=0.95),
-    )
-
-    ax2.legend(handles=[line_llm_err, line_prop_err, line_ao_err], loc="upper left", fontsize=8.8, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
-
-    plt.suptitle("Multi-Baseline Scalability Projection: Diurnal Operational Shift (120 Demands)",
-                 fontsize=14.0, fontweight="bold", color=COLOR_NAVY, y=0.98)
-    fig.subplots_adjust(top=0.88, bottom=0.12, left=0.07, right=0.93, wspace=0.28)
+    ax.set_title("Cumulative Operator Interventions ($N_{hitl}$)", fontsize=13.0, fontweight="bold", color=COLOR_NAVY, pad=12)
+    ax.set_xlabel("Operational Stream Sequence (Demands)", fontsize=11.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax.set_ylabel("Cumulative HITL Interventions", fontsize=11.0, fontweight="bold", color=COLOR_NAVY)
+    ax.set_xlim(0, total_demands + 2)
+    ax.set_ylim(0, max(final_ao_hitl, final_prop_hitl, 1) * 1.25)
+    ax.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
+    ax.legend(loc="upper left", fontsize=9.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
 
     save_prefix = output_prefix / "comparative_scalability_projection" if output_prefix.is_dir() else output_prefix
     save_prefix.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(f"{save_prefix}.png", dpi=300, facecolor=COLOR_BG)
-    fig.savefig(f"{save_prefix}.pdf", facecolor=COLOR_BG)
+    plt.tight_layout()
+    fig.savefig(f"{save_prefix}.png", dpi=300, bbox_inches="tight", facecolor=COLOR_BG)
+    fig.savefig(f"{save_prefix}.pdf", bbox_inches="tight", facecolor=COLOR_BG)
     plt.close(fig)
 
 
@@ -2728,7 +2630,7 @@ def generate_comparative_visuals(
         )
         print("    ├── comparative_deployment_flow_sankey.png / .pdf")
 
-    # Generate 3-baseline scalability projection
+    # Generate scalability projection (Proposed RADG vs. Always-On HITL)
     plot_comparative_scalability_projection(
         data, target_dir / "comparative_scalability_projection"
     )
