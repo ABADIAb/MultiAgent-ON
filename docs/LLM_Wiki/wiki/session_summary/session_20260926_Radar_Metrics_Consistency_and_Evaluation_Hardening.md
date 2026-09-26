@@ -1,21 +1,19 @@
 ---
-title: "Technical Handover: Evaluation Hierarchy Restructuring & Visuals Refinement"
+title: "Technical Handover: Radar Chart Purge & Comparative Visuals Refinement"
 date: 2026-09-26
-tags: [session-summary, handover, evaluation-restructure, sanitized-models, visual-cleanup, scalability-projection, openrouter-modernization]
+tags: [session-summary, handover, evaluation-visuals, radar-purge, comparative-charts]
 status: active
 ---
 
-# Technical Handover Card: 2026-09-26 (Evaluation Hierarchy & Visuals Refinement)
+# Technical Handover Card: 2026-09-26 (Radar Purge & Visuals Refinement)
 
 ## 1. Scope & Objective
-Restructure evaluation hierarchy by sanitized model (`<LLM>/<timestamp>`), consolidate comparative visual assets, and refine `comparative_scalability_projection` into a focused single-panel operator intervention comparison.
+Eliminate distorted `comparative_radar_pillars` chart, clean up references across CLI, visualizer, and docs, and prepare comparative visual suite for continued refinement.
 
 ## 2. Key Architectural Decisions
-- **Hierarchical Output Schema:** Runs stored in `<baseline>/results/<LLM>/<timestamp>/`; comparative results in `tests/evaluation/results/<LLM>/<timestamp>/`.
-- **Model Identifier Sanitization:** `sanitize_model_name()` sanitizes `:` and `/` to `_` across directory paths and run resolvers.
-- **Visuals Consolidation:** Moved `gate_accuracy_matrix` to comparative suite; pruned redundant charts from baseline folders, preserving 16:9 dashboards.
-- **Scalability Projection Refactoring:** Single-panel chart comparing Proposed RADG vs. Always-On HITL ($N_{hitl}$), removing redundant controller incidents panel and LLM-Only baseline.
-- **OpenRouter Modernization & Dynamic Model Selection:** Purged legacy `ling-3.0` and `OP_LING_MODEL`; enabled configurable `OPENROUTER_MODELS` list in `.env` and dynamic interactive/CLI model selection in `src/main.py` and `tests/evaluation/main.py`.
+- **Radar Chart Discarded:** Removed `plot_comparative_radar_chart()` and all `comparative_radar_pillars` references due to mathematical distortion in normalized inverse axes (`1/Latency`, `1/Tokens`) and misleading 0% autonomy for un-gated baselines.
+- **Visuals Catalog Streamlined:** Comparative suite focuses on defensible, uncompressed figures: `comparative_pillars_breakdown`, `comparative_deployment_flow_sankey`, `comparative_scalability_projection`, and `gate_accuracy_matrix`.
+- **Artifact & Test Cleanup:** Purged lingering radar visual assets from `results/` and updated test assertions in `test_evaluation_baselines.py`.
 
 ## 3. Test & Code Health
 - **Unit Suite:** 353/353 passing (`uv run pytest tests/unit/`).
@@ -23,5 +21,5 @@ Restructure evaluation hierarchy by sanitized model (`<LLM>/<timestamp>`), conso
 - **Git Hygiene:** No `.agents/` or `.atl/` files staged or tracked.
 
 ## 4. Exact Cursor & Next Prompt
-- **Cursor:** `tests/evaluation/generate_visuals.py`.
+- **Cursor:** `tests/evaluation/generate_visuals.py` (reviewing remaining comparative figures).
 - **Next Prompt:** "Continuemos revisando las demás gráficas comparativas de evaluación."

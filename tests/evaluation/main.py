@@ -646,7 +646,6 @@ def run_comparative_mode(
             f"  ├── comparative_results_{run_id}.json\n"
             f"  ├── comparative_summary_{run_id}.md\n"
             f"  ├── comparative_pillars_breakdown.png / .pdf\n"
-            f"  ├── comparative_radar_pillars.png / .pdf\n"
             f"  ├── comparative_deployment_flow_sankey.png / .pdf\n"
             f"  ├── comparative_scalability_projection.png / .pdf\n"
             f"  └── gate_accuracy_matrix.png / .pdf",

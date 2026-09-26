@@ -12,7 +12,7 @@ tests/evaluation/
 ├── results/                    # Global comparative results ([LLM]/[timestamp]/)
 ├── baselines/                  # Modular baseline implementations reusing src/
 │   ├── common/                 # Shared runner, token tracker, metrics, and reporter
-│   │   ├── metrics.py          # Four Pillars telemetry formulas (CRR, CFG-PR, FPR, GDA, Radar)
+│   │   ├── metrics.py          # Four Pillars telemetry formulas (CRR, CFG-PR, FPR, GDA)
 │   │   ├── runner.py           # Multi-turn execution loop with HITL recovery interception
 │   │   └── reporter.py         # Multi-format telemetry exporter (JSON, CSV, MD)
 │   ├── proposed_radg/          # Proposed System: Fail-fast Semantic & Physical RADGs
@@ -112,7 +112,7 @@ uv run python tests/evaluation/main.py --baseline proposed_radg --mode interacti
 ```
 
 ### 4.4 Cross-Baseline Comparative Mode
-To synthesize cross-baseline comparison matrices and polar radar charts:
+To synthesize cross-baseline comparison matrices and executive visual figures:
 ```bash
 # Compare the latest runs of each baseline and regenerate all figures:
 uv run python tests/evaluation/main.py --mode compare
@@ -160,7 +160,6 @@ Results are persisted in timestamped folders organized hierarchically by sanitiz
 When running comparative mode or full multi-baseline evaluations, cross-baseline analytics and gate diagnostics are generated in `tests/evaluation/results/<LLM>/<timestamp>/`:
 - `comparative_results_<timestamp>.json`: Combined cross-baseline raw traces and pillar metrics.
 - `comparative_summary_<timestamp>.md`: Side-by-side executive comparison matrix across all baselines.
-- `comparative_radar_pillars.png / .pdf`: 4-axis Polar Radar Chart evaluating Speed, Token Frugality, Pre-Deployment Integrity ($100 - \text{FPR}$), and Zero-Touch Autonomy.
 - `comparative_pillars_breakdown.png / .pdf`: 4-panel disaggregated breakdown comparing Pre-Deployment Integrity ($FPR$), Operator Friction ($N_{hitl}$), End-to-End Latency & Replan Overhead, and Token Footprint & Wasted Compute.
 - `comparative_deployment_flow_sankey.png / .pdf`: Publication-grade dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
 - `comparative_scalability_projection.png / .pdf`: Scalability projection modeling cumulative operator interventions ($N_{hitl}$ cognitive fatigue) across the 120-demand diurnal operational stream, comparing Proposed RADG against Always-On HITL.

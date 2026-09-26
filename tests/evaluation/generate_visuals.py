@@ -1730,7 +1730,7 @@ def plot_always_on_dashboard(
 
     # End point callouts
     ax_right.annotate(
-        f"Always-On: {final_ao}\n(100% Interrupted)",
+        f"Always-On: {final_ao}",
         xy=(total_demands, final_ao),
         xytext=(total_demands - max(1.0, total_demands * 0.04), final_ao + max(1.0, final_ao * 0.08)),
         ha="right", va="bottom", fontsize=8.8, fontweight="bold", color=COLOR_CLARIFY,
@@ -1738,7 +1738,7 @@ def plot_always_on_dashboard(
         bbox=dict(facecolor="white", edgecolor=COLOR_CLARIFY, boxstyle="round,pad=0.25", alpha=0.95),
     )
     ax_right.annotate(
-        f"Proposed RADG: {final_prop}\n({pct_savings:.1f}% Relief)",
+        f"Proposed RADG: {final_prop}",
         xy=(total_demands, final_prop),
         xytext=(total_demands - max(2.0, total_demands * 0.14), max(1.0, final_prop * 0.42)),
         ha="center", va="top", fontsize=8.8, fontweight="bold", color=COLOR_NAVY,
@@ -1752,7 +1752,7 @@ def plot_always_on_dashboard(
     if gap_at_mid >= 8:
         ax_right.text(
             mid_idx, (y_prop[mid_idx] + y_ao[mid_idx]) / 2.0,
-            f"PROTECTED ATTENTION\nΔ = {cognitive_savings} Disruptions Averted\n({pct_savings:.1f}% Fatigue Reduction)",
+            f"PROTECTED ATTENTION\n({pct_savings:.1f}% Fatigue Reduction)",
             ha="center", va="center", fontsize=8.2, fontweight="bold", color=COLOR_APPROVE,
             bbox=dict(facecolor="white", edgecolor=COLOR_APPROVE, boxstyle="round,pad=0.3", alpha=0.95),
         )
@@ -1762,7 +1762,7 @@ def plot_always_on_dashboard(
         target_x = total_demands * 0.85
         target_y = (y_prop[int(target_x)] + y_ao[int(target_x)]) / 2.0
         ax_right.annotate(
-            f"PROTECTED ATTENTION\nΔ = {cognitive_savings} Disruptions Averted ({pct_savings:.1f}% Relief)\nZero Interventions on Nominals",
+            f"PROTECTED ATTENTION\n({pct_savings:.1f}% Fatigue Reduction)",
             xy=(target_x, target_y),
             xytext=(badge_x, badge_y),
             ha="center", va="center", fontsize=8.2, fontweight="bold", color=COLOR_APPROVE,
@@ -2198,8 +2198,9 @@ def plot_comparative_scalability_projection(
     final_ao_hitl = y_ao_hitl[-1]
     final_prop_hitl = y_prop_hitl[-1]
     cognitive_savings = final_ao_hitl - final_prop_hitl
+    pct_savings = (cognitive_savings / final_ao_hitl * 100.0) if final_ao_hitl > 0 else 0.0
 
-    fig, ax = plt.subplots(figsize=(10.0, 5.8), dpi=300)
+    fig, ax = plt.subplots(figsize=(8.2, 5.8), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
     ax.set_facecolor(COLOR_CARD_BG)
 
@@ -2228,13 +2229,57 @@ def plot_comparative_scalability_projection(
     ax.plot(total_demands, final_ao_hitl, marker="o", markersize=7, color=COLOR_CLARIFY, markeredgecolor="white")
     ax.plot(total_demands, final_prop_hitl, marker="o", markersize=7, color=COLOR_NAVY, markeredgecolor="white")
 
-    ax.set_title("Cumulative Operator Interventions ($N_{hitl}$)", fontsize=13.0, fontweight="bold", color=COLOR_NAVY, pad=12)
-    ax.set_xlabel("Operational Stream Sequence (Demands)", fontsize=11.0, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax.set_ylabel("Cumulative HITL Interventions", fontsize=11.0, fontweight="bold", color=COLOR_NAVY)
-    ax.set_xlim(0, total_demands + 2)
+    # End point callouts
+    ax.annotate(
+        f"Always-On: {final_ao_hitl}",
+        xy=(total_demands, final_ao_hitl),
+        xytext=(total_demands - max(1.0, total_demands * 0.04), final_ao_hitl + max(1.0, final_ao_hitl * 0.08)),
+        ha="right", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_CLARIFY,
+        arrowprops=dict(arrowstyle="->", color=COLOR_CLARIFY, lw=1.2),
+        bbox=dict(facecolor="white", edgecolor=COLOR_CLARIFY, boxstyle="round,pad=0.3", alpha=0.95),
+    )
+    ax.annotate(
+        f"Proposed RADG: {final_prop_hitl}",
+        xy=(total_demands, final_prop_hitl),
+        xytext=(total_demands - max(2.0, total_demands * 0.14), max(1.0, final_prop_hitl * 0.42)),
+        ha="center", va="top", fontsize=10.5, fontweight="bold", color=COLOR_NAVY,
+        arrowprops=dict(arrowstyle="->", color=COLOR_NAVY, lw=1.2),
+        bbox=dict(facecolor="white", edgecolor=COLOR_NAVY, boxstyle="round,pad=0.3", alpha=0.95),
+    )
+
+    # Shaded region callout badge
+    mid_idx = max(1, int(total_demands * 0.73))
+    gap_at_mid = y_ao_hitl[mid_idx] - y_prop_hitl[mid_idx]
+    if gap_at_mid >= 8:
+        ax.text(
+            mid_idx, (y_prop_hitl[mid_idx] + y_ao_hitl[mid_idx]) / 2.0,
+            f"PROTECTED ATTENTION\n({pct_savings:.1f}% Fatigue Reduction)",
+            ha="center", va="center", fontsize=9.2, fontweight="bold", color=COLOR_APPROVE,
+            bbox=dict(facecolor="white", edgecolor=COLOR_APPROVE, boxstyle="round,pad=0.25", alpha=0.95),
+        )
+    else:
+        badge_x = total_demands * 0.46
+        badge_y = max(final_ao_hitl, final_prop_hitl) * 0.66 + 3.0
+        target_x = total_demands * 0.85
+        target_y = (y_prop_hitl[int(target_x)] + y_ao_hitl[int(target_x)]) / 2.0
+        ax.annotate(
+            f"PROTECTED ATTENTION\n({pct_savings:.1f}% Fatigue Reduction)",
+            xy=(target_x, target_y),
+            xytext=(badge_x, badge_y),
+            ha="center", va="center", fontsize=9.2, fontweight="bold", color=COLOR_APPROVE,
+            arrowprops=dict(arrowstyle="->", color=COLOR_APPROVE, lw=1.2, connectionstyle="arc3,rad=-0.15"),
+            bbox=dict(facecolor="white", edgecolor=COLOR_APPROVE, boxstyle="round,pad=0.3", alpha=0.95),
+        )
+
+    ax.set_title("Cumulative Operator Interventions ($N_{hitl}$)", fontsize=13.5, fontweight="bold", color=COLOR_NAVY, pad=12)
+    ax.set_xlabel("Operational Stream Sequence (Demands)", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax.set_ylabel("Cumulative HITL Interventions", fontsize=11.5, fontweight="bold", color=COLOR_NAVY)
+    ax.tick_params(axis="both", labelsize=10.5)
+    x_margin = max(1.0, total_demands * 0.05)
+    ax.set_xlim(0, total_demands + x_margin)
     ax.set_ylim(0, max(final_ao_hitl, final_prop_hitl, 1) * 1.25)
     ax.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
-    ax.legend(loc="upper left", fontsize=9.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+    ax.legend(loc="upper left", fontsize=11.0, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
 
     save_prefix = output_prefix / "comparative_scalability_projection" if output_prefix.is_dir() else output_prefix
     save_prefix.parent.mkdir(parents=True, exist_ok=True)
@@ -2512,87 +2557,6 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
     plt.close()
 
 
-def plot_comparative_radar_chart(comparative_data: dict[str, Any], output_prefix: Path) -> None:
-    """Generate 4-axis Radar / Spider chart comparing baselines across the Four Orthogonal Pillars.
-
-    Orthogonal Normalized Axes (0-100, 100 is optimal):
-      1. Speed: Normalized relative to the fastest baseline (min_latency / latency * 100)
-      2. Token Usage: Normalized relative to lowest token consumption (min_tokens / tokens * 100)
-      3. Pre-Deployment Integrity: (100 - FPR [%])
-      4. Zero-Touch Autonomy: Normalized Freedom from Interruption (%)
-    """
-    baselines_info = comparative_data.get("baselines", {})
-    if not baselines_info:
-        return
-
-    from tests.evaluation.baselines.common.metrics import compute_comparative_radar_metrics
-
-    radar_metrics = compute_comparative_radar_metrics(baselines_info)
-
-    categories = [
-        "Execution Speed\n(Norm. 1/Latency)",
-        "Token Economy\n(Norm. 1/Tokens)",
-        "Pre-Deployment Integrity\n(100 - FPR [%])",
-        "Zero-Touch Autonomy\n(Norm. Interruption Freedom [%])",
-    ]
-    num_vars = len(categories)
-
-    angles = [n / float(num_vars) * 2 * np.pi for n in range(num_vars)]
-    angles += angles[:1]
-
-    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True), dpi=300)
-    fig.patch.set_facecolor(COLOR_BG)
-    ax.set_facecolor(COLOR_CARD_BG)
-
-    ax.set_theta_offset(np.pi / 2)
-    ax.set_theta_direction(-1)
-    plt.xticks(angles[:-1], categories, fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax.set_rscale("linear")
-    plt.yticks([25, 50, 75, 100], ["25%", "50%", "75%", "100%"], color=COLOR_MUTED, fontsize=8)
-    plt.ylim(0, 105)
-
-    all_b_keys = ["proposed_radg", "always_on_hitl", "llm_only"]
-    b_keys = [k for k in all_b_keys if k in baselines_info]
-    if not b_keys:
-        b_keys = list(baselines_info.keys())
-
-    baseline_labels = {
-        "proposed_radg": "Proposed RADG (V5)",
-        "always_on_hitl": "Always-On HITL",
-        "llm_only": "LLM-Only",
-    }
-    baseline_styles = {
-        "proposed_radg": (COLOR_NAVY, "o", "-", 0.25),
-        "always_on_hitl": (COLOR_CLARIFY, "s", "--", 0.15),
-        "llm_only": (COLOR_BURGUNDY, "^", "-.", 0.15),
-    }
-
-    for b_id in b_keys:
-        b_radar = radar_metrics.get(b_id, {})
-        speed = b_radar.get("speed", 0.0)
-        tok = b_radar.get("token_usage", 0.0)
-        integrity = b_radar.get("pre_deployment_integrity", 0.0)
-        autonomy = b_radar.get("zero_touch_autonomy", 0.0)
-
-        values = [speed, tok, integrity, autonomy]
-        values += values[:1]
-
-        color, marker, lstyle, fill_alpha = baseline_styles.get(b_id, (COLOR_MUTED, "o", "-", 0.10))
-        lbl = baseline_labels.get(b_id, b_id)
-
-        ax.plot(angles, values, color=color, linewidth=2.2, linestyle=lstyle, marker=marker, label=lbl)
-        ax.fill(angles, values, color=color, alpha=fill_alpha)
-
-    ax.grid(color=COLOR_CARD_BORDER, linestyle=":")
-    plt.legend(loc="upper right", bbox_to_anchor=(1.25, 1.1), fontsize=9)
-    plt.title("Four Orthogonal Validation Pillars: Comparative Radar", fontsize=13, fontweight="bold", color=COLOR_NAVY, y=1.08)
-    plt.tight_layout()
-
-    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
-    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
-    plt.close()
-
-
 def generate_comparative_visuals(
     comparative_json_path: Path,
     target_dir: Path | None = None,
@@ -2619,7 +2583,6 @@ def generate_comparative_visuals(
     target_dir.mkdir(parents=True, exist_ok=True)
 
     plot_comparative_pillars_bar(data, target_dir / "comparative_pillars_breakdown")
-    plot_comparative_radar_chart(data, target_dir / "comparative_radar_pillars")
 
     # Generate combined dual-panel Sankey comparing Proposed RADG vs. LLM-Only
     prop_data = resolve_baseline_data("proposed_radg", data)
@@ -2642,8 +2605,7 @@ def generate_comparative_visuals(
         print("    ├── gate_accuracy_matrix.png / .pdf")
 
     print(f"[✓] Comparative visual assets generated in: {target_dir}")
-    print("    ├── comparative_pillars_breakdown.png / .pdf")
-    print("    └── comparative_radar_pillars.png / .pdf")
+    print("    └── comparative_pillars_breakdown.png / .pdf")
 
     return target_dir
 
