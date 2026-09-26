@@ -1,19 +1,21 @@
 ---
-title: "Technical Handover: Radar Chart Purge & Comparative Visuals Refinement"
+title: "Technical Handover: Evaluation Hierarchy, OpenRouter & Visuals Hardening"
 date: 2026-09-26
-tags: [session-summary, handover, evaluation-visuals, radar-purge, comparative-charts]
+tags: [session-summary, handover, evaluation-restructure, visual-cleanup, radar-purge, openrouter]
 status: active
 ---
 
-# Technical Handover Card: 2026-09-26 (Radar Purge & Visuals Refinement)
+# Technical Handover Card: 2026-09-26 (Evaluation Hierarchy & Visuals Hardening)
 
 ## 1. Scope & Objective
-Eliminate distorted `comparative_radar_pillars` chart, clean up references across CLI, visualizer, and docs, and prepare comparative visual suite for continued refinement.
+Consolidate evaluation hierarchy (`<LLM>/<timestamp>`), sanitize models, modernize OpenRouter selection, and refine comparative visuals (scalability single panel, radar purge).
 
 ## 2. Key Architectural Decisions
-- **Radar Chart Discarded:** Removed `plot_comparative_radar_chart()` and all `comparative_radar_pillars` references due to mathematical distortion in normalized inverse axes (`1/Latency`, `1/Tokens`) and misleading 0% autonomy for un-gated baselines.
-- **Visuals Catalog Streamlined:** Comparative suite focuses on defensible, uncompressed figures: `comparative_pillars_breakdown`, `comparative_deployment_flow_sankey`, `comparative_scalability_projection`, and `gate_accuracy_matrix`.
-- **Artifact & Test Cleanup:** Purged lingering radar visual assets from `results/` and updated test assertions in `test_evaluation_baselines.py`.
+- **Evaluation Hierarchy & Model Sanitization:** Organized outputs by `<LLM>/<timestamp>/` with `sanitize_model_name()` for filesystem safety.
+- **OpenRouter Dynamic Selection:** Configurable models via `.env` with interactive terminal & CLI `--model` selection.
+- **Visuals Consolidation & Scalability:** Moved `gate_accuracy_matrix` to comparative suite; refactored `comparative_scalability_projection` to single-panel ($N_{hitl}$ fatigue).
+- **Radar Chart Discarded:** Removed `comparative_radar_pillars` due to mathematical distortion in normalized inverse axes (`1/Latency`, `1/Tokens`) and artificial 0% autonomy for un-gated baselines.
+- **Defensible Comparative Suite:** Standardized on `comparative_pillars_breakdown`, `comparative_deployment_flow_sankey`, `comparative_scalability_projection`, and `gate_accuracy_matrix`.
 
 ## 3. Test & Code Health
 - **Unit Suite:** 353/353 passing (`uv run pytest tests/unit/`).
