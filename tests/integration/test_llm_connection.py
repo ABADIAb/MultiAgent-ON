@@ -115,7 +115,7 @@ class TestOpenRouterConnection:
         from src.core.llm import create_openrouter_llm
 
         api_key = os.getenv("OPENROUTER_API_KEY", "")
-        model = os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL")
+        model = os.getenv("OPENROUTER_MODEL")
 
         llm = create_openrouter_llm(api_key=api_key, model=model)
         prompt = "What is the capital of France? Reply in one word."
@@ -139,7 +139,7 @@ class TestOpenRouterConnection:
         from src.core.llm import create_openrouter_llm
 
         api_key = os.getenv("OPENROUTER_API_KEY", "")
-        model = os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL")
+        model = os.getenv("OPENROUTER_MODEL")
 
         llm = create_openrouter_llm(api_key=api_key, model=model)
         prompt = "What are the primary colors? Keep it brief."
@@ -166,7 +166,7 @@ class TestOpenRouterConnection:
             target: str = Field(description="Target city")
 
         api_key = os.getenv("OPENROUTER_API_KEY", "")
-        model = os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL")
+        model = os.getenv("OPENROUTER_MODEL")
 
         llm = create_openrouter_llm(api_key=api_key, model=model)
         structured_llm = llm.with_structured_output(RouteIntent)

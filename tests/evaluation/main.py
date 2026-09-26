@@ -42,9 +42,13 @@ from rich.table import Table  # noqa: E402
 from rich.text import Text  # noqa: E402
 
 from src.core.llm import (  # noqa: E402
+    DEFAULT_KIMI_MODEL,
     DEFAULT_LLM_TIMEOUT,
     DEFAULT_OLLAMA_MODEL,
+    DEFAULT_OPENROUTER_MODEL,
+    SUPPORTED_OLLAMA_MODELS,
     create_configured_llm,
+    get_supported_openrouter_models,
     resolve_llm_timeout,
     set_llm,
 )
@@ -723,8 +727,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model",
         type=str,
-        default=os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL),
-        help="Model name",
+        default=None,
+        help="Model name (defaults to provider-specific default if omitted)",
     )
     parser.add_argument(
         "--intent",
@@ -826,11 +830,56 @@ def main() -> None:
             default=provider,
         )
 
-        default_model = "qwen2.5:3b" if provider == "ollama" else ("inclusionai/ling-3.0-flash-vl:free" if provider == "openrouter" else "moonshot-v1-8k")
-        model = prompt_text(
-            f"Enter Model Name for {provider}:",
-            default=default_model,
-        )
+        if provider == "openrouter":
+            configured_models = get_supported_openrouter_models()
+            default_m = os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
+            choices = [
+                questionary.Choice(f"{m} (Default)" if m == default_m else m, m)
+                for m in configured_models
+            ]
+            choices.append(questionary.Choice("Enter custom model slug...", "custom"))
+
+            selected_m = prompt_select(
+                "Select OpenRouter Model:",
+                choices=choices,
+                default=default_m if default_m in configured_models else (choices[0].value if choices else None),
+            )
+            if selected_m == "custom":
+                model = prompt_text(
+                    "Enter OpenRouter Model Slug (e.g. 'openai/gpt-4o-mini', 'anthropic/claude-3.5-sonnet'):",
+                    default=default_m,
+                )
+            else:
+                model = selected_m
+        elif provider == "ollama":
+            choices = [questionary.Choice(m, m) for m in SUPPORTED_OLLAMA_MODELS]
+            choices.append(questionary.Choice("Enter custom model name...", "custom"))
+            default_m = os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
+            selected_m = prompt_select(
+                "Select Ollama Model:",
+                choices=choices,
+                default=default_m if default_m in SUPPORTED_OLLAMA_MODELS else (choices[0].value if choices else None),
+            )
+            if selected_m == "custom":
+                model = prompt_text(
+                    "Enter Ollama Model Name:",
+                    default=default_m,
+                )
+            else:
+                model = selected_m
+        else:  # kimi
+            model = prompt_text(
+                "Enter Model Name for Kimi:",
+                default=os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL),
+            )
+    else:
+        if not model:
+            if provider == "ollama":
+                model = os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
+            elif provider == "openrouter":
+                model = os.getenv("OPENROUTER_MODEL", DEFAULT_OPENROUTER_MODEL)
+            else:
+                model = os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL)
 
     # Initialize shared LLM instance
     console.print(f"[dim]Configuring LLM provider: {provider} | Model: {model} | Timeout: {timeout}s...[/dim]")

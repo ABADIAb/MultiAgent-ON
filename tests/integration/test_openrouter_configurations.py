@@ -1,14 +1,13 @@
 """Integration benchmark tests for OpenRouter API model configurations.
 
 Evaluates and compares latency, token consumption, and PDDL output validity
-across multiple OpenRouter parameter configurations for the model:
-inclusionai/ling-3.0-flash-vl:free
+across multiple OpenRouter parameter configurations.
 
 Tested configurations:
-1. ling-temp-0.0 (temperature=0.0, max_tokens=2000) — strictly deterministic
-2. ling-temp-0.2 (temperature=0.2, max_tokens=2000) — recommended baseline
-3. ling-temp-0.6 (temperature=0.6, max_tokens=2000) — moderate sampling
-4. ling-tokens-1000 (temperature=0.2, max_tokens=1000) — constrained budget
+1. temp-0.0 (temperature=0.0, max_tokens=2000) — strictly deterministic
+2. temp-0.2 (temperature=0.2, max_tokens=2000) — recommended baseline
+3. temp-0.6 (temperature=0.6, max_tokens=2000) — moderate sampling
+4. tokens-1000 (temperature=0.2, max_tokens=1000) — constrained budget
 
 Requires:
     - OPENROUTER_API_KEY environment variable set.
@@ -88,7 +87,7 @@ class TestOpenRouterConfigurations:
     ) -> None:
         """Verify latency, token usage, and PDDL syntax validity for each configuration."""
         api_key = os.getenv("OPENROUTER_API_KEY", "")
-        model = os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL")
+        model = os.getenv("OPENROUTER_MODEL")
 
         llm = create_openrouter_llm(
             api_key=api_key,
@@ -124,7 +123,7 @@ class TestOpenRouterConfigurations:
         is_valid, errors = validate_pddl_syntax(clean_pddl)
 
         print(f"\n{'='*20} OpenRouter Benchmark: {config_name} {'='*20}")
-        print(f"Model:            {model or 'inclusionai/ling-3.0-flash-vl:free'}")
+        print(f"Model:            {model or 'default'}")
         print(f"Latency:          {latency:.2f}s")
         print(f"Comp Tokens:      {comp_tokens}")
         print(f"PDDL Valid:       {is_valid}")
@@ -139,7 +138,7 @@ class TestOpenRouterConfigurations:
     def test_openrouter_structured_intent_ingest(self) -> None:
         """Verify structured output parsing with IntentSummary using function calling."""
         api_key = os.getenv("OPENROUTER_API_KEY", "")
-        model = os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL")
+        model = os.getenv("OPENROUTER_MODEL")
 
         llm = create_openrouter_llm(
             api_key=api_key,

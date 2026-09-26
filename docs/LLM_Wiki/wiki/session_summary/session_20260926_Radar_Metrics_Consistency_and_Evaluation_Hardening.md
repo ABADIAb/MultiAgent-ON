@@ -1,7 +1,7 @@
 ---
 title: "Technical Handover: Evaluation Hierarchy Restructuring & Visuals Refinement"
 date: 2026-09-26
-tags: [session-summary, handover, evaluation-restructure, sanitized-models, visual-cleanup, scalability-projection]
+tags: [session-summary, handover, evaluation-restructure, sanitized-models, visual-cleanup, scalability-projection, openrouter-modernization]
 status: active
 ---
 
@@ -15,9 +15,10 @@ Restructure evaluation hierarchy by sanitized model (`<LLM>/<timestamp>`), conso
 - **Model Identifier Sanitization:** `sanitize_model_name()` sanitizes `:` and `/` to `_` across directory paths and run resolvers.
 - **Visuals Consolidation:** Moved `gate_accuracy_matrix` to comparative suite; pruned redundant charts from baseline folders, preserving 16:9 dashboards.
 - **Scalability Projection Refactoring:** Single-panel chart comparing Proposed RADG vs. Always-On HITL ($N_{hitl}$), removing redundant controller incidents panel and LLM-Only baseline.
+- **OpenRouter Modernization & Dynamic Model Selection:** Purged legacy `ling-3.0` and `OP_LING_MODEL`; enabled configurable `OPENROUTER_MODELS` list in `.env` and dynamic interactive/CLI model selection in `src/main.py` and `tests/evaluation/main.py`.
 
 ## 3. Test & Code Health
-- **Unit Suite:** 352/352 passing (`uv run pytest tests/unit/`).
+- **Unit Suite:** 353/353 passing (`uv run pytest tests/unit/`).
 - **Code Hygiene:** 100% clean (`uv run ruff check tests/ src/`).
 - **Git Hygiene:** No `.agents/` or `.atl/` files staged or tracked.
 

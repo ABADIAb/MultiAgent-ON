@@ -212,15 +212,24 @@ class TestCreateOpenRouterLLM:
         )
 
         monkeypatch.delenv("OPENROUTER_MODEL", raising=False)
-        monkeypatch.delenv("OP_LING_MODEL", raising=False)
         monkeypatch.delenv("OPENROUTER_BASE_URL", raising=False)
 
         llm = create_openrouter_llm(api_key="test-key")
         assert llm.model_name == DEFAULT_OPENROUTER_MODEL
-        assert llm.model_name == "inclusionai/ling-3.0-flash-vl:free"
+        assert llm.model_name == "openai/gpt-4o-mini"
         assert str(llm.openai_api_base).rstrip("/") == DEFAULT_OPENROUTER_BASE_URL
         assert llm.temperature == 0.2
         assert llm.max_tokens == 2000
+
+    def test_get_supported_openrouter_models(self, monkeypatch):
+        """Supported models helper returns defaults or parses OPENROUTER_MODELS env."""
+        from src.core.llm import SUPPORTED_OPENROUTER_MODELS, get_supported_openrouter_models
+
+        monkeypatch.delenv("OPENROUTER_MODELS", raising=False)
+        assert get_supported_openrouter_models() == SUPPORTED_OPENROUTER_MODELS
+
+        monkeypatch.setenv("OPENROUTER_MODELS", "model/a, model/b , model/c")
+        assert get_supported_openrouter_models() == ("model/a", "model/b", "model/c")
 
     def test_create_openrouter_llm_custom_params(self):
         """Explicit parameters override defaults."""

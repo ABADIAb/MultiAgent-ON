@@ -37,6 +37,7 @@ from src.core.llm import (
     DEFAULT_OLLAMA_MODEL,
     DEFAULT_OPENROUTER_MODEL,
     create_configured_llm,
+    get_supported_openrouter_models,
     set_llm,
 )
 from src.core.state import ALLOWED_MSGPACK_MODULES
@@ -119,7 +120,7 @@ def interactive_configuration() -> dict[str, Any]:
                 value="ollama",
             ),
             questionary.Choice(
-                title="🌐 OpenRouter (inclusionai/ling-3.0-flash-vl:free | 0.2 temp | 2000 max tokens)",
+                title="🌐 OpenRouter Cloud API (Multi-Model Gateway | Select model & params)",
                 value="openrouter",
             ),
             questionary.Choice(
@@ -225,43 +226,72 @@ def interactive_configuration() -> dict[str, Any]:
         }
 
     if provider == "openrouter":
-        profile_choice = questionary.select(
-            "Select Execution Profile for OpenRouter:",
+        configured_models = get_supported_openrouter_models()
+        default_model = os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
+
+        choices = [
+            questionary.Choice(
+                title=f"⚡ Default ({m})" if m == default_model else f"🤖 {m}",
+                value=m,
+            )
+            for m in configured_models
+        ]
+        choices.append(
+            questionary.Choice(
+                title="🛠️  Custom Model Slug (Type manually)",
+                value="custom",
+            )
+        )
+
+        selected_model = questionary.select(
+            "Select OpenRouter Model:",
+            choices=choices,
+            default=default_model if default_model in configured_models else (configured_models[0] if configured_models else None),
+            style=QUESTIONARY_STYLE,
+        ).ask()
+
+        if selected_model is None:
+            console.print("[yellow]Setup cancelled by operator.[/yellow]")
+            sys.exit(0)
+
+        if selected_model == "custom":
+            selected_model = questionary.text(
+                "Enter OpenRouter Model Slug (e.g. 'openai/gpt-4o-mini', 'anthropic/claude-3.5-sonnet'):",
+                default=default_model,
+                style=QUESTIONARY_STYLE,
+            ).ask()
+            if not selected_model:
+                console.print("[yellow]Setup cancelled by operator.[/yellow]")
+                sys.exit(0)
+
+        param_choice = questionary.select(
+            f"Parameters for {selected_model}:",
             choices=[
                 questionary.Choice(
-                    title="⚡ Recommended Default (inclusionai/ling-3.0-flash-vl:free | 2000 max tokens | temp=0.2)",
+                    title="⚡ Default Parameters (temp=0.2 | 2000 max tokens)",
                     value="default",
                 ),
                 questionary.Choice(
-                    title="🛠️  Custom Settings (Select model slug, temperature, max tokens)",
+                    title="🛠️  Custom Parameters (Adjust temperature and max tokens)",
                     value="custom",
                 ),
             ],
             style=QUESTIONARY_STYLE,
         ).ask()
 
-        if profile_choice is None:
+        if param_choice is None:
             console.print("[yellow]Setup cancelled by operator.[/yellow]")
             sys.exit(0)
 
-        if profile_choice == "default":
-            model = os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL
+        if param_choice == "default":
             return {
                 "provider": "openrouter",
-                "model": model,
+                "model": selected_model,
                 "temperature": 0.2,
                 "max_tokens": 2000,
                 "think_effort": None,
                 "thinking_disabled": False,
             }
-
-        custom_model = questionary.text(
-            "Enter OpenRouter Model Slug:",
-            default=os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL,
-            style=QUESTIONARY_STYLE,
-        ).ask()
-        if custom_model is None:
-            sys.exit(0)
 
         temp_str = questionary.text(
             "Sampling Temperature (0.0 to 1.0):",
@@ -279,7 +309,7 @@ def interactive_configuration() -> dict[str, Any]:
 
         return {
             "provider": "openrouter",
-            "model": custom_model,
+            "model": selected_model,
             "temperature": float(temp_str or "0.2"),
             "max_tokens": int(tokens_str or "2000"),
             "think_effort": None,
@@ -664,7 +694,7 @@ def main() -> None:
             default_tokens = 3000 if is_thinking else 2000
         elif provider == "openrouter":
             default_model = (
-                os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL
+                os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
             )
             default_temp = 0.2
             default_tokens = 2000

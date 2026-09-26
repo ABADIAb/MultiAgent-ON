@@ -18,7 +18,7 @@ def sanitize_model_name(model_name: str | None) -> str:
     Replaces ':', '/', '\\', and spaces with '_'.
     Examples:
         'qwen2.5:3b' -> 'qwen2.5_3b'
-        'inclusionai/ling-3.0-flash-vl:free' -> 'inclusionai_ling-3.0-flash-vl_free'
+        'anthropic/claude-3.5-sonnet' -> 'anthropic_claude-3.5-sonnet'
     """
     if not model_name:
         return "unknown_model"
