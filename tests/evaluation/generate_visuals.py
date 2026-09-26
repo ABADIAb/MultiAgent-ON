@@ -41,7 +41,7 @@ import numpy as np
 
 # Styling constants (PoliMi palette & typography)
 COLOR_NAVY = "#0F2C53"
-COLOR_BURGUNDY = "#85200C"
+COLOR_BURGUNDY = "#4A0E17"  # Deep Wine / Dark Maroon (Fatal Timeout/Abort)
 COLOR_DARK_SLATE = "#1E293B"
 COLOR_MUTED = "#64748B"
 COLOR_BG = "#FFFFFF"
@@ -69,41 +69,63 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
     if not demands:
         return
 
-    # Count actions per class
-    counts = {c: {"approve": 0, "clarify": 0, "replan": 0} for c in CLASS_SHORT_NAMES}
+    # Count actions per class, separating out timeouts/aborted
+    counts = {c: {"approve": 0, "clarify": 0, "replan": 0, "timeout": 0} for c in CLASS_SHORT_NAMES}
     for d in demands:
         c = d.get("class", "")
-        act = d.get("initial_action", "")
+        status = str(d.get("execution_status", "")).lower()
+        fatal_err = str(d.get("diagnostics", {}).get("fatal_error", "")).lower()
+        init_act = str(d.get("initial_action", "")).lower()
+        is_succ = d.get("success", True)
+        if (
+            status in ("timeout", "max_turns_exceeded", "error", "aborted", "failed")
+            or "timed out" in fatal_err
+            or "timeout" in fatal_err
+            or init_act in ("timeout", "failed", "error", "aborted")
+            or (not is_succ and init_act not in ("approve", "clarify", "replan"))
+        ):
+            act = "timeout"
+        else:
+            act = init_act
         if c in counts and act in counts[c]:
             counts[c][act] += 1
 
     x = np.arange(len(CLASS_SHORT_NAMES))
     bar_width = 0.55
 
-    fig, ax = plt.subplots(figsize=(9.5, 5.5), dpi=300)
+    fig, ax = plt.subplots(figsize=(10.0, 5.5), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
     ax.set_facecolor(COLOR_CARD_BG)
 
     approve_vals = [counts[c]["approve"] for c in CLASS_SHORT_NAMES]
     clarify_vals = [counts[c]["clarify"] for c in CLASS_SHORT_NAMES]
     replan_vals = [counts[c]["replan"] for c in CLASS_SHORT_NAMES]
+    timeout_vals = [counts[c]["timeout"] for c in CLASS_SHORT_NAMES]
 
     # Stacked bars
     ax.bar(x, approve_vals, bar_width, label="Approve (Direct Auto-Route)", color=COLOR_APPROVE, edgecolor="white", linewidth=1.2)
     ax.bar(x, clarify_vals, bar_width, bottom=approve_vals, label="Clarify (Phase 3b HITL Reverse Prompt)", color=COLOR_CLARIFY, edgecolor="white", linewidth=1.2)
     bottom_replan = [a + b for a, b in zip(approve_vals, clarify_vals)]
     ax.bar(x, replan_vals, bar_width, bottom=bottom_replan, label="Replan (Phase 6 RADG Replan HITL)", color=COLOR_REPLAN, edgecolor="white", linewidth=1.2)
+    bottom_timeout = [r + b for r, b in zip(replan_vals, bottom_replan)]
+    ax.bar(x, timeout_vals, bar_width, bottom=bottom_timeout, label="Timeout / Aborted", color=COLOR_BURGUNDY, edgecolor="white", linewidth=1.2)
 
     # Annotate bar segments with counts
     for i, c in enumerate(CLASS_SHORT_NAMES):
         tot = sum(counts[c].values())
         y_offset = 0
-        for val, color in [(counts[c]["approve"], "white"), (counts[c]["clarify"], "white"), (counts[c]["replan"], "white")]:
+        for val, color in [
+            (counts[c]["approve"], "white"),
+            (counts[c]["clarify"], "white"),
+            (counts[c]["replan"], "white"),
+            (counts[c]["timeout"], "white"),
+        ]:
             if val > 0:
-                ax.text(x[i], y_offset + val / 2, f"{val} ({val/tot*100:.0f}%)", ha="center", va="center", color=color, fontweight="bold", fontsize=11)
+                fs = 8.5 if val <= 1 else (9.5 if val <= 3 else 11)
+                ax.text(x[i], y_offset + val / 2, f"{val} ({val/tot*100:.0f}%)", ha="center", va="center", color=color, fontweight="bold", fontsize=fs)
                 y_offset += val
 
-    totals = [counts[c]["approve"] + counts[c]["clarify"] + counts[c]["replan"] for c in CLASS_SHORT_NAMES]
+    totals = [sum(counts[c].values()) for c in CLASS_SHORT_NAMES]
     max_demands = max(totals) if totals else 5
     y_limit = max_demands * 1.25
 
@@ -111,12 +133,12 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
     annotations = [
         "100% Autonomous\n(0 HITL Interrupts)",
         "100% Caught Fail-Fast\n(Semantic Gate)",
-        "0% Unfeasible Approved\n(UAR = 0.0% Invariant)",
+        "0.0% False Positives\n(FPR = 0.0% Invariant)",
         "100% Filtered\n(Syntax / Semantics)",
     ]
     for i, text in enumerate(annotations):
-        ax.text(x[i], totals[i] + max_demands * 0.03, text, ha="center", va="bottom", fontsize=9.5, color=COLOR_DARK_SLATE, fontweight="bold",
-                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=COLOR_CARD_BORDER, alpha=0.9))
+        ax.text(x[i], totals[i] + max_demands * 0.03, text, ha="center", va="bottom", fontsize=8.8, color=COLOR_DARK_SLATE, fontweight="bold",
+                bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=COLOR_CARD_BORDER, alpha=0.9))
 
     ax.set_xticks(x)
     ax.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -136,11 +158,11 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
     ax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, 1.10),
-        ncol=3,
+        ncol=4,
         framealpha=0.95,
         facecolor="white",
         edgecolor=COLOR_CARD_BORDER,
-        fontsize=10,
+        fontsize=9.5,
     )
     plt.tight_layout()
 
@@ -232,9 +254,10 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
     fig.text(0.05, 0.905, subtitle, fontsize=11, color=COLOR_MUTED)
 
     # 4 Top KPI Stat Banners
+    fpr_val = p4.get("fpr_rate", 0.0)
     kpi_cards = [
-        ("0.0%", "Unfeasible Approval Rate (UAR)", "Hard Physical Integrity Invariant (0/5 admitted)", COLOR_APPROVE),
-        (f"{p4.get('gda_rate', 95.0):.1f}%", "Gate Decision Accuracy (GDA)", "19/20 correct initial gate interventions", COLOR_NAVY),
+        (f"{fpr_val:.1f}%", "False Positive Rate (FPR)", "Pre-Deployment Integrity Invariant (0% leakage)", COLOR_APPROVE),
+        (f"{p4.get('gda_rate', 95.0):.1f}%", "Gate Decision Accuracy (GDA)", "Correct initial gate interventions", COLOR_NAVY),
         (f"{p1.get('operable_crr_rate', 94.1):.1f}%", "Constraint Retention Rate (CRR)", "Explicit operator constraints in PDDL", COLOR_NAVY),
         ("0.0", "HITL Interrupts (Nominal)", "Touchless autonomous path provisioning", COLOR_APPROVE),
     ]
@@ -267,10 +290,23 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
     ax_left = fig.add_axes([0.05, 0.10, 0.43, 0.58])
     ax_left.set_facecolor(COLOR_CARD_BG)
 
-    counts = {c: {"approve": 0, "clarify": 0, "replan": 0} for c in CLASS_SHORT_NAMES}
+    counts = {c: {"approve": 0, "clarify": 0, "replan": 0, "timeout": 0} for c in CLASS_SHORT_NAMES}
     for d in demands:
         c = d.get("class", "")
-        act = d.get("initial_action", "")
+        status = str(d.get("execution_status", "")).lower()
+        fatal_err = str(d.get("diagnostics", {}).get("fatal_error", "")).lower()
+        init_act = str(d.get("initial_action", "")).lower()
+        is_succ = d.get("success", True)
+        if (
+            status in ("timeout", "max_turns_exceeded", "error", "aborted", "failed")
+            or "timed out" in fatal_err
+            or "timeout" in fatal_err
+            or init_act in ("timeout", "failed", "error", "aborted")
+            or (not is_succ and init_act not in ("approve", "clarify", "replan"))
+        ):
+            act = "timeout"
+        else:
+            act = init_act
         if c in counts and act in counts[c]:
             counts[c][act] += 1
 
@@ -279,20 +315,24 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
     approve_vals = [counts[c]["approve"] for c in CLASS_SHORT_NAMES]
     clarify_vals = [counts[c]["clarify"] for c in CLASS_SHORT_NAMES]
     replan_vals = [counts[c]["replan"] for c in CLASS_SHORT_NAMES]
+    timeout_vals = [counts[c]["timeout"] for c in CLASS_SHORT_NAMES]
 
     ax_left.bar(x, approve_vals, bar_width, label="Approve", color=COLOR_APPROVE, edgecolor="white")
     ax_left.bar(x, clarify_vals, bar_width, bottom=approve_vals, label="Clarify", color=COLOR_CLARIFY, edgecolor="white")
     bottom_replan = [a + b for a, b in zip(approve_vals, clarify_vals)]
     ax_left.bar(x, replan_vals, bar_width, bottom=bottom_replan, label="Replan", color=COLOR_REPLAN, edgecolor="white")
+    bottom_timeout = [r + b for r, b in zip(replan_vals, bottom_replan)]
+    ax_left.bar(x, timeout_vals, bar_width, bottom=bottom_timeout, label="Timeout", color=COLOR_BURGUNDY, edgecolor="white")
 
     for i, c in enumerate(CLASS_SHORT_NAMES):
         y_off = 0
-        for val in [counts[c]["approve"], counts[c]["clarify"], counts[c]["replan"]]:
+        for val in [counts[c]["approve"], counts[c]["clarify"], counts[c]["replan"], counts[c]["timeout"]]:
             if val > 0:
-                ax_left.text(x[i], y_off + val / 2, f"{val}", ha="center", va="center", color="white", fontweight="bold", fontsize=11)
+                fs = 8.5 if val <= 1 else 11
+                ax_left.text(x[i], y_off + val / 2, f"{val}", ha="center", va="center", color="white", fontweight="bold", fontsize=fs)
                 y_off += val
 
-    totals_left = [counts[c]["approve"] + counts[c]["clarify"] + counts[c]["replan"] for c in CLASS_SHORT_NAMES]
+    totals_left = [sum(counts[c].values()) for c in CLASS_SHORT_NAMES]
     max_left = max(totals_left) if totals_left else 5
     ax_left.set_xticks(x)
     ax_left.set_xticklabels(["Nominal", "Ambiguous", "Infeasible", "Adversarial"], fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -355,7 +395,7 @@ def get_available_runs(results_dir: Path) -> list[dict[str, Any]]:
                 "provider": meta.get("provider", "Unknown"),
                 "demands": meta.get("total_demands", len(d.get("demands", []))),
                 "gda": d.get("pillar_metrics", {}).get("pillar_4", {}).get("gda_rate", 0.0),
-                "uar": d.get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0),
+                "fpr": d.get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", d.get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0)),
                 "json_path": jf,
             }
         except Exception:
@@ -379,7 +419,7 @@ def get_available_runs(results_dir: Path) -> list[dict[str, Any]]:
                             "provider": meta.get("provider", "Unknown"),
                             "demands": meta.get("total_demands", len(d.get("demands", []))),
                             "gda": d.get("pillar_metrics", {}).get("pillar_4", {}).get("gda_rate", 0.0),
-                            "uar": d.get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0),
+                            "fpr": d.get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", d.get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0)),
                             "json_path": jf,
                         }
                     except Exception:
@@ -402,7 +442,7 @@ def print_available_runs(results_dir: Path) -> None:
     for i, r in enumerate(runs, 1):
         print(f"  [{i}] Run ID: {r['run_id']}")
         print(f"      Date:     {r['date']} | Model: {r['model']} ({r['provider']})")
-        print(f"      Demands:  {r['demands']} | GDA: {r['gda']:.1f}% | UAR: {r['uar']:.1f}%")
+        print(f"      Demands:  {r['demands']} | GDA: {r['gda']:.1f}% | FPR: {r['fpr']:.1f}%")
         print(f"      Source:   {r['json_path']}")
         print("  " + "-" * 74)
     print(f"Total available runs: {len(runs)}")
@@ -935,13 +975,10 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
     )
     fig.text(0.05, 0.905, subtitle, fontsize=10.5, color=COLOR_MUTED)
 
-    n_approved = sum(1 for d in demands if d.get("initial_action") == "approve")
-    uar = (false_positives / n_approved * 100.0) if n_approved > 0 else 0.0
-
     # 4 Top KPI Stat Banners
     kpi_cards = [
-        (f"{uar:.1f}%", "Unsafe Approval Rate (UAR)", f"{false_positives}/{n_approved} approved intents were unsafe", COLOR_REPLAN),
         (f"{fpr:.1f}%", "False Positive Rate (FPR)", f"{false_positives}/{n_risky} risky demands approved blindly", COLOR_REPLAN),
+        (f"{controller_errors}/{n_total}", "Controller Deployment Incidents", "Runtime production crashes from un-gated pushes", COLOR_REPLAN),
         (f"{controller_errors}", "Reactive HITL Interventions", "Post-mortem manual cleanups required by operator", COLOR_REPLAN),
         ("~2x", "Latency & Token Inflation", "Trial-and-error reactive recovery overhead", COLOR_CLARIFY),
     ]
@@ -1583,7 +1620,7 @@ def plot_always_on_dashboard(
         (f"+{lat_pct:.0f}%", "Latency Tax on Nominals", f"+{delta_lat:.2f}s per request ({lat_slowdown:.1f}x slowdown)", COLOR_REPLAN),
         (f"+{tok_pct:.0f}%", "Token Inflation", f"+{delta_tok:,.0f} prompt tokens ({tok_slowdown:.1f}x footprint)", COLOR_CLARIFY),
         ("100%", "Unnecessary Interruption Rate", f"{unnecessary_interrupts}/{n_ao_nom} nominal demands interrupted", COLOR_REPLAN),
-        ("0.0%", "Incremental Safety Benefit", "Zero added safety over autonomous RADG", COLOR_NAVY),
+        ("0.0%", "Incremental Integrity Benefit", "Zero added integrity over autonomous RADG", COLOR_NAVY),
     ]
 
     card_width = 0.205
@@ -2034,7 +2071,7 @@ def plot_comparative_deployment_flow_sankey(
     render_sankey_panel(
         ax_bot,
         llm_only_data.get("demands", []),
-        "Panel B: LLM-Only Baseline — Blind Forwarding (Un-gated Admission -> 75% Controller Safety Collapse)",
+        "Panel B: LLM-Only Baseline — Blind Forwarding (Un-gated Admission -> 75% Controller Integrity Collapse)",
         is_proposed=False,
     )
 
@@ -2078,17 +2115,17 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
     fig, axs = plt.subplots(2, 2, figsize=(13.5, 9.5), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
 
-    # 1. Top-Left: Physical Safety (UAR)
+    # 1. Top-Left: Pre-Deployment Integrity (FPR)
     ax1 = axs[0, 0]
     ax1.set_facecolor(COLOR_CARD_BG)
-    uar_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0) for k in b_keys]
-    bars1 = ax1.bar(x, uar_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
+    fpr_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", 0.0) for k in b_keys]
+    bars1 = ax1.bar(x, fpr_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
     ax1.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target Invariant (0.0%)")
-    ax1.set_title("Pillar 2: Unfeasible Approval Rate (UAR, %)\n[Lower is Better - Target: 0.0%]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_title("Pillar 2: False Positive Rate (FPR, %)\n[Lower is Better - Target: 0.0%]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
     ax1.set_xticks(x)
     ax1.set_xticklabels(labels, fontsize=10, fontweight="bold")
-    ax1.set_ylabel("UAR (%)", fontsize=10)
-    ax1.set_ylim(-0.5, max(max(uar_vals, default=0.0) + 15.0, 10.0))
+    ax1.set_ylabel("FPR (%)", fontsize=10)
+    ax1.set_ylim(-0.5, max(max(fpr_vals, default=0.0) + 15.0, 10.0))
     for bar in bars1:
         h = bar.get_height()
         ax1.text(bar.get_x() + bar.get_width() / 2, h + 0.5, f"{h:.1f}%", ha="center", va="bottom", fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -2224,10 +2261,10 @@ def plot_comparative_radar_chart(comparative_data: dict[str, Any], output_prefix
     """Generate 4-axis Radar / Spider chart comparing baselines across the Four Orthogonal Pillars.
 
     Orthogonal Normalized Axes (0-100, 100 is optimal):
-      1. Pre-Deployment Safety: (100 - UAR)
-      2. HITL Efficiency: 100% only if 0 interruptions in Nominal traffic
-      3. Execution Latency: Normalized relative to the fastest baseline (min_latency / latency * 100)
-      4. Token Economy: Normalized relative to lowest token consumption (min_tokens / tokens * 100)
+      1. Speed: Normalized relative to the fastest baseline (min_latency / latency * 100)
+      2. Token Usage: Normalized relative to lowest token consumption (min_tokens / tokens * 100)
+      3. Pre-Deployment Integrity: (100 - FPR [%])
+      4. Zero-Touch Autonomy: Normalized Freedom from Interruption (%)
     """
     baselines_info = comparative_data.get("baselines", {})
     if not baselines_info:
@@ -2238,10 +2275,10 @@ def plot_comparative_radar_chart(comparative_data: dict[str, Any], output_prefix
     radar_metrics = compute_comparative_radar_metrics(baselines_info)
 
     categories = [
-        "Pre-Deployment Safety\n(100 - UAR %)",
-        "HITL Efficiency\n(Zero-Friction Nominal %)",
-        "Execution Latency\n(Normalized Speed %)",
-        "Token Economy\n(Normalized Frugality %)",
+        "Execution Speed\n(Norm. 1/Latency)",
+        "Token Economy\n(Norm. 1/Tokens)",
+        "Pre-Deployment Integrity\n(100 - FPR [%])",
+        "Zero-Touch Autonomy\n(Norm. Interruption Freedom [%])",
     ]
     num_vars = len(categories)
 
@@ -2277,12 +2314,12 @@ def plot_comparative_radar_chart(comparative_data: dict[str, Any], output_prefix
 
     for b_id in b_keys:
         b_radar = radar_metrics.get(b_id, {})
-        safety = b_radar.get("pre_deployment_safety", 0.0)
-        hitl_eff = b_radar.get("hitl_efficiency", 0.0)
-        lat = b_radar.get("execution_latency", 0.0)
-        tok = b_radar.get("token_economy", 0.0)
+        speed = b_radar.get("speed", 0.0)
+        tok = b_radar.get("token_usage", 0.0)
+        integrity = b_radar.get("pre_deployment_integrity", 0.0)
+        autonomy = b_radar.get("zero_touch_autonomy", 0.0)
 
-        values = [safety, hitl_eff, lat, tok]
+        values = [speed, tok, integrity, autonomy]
         values += values[:1]
 
         color, marker, lstyle, fill_alpha = baseline_styles.get(b_id, (COLOR_MUTED, "o", "-", 0.10))

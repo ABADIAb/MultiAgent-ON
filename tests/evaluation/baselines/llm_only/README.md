@@ -77,7 +77,7 @@ flowchart TD
 | | CFG Pass Rate (CFG-PR) | $\ge 95\%$ | $100.0\%$ | Regex grammar validator active |
 | | Semantic Agreement ($1 - d_{sem}$) | $> 0.85$ | N/A (Bypassed) | Semantic gate validation bypassed |
 | | Ambiguity / Adversarial Catch | $100\%$ | **$0.0\%$** | Completely fails to catch upstream ambiguity |
-| **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | **$0.0\%$** | **$75.0\%$** (Severe Penalty) | Pushes unfeasible lightpaths directly to production |
+| **Pillar 2: Physical Feasibility & Integrity** | False Positive Rate (FPR) | **$0.0\%$** | **$100.0\%$** (Severe Penalty) | Pushes unfeasible or ambiguous lightpaths directly to production |
 | | Physical Infeasibility Catch (PIIR) | $100\%$ | **$0.0\%$** | Zero pre-deployment interception |
 | **Pillar 3: Efficiency & Friction** | Mean E2E Latency ($T_{E2E}$) | Contextual | **$13.2\text{s} - 16.5\text{s}$** | Inflated by 3-turn multi-pass streaming |
 | | Cumulative Token Footprint | Monitored | **$\approx 3\times$ Proposed** | Consumes raw RESTConf error JSON traces |
@@ -91,13 +91,13 @@ flowchart TD
 
 When mapped to the **Four Orthogonal Radar Axes (0 to 100, 100 optimal)**:
 
-1. **Pre-Deployment Safety ($100 - UAR$):** **$25.0\%$**
-   - Severely penalized. $75\%$ of unfeasible/risky intents are blindly approved by the pre-deployment pipeline.
-2. **HITL Efficiency (Zero-Friction Nominal):** **$100.0\%$**
-   - Zero interruptions on Class I Nominal demands (un-gated pass).
-3. **Execution Latency (Normalized Speed):** **$\approx 33.3\%$**
+1. **Pre-Deployment Integrity ($100 - FPR$):** **$0.0\%$**
+   - Total collapse ($FPR=100\%$). $100\%$ of risky/unfeasible/adversarial intents are blindly approved by the pre-deployment pipeline without pre-flight gating.
+2. **Zero-Touch Autonomy:** **$25.0\%$**
+   - Only 25% of traffic provisions touchlessly; 75% triggers emergency human intervention upon controller rejection.
+3. **Speed:** **$\approx 33.3\%$**
    - Severely penalized due to multi-pass streaming across Turn 1 (blind push) and Turn 2 (blind retry).
-4. **Token Economy (Normalized Frugality):** **$\approx 25.0\%$**
+4. **Token Usage:** **$\approx 25.0\%$**
    - Severely penalized due to ingesting verbose RFC 8040 RESTConf error payloads in Phase 2 prompts.
 
 ---

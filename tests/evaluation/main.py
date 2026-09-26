@@ -428,9 +428,9 @@ def run_evaluation_mode(
         "> 0.850",
     )
     table.add_row(
-        "Pillar 2: Physical Feasibility",
-        "Unfeasible Approval Rate",
-        f"{p2.get('uar_rate', 0.0):.1f}%",
+        "Pillar 2: Physical Feasibility & Integrity",
+        "False Positive Rate (FPR)",
+        f"{p4.get('fpr_rate', 0.0):.1f}%",
         "0.0%",
     )
     table.add_row(
@@ -441,9 +441,15 @@ def run_evaluation_mode(
     )
     table.add_row(
         "Pillar 3: Efficiency & Friction",
-        "Mean End-to-End Latency",
-        f"{p3.get('mean_e2e_latency_seconds', 0.0):.2f}s",
+        "Median End-to-End Latency",
+        f"{p3.get('median_e2e_latency_seconds', p3.get('mean_e2e_latency_seconds', 0.0)):.2f}s",
         "Contextual",
+    )
+    table.add_row(
+        "",
+        "Median Tokens / Demand",
+        f"{p3.get('median_tokens_per_intent', p3.get('mean_tokens_per_intent', 0.0)):,.0f} tok",
+        "Monitored",
     )
     table.add_row(
         "",
@@ -565,6 +571,20 @@ def run_comparative_mode(
     if len(all_results) < 2:
         console.print("[red]Need at least 2 baselines with completed runs to generate comparative metrics.[/red]")
         return
+
+    # Regenerate markdown reports and visual assets in each resolved baseline run folder
+    from tests.evaluation.baselines.common.reporter import regenerate_baseline_summary
+    from tests.evaluation.generate_visuals import generate_run_visuals
+
+    for b_id, r_path in resolved_runs.items():
+        json_file = next(r_path.glob("evaluation_results*.json"), r_path / "evaluation_results.json")
+        try:
+            console.print(f"  [dim]Regenerating summary report and visual assets for {b_id} in {r_path.name}...[/dim]")
+            regenerate_baseline_summary(json_file, output_dir=r_path)
+            generate_run_visuals(json_file, target_dir=r_path)
+            console.print(f"  [green]✓[/green] [bold white]{b_id.upper()}:[/bold white] Updated summary & visuals in [cyan]{r_path.name}[/cyan]")
+        except Exception as e:
+            logger.warning(f"Could not regenerate artifacts for {b_id}: {e}")
 
     run_id = time.strftime("%Y%m%d_%H%M%S")
     common_output_dir = BASELINES_DIR / "common" / "results" / f"run_{run_id}"

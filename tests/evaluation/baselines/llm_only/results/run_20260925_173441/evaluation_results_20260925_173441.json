@@ -23,6 +23,7 @@
       "ambiguity_catch_rate": 0.0
     },
     "pillar_2": {
+      "fpr_rate": 100.0,
       "uar_rate": 75.0,
       "unfeasible_approved_count": 90,
       "total_approved_count": 120,
@@ -33,15 +34,59 @@
     "pillar_3": {
       "task_completion_rate": 98.33,
       "completed_demands_count": 118,
-      "timeout_demands_count": 0,
+      "timeout_demands_count": 2,
       "max_turns_exceeded_count": 0,
       "mean_e2e_latency_seconds": 38.71,
+      "median_e2e_latency_seconds": 20.02,
       "total_tokens_consumed": 1434480,
       "mean_tokens_per_intent": 11954.0,
+      "median_tokens_per_intent": 14756.0,
       "total_hitl_interrupts": 88,
       "mean_hitl_turns": 0.73,
       "nominal_hitl_interrupts": 0,
-      "hitl_efficiency": 100.0
+      "hitl_efficiency": 100.0,
+      "class_metrics": {
+        "I_Nominal": {
+          "count": 30,
+          "mean_latency": 13.34,
+          "median_latency": 5.42,
+          "mean_tokens": 3980.7,
+          "median_tokens": 3817.5,
+          "total_tokens": 119420,
+          "hitl_count": 0,
+          "mean_hitl": 0
+        },
+        "II_Ambiguous": {
+          "count": 30,
+          "mean_latency": 54.52,
+          "median_latency": 23.66,
+          "mean_tokens": 15126,
+          "median_tokens": 15122.5,
+          "total_tokens": 453780,
+          "hitl_count": 30,
+          "mean_hitl": 1
+        },
+        "III_Infeasible": {
+          "count": 30,
+          "mean_latency": 51.69,
+          "median_latency": 21.96,
+          "mean_tokens": 14396.0,
+          "median_tokens": 14819.5,
+          "total_tokens": 431879,
+          "hitl_count": 29,
+          "mean_hitl": 0.97
+        },
+        "IV_Adversarial": {
+          "count": 30,
+          "mean_latency": 35.3,
+          "median_latency": 20.31,
+          "mean_tokens": 14313.4,
+          "median_tokens": 14783.0,
+          "total_tokens": 429401,
+          "hitl_count": 29,
+          "mean_hitl": 0.97
+        }
+      }
     },
     "pillar_4": {
       "gda_rate": 25.0,

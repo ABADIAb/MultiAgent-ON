@@ -10,234 +10,144 @@ This directory contains the automated, reproducible benchmark suite for evaluati
 tests/evaluation/
 ├── main.py                     # Unified interactive CLI & benchmark runner (Rich + Questionary)
 ├── baselines/                  # Modular baseline implementations reusing src/
-│   ├── common/                 # Shared runner, callback TokenTracker, metrics, and reporter
-│   │   ├── metrics.py          # Four Pillars telemetry formulas (CRR, CFG-PR, UAR, GDA)
+│   ├── common/                 # Shared runner, token tracker, metrics, and reporter
+│   │   ├── metrics.py          # Four Pillars telemetry formulas (CRR, CFG-PR, FPR, GDA, Radar)
 │   │   ├── runner.py           # Multi-turn execution loop with HITL recovery interception
 │   │   ├── reporter.py         # Multi-format telemetry exporter (JSON, CSV, MD)
 │   │   └── results/            # Comparative multi-baseline aggregated summaries (run_<timestamp>/)
 │   ├── proposed_radg/          # Proposed System: Fail-fast Semantic & Physical RADGs
-│   │   ├── README.md           # Detailed explanations of what is evaluated and graphed for Proposed RADG
-│   │   ├── graph.py            # Wires standard src.core.graph
-│   │   ├── evaluator.py        # Proposed RADG evaluator
-│   │   └── results/            # Run artifacts per execution (run_<timestamp>/)
 │   ├── always_on_hitl/         # Baseline: Always-On HITL (Paranoid Turn-1 Review on Nominals)
-│   │   ├── README.md           # Authoritative baseline guide, evaluation details, and graphed metrics
-│   │   ├── graph.py            # StateGraph with Turn-1 mandatory clarification
-│   │   ├── evaluator.py        # Always-On HITL evaluator (scoped to Nominal intents)
-│   │   └── results/            # Run artifacts per execution (run_<timestamp>/)
 │   └── llm_only/               # Baseline: LLM-Only (No Semantic Gate / Controller Error Surrogate)
-│   │   ├── README.md           # Detailed explanations of what is evaluated and graphed for LLM-Only
-│       ├── graph.py            # StateGraph with bypassed semantic gate + controller surrogate
-│       ├── evaluator.py        # LLM-Only evaluator
-│       └── results/            # Run artifacts per execution (run_<timestamp>/)
 ├── test_corpus_compact.json    # Standard 20-demand benchmark corpus (4 balanced risk classes)
 ├── test_corpus.json            # 120-demand full benchmark corpus (4 balanced risk classes)
 ├── generate_visuals.py         # Visualizer generating publication/slide figures (PNG/PDF)
-├── archive/                    # Archived legacy scripts and previous evaluation runs
-│   ├── run_evaluation.py       # (Legacy) Replaced by tests/evaluation/main.py
-│   └── results_legacy/         # (Legacy) Historical test snapshots
+├── archive/                    # Archived legacy scripts and previous evaluation snapshots
 └── README.md                   # Environment, methodology, and execution instructions
-
-> [!IMPORTANT]
-> **Detailed Explanations**: The precise explanations of what is evaluated, how the metrics are calculated, and what is graphed for each baseline are detailed in the `README.md` file located inside each baseline's respective folder (`tests/evaluation/baselines/<baseline>/README.md`).
 ```
 
----
-
-## 2. The Four Core Validation Pillars & Exact Metrics
-
-The evaluation framework assesses the system across four orthogonal validation pillars defined in [[ProblemStatement_v5]] and [[docs/LLM_Wiki/raw/README-evaluation]]:
-
-### Pillar 1: Semantic Translation Accuracy (Neural Domain Fidelity)
-Validates that the neural subsystem faithfully translates unstructured natural language intents into formal PDDL constraints without dropping restrictions or inventing network primitives.
-
-1. **Constraint Retention Rate (CRR):**
-   $$\text{CRR} = \frac{\sum_{i=1}^{N} |\mathcal{C}_{\text{preserved}}^{(i)} \cap \mathcal{C}_{\text{explicit}}^{(i)}|}{\sum_{i=1}^{N} |\mathcal{C}_{\text{explicit}}^{(i)}|} \times 100\%$$
-   - **Definition:** Percentage of explicit operator constraints (GSNR, node exclusions, hop limits, bandwidth) correctly preserved in the synthesized PDDL.
-   - **Target:** $100\%$.
-2. **Context-Free Grammar Pass Rate (CFG-PR):**
-   $$\text{CFG-PR} = \frac{1}{N} \sum_{i=1}^{N} v_{struct}^{(i)} \times 100\%$$
-   - **Definition:** Fraction of generated PDDL ASTs passing deterministic grammar validation ($v_{struct} \in \{0, 1\}$).
-   - **Target:** $\ge 95\%$ on well-formed intents; $0\%$ on adversarial syntax injections.
-3. **Semantic Agreement Score ($1 - d_{sem}$):**
-   - **Definition:** Semantic concordance between original operator intent $\mathcal{I}_{NL}$ and Reverse Prompting reconstruction $\mathcal{I}_{recon}$.
-   - **Target:** $> 0.85$.
-
----
-
-### Pillar 2: Physical Feasibility (Optical Layer Integrity)
-Guarantees that all approved lightpaths strictly satisfy physical-layer transmission impairments (ASE noise, non-linear interference via the GN model) before touching the network controller.
-
-1. **Unfeasible Approval Rate (UAR):**
-   $$\text{UAR} = \frac{|\{\text{plan} \in \text{Approved} \mid \text{GSNR}_{\text{actual}} < \text{GSNR}_{th} \lor P_{rx} < P_{rx,min}\}|}{|\text{Approved}|} \times 100\%$$
-   - **Definition:** Fraction of intents producing physically infeasible lightpaths that receive an `approve` verdict.
-   - **Hard Target:** **$0.0\%$ (Absolute Physical Integrity Invariant)**.
-   - **Candidate Path Invariant:** In Yen's K-Shortest Paths ($K=5$), the physical solver evaluates $K$ candidate lightpaths. Provisioning is approved as long as the primary viable path satisfies $\text{GSNR} \ge 14\text{ dB}$. An unfeasible approval is recorded only if *no* candidate path is feasible, or if a Class III (Infeasible) request receives an `approve` action.
-2. **Physical Infeasibility Interception Rate (PIIR):**
-   $$\text{PIIR} = \frac{|\{\text{intent} \in \text{Class III} \mid \text{Action} = \text{replan}\}|}{|\text{Class III}|} \times 100\%$$
-   - **Definition:** Fraction of demands requesting physically impossible optical reaches that are intercepted and flagged for replanning.
-   - **Target:** $100.0\%$.
-
----
-
-### Pillar 3: Orchestration & Resource Efficiency (Friction Minimization)
-Quantifies computational savings in runtime latency and total token consumption, alongside operator fatigue reduction through selective human engagement.
-
-1. **End-to-End Orchestration Latency ($T_{E2E}$):**
-   - **Definition:** Total turnaround duration from natural language submission to final planning report synthesis. Contextual target depending on hardware and SLM quantization.
-2. **Token Footprint ($T_{tokens}$):**
-   - **Definition:** Cumulative prompt, completion, and total tokens consumed per intent across all turns, tracked via LangChain callbacks.
-3. **Selective HITL Turns ($N_{hitl}$):**
-   - **Definition:** Number of HITL interrupts triggered. Target: $0$ for Nominal intents, $1$ for recovery on ambiguous/infeasible intents.
-
----
-
-### Pillar 4: RADG Robustness & Decision Boundary Integrity (Gate Reliability)
-Stress-tests the piecewise decision function $D(U_{sem}, \text{QoT}_{valid})$ across boundary conditions.
-
-1. **Gate Decision Accuracy (GDA):**
-   $$\text{GDA} = \frac{\sum_{i=1}^{N} \mathbb{I}(D(U_{sem}^{(i)}, \text{QoT}_{valid}^{(i)}) = \text{Action}_{\text{ground\_truth}}^{(i)})}{N} \times 100\%$$
-   - **Definition:** Overall accuracy of the RADG in routing intents to the optimal action state (`approve`, `clarify`, `replan`) on initial gate interception.
-   - **Target:** $> 98\%$.
-2. **False Positive Rate (FPR):**
-   $$\text{FPR} = \frac{|\{\text{intent} \in (\text{Class II} \cup \text{Class III} \cup \text{Class IV}) \mid \text{Action} = \text{approve}\}|}{|\text{Class II} \cup \text{Class III} \cup \text{Class IV}|} \times 100\%$$
-   - **Target:** **$0.0\%$**.
-3. **Selective HITL Precision:**
-   $$\text{Precision}_{HITL} = \frac{|\{\text{intent interrupted} \mid \text{Class} \neq \text{Nominal}\}|}{|\text{intents interrupted}|} \times 100\%$$
-   - **Target:** $100.0\%$.
-
 > [!NOTE]
-> **Baseline-Specific Applicability (Pillar 4):**
-> - **Proposed RADG:** Evaluates the full two-stage pre-deployment gate mechanism ($GDA > 98\%$, $FPR = 0\%$, $UAR = 0\%$).
-> - **Always-On HITL:** Evaluates the operator friction, latency inflation (+143%), and token overhead (+118%) of paranoid human confirmation on benign requests. Scoped strictly to Class I (Nominal) traffic, since non-nominal traffic converges to identical recovery loops across both architectures. Detailed theoretical rationale and manuscript draft available in [`tests/evaluation/baselines/always_on_hitl/README.md`](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_on_hitl/README.md).
-> - **LLM-Only:** Pre-deployment decision gates do not exist ($N_{gates} = 0$). Therefore, **Gate Decision Accuracy (GDA) is inapplicable (N/A)**. Instead, this baseline models blind pre-deployment forwarding (`initial_action = "approve"` for all intents), exposing complete pre-deployment safety collapse ($FPR = 100\%$, elevated $UAR$). Safety failure is detected reactively at the SDON Controller Runtime level ($75\%$ incident rate on equiprobable corpus), forcing reactive recovery and imposing severe wasted compute penalties (aborted Turn 1 latency and tokens).
+> **Baseline Deep Dives**: Detailed mathematical derivations, ablation justifications, and visual figure catalogs for each baseline are documented in their respective guides:
+> - [Proposed RADG Guide](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/proposed_radg/README.md)
+> - [Always-On HITL Baseline Guide](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_on_hitl/README.md)
+> - [LLM-Only Baseline Guide](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/llm_only/README.md)
+
+---
+
+## 2. The Four Core Validation Pillars
+
+The evaluation framework assesses intent translation, optical reachability, efficiency, and gate robustness across four orthogonal pillars:
+
+| Pillar | Metric | Formula / Scope | Target | Focus |
+| :--- | :--- | :--- | :---: | :--- |
+| **Pillar 1: Semantic Translation Accuracy** | **Constraint Retention Rate (CRR)** | $\frac{\sum \|\mathcal{C}_{pres} \cap \mathcal{C}_{exp}\|}{\sum \|\mathcal{C}_{exp}\|} \times 100\%$ | $100.0\%$ | Explicit operator constraint preservation in PDDL AST |
+| | **Context-Free Grammar Pass Rate (CFG-PR)** | $\frac{1}{N} \sum v_{struct} \times 100\%$ | $\ge 95\%$ | PDDL syntactic & AST validity |
+| | **Semantic Agreement Score** | $1 - d_{sem} \in [0, 1]$ | $> 0.85$ | Neural agreement via reverse-prompting reconstruction |
+| **Pillar 2: Physical Feasibility & Integrity** | **False Positive Rate (FPR)** | $\frac{\|\text{Risky Approved}\|}{\|\text{Risky Demands}\|} \times 100\%$ | **$0.0\%$** | **Strict Pre-Deployment Integrity Invariant** (Zero un-gated or reach-violating lightpaths) |
+| | **Physical Infeasibility Interception Rate (PIIR)** | $\frac{\|\text{Class III Intercepted}\|}{\|\text{Class III}\|} \times 100\%$ | $100.0\%$ | Pre-deployment interception of reach-violating intents |
+| **Pillar 3: Orchestration & Efficiency** | **Median End-to-End Latency ($\tilde{T}_{E2E}$)** | $\text{Median}(T_{E2E})$ [seconds] | Hardware | Robust turnaround latency (median avoids skew from GPU throttling) |
+| | **Median Token Footprint ($\tilde{T}_{tokens}$)** | $\text{Median}(\text{Prompt} + \text{Completion})$ | Frugal | LLM inference token consumption across all execution turns |
+| | **Selective HITL Turns ($N_{hitl}$)** | $\text{Mean}(N_{turns} - 1)$ | $0.00$ Nom | Minimizing human cognitive fatigue on nominal intents |
+| | **Task Completion Rate (TCR)** | $\frac{\|\text{Completed Plans}\|}{\|\text{Total Demands}\|} \times 100\%$ | $100.0\%$ | Execution robustness across transient timeouts or aborts |
+| **Pillar 4: Gate Reliability & Autonomy** | **Gate Decision Accuracy (GDA)** | $\frac{\sum \mathbb{I}(D(U_{sem}, QoT) = \text{Action}_{GT})}{N} \times 100\%$ | $> 98\%$ | Routing fidelity on initial gate pass (approve / clarify / replan) |
+| | **False Positive Rate (FPR)** | $\frac{\|\text{Risky Approved}\|}{\|\text{Risky Demands}\|} \times 100\%$ | **$0.0\%$** | Pre-deployment leak prevention on Classes II, III, and IV |
+| | **Zero-Touch Autonomy** | $\frac{\text{Total} - \text{Interrupted}}{\text{Total}} \times 100\%$ | High | Autonomous touchless provisioning rate across all demands |
 
 ---
 
 ## 3. Test Corpus: 4 Balanced Risk Classes
 
-The dataset is provided in two configurations, both balanced equiprobably across the 4 thesis risk classes:
+The benchmark includes two balanced datasets covering the four operational risk classes:
 - **Compact Corpus (`test_corpus_compact.json`):** 20 demands (5 per class) for rapid pre-deployment iteration.
 - **Full Benchmark Corpus (`test_corpus.json`):** 120 demands (30 per class) for statistical rigor and thesis validation.
 
 | Class | Name | Compact | Full | Expected RADG Action | Key Objective |
-| :---: | :--- | :--: | :--: | :------------------: | :------------ |
+| :---: | :--- | :---: | :---: | :---: | :--- |
 | **I** | **Nominal** | 5 | 30 | `approve` (0 interrupts) | Feasible requests with valid optical paths and realistic GSNR ($\le 18\text{ dB}$). |
 | **II** | **Ambiguous** | 5 | 30 | `clarify` (Phase 3b HITL) | Underspecified endpoints or colloquial SLA, caught fail-fast by Semantic Gate. |
-| **III** | **Physically Infeasible** | 5 | 30 | `replan` (Phase 6 RADG) | Demands violating GN-model physical reach ($> 28\text{ dB}$ GSNR on multi-hop). |
-| **IV** | **Adversarial** | 5 | 30 | `clarify` / `replan` (CFG / Gate) | Contradictory constraints or hallucinated node names intercepted by CFG / Gate. |
+| **III** | **Physically Infeasible** | 5 | 30 | `clarify` / `replan` | Demands violating GN-model reach ($> 28\text{ dB}$ GSNR), intercepted before controller. |
+| **IV** | **Adversarial** | 5 | 30 | `clarify` / `replan` | Contradictory constraints or hallucinated node names intercepted fail-fast. |
 
 ---
 
-## 4. How to Run the Evaluation Benchmark
+## 4. Execution Guide (`tests/evaluation/main.py`)
 
-### Prerequisites
-1. **Ollama running with `qwen2.5:3b`** (or configured cloud provider in `.env`):
-   ```bash
-   ollama run qwen2.5:3b
-   ```
-2. **Environment Variables** (`.env`):
-   ```bash
-   LLM_PROVIDER="ollama"
-   OLLAMA_MODEL="qwen2.5:3b"
-   # If using WSL2, point to host gateway or localhost:
-   OLLAMA_BASE_URL="http://172.27.144.1:11434/v1"
-   LLM_TIMEOUT=120.0
-   ```
+### 4.1 Prerequisites & Environment Setup
+Ensure your local SLM or cloud API is configured in `.env`:
+```bash
+LLM_PROVIDER="ollama"
+OLLAMA_MODEL="qwen2.5:3b"
+OLLAMA_BASE_URL="http://localhost:11434/v1"
+LLM_TIMEOUT=120.0
+```
 
-### 4.1 Unified Interactive CLI (`tests/evaluation/main.py`)
-Launch the rich, interactive terminal UI with arrow-key menus:
+### 4.2 Interactive CLI
+Launch the interactive terminal UI with arrow-key menus:
 ```bash
 uv run python tests/evaluation/main.py
 ```
-This interactive CLI allows you to:
-1. Choose between **Proposed RADG**, **Always-On HITL**, **LLM-Only**, or **All Baselines**.
-2. Select **Interactive Mode** (single intent with live phase tracking) or **Evaluation Benchmark Mode**.
-3. Select test corpus (**Compact 20-demands** or **Full 120-demands**) and risk class filters.
-4. Configure LLM provider (`ollama`, `openrouter`, `kimi`) and target model.
 
-### 4.2 Direct Baseline Benchmark Execution
-Run specific baselines directly via CLI flags:
+### 4.3 Direct CLI Execution
 ```bash
-# Run Proposed RADG on the compact corpus:
+# Run Proposed RADG on compact corpus:
 uv run python tests/evaluation/main.py --baseline proposed_radg --mode eval --corpus compact
 
-# Run Always-On HITL (evaluates Nominal intents):
+# Run Always-On HITL baseline (evaluates nominal overhead):
 uv run python tests/evaluation/main.py --baseline always_on_hitl --mode eval --corpus compact
 
-# Run LLM-Only (evaluates all classes, simulating controller error):
+# Run LLM-Only baseline (evaluates un-gated controller error):
 uv run python tests/evaluation/main.py --baseline llm_only --mode eval --corpus compact
 
-# Run all baselines sequentially (warmup enabled by default):
+# Run all baselines sequentially:
 uv run python tests/evaluation/main.py --baseline all --mode eval --corpus compact
 
-# Run without the un-metered dummy warm-up pass:
-uv run python tests/evaluation/main.py --baseline proposed_radg --mode eval --corpus compact --no-warmup
-
-# Interactive execution with custom intent:
+# Interactive test of a single custom intent:
 uv run python tests/evaluation/main.py --baseline proposed_radg --mode interactive --intent "Route 100G from Hamburg to Berlin with at least 15 dB GSNR"
 ```
 
-### 4.3 Cross-Baseline Comparative Mode & Version Selection
-Generate comparative executive matrices and figures (Four Pillars breakdown + 4-axis Radar chart) comparing runs across baselines:
+### 4.4 Cross-Baseline Comparative Mode
+To synthesize cross-baseline comparison matrices and polar radar charts:
 ```bash
-# Compare the latest run of each baseline automatically:
+# Compare the latest runs of each baseline and regenerate all figures:
 uv run python tests/evaluation/main.py --mode compare
 
-# Compare specific timestamped runs per baseline:
+# Compare specific timestamped runs:
 uv run python tests/evaluation/main.py --mode compare \
   --proposed-run 20260925_135330 \
   --hitl-run 20260925_135330 \
   --llm-run 20260925_135330
 
-# Regenerate comparative figures directly from results folder:
+# Regenerate figures manually from a results directory:
 uv run python tests/evaluation/generate_visuals.py tests/evaluation/baselines/common/results/run_20260925_135330
 ```
-In interactive mode, select **Comparative Analysis Mode** from the main menu; if a baseline has multiple historical runs, the CLI provides an arrow-key selector with `(Latest)` as the default. Output artifacts are persisted into `tests/evaluation/baselines/common/results/run_<timestamp>/`.
 
 ---
 
 ## 5. Automated Recovery Protocol (Multi-Turn HITL)
 
-When an intent triggers a decision gate:
-- **Phase 3b (`hitl_clarify`)**: The evaluation harness intercepts the pause, logs the semantic divergence ($d_{sem}, U_{sem}$), and automatically injects the standardized follow-up recovery intent:
+When an intent triggers a decision gate during evaluation:
+- **Phase 3b (`hitl_clarify`)**: The harness intercepts the pause, logs semantic divergence ($d_{sem}, U_{sem}$), and injects a standardized recovery intent:
   `"Route traffic from Berlin to Frankfurt with at least 12 dB GSNR."`
-- **Phase 6 (`radg`)**: If physical constraints fail, the harness provides the relaxed follow-up intent to allow completion through to Phase 7 (Synthesis).
+- **Phase 6 (`radg`)**: If physical constraints fail, the harness provides a relaxed follow-up intent to verify Phase 7 synthesis recovery.
 - **Dual-Action Logging**:
-  - `initial_action`: Preserves the first-try gate verdict (`approve`, `clarify`, or `replan`) to evaluate gate accuracy.
-  - `final_action`: Records whether recovery succeeded in synthesizing a valid planning report (`approve`).
+  - `initial_action`: Preserves the first-try gate verdict (`approve`, `clarify`, or `replan`) to evaluate Gate Decision Accuracy.
+  - `final_action`: Records whether the multi-turn recovery successfully synthesized a valid planning report (`approve`).
 
 ---
 
-## 6. Output Artifacts & Results Organization
+## 6. Output Artifacts & Comparative Visuals
 
-All evaluation outputs are strictly segregated by baseline and timestamped per execution:
-- **Baseline Runs (`tests/evaluation/baselines/<baseline>/results/run_<timestamp>/`):**
-  - `evaluation_results.json`: Full diagnostic trace including PDDL strings, AST CFG pass status, reconstructed natural language, $U_{sem}$ scores, candidate routes, token counts, and QoT SNR margins.
-  - `evaluation_results.csv`: Tabular spreadsheet format for rapid plotting and aggregation.
-  - `evaluation_summary.md`: Publication-ready summary table featuring the Executive Four Core Validation Pillars matrix, Class Breakdown, and Detailed Trace.
-  - **Proposed RADG Visuals:**
-    - `deployment_flow_sankey.png / .pdf`: 4-stage operational Sankey flow (Ingest $\to$ Admission $\to$ SDON Execution $\to$ Operational Outcome), confirming 100% pre-deployment interception of risky intents and zero production alarms.
-    - `gate_accuracy_matrix.png / .pdf`: Gate Interception breakdown confusion matrix across all 4 risk classes.
-    - `latency_tokens_overhead.png / .pdf`: Latency & Token Distribution across Risk Classes.
-    - `presentation_slide_dashboard.png / .pdf`: 16:9 Widescreen Composite Visual for thesis defense slides.
-  - **Always-On HITL Visuals (see [always_on_hitl/README.md](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/always_on_hitl/README.md)):**
-    - `wasted_compute_overhead.png / .pdf`: Dual-panel stacked bar chart across all intent classes (Nominal, Ambiguous, Infeasible, Adversarial, and Overall) contrasting the Proposed RADG floor with Always-On overhead using median metrics ($+212\%$ median latency, $+118\%$ tokens on nominals).
-    - `scalability_projection.png / .pdf`: Cumulative step chart proving operational scalability and human cognitive fatigue savings over mixed traffic.
-    - `always_on_ablation_dashboard.png / .pdf`: 16:9 Widescreen Master Slide-Ready Dashboard combining KPI stat cards, nominal compute tax, and cognitive savings.
-  - **LLM-Only Visuals (see [llm_only/README.md](file:///home/felipeab/MultiAgentON/tests/evaluation/baselines/llm_only/README.md)):**
-    - `deployment_flow_sankey.png / .pdf`: 4-stage Sankey showing blind admission (100% forwarded) leading to 75% controller crashes and 15 post-deployment emergency operator interruptions.
-    - `wasted_compute_overhead.png / .pdf`: Side-by-side grouped bar chart across all intent classes (Nominal, Ambiguous, Infeasible, Adversarial, and Overall) comparing Proposed RADG floor against LLM-Only Useful vs. Turn 1 Wasted compute from aborted deployments.
-    - `llm_only_ablation_dashboard.png / .pdf`: 16:9 Widescreen Ablation Dashboard highlighting safety collapse and recovery costs.
+Results are persisted in timestamped folders under `tests/evaluation/baselines/<baseline>/results/run_<timestamp>/`:
+- `evaluation_results.json`: Comprehensive telemetry traces (PDDL ASTs, $U_{sem}$, routes, QoT SNR margins, token counts).
+- `evaluation_results.csv`: Flat tabular export for rapid spreadsheet inspection.
+- `evaluation_summary.md`: Publication-ready Four Pillars markdown report with risk class breakdown and timeout tracking.
 
-- **Comparative Aggregations (`tests/evaluation/baselines/common/results/run_<timestamp>/`):**
-  When running all baselines (`--baseline all`) or executing comparative mode, the common framework synthesizes:
-  - `comparative_results.json`: Cross-baseline metrics across all four pillars.
-  - `comparative_summary.md`: Side-by-side executive comparison matrix contrasting Proposed RADG vs Always-On HITL vs LLM-Only.
-  - `comparative_radar_pillars.png / .pdf`: 4-axis polar radar chart mapping Pre-Deployment Safety ($100 - \text{UAR}$), HITL Efficiency (Zero-Friction Nominal), Speed, and Token Economy. Proposed RADG achieves the optimal 100% perimeter across all 4 axes.
-  - `comparative_deployment_flow_sankey.png / .pdf`: Combined dual-panel Sankey diagram directly contrasting **Panel A: Proposed RADG** (Safe Autonomous Pre-Deployment Gating, Zero Controller Incidents) with **Panel B: LLM-Only Baseline** (Blind Forwarding, 75% Controller Safety Collapse and Emergency Human Remediation).
-  - `comparative_pillars_breakdown.png / .pdf`: 4-panel grouped comparative figure displaying:
-    - **Panel 1 (Physical Safety):** UAR rate ($0.0\%$ for Proposed RADG and Always-On vs. $75.0\%$ for LLM-Only).
-    - **Panel 2 (Operator Friction):** Grouped bars contrasting nominal zero-fatigue ($0.00$ turns for Proposed RADG vs. $1.00$ for Always-On) with selective risk oversight across all traffic.
-    - **Panel 3 (Latency):** Orchestration latency grouped by baseline and disaggregated by intent class (Nominal, Ambiguous, Infeasible, Adversarial) using robust median seconds per class.
-    - **Panel 4 (Token Consumption):** Token footprint grouped by baseline and disaggregated by intent class using median tokens per demand.
+### Comparative Visuals (`tests/evaluation/baselines/common/results/run_<timestamp>/`)
+When running comparative mode, the suite produces:
+- `comparative_summary.md`: Side-by-side executive comparison matrix across all baselines.
+- `comparative_radar_pillars.png / .pdf`: 4-axis Polar Radar Chart evaluating:
+  1. **Speed**: Normalized median turnaround latency.
+  2. **Token Usage**: Normalized median token frugality.
+  3. **Pre-Deployment Integrity**: $100 - \text{FPR}$ (Zero-leakage pre-deployment boundary).
+  4. **Zero-Touch Autonomy**: Percentage of demands provisioned without operator interruption.
+- `comparative_deployment_flow_sankey.png / .pdf`: Dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
+- `comparative_pillars_breakdown.png / .pdf`: 4-panel breakdown comparing Pre-Deployment Integrity ($FPR$), Operator Friction, Median Latency, and Median Token Footprint.

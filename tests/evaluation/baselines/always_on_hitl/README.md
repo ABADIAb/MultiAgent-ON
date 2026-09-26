@@ -8,7 +8,7 @@ This document defines the architectural specification, evaluation methodology, a
 > *"LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A Pre-Deployment Decision Mechanism with Joint Semantic and QoT Assessment"*
 
 In contemporary intent-based networking (IBON) literature, automation frameworks frequently oscillate between two extremes:
-1. **Un-gated autonomous execution** (e.g., direct LLM-to-controller pipelines), which risks deploying catastrophic physical-layer violations (high Unfeasible Approval Rate, $UAR$).
+1. **Un-gated autonomous execution** (e.g., direct LLM-to-controller pipelines), which risks deploying catastrophic physical-layer violations (high False Positive Rate, $FPR$).
 2. **Always-On Human Oversight** (the "paranoid" operational regime), where network operators mandate that every synthesized plan receive manual human inspection and confirmation before physical provisioning.
 
 The **Always-On HITL** baseline models this second paradigm. It implements an identical neurosymbolic pipeline (Context-Free Grammar AST validation, symbolic routing, and GN-model physical QoT assessment) but removes the selective autonomous bypass of the **Semantic Risk-Adaptive Decision Gate (RADG)**. Every incoming intent—regardless of high semantic certainty or trivial physical reachability—is forced into an interactive clarification loop (`interrupt()`).
@@ -97,16 +97,16 @@ When reporting results for the Always-On HITL baseline, standard aggregate metri
 ### 4.1 Non-Discriminative Metrics (Irrelevant)
 - **Constraint Retention Rate (CRR):** Identical ($100.0\%$). Both baselines utilize the exact same AST-constrained PDDL parsing prompt.
 - **Context-Free Grammar Pass Rate (CFG-PR):** Identical ($100.0\%$). Deterministic grammar validation is unchanged.
-- **Unfeasible Approval Rate (UAR):** Identical ($0.0\%$). Both baselines strictly preserve the physical safety invariant; neither allows an infeasible lightpath to reach production.
+- **False Positive Rate (FPR):** Identical ($0.0\%$). Both baselines strictly preserve the physical integrity invariant; neither allows an infeasible lightpath to reach production.
 - **Gate Decision Accuracy (GDA):** Redundant ($100.0\%$). Because the gate is hardcoded to `clarify`, measuring "accuracy" merely reflects compliance with the forced policy override rather than autonomous decision fidelity.
 
 ### 4.2 Four Orthogonal Radar Coordinates
 
 When plotted on the **Comparative Radar Chart (0 to 100, 100 optimal)**:
-1. **Pre-Deployment Safety ($100 - UAR$):** **$100.0\%$** (Strict physical safety preserved).
-2. **HITL Efficiency (Zero-Friction Nominal):** **$0.0\%$** (Severely penalized: 100% interruption rate on nominals).
-3. **Execution Latency (Normalized Speed):** **$\approx 40.0\%$** (Severely penalized by mandatory human wait and Turn 2 replay).
-4. **Token Economy (Normalized Frugality):** **$\approx 40.0\% - 50.0\%$** (Penalized by multi-turn context re-injection).
+1. **Pre-Deployment Integrity ($100 - FPR$):** **$100.0\%$** (Strict physical integrity preserved).
+2. **Zero-Touch Autonomy:** **$0.0\%$** (Severely penalized: 100% interruption rate across all demands).
+3. **Speed:** **$\approx 40.0\%$** (Severely penalized by mandatory human wait and Turn 2 replay).
+4. **Token Usage:** **$\approx 40.0\% - 50.0\%$** (Penalized by multi-turn context re-injection).
 
 ### 4.3 Operational Friction Analysis (Pillar 3)
 The true differentiators are purely operational:
@@ -153,7 +153,7 @@ The visualization pipeline (`tests/evaluation/generate_visuals.py`) automaticall
 
 ### 5.3 Figure 3: Always-On Master Ablation Dashboard (`always_on_ablation_dashboard.png / .pdf`)
 - **Visual Design:** 16:9 Widescreen Composite slide-ready visual ($13.333 \times 7.5\text{ in}$) integrating:
-  - **4 Top KPI Cards:** Quantifying the Latency Tax ($+212\%$ median overhead), Token Footprint Inflation ($+118\%$), Unnecessary Interruption Rate ($100\%$), and Zero Incremental Safety Gain ($0.0\%$).
+  - **4 Top KPI Cards:** Quantifying the Latency Tax ($+212\%$ median overhead), Token Footprint Inflation ($+118\%$), Unnecessary Interruption Rate ($100\%$), and Zero Incremental Integrity Gain ($0.0\%$).
   - **Left Half (Wasted Compute Panels):** Stacked bar panels displaying the base cost vs. wasted delta for Turnaround Latency and Token Footprint on Nominal demands using median metrics.
   - **Right Half (Cognitive Fatigue Curve):** The Cumulative Step Chart highlighting operator attention protection and the shaded cognitive savings region.
 - **Narrative Message:** Provides the complete, unified visual artifact designed directly for the Master's defense slide deck.
@@ -175,7 +175,7 @@ confidence ($U_{sem}$) or optical reachability ($QoT_{valid}$), modeling the con
 where automated intent execution is entirely distrusted.
 
 Because both architectures converge to identical recovery loops on ambiguous, infeasible, and adversarial 
-traffic ($N_{hitl}=1$, $UAR=0.0\%$), experimental evaluation was specifically isolated to Class~I (Nominal) 
+traffic ($N_{hitl}=1$, $FPR=0.0\%$), experimental evaluation was specifically isolated to Class~I (Nominal) 
 demands ($N=30$). Table~\ref{tab:always_on_overhead} summarizes the resulting computational and cognitive trade-offs.
 
 \begin{table}[htbp]
@@ -185,18 +185,18 @@ demands ($N=30$). Table~\ref{tab:always_on_overhead} summarizes the resulting co
 \label{tab:always_on_overhead}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Architecture} & \textbf{Mean Latency $T_{E2E}$ [s]} & \textbf{Mean Token Footprint} & \textbf{Nominal $N_{hitl}$} & \textbf{Safety Invariant ($UAR$)} \\
+\textbf{Architecture} & \textbf{Mean Latency $T_{E2E}$ [s]} & \textbf{Mean Token Footprint} & \textbf{Nominal $N_{hitl}$} & \textbf{Integrity Invariant ($FPR$)} \\
 \midrule
 \textbf{Proposed RADG (V5)} & \textbf{5.21} & \textbf{3,762} & \textbf{0} & \textbf{0.0\%} \\
 Always-On HITL Baseline      & 12.66 (+143\%) & 8,219 (+118\%) & 1 (+100\%) & 0.0\% \\
 \midrule
-\textbf{Wasted Penalty ($\Delta$)} & \textbf{+7.45\,s ($2.4\times$)} & \textbf{+4,457 tok ($2.2\times$)} & \textbf{+1 turn / demand} & \textbf{Zero Safety Gain} \\
+\textbf{Wasted Penalty ($\Delta$)} & \textbf{+7.45\,s ($2.4\times$)} & \textbf{+4,457 tok ($2.2\times$)} & \textbf{+1 turn / demand} & \textbf{Zero Integrity Gain} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-While the Always-On baseline achieves absolute physical safety ($UAR=0.0\%$), it does so with zero incremental benefit 
-over Proposed RADG, which also guarantees $UAR=0.0\%$ through deterministic GN-model pre-deployment gating. 
+While the Always-On baseline achieves absolute physical integrity ($FPR=0.0\%$), it does so with zero incremental benefit 
+over Proposed RADG, which also guarantees $FPR=0.0\%$ through deterministic GN-model pre-deployment gating. 
 However, Always-On incurs a catastrophic operational penalty: end-to-end turnaround latency increases by $143\%$ 
 ($5.21\text{s} \to 12.66\text{s}$), and LLM token consumption escalates by $118\%$ ($3,762 \to 8,219$ tokens) due to multi-turn 
 context re-injection. 

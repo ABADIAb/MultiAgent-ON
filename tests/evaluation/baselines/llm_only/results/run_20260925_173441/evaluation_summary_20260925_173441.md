@@ -9,8 +9,7 @@
 - **Pre-Deployment Admission Policy:** Blind Forwarding ($\mathcal{A}_{pre} = \{\text{approve}\})
 - **Pre-Deployment False Positive Rate (FPR):** 100.0% (90/90 risky intents pushed to production)
 - **SDON Controller Incident Rate:** 75.0% (90/120 intents caused controller deployment errors)
-- **Unfeasible Approval Rate (UAR):** 75.0%
-- **Mean End-to-End Latency:** 38.71s (Includes Turn 1 controller crash + Turn 2 reactive recovery)
+- **Median End-to-End Latency:** 20.02s (Mean: 38.71s, Includes Turn 1 crash + Turn 2 recovery)
 - **Per-Request Timeout Guard:** 120.0s
 
 ## Executive Summary: The Four Core Validation Pillars (Ablation Analysis)
@@ -21,23 +20,26 @@
 | | CFG Pass Rate (CFG-PR) | $\frac{1}{N} \sum v_{struct}$ | $\ge 95\%$ (Nom/Inf) | **98.3%** | ✓ PASS |
 | | Semantic Agreement (Well-Formed) | $\frac{1}{N_{well}} \sum (1 - d_{sem})$ | $> 0.85$ | **0.847** | ✓ PASS |
 | | Pre-Deployment Ambiguity Filter | $\frac{\vert \text{Clarify} \vert}{\vert \text{Ambiguous} \vert}$ | $100\%$ | **0.0%** (Bypassed) | ✗ ZERO PRE-DEPLOYMENT GATING |
-| **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | $\frac{\vert \text{Unfeasible Approved} \vert}{\vert \text{Approved} \vert}$ | **$0.0\%$** | **75.0%** (90/120) | ✗ CRITICAL SAFETY INFRINGEMENT |
+| **Pillar 2: Physical Feasibility & Integrity** | False Positive Rate (FPR) | $\frac{\vert \text{Risky Approved} \vert}{\vert \text{Risky Demands} \vert}$ | **$0.0\%$** | **100.0%** (90/90) | ✗ CRITICAL INTEGRITY INFRINGEMENT |
 | | Physical Infeasibility Interception (PIIR) | $\frac{\vert \text{Class III Pre-Replan} \vert}{\vert \text{Class III} \vert}$ | $100\%$ | **0.0%** (0/30) | ✗ 0% INTERCEPTED PRE-DEPLOYMENT |
-| **Pillar 3: Efficiency & Friction** | Mean End-to-End Latency ($T_{E2E}$) | $\frac{1}{N} \sum T_{elapsed}$ | Contextual | **38.71s** | ⚠️ INFLATED BY CONTROLLER CRASHES |
-| | Total Token Footprint | Cumulative Tokens | Monitored | **1,434,480 tok** (11954.0 tok/intent) | ⚠️ ~50% WASTED IN TURN 1 |
+| **Pillar 3: Efficiency & Friction** | End-to-End Latency ($T_{E2E}$) | $\text{Median} \ [\text{Mean}]$ | Contextual | **20.02s** [38.71s] | ⚠️ INFLATED BY CONTROLLER CRASHES |
+| | Token Footprint per Intent | $\text{Median} \ [\text{Mean}]$ | Monitored | **14,756 tok** [11954.0] | ⚠️ ~50% WASTED IN TURN 1 |
+| | Total Token Footprint | Cumulative Tokens | Monitored | **1,434,480 tok** | ⚠️ CUMULATIVE CONTEXT ACCUMULATION |
 | | Reactive HITL Interventions | Mean $N_{hitl}$ | $0$ (Nom), $1$ (Others) | **0.73** (88 total) | ⚠️ REACTIVE POST-MORTEM HITL |
-| **Pillar 4: Gate Reliability & Admission** | False Positive Rate (FPR) | $\frac{\vert \text{Risky Approved} \vert}{\vert \text{Risky Demands} \vert}$ | **$0.0\%$** | **100.0%** (90) | ✗ CRITICAL SAFETY COLLAPSE |
+| | Task Completion Rate (TCR) | $\frac{\vert \text{Completed} \vert}{N}$ | $100\%$ | **98.3%** (118/120) | ⚠️ TIMEOUT / ABORTED |
+| | Timeout / Aborted Demands | Count | $0$ | **2** (Timeouts: 2, Max Turns: 0) | ⚠️ ABORTED |
+| **Pillar 4: Gate Reliability & Admission** | False Positive Rate (FPR) | $\frac{\vert \text{Risky Approved} \vert}{\vert \text{Risky Demands} \vert}$ | **$0.0\%$** | **100.0%** (90) | ✗ CRITICAL INTEGRITY COLLAPSE |
 | | Controller Deployment Incident Rate | $\frac{\vert \text{Controller Errors} \vert}{\vert \text{Total Demands} \vert}$ | **$0.0\%$** | **75.0%** (90/120) | ✗ RUNTIME FAILURE IN PRODUCTION |
 | | Pre-Deployment Gate Accuracy | $\frac{1}{N} \sum \mathbb{I}(D = \text{Exp})$ | N/A | **N/A (No Pre-Deployment Gates)** | — UN-GATED ARCHITECTURE |
 
 ## Class-by-Class Risk & Controller Outcome Breakdown
 
-| Class | Category | Demands | Pre-Deployment Policy | SDON Controller Outcome | Recovery Status | Mean Latency | Mean Tokens | CRR |
-| :---: | :--- | :---: | :---: | :---: | :---: | -: | -: | -: |
-| `I_Nominal` | Nominal | 30 | `approve` | **Provisioned (Turn 1)** | Completed (Turn 1) | 13.34s | 3981 | 100.0% |
-| `II_Ambiguous` | Ambiguous | 30 | `approve` | **Deployment Error (Turn 1)** | Recovered (Turn 2) | 54.52s | 15126 | 100.0% |
-| `III_Infeasible` | Physically Infeasible | 30 | `approve` | **Deployment Error (Turn 1)** | Recovered (Turn 2) | 51.69s | 14396 | 91.9% |
-| `IV_Adversarial` | Adversarial | 30 | `approve` | **Deployment Error (Turn 1)** | Recovered (Turn 2) | 35.30s | 14313 | 71.4% |
+| Class | Category | Demands | Pre-Deployment Policy | SDON Controller Outcome | Recovery Status | Median Lat | Mean Lat | Median Tok | Mean Tok | CRR |
+| :---: | :--- | :---: | :---: | :---: | :---: | -: | -: | -: | -: | -: |
+| `I_Nominal` | Nominal | 30 | `approve` | **Provisioned (Turn 1)** | Completed (Turn 1) | 5.42s | 13.34s | 3818 | 3981 | 100.0% |
+| `II_Ambiguous` | Ambiguous | 30 | `approve` | **Deployment Error (Turn 1)** | Recovered (Turn 2) | 23.66s | 54.52s | 15122 | 15126 | 100.0% |
+| `III_Infeasible` | Physically Infeasible | 30 | `approve` | **Deployment Error (Turn 1)** | Recovered (Turn 2) | 21.96s | 51.69s | 14820 | 14396 | 91.9% |
+| `IV_Adversarial` | Adversarial | 30 | `approve` | **Deployment Error (Turn 1)** | Recovered (Turn 2) | 20.31s | 35.30s | 14783 | 14313 | 71.4% |
 
 ## Detailed Results Matrix
 

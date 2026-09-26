@@ -889,7 +889,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Infeasible single-service intent: Single span from Norden to Munich with 30dB is physically impossible. Evaluates RADG replan capability on complex constraints."
   },
   {
@@ -904,7 +907,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -920,7 +926,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -935,7 +944,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -950,7 +962,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -965,7 +980,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -980,7 +998,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -995,7 +1016,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1010,7 +1034,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1025,7 +1052,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1040,7 +1070,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1055,7 +1088,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1070,7 +1106,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1085,7 +1124,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1101,7 +1143,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1116,7 +1161,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1131,7 +1179,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1146,7 +1197,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1161,7 +1215,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1176,7 +1233,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1192,7 +1252,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1207,7 +1270,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1222,7 +1288,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1237,7 +1306,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1252,7 +1324,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Semantically well-formed but violates physical GN-model transmission feasibility (QoT fails)."
   },
   {
@@ -1267,7 +1342,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Tests RADG fail-fast capability. 400G constraint parsed correctly but fails QoT due to high SNR threshold (21.5 dB) on long distance."
   },
   {
@@ -1283,7 +1361,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "pass",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Tests 400G on a long route with strict hop limit. Should fail QoT."
   },
   {
@@ -1298,7 +1379,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "approve",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Demands an unachievable 35 dB GSNR over a long distance, failing Phase 6."
   },
   {
@@ -1313,7 +1397,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "approve",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Topologically or physically infeasible to reach Stuttgart with high bandwidth under such strict routing constraints."
   },
   {
@@ -1329,7 +1416,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "approve",
     "expected_qot_valid": false,
-    "expected_radg_action": "replan",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Violates GN-model physical reach for a single hop over that distance."
   },
   {
@@ -1346,7 +1436,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Logical paradox: shortest path but avoiding all nodes. Semantic Gate should detect contradiction."
   },
   {
@@ -1363,7 +1456,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1376,7 +1472,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1391,7 +1490,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1408,7 +1510,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1421,7 +1526,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1434,7 +1542,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1452,7 +1563,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1467,7 +1581,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1482,7 +1599,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1495,7 +1615,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1510,7 +1633,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1523,7 +1649,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1536,7 +1665,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1549,7 +1681,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1564,7 +1699,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1577,7 +1715,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1590,7 +1731,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1608,7 +1752,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1621,7 +1768,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1634,7 +1784,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1647,7 +1800,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1660,7 +1816,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1679,7 +1838,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1692,7 +1854,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-German nodes, contradictory topological constraints, or prompt/syntax injection."
   },
   {
@@ -1705,7 +1870,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Adversarial bandwidth request. Should either fail PDDL syntax if translated as (bandwidth infinite) or trigger semantic clarification."
   },
   {
@@ -1718,7 +1886,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Hallucinated non-existent nodes and absurd capacity, fails Semantic Gate."
   },
   {
@@ -1731,7 +1902,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Source and target are identical, logically invalid routing request."
   },
   {
@@ -1748,7 +1922,10 @@
     "expected_pddl_valid": true,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Contradictory constraints (avoiding the source node), triggering clarify/replan."
   },
   {
@@ -1763,7 +1940,10 @@
     "expected_pddl_valid": false,
     "expected_usem_action": "clarify",
     "expected_qot_valid": null,
-    "expected_radg_action": "clarify",
+    "expected_radg_action": [
+      "clarify",
+      "replan"
+    ],
     "rationale": "Prompt injection attempt with impossible hop constraint and hallucinated target node."
   }
 ]

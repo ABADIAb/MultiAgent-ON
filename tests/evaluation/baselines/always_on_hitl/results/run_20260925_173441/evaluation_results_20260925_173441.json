@@ -23,6 +23,7 @@
       "ambiguity_catch_rate": 85.0
     },
     "pillar_2": {
+      "fpr_rate": 1.11,
       "uar_rate": 0.0,
       "unfeasible_approved_count": 0,
       "total_approved_count": 1,
@@ -33,15 +34,59 @@
     "pillar_3": {
       "task_completion_rate": 98.33,
       "completed_demands_count": 118,
-      "timeout_demands_count": 0,
+      "timeout_demands_count": 2,
       "max_turns_exceeded_count": 0,
       "mean_e2e_latency_seconds": 24.76,
+      "median_e2e_latency_seconds": 12.82,
       "total_tokens_consumed": 1031813,
       "mean_tokens_per_intent": 8598.4,
+      "median_tokens_per_intent": 8846.0,
       "total_hitl_interrupts": 117,
       "mean_hitl_turns": 0.97,
       "nominal_hitl_interrupts": 30,
-      "hitl_efficiency": 0.0
+      "hitl_efficiency": 0.0,
+      "class_metrics": {
+        "I_Nominal": {
+          "count": 30,
+          "mean_latency": 16.24,
+          "median_latency": 11.97,
+          "mean_tokens": 8238.4,
+          "median_tokens": 8167.0,
+          "total_tokens": 247152,
+          "hitl_count": 30,
+          "mean_hitl": 1
+        },
+        "II_Ambiguous": {
+          "count": 30,
+          "mean_latency": 21.91,
+          "median_latency": 14.26,
+          "mean_tokens": 9044,
+          "median_tokens": 9031.0,
+          "total_tokens": 271320,
+          "hitl_count": 30,
+          "mean_hitl": 1
+        },
+        "III_Infeasible": {
+          "count": 30,
+          "mean_latency": 36.69,
+          "median_latency": 12.23,
+          "mean_tokens": 8679.2,
+          "median_tokens": 8879.5,
+          "total_tokens": 260377,
+          "hitl_count": 29,
+          "mean_hitl": 0.97
+        },
+        "IV_Adversarial": {
+          "count": 30,
+          "mean_latency": 24.19,
+          "median_latency": 12.82,
+          "mean_tokens": 8432.1,
+          "median_tokens": 8855.5,
+          "total_tokens": 252964,
+          "hitl_count": 28,
+          "mean_hitl": 0.93
+        }
+      }
     },
     "pillar_4": {
       "gda_rate": 94.17,

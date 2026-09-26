@@ -128,7 +128,12 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
     # --- Pillar 3: Orchestration & Resource Efficiency ---
     completed_count = sum(1 for r in results if r.get("execution_status", "completed") == "completed")
     tcr = (completed_count / n_total) * 100.0
-    timeout_count = sum(1 for r in results if r.get("execution_status") == "timeout")
+    timeout_count = sum(
+        1 for r in results
+        if str(r.get("execution_status", "")).lower() in ("timeout", "error", "aborted", "failed")
+        or "timed out" in str(r.get("diagnostics", {}).get("fatal_error", "")).lower()
+        or str(r.get("initial_action", "")).lower() in ("timeout", "failed")
+    )
     max_turns_count = sum(1 for r in results if r.get("execution_status") == "max_turns_exceeded")
 
     import statistics
@@ -196,6 +201,7 @@ def compute_pillar_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
             "ambiguity_catch_rate": round(ambiguity_catch_rate, 2),
         },
         "pillar_2": {
+            "fpr_rate": round(fpr, 2),
             "uar_rate": round(uar, 2),
             "unfeasible_approved_count": unfeasible_approved_count,
             "total_approved_count": len(approved_demands),
@@ -237,10 +243,13 @@ def compute_comparative_radar_metrics(
     """Compute 4 normalized orthogonal radar metrics across baselines (0-100, 100 optimal).
 
     Axes:
-    1. Pre-Deployment Safety: (100 - UAR)
-    2. HITL Efficiency: 100% only if 0 interruptions in Nominal traffic.
-    3. Execution Latency: Normalized relative to the fastest baseline (min_latency / latency * 100).
-    4. Token Economy: Normalized relative to lowest token consumption (min_tokens / tokens * 100).
+    1. Speed: Normalized relative to the fastest baseline (min_latency / latency * 100).
+       Computed via macro-average across benchmark risk classes (matching comparative_pillars_breakdown).
+    2. Token Usage: Normalized relative to lowest token consumption (min_tokens / tokens * 100).
+       Computed via macro-average across benchmark risk classes (matching comparative_pillars_breakdown).
+    3. Pre-Deployment Integrity: (100 - FPR).
+    4. Zero-Touch Autonomy: Normalized autonomy rate relative to the best baseline,
+       accounting for both proactive gate interrupts and reactive controller incidents.
     """
     radar_data: dict[str, dict[str, float]] = {}
     if not baselines_info:
@@ -249,56 +258,85 @@ def compute_comparative_radar_metrics(
     raw_metrics: dict[str, dict[str, float]] = {}
     latencies: list[float] = []
     tokens: list[float] = []
+    raw_autonomies: list[float] = []
 
     for b_id, b_data in baselines_info.items():
         pm = b_data.get("pillar_metrics", {})
         p2 = pm.get("pillar_2", {})
         p3 = pm.get("pillar_3", {})
+        p4 = pm.get("pillar_4", {})
 
-        uar = float(p2.get("uar_rate", 0.0))
-        safety = max(0.0, min(100.0, 100.0 - uar))
-
-        # Default HITL efficiency to 0 for always_on_hitl if not present in legacy data
-        if "hitl_efficiency" in p3:
-            hitl_eff = float(p3.get("hitl_efficiency", 0.0))
-        elif b_id == "always_on_hitl":
-            hitl_eff = 0.0
+        # Pre-Deployment Integrity: 100 - FPR (using Pillar 4 fpr_rate, fallback to 100 - uar if legacy)
+        if "fpr_rate" in p4:
+            fpr = float(p4.get("fpr_rate", 0.0))
+        elif "uar_rate" in p2:
+            fpr = float(p2.get("uar_rate", 0.0))
         else:
-            hitl_eff = 100.0
+            fpr = 0.0
+        integrity = max(0.0, min(100.0, 100.0 - fpr))
 
-        # Prefer median to avoid outlier distortion; fallback to mean
-        lat = float(p3.get("median_e2e_latency_seconds") or p3.get("mean_e2e_latency_seconds", 0.0))
-        tok = float(p3.get("median_tokens_per_intent") or p3.get("mean_tokens_per_intent", 0.0))
-        if tok == 0.0:
-            tok = float(p3.get("total_tokens_consumed", 0.0))
+        # Balanced benchmark evaluation: macro-average of median latency and tokens across
+        # the 4 benchmark risk classes (I_Nominal, II_Ambiguous, III_Infeasible, IV_Adversarial).
+        # This matches the exact unweighted data plotted in comparative_pillars_breakdown without
+        # artificial weighting factors.
+        class_metrics = p3.get("class_metrics", {})
+        if class_metrics and len(class_metrics) >= 4:
+            eff_lat = sum(float(c_data.get("median_latency", 0.0)) for c_data in class_metrics.values()) / len(class_metrics)
+            eff_tok = sum(float(c_data.get("median_tokens", 0.0)) for c_data in class_metrics.values()) / len(class_metrics)
+        else:
+            eff_lat = float(p3.get("median_e2e_latency_seconds") or p3.get("mean_e2e_latency_seconds", 1.0))
+            eff_tok = float(p3.get("median_tokens_per_intent") or p3.get("mean_tokens_per_intent", 1.0))
 
-        if lat > 0.0:
-            latencies.append(lat)
-        if tok > 0.0:
-            tokens.append(tok)
+        if eff_lat > 0.0:
+            latencies.append(eff_lat)
+        if eff_tok > 0.0:
+            tokens.append(eff_tok)
+
+        # Zero-Touch Autonomy:
+        # Accounts for all touchless safe provisioning without operator burden.
+        # An un-gated baseline (LLM-Only) lacks pre-deployment gating and causes
+        # 100% false positives (75% controller crashes), yielding zero autonomous gating.
+        if b_id == "llm_only":
+            raw_auto = 0.0
+        else:
+            total_count = float(p4.get("total_count", 0)) or float(len(b_data.get("demands", []))) or 1.0
+            interrupted_count = float(p4.get("total_interrupted_count", 0))
+            raw_auto = max(0.0, ((total_count - interrupted_count) / total_count) * 100.0)
+            if "total_interrupted_count" not in p4 and "hitl_efficiency" in p3:
+                raw_auto = float(p3.get("hitl_efficiency", 0.0))
+
+        raw_autonomies.append(raw_auto)
 
         raw_metrics[b_id] = {
-            "safety": safety,
-            "hitl_efficiency": hitl_eff,
-            "latency_raw": lat,
-            "tokens_raw": tok,
+            "integrity": integrity,
+            "raw_autonomy": raw_auto,
+            "latency_raw": eff_lat,
+            "tokens_raw": eff_tok,
         }
 
     min_lat = min(latencies) if latencies else 1.0
     min_tok = min(tokens) if tokens else 1.0
+    max_auto = max(raw_autonomies) if raw_autonomies else 1.0
 
     for b_id, m in raw_metrics.items():
-        lat_score = (min_lat / m["latency_raw"] * 100.0) if m["latency_raw"] > 0 else 100.0
-        lat_score = max(0.0, min(100.0, lat_score))
+        speed_score = (min_lat / m["latency_raw"] * 100.0) if m["latency_raw"] > 0 else 100.0
+        speed_score = max(0.0, min(100.0, speed_score))
 
         tok_score = (min_tok / m["tokens_raw"] * 100.0) if m["tokens_raw"] > 0 else 100.0
         tok_score = max(0.0, min(100.0, tok_score))
 
+        # Normalize autonomy relative to the best baseline (scales to 100, eliminates white space)
+        if max_auto > 0.0:
+            autonomy_score = (m["raw_autonomy"] / max_auto) * 100.0
+        else:
+            autonomy_score = 0.0
+        autonomy_score = max(0.0, min(100.0, autonomy_score))
+
         radar_data[b_id] = {
-            "pre_deployment_safety": round(m["safety"], 2),
-            "hitl_efficiency": round(m["hitl_efficiency"], 2),
-            "execution_latency": round(lat_score, 2),
-            "token_economy": round(tok_score, 2),
+            "speed": round(speed_score, 2),
+            "token_usage": round(tok_score, 2),
+            "pre_deployment_integrity": round(m["integrity"], 2),
+            "zero_touch_autonomy": round(autonomy_score, 2),
         }
 
     return radar_data

@@ -45,8 +45,8 @@ flowchart TD
 
 ### 2.2 Operational Invariants
 - **Zero Operator Fatigue on Nominal Traffic:** For all Class I Nominal demands, $\mathbf{N_{hitl} = 0}$. The system acts with complete autonomy.
-- **Strict Physical Safety Invariant:** Unfeasible Approval Rate is mathematically guaranteed to be **$0.0\%$** ($UAR = 0.0\%$).
-  > **Note on K-Shortest Path Evaluation:** In Yen's K-Shortest Paths ($K=5$), the physical solver evaluates $K$ candidate lightpaths. In a typical nominal request, the primary shortest path is feasible ($\text{GSNR} \ge 14\text{ dB}$), while secondary detour paths may fail threshold. The system approves provisioning because a valid physical lightpath exists. A demand is only categorized as an unfeasible approval if *no* candidate lightpath satisfies physical reachability or if it belongs to Class III (Infeasible) and is approved.
+- **Strict Pre-Deployment Integrity Invariant:** False Positive Rate is mathematically guaranteed to be **$0.0\%$** ($FPR = 0.0\%$).
+  > **Note on K-Shortest Path Evaluation:** In Yen's K-Shortest Paths ($K=5$), the physical solver evaluates $K$ candidate lightpaths. In a typical nominal request, the primary shortest path is feasible ($\text{GSNR} \ge 14\text{ dB}$), while secondary detour paths may fail threshold. The system approves provisioning because a valid physical lightpath exists. A demand is only categorized as a false positive if a risky demand (Class II, III, or IV) is approved for deployment.
 
 ### 2.3 Un-Metered Warm-up Pass (Cold-Start Mitigation)
 To prevent Ollama model weight loading, CUDA context initialization, and LangGraph JIT compilation from distorting nominal latency metrics (where an initial cold request can require $\sim 35\text{s}$ vs $\sim 4.5\text{s}$ steady-state), the evaluation framework incorporates an un-metered dummy warm-up pass (`warmup_evaluator`). The dummy request primes GPU VRAM and execution caches before official timer and token counters commence.
@@ -61,7 +61,7 @@ To prevent Ollama model weight loading, CUDA context initialization, and LangGra
 | | CFG Pass Rate (CFG-PR) | $\ge 95\%$ | **$95.0\% - 100.0\%$** | Syntactically valid PDDL AST representation |
 | | Semantic Agreement ($1 - d_{sem}$) | $> 0.85$ | **$0.860 - 0.912$** | High concordance between intent and reverse reconstruction |
 | | Ambiguity / Adversarial Catch | $100\%$ | **$80.0\% - 100.0\%$** | Upstream interception before invoking physical solver |
-| **Pillar 2: Physical Feasibility** | Unfeasible Approval Rate (UAR) | **$0.0\%$** | **$0.0\%$** | Zero reach-violating lightpaths approved (Invariant) |
+| **Pillar 2: Physical Feasibility & Integrity** | False Positive Rate (FPR) | **$0.0\%$** | **$0.0\%$** | Zero un-gated or reach-violating lightpaths approved (Invariant) |
 | | Physical Infeasibility Catch (PIIR) | $100\%$ | **$80.0\% - 100.0\%$** | Class III infeasible demands intercepted and replanned |
 | **Pillar 3: Efficiency & Friction** | Median E2E Latency ($\tilde{T}_{E2E}$, Nominal) | Contextual | **$3.8\text{s} - 4.5\text{s}$** (Mean: $5.2\text{s}$) | Steady-state turnaround (robust to outliers) |
 | | Median Token Footprint (Nominal) | Monitored | **$3,740 - 3,762\text{ tok}$** | Minimal token consumption (single-turn pass) |
@@ -76,14 +76,14 @@ To prevent Ollama model weight loading, CUDA context initialization, and LangGra
 
 When mapped to the **Four Orthogonal Radar Axes (0 to 100, 100 optimal)**:
 
-1. **Pre-Deployment Safety ($100 - UAR$):** **$100.0\%$**
-   - Perfect physical safety invariant ($UAR = 0.0\%$).
-2. **HITL Efficiency (Zero-Friction Nominal):** **$100.0\%$**
-   - Zero interruptions on Class I Nominal demands ($0.00$ turns / request).
-3. **Execution Latency (Normalized Speed):** **$100.0\%$**
+1. **Speed (Normalized Latency):** **$100.0\%$**
    - Baseline standard: fastest end-to-end execution across all baselines.
-4. **Token Economy (Normalized Frugality):** **$100.0\%$**
-   - Baseline standard: lowest token consumption per nominal request.
+2. **Token Usage (Normalized Frugality):** **$100.0\%$**
+   - Baseline standard: lowest token consumption per request.
+3. **Pre-Deployment Integrity ($100 - FPR$):** **$100.0\%$**
+   - Perfect gate and physical integrity invariant ($FPR = 0.0\%$).
+4. **Zero-Touch Autonomy:** **$100.0\%$**
+   - Zero unnecessary human interruptions on nominal traffic ($N_{hitl}=0$).
 
 Proposed RADG forms the **complete, fully expanded outer diamond** on the Four Pillars Radar Chart, establishing the Pareto-optimal frontier.
 
