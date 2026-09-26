@@ -30,52 +30,24 @@ figs_NPImp/
 
 ---
 
-## 2. Active Figure Catalog (Core 2)
+## 2. Active Figure Catalog
 
-Chapter 4 concentrates on **2 core architectural diagrams** illustrating the software state machine and the two-layer semantic validation engine:
-
-| Semantic Label | Source File | Deliverable Files | Pathway | Section | Key Visual Concept |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `fig:langgraph_execution_flow` | `src/diagrams/langgraph_execution_flow.drawio` | `pdf/langgraph_execution_flow.pdf`<br>`png/langgraph_execution_flow.png` | **Pathway A** (Draw.io) | **4.1.1** | LangGraph State Machine topology across 7 phases, showing thread state persistence, two asynchronous `interrupt()` boundaries (Phase 3b clarify and Phase 6 replan), fast-track manual override bypass, and feedback loops. |
-| `fig:semantic_engine` | `src/diagrams/semantic_engine.drawio` | `pdf/semantic_engine.pdf`<br>`png/semantic_engine.png` | **Pathway A** (Draw.io) | **4.3** | Two-Layer Semantic Engine architecture: Intent Ingestion & Multi-Turn Reconciliation, Layer 1 AST CFG structural validation ($v_{\text{struct}}$), Layer 2 closed-loop Reverse Prompting ($I_{\text{recon}}$) with LLM Judge ($d_{\text{sem}}$), converging at the Semantic RADG decision multiplexer ($U_{\text{sem}}$). |
+Chapter 4 intentionally avoids duplicating the 7-phase execution workflow and two-gate decision structure already illustrated in Chapter 3 (`Figure~\ref{fig:conceptual_framework}`). The implementation narrative in Chapter 4 references `Figure~\ref{fig:conceptual_framework}` directly, focusing the text and code listings on concrete software realization, deterministic parsing algorithms, and state persistence mechanics.
 
 ---
 
-## 3. Ready-to-Copy LaTeX Snippets for Overleaf
+## 3. Archived Diagrams (`archive/`)
 
-Copy the vector files from `figs_NPImp/pdf/` directly to your Overleaf project under `Figures/figs_NPImp/`:
+The following candidate diagrams were authored, evaluated, and subsequently archived to avoid visual redundancy and maintain maximal manuscript clarity:
 
-```latex
-% 1. LangGraph State Machine Execution Flow (Section 4.1)
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/langgraph_execution_flow.pdf}
-    \caption{\small\itshape LangGraph state machine execution graph and conditional routing flow across the seven neurosymbolic pipeline phases, showing thread checkpointer state persistence, asynchronous interruption boundaries (\texttt{interrupt()}), fast-track manual override, and iterative feedback trajectories.}
-    \label{fig:langgraph_execution_flow}
-\end{figure}
-\FloatBarrier
-
-% 2. Two-Layer Semantic Engine Architecture (Section 4.3)
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=0.88\textwidth]{Figures/figs_NPImp/semantic_engine.pdf}
-    \caption{\small\itshape Two-layer Semantic Engine architecture illustrating intent ingestion, multi-turn reconciliation, Layer 1 Abstract Syntax Tree (AST) structural syntax verification ($v_{\text{struct}}$), Layer 2 automated closed-loop Reverse Prompting ($I_{\text{recon}}$) with LLM-as-a-judge semantic divergence scoring ($d_{\text{sem}}$), and Semantic RADG decision multiplexing ($U_{\text{sem}}$).}
-    \label{fig:semantic_engine}
-\end{figure}
-\FloatBarrier
-```
+| Semantic Label | Archived Source | Deliverable Files | Archival Rationale |
+| :--- | :--- | :--- | :--- |
+| `fig:langgraph_execution_flow` | `archive/src/diagrams/langgraph_execution_flow.drawio` | `archive/pdf/langgraph_execution_flow.pdf`<br>`archive/png/langgraph_execution_flow.png` | Redundant with `Figure~\ref{fig:conceptual_framework}` (Chapter 3). The LangGraph state machine is a 1:1 software realization of the 7-phase conceptual pipeline; re-illustrating it added cognitive noise without new conceptual insight. |
+| `fig:semantic_engine` | `archive/src/diagrams/semantic_engine.drawio` | `archive/pdf/semantic_engine.pdf`<br>`archive/png/semantic_engine.png` | Redundant with Phases 2 & 3 and Gate 1 of `Figure~\ref{fig:conceptual_framework}`. The two-layer verification mechanics ($v_{\text{struct}}$ and $d_{\text{sem}}$) and RADG gate are already anchored in the conceptual framework and detailed textually in Section 4.3. |
 
 ---
 
 ## 4. Re-generation Commands
 
-- **To re-export all Draw.io diagrams to PDF and PNG:**
-  ```bash
-  python3 docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/figs_NPImp/src/diagrams/export_diagrams.py
-  ```
-  *(Or execute directly from `src/diagrams/`: `python3 export_diagrams.py`)*
-- **To rebuild the diagram XML sources from Python generators:**
-  ```bash
-  uv run python docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/figs_NPImp/src/diagrams/build_langgraph_flow.py
-  uv run python docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/figs_NPImp/src/diagrams/build_semantic_engine.py
-  ```
+Active visual artifacts in Chapter 4 currently rely on Chapter 3's `Figure~\ref{fig:conceptual_framework}`. Candidate diagrams and standalone builders are preserved in `archive/src/diagrams/` for historical auditability.
+

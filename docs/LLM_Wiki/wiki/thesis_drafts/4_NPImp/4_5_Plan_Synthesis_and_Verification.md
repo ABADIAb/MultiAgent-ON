@@ -1,7 +1,7 @@
 ---
 title: "Chapter 4 - Section 4.4: Plan Synthesis and Verification"
 date: 2026-09-19
-tags: [thesis, chapter-4, implementation, synthesis, verification, canonical-paths, tdd]
+tags: [thesis, chapter-4, implementation, synthesis, verification, fundamental-paths, tdd]
 status: draft
 ---
 
@@ -21,7 +21,7 @@ This synthesis serves as an auditable log for network operators, completing the 
 
 To verify that the orchestrator handles operational contingencies deterministically, the pipeline was subjected to a verification suite executing the state graph. 
 
-Across the tests, seven canonical execution paths were verified, mapping directly onto the forward branches, decision checkpoints, and feedback loops of the LangGraph state machine depicted in Figure~\ref{fig:langgraph_execution_flow}:
+Across the tests, seven fundamental execution paths were verified, mapping directly onto the forward branches, decision checkpoints, and feedback loops of the neurosymbolic pipeline depicted in Figure~\ref{fig:conceptual_framework}:
 1. **Single-Pass Auto-Approve (Happy Path):** Unambiguous, physically valid intents traverse the direct forward edge through both gates with zero human interruptions.
 2. **Semantic Clarification Loop:** Underspecified intents trigger an interruption at Phase 3b, routing operator feedback back to Phase 2 for reconciliation and re-parsing.
 3. **Fast-Track Manual Override:** The operator forces approval of a structurally valid intent with marginal semantic divergence, traversing the bypass edge from Phase 3b directly to Phase 4.
@@ -39,5 +39,5 @@ With the orchestrator implemented and verified, Chapter 5 presents the experimen
 ## Drafting Recommendations & Figure Placement
 
 > [!NOTE]
-> **Empirical Validation:** The seven verified canonical paths form the foundation of the automated evaluation harness deployed in Chapter 5 to benchmark autonomous pass rate, human interaction count ($N_{hitl}$), and unsafe approval rate ($UAR$).
+> **Experimental Validation:** The seven verified fundamental paths form the foundation of the automated evaluation harness deployed in Chapter 5 to benchmark autonomous pass rate, human interaction count ($N_{hitl}$), and unsafe approval rate ($UAR$).
 

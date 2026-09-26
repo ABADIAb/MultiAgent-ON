@@ -17,8 +17,25 @@ from langchain_openai import ChatOpenAI
 DEFAULT_KIMI_MODEL = "kimi-for-coding-highspeed"
 
 # Default model and endpoint on OpenRouter
-DEFAULT_OPENROUTER_MODEL = "inclusionai/ling-3.0-flash-vl:free"
+DEFAULT_OPENROUTER_MODEL = "openai/gpt-4o-mini"
 DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+SUPPORTED_OPENROUTER_MODELS: tuple[str, ...] = (
+    "openai/gpt-4o-mini",
+    "anthropic/claude-3.5-sonnet",
+    "meta-llama/llama-3.3-70b-instruct",
+    "deepseek/deepseek-chat",
+    "qwen/qwen-2.5-72b-instruct",
+)
+
+
+def get_supported_openrouter_models() -> tuple[str, ...]:
+    """Retrieve supported OpenRouter models from OPENROUTER_MODELS env or fallback list."""
+    if env_val := os.getenv("OPENROUTER_MODELS"):
+        models = [m.strip() for m in env_val.split(",") if m.strip()]
+        if models:
+            return tuple(models)
+    return SUPPORTED_OPENROUTER_MODELS
+
 
 # Default model and endpoint on Ollama
 DEFAULT_OLLAMA_MODEL = "qwen2.5:3b"
@@ -72,8 +89,7 @@ class OpenRouterChatOpenAI(ChatOpenAI):
     """ChatOpenAI specialization for OpenRouter models.
 
     Ensures structured outputs default to 'function_calling' because many OpenRouter
-    providers (including Novita hosting ling-3.0-flash-vl) do not support the
-    native OpenAI 'json_schema' response format.
+    providers do not support the native OpenAI 'json_schema' response format.
     """
 
     def with_structured_output(self, schema: Any, **kwargs: Any) -> Any:
@@ -221,7 +237,7 @@ def create_openrouter_llm(
     Args:
         api_key: API key for OpenRouter.
         base_url: Custom base URL (defaults to OPENROUTER_BASE_URL or 'https://openrouter.ai/api/v1').
-        model: Model identifier (defaults to OPENROUTER_MODEL, OP_LING_MODEL, or ling-3.0-flash-vl:free).
+        model: Model identifier (defaults to OPENROUTER_MODEL env or DEFAULT_OPENROUTER_MODEL).
         temperature: Sampling temperature. Defaults to 0.2 for deterministic planning.
         max_tokens: Maximum tokens for completion. Defaults to 2000.
         timeout: Request timeout in seconds. Defaults to LLM_TIMEOUT env or 120.0s.
@@ -237,7 +253,6 @@ def create_openrouter_llm(
     resolved_model = (
         model
         or os.getenv("OPENROUTER_MODEL")
-        or os.getenv("OP_LING_MODEL")
         or DEFAULT_OPENROUTER_MODEL
     )
     resolved_temp = 0.2 if temperature is None else temperature
