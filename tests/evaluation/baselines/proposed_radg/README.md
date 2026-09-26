@@ -91,20 +91,10 @@ Proposed RADG forms the **complete, fully expanded outer diamond** on the Four P
 
 ## 5. Artifacts, Visual Figures & Architectural Justifications
 
-All baseline telemetry and visual figures are generated in `tests/evaluation/baselines/proposed_radg/results/run_<run_id>/`:
+All baseline telemetry and executive visual figures are generated in `tests/evaluation/baselines/proposed_radg/results/<LLM>/<timestamp>/`:
+- `evaluation_results.json`: Raw telemetry traces across all demands.
+- `evaluation_results.csv`: Flat tabular export.
+- `evaluation_summary.md`: Four Pillars executive markdown report.
+- `presentation_slide_dashboard.png / .pdf`: 16:9 executive widescreen infographic dashboard for thesis presentations.
 
-### 5.1 4-Stage Operational Sankey Diagram (`deployment_flow_sankey.png / .pdf`)
-- **Purpose:** Traces the entire operational lifecycle of the 20 test demands across 4 distinct phases:
-  1. **Stage 1 (Intent Ingest):** 20 demands across 4 classes enter the pipeline.
-  2. **Stage 2 (Admission Policy):** The dual RADGs admit only 5 nominal intents (25%), while 15 risky intents (75%) are intercepted pre-deployment (Phase 3b Semantic Gate intercepts 5, Phase 6 Physical RADG intercepts 10).
-  3. **Stage 3 (SDON Controller Execution):** All 5 forwarded demands pass controller validation cleanly.
-  4. **Stage 4 (Operational Outcome):** Shows **Touchless Production Provisioning (5 demands, 25%)** and **Zero Post-Deployment Incident Alarms (0 / 20)**, proving total pre-deployment containment.
-
-### 5.2 Gate Decision Accuracy Matrix (`gate_accuracy_matrix.png / .pdf`)
-- **Purpose:** Multi-class confusion matrix plotting expected vs. actual initial gate actions (`approve`, `clarify`, `replan`) across Classes I, II, III, and IV, demonstrating high routing fidelity ($GDA \ge 95\%$) and zero false positives ($FPR = 0\%$).
-
-### 5.3 Latency & Token Overhead Breakdown (`latency_tokens_overhead.png / .pdf`)
-- **Purpose:** Dual-panel bar chart illustrating the distribution of turnaround time ($T_{E2E}$) and token consumption per risk class, confirming that nominal intents incur minimal latency ($\sim 4.5\text{s}$) while multi-turn recovery on ambiguous/infeasible requests accounts for expected recovery overhead.
-
-### 5.4 16:9 Presentation Slide Dashboard (`presentation_slide_dashboard.png / .pdf`)
-- **Purpose:** Master publication-ready widescreen dashboard for thesis defense slides, combining key KPI cards, the confusion matrix, latency distributions, and gate performance metrics into a single cohesive layout.
+*(Note: The standalone diagnostic `gate_accuracy_matrix.png / .pdf` is generated alongside cross-baseline analytics in the global comparative results directory `tests/evaluation/results/<LLM>/<timestamp>/` to maintain a lean, non-redundant artifact footprint).*

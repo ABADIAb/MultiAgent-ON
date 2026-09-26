@@ -134,29 +134,16 @@ The true differentiators are purely operational:
 
 ## 5. Visual Analytics Suite
 
-The visualization pipeline (`tests/evaluation/generate_visuals.py`) automatically produces dedicated, publication-quality figures for every Always-On HITL run:
+The visualization pipeline (`tests/evaluation/generate_visuals.py`) produces executive dashboard visual assets for Always-On HITL runs under `tests/evaluation/baselines/always_on_hitl/results/<LLM>/<timestamp>/`:
 
-### 5.1 Figure 1: Wasted Compute Overhead Across Risk Classes (`wasted_compute_overhead.png / .pdf`)
-- **Visual Design:** Multi-class dual-panel stacked bar chart disaggregating compute across **Class I (Nominal)**, **Class II (Ambiguous)**, **Class III (Infeasible)**, **Class IV (Adversarial)**, and the **Overall** population.
-  - **Left Panel (Median Latency by Class):** Contrasts the Proposed RADG baseline floor (PoliMi Navy `#0F2C53`) against the Always-On HITL stacked delta (hatched Red `#DC2626`). On Nominal traffic, the stacked bar exposes the $+212\%$ ($+8.05\text{s}$) latency tax. On non-nominal traffic (Classes II, III, IV), both architectures converge to identical multi-turn recovery loops, resulting in zero delta ($\Delta = 0$).
-  - **Right Panel (Median Tokens by Class):** Contrasts Proposed RADG base token consumption against Always-On redundant prompt tokens (hatched Amber `#D97706`), highlighting the $+118\%$ ($+4,457\text{ tok}$) nominal penalty.
-  - **Dashed Guideline:** Highlights the "Optimal Floor" established by the autonomous Semantic RADG.
-- **Narrative Message:** Proves that while computational expenditure is strictly justified and identical during anomaly remediation, Always-On incurs massive, wasteful overhead on benign traffic.
-
-### 5.2 Figure 2: Scalability Projection (`scalability_projection.png / .pdf`)
-- **Visual Design:** Cumulative Step/Line chart tracking cumulative human interruptions ($\sum N_{hitl}$) across an operational stream of mixed demands (e.g., $N=20$ in the current compact evaluation, scaling dynamically to $N=120$ in the full benchmark), randomly shuffled with a fixed seed (`seed=42`) to simulate a realistic daily operational workload.
-  - **Always-On Line (Amber Dashed):** Climbs with a constant slope of $1.0$, reaching $100\%$ operational interruption rate ($N_{hitl} = N$).
-  - **Proposed RADG Line (Navy Step):** Steps upward only on risky demands (Classes II, III, IV) and remains strictly horizontal/flat every time a Class I Nominal intent arrives, capping human interventions at $0.75 \times N$.
-  - **Shaded Region (Green Hatch `#16A34A`):** The area between the two curves, explicitly labeled as **"Cognitive Savings (Ahorro Cognitivo)"**.
-- **Key Metric:** $\Delta = 5$ interventions averted on the 20-demand compact run ($\Delta = 30$ on the 120-demand full corpus), proving an invariant **$25.0\%$ overall reduction in operational fatigue**, and **$100\%$ elimination of nominal interruptions**.
-- **Narrative Message:** Demonstrates that Always-On HITL does not scale in production because it burns out network engineers with constant rubber-stamping, whereas the proposed RADG framework effectively shields operator focus.
-
-### 5.3 Figure 3: Always-On Master Ablation Dashboard (`always_on_ablation_dashboard.png / .pdf`)
+### 5.1 Always-On Master Ablation Dashboard (`always_on_ablation_dashboard.png / .pdf`)
 - **Visual Design:** 16:9 Widescreen Composite slide-ready visual ($13.333 \times 7.5\text{ in}$) integrating:
   - **4 Top KPI Cards:** Quantifying the Latency Tax ($+212\%$ median overhead), Token Footprint Inflation ($+118\%$), Unnecessary Interruption Rate ($100\%$), and Zero Incremental Integrity Gain ($0.0\%$).
   - **Left Half (Wasted Compute Panels):** Stacked bar panels displaying the base cost vs. wasted delta for Turnaround Latency and Token Footprint on Nominal demands using median metrics.
   - **Right Half (Cognitive Fatigue Curve):** The Cumulative Step Chart highlighting operator attention protection and the shaded cognitive savings region.
 - **Narrative Message:** Provides the complete, unified visual artifact designed directly for the Master's defense slide deck.
+
+*(Note: The standalone diagnostic `scalability_projection.png / .pdf` is generated alongside multi-baseline analytics in the global comparative results directory `tests/evaluation/results/<LLM>/<timestamp>/` to prevent redundant artifact sprawl).*
 
 ---
 
@@ -218,5 +205,5 @@ To execute evaluation and generate these specialized visual assets:
 uv run python tests/evaluation/main.py --baseline always_on_hitl --mode eval --corpus compact
 
 # Regenerate visual assets for an existing run:
-uv run python tests/evaluation/generate_visuals.py tests/evaluation/baselines/always_on_hitl/results/run_20260924_152825/evaluation_results_20260924_152825.json
+uv run python tests/evaluation/generate_visuals.py tests/evaluation/baselines/always_on_hitl/results/qwen2.5_3b/20260925_173441/evaluation_results_20260925_173441.json
 ```

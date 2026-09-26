@@ -276,17 +276,60 @@ class TestLLMOnlyEvaluator:
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(data, f)
 
+        # Place dummy old figures to verify cleanup
+        old_file = test_dir / "gate_accuracy_matrix.png"
+        old_file.write_text("dummy")
+        old_proj = test_dir / "scalability_projection.png"
+        old_proj.write_text("dummy")
+
+        out_dir = generate_run_visuals(json_path, target_dir=test_dir)
+        assert (out_dir / "always_on_ablation_dashboard.png").exists()
+        assert (out_dir / "always_on_ablation_dashboard.pdf").exists()
+        # Scalability projection and gate accuracy must NOT exist in always_on_hitl baseline folder (Point 3)
+        assert not (out_dir / "scalability_projection.png").exists()
+        assert not (out_dir / "scalability_projection.pdf").exists()
+        assert not (out_dir / "wasted_compute_overhead.png").exists()
+        assert not (out_dir / "gate_accuracy_matrix.png").exists()
+
+    def test_proposed_radg_visuals_generation(self, tmp_path: pytest.TempPathFactory) -> None:
+        import json
+        from pathlib import Path
+        from tests.evaluation.generate_visuals import generate_run_visuals
+
+        test_dir = Path(str(tmp_path))
+        data = {
+            "metadata": {
+                "run_id": "test_radg",
+                "baseline_id": "proposed_radg",
+                "model": "qwen2.5:3b",
+                "provider": "ollama",
+                "total_demands": 2,
+            },
+            "pillar_metrics": {
+                "pillar_1": {"operable_crr_rate": 100.0, "cfg_pass_rate": 100.0, "mean_well_formed_agreement": 0.95},
+                "pillar_2": {"uar_rate": 0.0, "unfeasible_approved_count": 0, "total_approved_count": 1, "piir_rate": 100.0},
+                "pillar_3": {"mean_e2e_latency_seconds": 4.0, "total_tokens_consumed": 7000, "mean_tokens_per_intent": 3500, "mean_hitl_turns": 0.5, "total_hitl_interrupts": 1},
+                "pillar_4": {"gda_rate": 100.0, "fpr_rate": 0.0, "selective_hitl_precision": 100.0},
+            },
+            "demands": [
+                {"id": "intent_nom_01", "class": "I_Nominal", "initial_action": "approve", "final_action": "approve", "total_elapsed_seconds": 3.5, "total_tokens": 3000, "hitl_count": 0},
+                {"id": "intent_amb_01", "class": "II_Ambiguous", "initial_action": "clarify", "final_action": "approve", "total_elapsed_seconds": 7.5, "total_tokens": 4000, "hitl_count": 1},
+            ],
+        }
+        json_path = test_dir / "evaluation_results.json"
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+
         # Place a dummy old matrix to verify cleanup
         old_file = test_dir / "gate_accuracy_matrix.png"
         old_file.write_text("dummy")
 
         out_dir = generate_run_visuals(json_path, target_dir=test_dir)
-        assert (out_dir / "scalability_projection.png").exists()
-        assert (out_dir / "scalability_projection.pdf").exists()
-        assert (out_dir / "always_on_ablation_dashboard.png").exists()
-        assert (out_dir / "always_on_ablation_dashboard.pdf").exists()
-        assert not (out_dir / "wasted_compute_overhead.png").exists()
+        assert (out_dir / "presentation_slide_dashboard.png").exists()
+        assert (out_dir / "presentation_slide_dashboard.pdf").exists()
+        # gate_accuracy_matrix must NOT exist in proposed_radg baseline folder (Point 3)
         assert not (out_dir / "gate_accuracy_matrix.png").exists()
+        assert not (out_dir / "gate_accuracy_matrix.pdf").exists()
 
 
 class TestEvaluationMetrics:
@@ -632,6 +675,75 @@ class TestComparativeVisualsGeneration:
         plot_comparative_scalability_projection(baselines_data, test_dir)
         assert (test_dir / "comparative_scalability_projection.png").exists()
         assert (test_dir / "comparative_scalability_projection.pdf").exists()
+
+    def test_generate_comparative_visuals_generates_gate_accuracy_matrix(self, tmp_path: pytest.TempPathFactory) -> None:
+        import json
+        from pathlib import Path
+        from tests.evaluation.generate_visuals import generate_comparative_visuals
+
+        test_dir = Path(str(tmp_path))
+        comp_data = {
+            "metadata": {
+                "run_id": "test_comp_matrix",
+                "model": "qwen2.5:3b",
+                "provider": "ollama",
+                "comparison_type": "multi_baseline_ablation",
+                "baselines_evaluated": ["proposed_radg", "always_on_hitl", "llm_only"],
+            },
+            "baselines": {
+                "proposed_radg": {
+                    "total_demands": 2,
+                    "pillar_metrics": {
+                        "pillar_1": {"operable_crr_rate": 100.0, "cfg_pass_rate": 100.0, "mean_well_formed_agreement": 0.9},
+                        "pillar_2": {"uar_rate": 0.0, "piir_rate": 100.0},
+                        "pillar_3": {"mean_e2e_latency_seconds": 4.0, "median_e2e_latency_seconds": 4.0, "mean_tokens_per_intent": 3000, "median_tokens_per_intent": 3000, "mean_hitl_turns": 0.0},
+                        "pillar_4": {"gda_rate": 100.0, "fpr_rate": 0.0, "selective_hitl_precision": 100.0},
+                    },
+                    "demands": [
+                        {"id": "d1", "class": "I_Nominal", "initial_action": "approve", "success": True, "total_elapsed_seconds": 3.0, "total_tokens": 1500},
+                        {"id": "d2", "class": "II_Ambiguous", "initial_action": "clarify", "success": True, "total_elapsed_seconds": 7.0, "total_tokens": 4000},
+                    ],
+                },
+                "always_on_hitl": {
+                    "total_demands": 2,
+                    "pillar_metrics": {
+                        "pillar_1": {"operable_crr_rate": 100.0, "cfg_pass_rate": 100.0, "mean_well_formed_agreement": 0.0},
+                        "pillar_2": {"uar_rate": 0.0, "piir_rate": 100.0},
+                        "pillar_3": {"mean_e2e_latency_seconds": 12.0, "median_e2e_latency_seconds": 12.0, "mean_tokens_per_intent": 8000, "median_tokens_per_intent": 8000, "mean_hitl_turns": 1.0},
+                        "pillar_4": {"gda_rate": 100.0, "fpr_rate": 0.0, "selective_hitl_precision": 0.0},
+                    },
+                    "demands": [
+                        {"id": "d1", "class": "I_Nominal", "initial_action": "clarify", "success": True, "total_elapsed_seconds": 12.0, "total_tokens": 8000},
+                        {"id": "d2", "class": "II_Ambiguous", "initial_action": "clarify", "success": True, "total_elapsed_seconds": 12.0, "total_tokens": 8000},
+                    ],
+                },
+                "llm_only": {
+                    "total_demands": 2,
+                    "pillar_metrics": {
+                        "pillar_1": {"operable_crr_rate": 100.0, "cfg_pass_rate": 100.0, "mean_well_formed_agreement": 0.0},
+                        "pillar_2": {"uar_rate": 50.0, "piir_rate": 0.0},
+                        "pillar_3": {"mean_e2e_latency_seconds": 3.0, "median_e2e_latency_seconds": 3.0, "mean_tokens_per_intent": 2000, "median_tokens_per_intent": 2000, "mean_hitl_turns": 0.0},
+                        "pillar_4": {"gda_rate": 50.0, "fpr_rate": 50.0, "selective_hitl_precision": 0.0},
+                    },
+                    "demands": [
+                        {"id": "d1", "class": "I_Nominal", "initial_action": "approve", "controller_error": False, "success": True, "total_elapsed_seconds": 3.0, "total_tokens": 2000},
+                        {"id": "d2", "class": "II_Ambiguous", "initial_action": "approve", "controller_error": True, "success": False, "total_elapsed_seconds": 3.0, "total_tokens": 2000},
+                    ],
+                },
+            },
+        }
+        json_path = test_dir / "comparative_results.json"
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(comp_data, f)
+
+        out_dir = generate_comparative_visuals(json_path, target_dir=test_dir)
+        # Point 2: gate_accuracy_matrix generated in comparative results folder!
+        assert (out_dir / "gate_accuracy_matrix.png").exists()
+        assert (out_dir / "gate_accuracy_matrix.pdf").exists()
+        assert (out_dir / "comparative_scalability_projection.png").exists()
+        assert (out_dir / "comparative_pillars_breakdown.png").exists()
+        assert (out_dir / "comparative_radar_pillars.png").exists()
+
 
 
 

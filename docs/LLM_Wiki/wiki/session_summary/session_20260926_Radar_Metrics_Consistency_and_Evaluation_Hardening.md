@@ -1,26 +1,26 @@
 ---
-title: "Technical Handover: Radar Metrics Consistency & Visuals Consolidation"
+title: "Technical Handover: Evaluation Environment Restructuring & Visuals Sanitization"
 date: 2026-09-26
-tags: [session-summary, handover, radar-chart, visuals-consolidation, diurnal-shift]
+tags: [session-summary, handover, evaluation-restructure, sanitized-models, visual-cleanup]
 status: active
 ---
 
-# Technical Handover Card: 2026-09-26 (Evaluation Hardening & Visuals Consolidation)
+# Technical Handover Card: 2026-09-26 (Evaluation Hierarchy & Visuals Cleanup)
 
 ## 1. Scope & Objective
-Consolidate evaluation visuals, eliminate redundant baseline charts, implement comparative 3-way scalability projection, formalize diurnal operational shift framework, and maintain strict Four Pillars metrics consistency.
+Restructure evaluation environment hierarchy by model (`<LLM>/<timestamp>`), sanitize model identifiers, move global comparative results to `tests/evaluation/results/`, consolidate `gate_accuracy_matrix` into comparative outputs, and prune redundant baseline charts.
 
 ## 2. Key Architectural Decisions
-- **Wasted Compute Consolidation:** Merged latency/tokens and replan compute into `comparative_pillars_breakdown` as stacked bars (solid base + `#DC2626` hatched wasted compute), eliminating single-baseline overhead plots and redundant "Overall" bars.
-- **Sankey & Scalability Overhaul:** Refined `comparative_deployment_flow_sankey` (pruned individual `llm_only` Sankey) and created 2-panel `comparative_scalability_projection` comparing Proposed RADG, Always-On HITL, and LLM-Only across a 120-demand diurnal shift.
-- **Executive Dashboards Retained:** Preserved 16:9 individual baseline dashboards (`presentation_slide_dashboard`, `always_on_ablation_dashboard`, `llm_only_ablation_dashboard`) with polished spacing for quick visual telemetry.
-- **Diurnal Shift Framework:** Formalized non-homogeneous stochastic arrival, Alert Fatigue Dilemma, and Controller Collapse Dilemma academically in `Drafting_Backlog.md` and `tests/evaluation/README.md`.
+- **Hierarchical Output Schema:** All runs are stored in `<baseline>/results/<LLM>/<timestamp>/` and comparative runs in `tests/evaluation/results/<LLM>/<timestamp>/`.
+- **Model Sanitization:** Implemented `sanitize_model_name()` converting `:` and `/` to `_` (e.g. `qwen2.5:3b` -> `qwen2.5_3b`) to avoid filesystem issues.
+- **Visuals Pruning & Relocation:** `gate_accuracy_matrix` relocated to global comparative suite. Individual baseline folders retain strictly their 16:9 executive dashboards (`presentation_slide_dashboard`, `always_on_ablation_dashboard`, `llm_only_ablation_dashboard`).
+- **Archive Migration:** Legacy `run_*` directories moved to `tests/evaluation/archive/legacy_runs/` while preserving backward compatibility in run discovery.
 
 ## 3. Test & Code Health
-- **Unit Suite:** 350/350 passing (`uv run pytest tests/unit/ -v`).
-- **Code Hygiene:** 100% clean (`uv run ruff check src/ tests/`).
-- **Git Hygiene:** No `.agents/` or `.atl/` files modified or tracked.
+- **Unit Suite:** 352/352 passing (`uv run pytest tests/unit/`).
+- **Code Hygiene:** 100% clean (`uv run ruff check tests/ src/`).
+- **Git Hygiene:** No `.agents/` or `.atl/` files staged or tracked.
 
 ## 4. Exact Cursor & Next Prompt
 - **Cursor:** `tests/evaluation/generate_visuals.py`.
-- **Next Prompt:** "Vamos a pulir los diseños y el aspecto estético de las gráficas de evaluación para la tesis."
+- **Next Prompt:** "Vamos a mejorar el contenido y el aspecto visual de las gráficas de evaluación."

@@ -16,30 +16,36 @@ def _load_proposed_radg_demands(run_id: str | None = None) -> dict[str, dict[str
     project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
     proposed_dir = project_root / "tests" / "evaluation" / "baselines" / "proposed_radg" / "results"
 
-    # 1. Try matching run_id
+    # 1. Try matching run_id across directory hierarchy
     if run_id:
-        target = proposed_dir / f"run_{run_id}"
-        if target.exists():
-            for f in sorted(target.glob("evaluation_results*.json"), reverse=True):
+        clean_run = run_id.replace("run_", "")
+        for f in sorted(proposed_dir.glob(f"**/*{clean_run}*/*.json"), reverse=True):
+            if "evaluation_results" in f.name:
                 try:
                     with open(f, encoding="utf-8") as fp:
                         data = json.load(fp)
-                        return {d.get("id"): d for d in data.get("demands", [])}
+                        demands = data.get("demands", [])
+                        if demands:
+                            return {d.get("id"): d for d in demands}
                 except Exception:
                     pass
 
     # 2. Try latest run
     if proposed_dir.exists():
-        run_dirs = [d for d in proposed_dir.iterdir() if d.is_dir() and d.name.startswith("run_")]
-        run_dirs.sort(key=lambda d: d.name, reverse=True)
-        for rd in run_dirs:
-            for f in sorted(rd.glob("evaluation_results*.json"), reverse=True):
-                try:
-                    with open(f, encoding="utf-8") as fp:
-                        data = json.load(fp)
-                        return {d.get("id"): d for d in data.get("demands", [])}
-                except Exception:
-                    pass
+        all_jsons = sorted(
+            proposed_dir.glob("**/evaluation_results*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        for f in all_jsons:
+            try:
+                with open(f, encoding="utf-8") as fp:
+                    data = json.load(fp)
+                    demands = data.get("demands", [])
+                    if demands:
+                        return {d.get("id"): d for d in demands}
+            except Exception:
+                pass
 
     return {}
 

@@ -9,12 +9,12 @@ This directory contains the automated, reproducible benchmark suite for evaluati
 ```text
 tests/evaluation/
 ├── main.py                     # Unified interactive CLI & benchmark runner (Rich + Questionary)
+├── results/                    # Global comparative results ([LLM]/[timestamp]/)
 ├── baselines/                  # Modular baseline implementations reusing src/
 │   ├── common/                 # Shared runner, token tracker, metrics, and reporter
 │   │   ├── metrics.py          # Four Pillars telemetry formulas (CRR, CFG-PR, FPR, GDA, Radar)
 │   │   ├── runner.py           # Multi-turn execution loop with HITL recovery interception
-│   │   ├── reporter.py         # Multi-format telemetry exporter (JSON, CSV, MD)
-│   │   └── results/            # Comparative multi-baseline aggregated summaries (run_<timestamp>/)
+│   │   └── reporter.py         # Multi-format telemetry exporter (JSON, CSV, MD)
 │   ├── proposed_radg/          # Proposed System: Fail-fast Semantic & Physical RADGs
 │   ├── always_on_hitl/         # Baseline: Always-On HITL (Paranoid Turn-1 Review on Nominals)
 │   └── llm_only/               # Baseline: LLM-Only (No Semantic Gate / Controller Error Surrogate)
@@ -123,8 +123,8 @@ uv run python tests/evaluation/main.py --mode compare \
   --hitl-run 20260925_135330 \
   --llm-run 20260925_135330
 
-# Regenerate figures manually from a results directory:
-uv run python tests/evaluation/generate_visuals.py tests/evaluation/baselines/common/results/run_20260925_135330
+# Regenerate figures manually from a comparative results directory:
+uv run python tests/evaluation/generate_visuals.py tests/evaluation/results/qwen2.5_3b/20260926_154258
 ```
 
 ---
@@ -143,19 +143,25 @@ When an intent triggers a decision gate during evaluation:
 
 ## 6. Output Artifacts & Comparative Visuals
 
-Results are persisted in timestamped folders under `tests/evaluation/baselines/<baseline>/results/run_<timestamp>/`:
+Results are persisted in timestamped folders organized hierarchically by sanitized model identifier:
+
+### Baseline Execution Artifacts (`tests/evaluation/baselines/<baseline>/results/<LLM>/<timestamp>/`)
 - `evaluation_results.json`: Comprehensive telemetry traces (PDDL ASTs, $U_{sem}$, routes, QoT SNR margins, token counts).
 - `evaluation_results.csv`: Flat tabular export for rapid spreadsheet inspection.
 - `evaluation_summary.md`: Publication-ready Four Pillars markdown report with risk class breakdown and timeout tracking.
-- **Tailored Baseline Visual Dashboards:**
-  * **Proposed RADG (`proposed_radg/`):** `gate_accuracy_matrix.png / .pdf` (Gate accuracy matrix with timeout tracking) and `presentation_slide_dashboard.png / .pdf` (16:9 executive infographic dashboard).
-  * **Always-On HITL (`always_on_hitl/`):** `scalability_projection.png / .pdf` (Cognitive fatigue curve) and `always_on_ablation_dashboard.png / .pdf` (16:9 operational tax infographic dashboard).
+- **Baseline Executive Visual Dashboard (16:9 widescreen):**
+  * **Proposed RADG (`proposed_radg/`):** `presentation_slide_dashboard.png / .pdf` (16:9 executive infographic dashboard).
+  * **Always-On HITL (`always_on_hitl/`):** `always_on_ablation_dashboard.png / .pdf` (16:9 operational tax infographic dashboard).
   * **LLM-Only (`llm_only/`):** `llm_only_ablation_dashboard.png / .pdf` (16:9 controller incident & root cause infographic dashboard).
 
-### Comparative Visuals (`tests/evaluation/baselines/common/results/run_<timestamp>/`)
-When running comparative mode, the suite synthesizes cross-baseline analytics:
-- `comparative_summary.md`: Side-by-side executive comparison matrix across all baselines.
+*(Note: Per-baseline standalone figures such as `gate_accuracy_matrix` and `scalability_projection` are no longer generated in individual baseline directories to avoid clutter; they are consolidated directly in the global comparative suite below).*
+
+### Global Comparative Visuals (`tests/evaluation/results/<LLM>/<timestamp>/`)
+When running comparative mode or full multi-baseline evaluations, cross-baseline analytics and gate diagnostics are generated in `tests/evaluation/results/<LLM>/<timestamp>/`:
+- `comparative_results_<timestamp>.json`: Combined cross-baseline raw traces and pillar metrics.
+- `comparative_summary_<timestamp>.md`: Side-by-side executive comparison matrix across all baselines.
 - `comparative_radar_pillars.png / .pdf`: 4-axis Polar Radar Chart evaluating Speed, Token Frugality, Pre-Deployment Integrity ($100 - \text{FPR}$), and Zero-Touch Autonomy.
-- `comparative_pillars_breakdown.png / .pdf`: 4-panel disaggregated breakdown comparing Pre-Deployment Integrity ($FPR$), Operator Friction ($N_{hitl}$), End-to-End Latency & Replan Overhead, and Token Footprint & Wasted Compute (highlighting stacked wasted compute overhead across risk classes without redundant overall bars).
+- `comparative_pillars_breakdown.png / .pdf`: 4-panel disaggregated breakdown comparing Pre-Deployment Integrity ($FPR$), Operator Friction ($N_{hitl}$), End-to-End Latency & Replan Overhead, and Token Footprint & Wasted Compute.
 - `comparative_deployment_flow_sankey.png / .pdf`: Publication-grade dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
 - `comparative_scalability_projection.png / .pdf`: 2-panel multi-baseline scalability projection modeling cumulative operator interventions ($N_{hitl}$ cognitive fatigue) and cumulative controller outages across the 120-demand diurnal operational stream.
+- `gate_accuracy_matrix.png / .pdf`: Multi-class confusion matrix and gate decision accuracy breakdown for Proposed RADG across all 4 risk classes, tracking first-try gating accuracy and timeout mitigation.

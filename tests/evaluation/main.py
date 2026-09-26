@@ -57,6 +57,7 @@ from tests.evaluation.baselines.always_on_hitl import (  # noqa: E402
 from tests.evaluation.baselines.common.metrics import compute_pillar_metrics  # noqa: E402
 from tests.evaluation.baselines.common.reporter import (  # noqa: E402
     generate_comparative_report,
+    sanitize_model_name,
 )
 from tests.evaluation.baselines.common.runner import STANDARD_FOLLOW_UP_INTENT  # noqa: E402
 from tests.evaluation.baselines.llm_only import (  # noqa: E402
@@ -78,6 +79,7 @@ console = Console()
 COMPACT_CORPUS_PATH = PROJECT_ROOT / "tests" / "evaluation" / "test_corpus_compact.json"
 FULL_CORPUS_PATH = PROJECT_ROOT / "tests" / "evaluation" / "test_corpus.json"
 BASELINES_DIR = PROJECT_ROOT / "tests" / "evaluation" / "baselines"
+RESULTS_DIR = PROJECT_ROOT / "tests" / "evaluation" / "results"
 
 QUESTIONARY_STYLE = questionary.Style(
     [
@@ -487,12 +489,16 @@ def list_available_runs(baseline_id: str) -> list[str]:
     b_dir = BASELINES_DIR / baseline_id / "results"
     if not b_dir.exists():
         return []
-    runs = [
-        d.name for d in b_dir.iterdir()
-        if d.is_dir() and d.name.startswith("run_") and any(f.name.startswith("evaluation_results") and f.name.endswith(".json") for f in d.iterdir())
-    ]
-    runs.sort(reverse=True)  # Newest first
-    return runs
+
+    run_dirs: list[Path] = []
+    for jf in b_dir.glob("**/evaluation_results*.json"):
+        d = jf.parent
+        if d not in run_dirs:
+            run_dirs.append(d)
+
+    # Sort newest first by timestamp (stripping run_ prefix)
+    run_dirs.sort(key=lambda p: p.name.replace("run_", ""), reverse=True)
+    return [str(p.relative_to(b_dir)) for p in run_dirs]
 
 
 def resolve_baseline_run(
@@ -501,16 +507,23 @@ def resolve_baseline_run(
     interactive: bool = False,
 ) -> tuple[str, Path] | None:
     """Resolve which run folder to use for a baseline, defaulting to latest."""
+    b_dir = BASELINES_DIR / baseline_id / "results"
     available = list_available_runs(baseline_id)
     if not available:
         console.print(f"[yellow]⚠️ No historical evaluation runs found for baseline '{baseline_id}'.[/yellow]")
         return None
 
     if explicit_run:
-        target = explicit_run if explicit_run.startswith("run_") else f"run_{explicit_run}"
-        target_path = BASELINES_DIR / baseline_id / "results" / target
-        if target_path.exists() and any(f.name.startswith("evaluation_results") and f.name.endswith(".json") for f in target_path.iterdir()):
-            return target, target_path
+        clean_exp = explicit_run.replace("run_", "")
+        target_path = b_dir / explicit_run
+        if target_path.exists() and any(target_path.glob("evaluation_results*.json")):
+            return explicit_run, target_path
+        target_path2 = b_dir / clean_exp
+        if target_path2.exists() and any(target_path2.glob("evaluation_results*.json")):
+            return clean_exp, target_path2
+        for cand in available:
+            if explicit_run in cand or clean_exp in cand:
+                return cand, b_dir / cand
         console.print(f"[red]Specified run '{explicit_run}' not found for baseline '{baseline_id}'.[/red]")
         return None
 
@@ -524,11 +537,11 @@ def resolve_baseline_run(
             choices=choices,
             default=available[0],
         )
-        return chosen, BASELINES_DIR / baseline_id / "results" / chosen
+        return chosen, b_dir / chosen
 
     # Default to newest
     latest = available[0]
-    return latest, BASELINES_DIR / baseline_id / "results" / latest
+    return latest, b_dir / latest
 
 
 def run_comparative_mode(
@@ -587,11 +600,30 @@ def run_comparative_mode(
             console.print(f"  [yellow]Warning: Could not regenerate artifacts for {b_id}: {e}[/yellow]")
 
     run_id = time.strftime("%Y%m%d_%H%M%S")
-    common_output_dir = BASELINES_DIR / "common" / "results" / f"run_{run_id}"
+
+    # Resolve model and provider metadata from resolved baseline data
+    model_name = "unknown_model"
+    provider_name = "ollama"
+    for r_path in resolved_runs.values():
+        jf = next(r_path.glob("evaluation_results*.json"), None)
+        if jf and jf.exists():
+            try:
+                with open(jf, encoding="utf-8") as fp:
+                    m = json.load(fp).get("metadata", {})
+                    model_name = m.get("model", model_name)
+                    provider_name = m.get("provider", provider_name)
+                    break
+            except Exception:
+                pass
+
+    clean_model = sanitize_model_name(model_name)
+    common_output_dir = RESULTS_DIR / clean_model / run_id
 
     metadata = {
         "date": time.strftime("%Y-%m-%d %H:%M:%S"),
         "run_id": run_id,
+        "model": model_name,
+        "provider": provider_name,
         "mode": "comparative_analysis",
         "included_runs": {b: p.name for b, p in resolved_runs.items()},
     }
@@ -607,12 +639,13 @@ def run_comparative_mode(
         Panel(
             f"[bold green]✓ Comparative Multi-Baseline Evaluation Complete![/bold green]\n\n"
             f"[bold white]Output Directory:[/bold white] [cyan]{common_output_dir}[/cyan]\n"
-            f"  ├── comparative_results.json\n"
-            f"  ├── comparative_summary.md\n"
+            f"  ├── comparative_results_{run_id}.json\n"
+            f"  ├── comparative_summary_{run_id}.md\n"
             f"  ├── comparative_pillars_breakdown.png / .pdf\n"
             f"  ├── comparative_radar_pillars.png / .pdf\n"
             f"  ├── comparative_deployment_flow_sankey.png / .pdf\n"
-            f"  └── comparative_scalability_projection.png / .pdf",
+            f"  ├── comparative_scalability_projection.png / .pdf\n"
+            f"  └── gate_accuracy_matrix.png / .pdf",
             title="🏆 Comparison Synthesized Successfully",
             border_style="green",
             box=box.ROUNDED,
@@ -908,8 +941,9 @@ def main() -> None:
         target_baselines = ["proposed_radg", "always_on_hitl", "llm_only"] if baseline == "all" else [baseline]
         all_eval_results: dict[str, list[dict[str, Any]]] = {}
 
+        clean_model = sanitize_model_name(model)
         for b_id in target_baselines:
-            b_output_dir = BASELINES_DIR / b_id / "results" / f"run_{run_id}"
+            b_output_dir = BASELINES_DIR / b_id / "results" / clean_model / run_id
             eval_res = run_evaluation_mode(
                 baseline_id=b_id,
                 corpus=corpus,
@@ -921,7 +955,7 @@ def main() -> None:
             all_eval_results[b_id] = eval_res
 
         if baseline == "all" and len(all_eval_results) > 1:
-            common_output_dir = BASELINES_DIR / "common" / "results" / f"run_{run_id}"
+            common_output_dir = RESULTS_DIR / clean_model / run_id
             generate_comparative_report(
                 all_results=all_eval_results,
                 output_dir=common_output_dir,
@@ -931,8 +965,8 @@ def main() -> None:
                 Panel(
                     f"[bold green]✓ Comparative Multi-Baseline Summary Compiled![/bold green]\n"
                     f"Saved in: [bold cyan]{common_output_dir}[/bold cyan]\n"
-                    f"├── comparative_results.json\n"
-                    f"└── comparative_summary.md",
+                    f"├── comparative_results_{run_id}.json\n"
+                    f"└── comparative_summary_{run_id}.md",
                     title="🏆 Multi-Baseline Benchmark Complete",
                     border_style="green",
                     box=box.ROUNDED,

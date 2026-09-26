@@ -104,29 +104,14 @@ When mapped to the **Four Orthogonal Radar Axes (0 to 100, 100 optimal)**:
 
 ## 5. Artifacts, Visual Figures & Architectural Justifications
 
-All baseline telemetry and visual figures are generated in `tests/evaluation/baselines/llm_only/results/run_<run_id>/`:
+All baseline telemetry and executive visual figures are generated in `tests/evaluation/baselines/llm_only/results/<LLM>/<timestamp>/`:
+- `evaluation_results.json`: Comprehensive telemetry traces (controller rejection codes, RESTConf error payloads, token usage).
+- `evaluation_results.csv`: Flat tabular export.
+- `evaluation_summary.md`: Four Pillars executive markdown report.
+- `llm_only_ablation_dashboard.png / .pdf`: 16:9 widescreen master ablation dashboard for thesis presentations.
 
-### 5.1 4-Stage Operational Sankey Diagram (`deployment_flow_sankey.png / .pdf`)
-- **Architectural Placement Justification:** The Sankey diagram maps the *operational lifecycle and destiny* of intent requests rather than raw compute overhead. It is the primary visual demonstrating the real-world operational consequence of omitting pre-deployment gates.
-- **Visual Breakdown (4 Sequential Stages):**
-  1. **Stage 1 (Intent Ingest):** 20 demands across 4 classes enter the pipeline.
-  2. **Stage 2 (Admission Policy):** Un-gated blind admission forwards **100% (20/20)** of traffic directly to production, achieving **0% pre-deployment interception**.
-  3. **Stage 3 (SDON Controller Execution):** The controller accepts only 5 nominal intents (25%), while 15 intents (75%) trigger severe deployment rejections (Syntax/Domain Conflicts, Missing Parameters, and GN-Model Physical Reach Violations).
-  4. **Stage 4 (Operational Impact):** Explicitly contrasts **Touchless Production Provisioning (5 demands, 25%)** against **Post-Deployment Operator Emergency Interruptions (15 demands, 75%)**, proving that omitting pre-deployment decision mechanisms does not eliminate human labor—it converts controlled pre-flight checks into chaotic, urgent production incident responses.
+*(Note: Cross-baseline comparative figures such as `comparative_deployment_flow_sankey.png / .pdf` and `comparative_pillars_breakdown.png / .pdf` are generated in the global comparative results directory `tests/evaluation/results/<LLM>/<timestamp>/`).*
 
-### 5.2 Multi-Class Comparative Wasted Compute (`wasted_compute_overhead.png / .pdf`)
-- **Focus:** Pure computational efficiency, recovery penalties, and direct side-by-side comparison against Proposed RADG.
-- **Visual Design:** Grouped side-by-side bar chart disaggregated across **Class I (Nominal)**, **Class II (Ambiguous)**, **Class III (Infeasible)**, **Class IV (Adversarial)**, and the **Overall** population using robust median metrics:
-  - **Proposed RADG Floor (PoliMi Navy `#0F2C53`):** Baseline single-turn or controlled pre-deployment recovery compute floor.
-  - **LLM-Only Stacked Bar:** Decomposed into:
-    - *Useful Compute (Dark Slate `#1E293B`):* Turn 2/3 remediation compute that eventually yielded an approved planning report.
-    - *Wasted Overhead (Hatched Burgundy `#85200C`):* Aborted Turn 1 execution where un-gated neural translation crashed into the SDON controller, entirely squandering compute before emergency incident recovery.
-  - **Left Panel (Median Latency):** Exposes that on non-nominal traffic, blind controller rejection and multi-turn error parsing escalate median latency by up to $+150\%-200\%$ compared to safe pre-deployment gating.
-  - **Right Panel (Median Tokens):** Highlights the severe token explosion resulting from ingesting verbose RFC 8040 RESTConf error payloads into LLM context windows during Turn 2 self-repair attempts.
-
-### 5.3 16:9 Master Ablation Dashboard (`llm_only_ablation_dashboard.png / .pdf`)
-- **Presentation Target:** Publication and thesis defense slide-ready composite layout.
-- **Panels:** Combines top KPI statistic cards (100% Pre-Deployment FPR, 75% Controller Incident Rate, +153% Token Inflation), the 4-stage Sankey flow, and the Turn 1 vs. Turn 2 wasted compute breakdown.
-
-### 5.4 Testbed Artifacts
+### 5.1 Testbed Artifacts
 - `mock_restconf_error.json`: Authoritative RFC 8040 RESTConf error payload simulating optical physical-layer reach failure, ASE noise accumulation, and PCE path computation rejection.
+

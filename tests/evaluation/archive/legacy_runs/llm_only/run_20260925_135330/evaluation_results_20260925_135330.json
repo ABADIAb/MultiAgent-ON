@@ -23,6 +23,7 @@
       "ambiguity_catch_rate": 0.0
     },
     "pillar_2": {
+      "fpr_rate": 100.0,
       "uar_rate": 75.0,
       "unfeasible_approved_count": 15,
       "total_approved_count": 20,
@@ -33,15 +34,59 @@
     "pillar_3": {
       "task_completion_rate": 95.0,
       "completed_demands_count": 19,
-      "timeout_demands_count": 0,
+      "timeout_demands_count": 1,
       "max_turns_exceeded_count": 0,
       "mean_e2e_latency_seconds": 45.42,
+      "median_e2e_latency_seconds": 19.72,
       "total_tokens_consumed": 227190,
       "mean_tokens_per_intent": 11359.5,
+      "median_tokens_per_intent": 14828.5,
       "total_hitl_interrupts": 14,
       "mean_hitl_turns": 0.7,
       "nominal_hitl_interrupts": 0,
-      "hitl_efficiency": 100.0
+      "hitl_efficiency": 100.0,
+      "class_metrics": {
+        "I_Nominal": {
+          "count": 5,
+          "mean_latency": 4.4,
+          "median_latency": 2.93,
+          "mean_tokens": 3756.4,
+          "median_tokens": 3638,
+          "total_tokens": 18782,
+          "hitl_count": 0,
+          "mean_hitl": 0
+        },
+        "II_Ambiguous": {
+          "count": 5,
+          "mean_latency": 20.4,
+          "median_latency": 19.91,
+          "mean_tokens": 14982.4,
+          "median_tokens": 14961,
+          "total_tokens": 74912,
+          "hitl_count": 5,
+          "mean_hitl": 1
+        },
+        "III_Infeasible": {
+          "count": 5,
+          "mean_latency": 135.65,
+          "median_latency": 22.9,
+          "mean_tokens": 11826.4,
+          "median_tokens": 14495,
+          "total_tokens": 59132,
+          "hitl_count": 4,
+          "mean_hitl": 0.8
+        },
+        "IV_Adversarial": {
+          "count": 5,
+          "mean_latency": 21.23,
+          "median_latency": 21.59,
+          "mean_tokens": 14872.8,
+          "median_tokens": 15102,
+          "total_tokens": 74364,
+          "hitl_count": 5,
+          "mean_hitl": 1
+        }
+      }
     },
     "pillar_4": {
       "gda_rate": 25.0,

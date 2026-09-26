@@ -12,6 +12,22 @@ from typing import Any
 from tests.evaluation.baselines.common.metrics import compute_pillar_metrics
 
 logger = logging.getLogger(__name__)
+def sanitize_model_name(model_name: str | None) -> str:
+    """Sanitize model name for cross-platform filesystem directory names.
+
+    Replaces ':', '/', '\\', and spaces with '_'.
+    Examples:
+        'qwen2.5:3b' -> 'qwen2.5_3b'
+        'inclusionai/ling-3.0-flash-vl:free' -> 'inclusionai_ling-3.0-flash-vl_free'
+    """
+    if not model_name:
+        return "unknown_model"
+    return (
+        model_name.replace(":", "_")
+        .replace("/", "_")
+        .replace("\\", "_")
+        .replace(" ", "_")
+    )
 
 
 def save_evaluation_results(

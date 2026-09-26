@@ -33,6 +33,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from tests.evaluation.baselines.common.reporter import sanitize_model_name  # noqa: E402
+
 import matplotlib  # noqa: E402
 matplotlib.use("Agg")  # Non-interactive headless backend
 import matplotlib.patches as patches  # noqa: E402
@@ -379,72 +381,90 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
 def get_available_runs(results_dir: Path) -> list[dict[str, Any]]:
     """Scan and return all unique evaluation runs found in results directories."""
     runs: dict[str, dict[str, Any]] = {}
-    eval_results_dir = results_dir / "evaluation_results"
+    baselines_dir = results_dir.parent / "baselines"
 
-    # 1. Scan timestamped JSON files in results_dir
-    for jf in sorted(results_dir.glob("evaluation_results_*.json")):
+    # 1. Scan comparative results in results_dir (both results_dir/[LLM]/[timestamp] and results_dir/run_*)
+    for jf in sorted(results_dir.glob("**/comparative_results*.json")):
         try:
             with open(jf, encoding="utf-8") as f:
                 d = json.load(f)
             meta = d.get("metadata", {})
-            rid = meta.get("run_id") or jf.stem.replace("evaluation_results_", "")
-            runs[rid] = {
+            rid = meta.get("run_id") or jf.parent.name.replace("run_", "")
+            model = meta.get("model", "Unknown")
+            prov = meta.get("provider", "Unknown")
+            demands = meta.get("total_demands")
+            if demands is None and "baselines" in d:
+                first_b = next(iter(d["baselines"].values()), {})
+                demands = first_b.get("total_demands", 0)
+            key = f"comp_{rid}_{sanitize_model_name(model)}"
+            runs[key] = {
                 "run_id": rid,
+                "type": "Comparative",
                 "date": meta.get("date", "Unknown"),
-                "model": meta.get("model", "Unknown"),
-                "provider": meta.get("provider", "Unknown"),
-                "demands": meta.get("total_demands", len(d.get("demands", []))),
-                "gda": d.get("pillar_metrics", {}).get("pillar_4", {}).get("gda_rate", 0.0),
-                "fpr": d.get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", d.get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0)),
+                "model": model,
+                "provider": prov,
+                "demands": demands or 0,
+                "gda": 0.0,
+                "fpr": 0.0,
                 "json_path": jf,
             }
         except Exception:
             continue
 
-    # 2. Scan dedicated run packages in results_dir / evaluation_results / run_*
-    if eval_results_dir.exists():
-        for run_dir in sorted(eval_results_dir.glob("run_*")):
-            jf = next(run_dir.glob("evaluation_results*.json"), None)
-            if jf and jf.exists():
-                rid = run_dir.name.replace("run_", "")
-                if rid not in runs:
-                    try:
-                        with open(jf, encoding="utf-8") as f:
-                            d = json.load(f)
-                        meta = d.get("metadata", {})
-                        runs[rid] = {
-                            "run_id": rid,
-                            "date": meta.get("date", "Unknown"),
-                            "model": meta.get("model", "Unknown"),
-                            "provider": meta.get("provider", "Unknown"),
-                            "demands": meta.get("total_demands", len(d.get("demands", []))),
-                            "gda": d.get("pillar_metrics", {}).get("pillar_4", {}).get("gda_rate", 0.0),
-                            "fpr": d.get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", d.get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0)),
-                            "json_path": jf,
-                        }
-                    except Exception:
-                        continue
+    # 2. Scan baseline evaluation results in results_dir and baselines_dir
+    scan_targets = list(results_dir.glob("**/evaluation_results*.json"))
+    if baselines_dir.exists():
+        scan_targets.extend(baselines_dir.glob("**/evaluation_results*.json"))
 
-    return sorted(runs.values(), key=lambda r: r["run_id"])
+    for jf in sorted(scan_targets):
+        try:
+            with open(jf, encoding="utf-8") as f:
+                d = json.load(f)
+            meta = d.get("metadata", {})
+            rid = meta.get("run_id") or jf.parent.name.replace("run_", "")
+            b_id = meta.get("baseline_id") or "baseline"
+            model = meta.get("model", "Unknown")
+            prov = meta.get("provider", "Unknown")
+            key = f"{b_id}_{rid}_{sanitize_model_name(model)}"
+            if key not in runs:
+                runs[key] = {
+                    "run_id": rid,
+                    "type": b_id,
+                    "date": meta.get("date", "Unknown"),
+                    "model": model,
+                    "provider": prov,
+                    "demands": meta.get("total_demands", len(d.get("demands", []))),
+                    "gda": d.get("pillar_metrics", {}).get("pillar_4", {}).get("gda_rate", 0.0),
+                    "fpr": d.get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", d.get("pillar_metrics", {}).get("pillar_2", {}).get("uar_rate", 0.0)),
+                    "json_path": jf,
+                }
+        except Exception:
+            continue
+
+    return sorted(runs.values(), key=lambda r: (str(r["date"]), str(r["run_id"])))
 
 
 def print_available_runs(results_dir: Path) -> None:
     """Print a clean CLI list of available evaluation runs."""
     runs = get_available_runs(results_dir)
-    print("\n" + "=" * 78)
+    print("\n" + "=" * 80)
     print("AVAILABLE EVALUATION RUNS")
-    print("=" * 78)
+    print("=" * 80)
     if not runs:
         print("  [!] No evaluation runs found in", results_dir)
-        print("=" * 78 + "\n")
+        print("=" * 80 + "\n")
         return
 
     for i, r in enumerate(runs, 1):
-        print(f"  [{i}] Run ID: {r['run_id']}")
+        type_str = f"[{r.get('type', 'Run')}]"
+        print(f"  [{i}] {type_str} Run ID: {r['run_id']}")
         print(f"      Date:     {r['date']} | Model: {r['model']} ({r['provider']})")
-        print(f"      Demands:  {r['demands']} | GDA: {r['gda']:.1f}% | FPR: {r['fpr']:.1f}%")
+        if r.get("type") == "Comparative":
+            print(f"      Demands:  {r['demands']} | Multi-Baseline Comparison Matrix")
+        else:
+            print(f"      Demands:  {r['demands']} | GDA: {r['gda']:.1f}% | FPR: {r['fpr']:.1f}%")
         print(f"      Source:   {r['json_path']}")
-        print("  " + "-" * 74)
+        print("  " + "-" * 76)
     print(f"Total available runs: {len(runs)}")
     print("Usage: uv run python tests/evaluation/generate_visuals.py <RUN_ID>\n")
 
@@ -458,50 +478,38 @@ def resolve_target_json(target: str, results_dir: Path) -> Path:
 
     # 2. Literal path check (directory)
     if p.is_dir():
-        cand = next(p.glob("evaluation_results*.json"), None) or next(p.glob("comparative_results*.json"), None)
+        cand = next(p.glob("comparative_results*.json"), None) or next(p.glob("evaluation_results*.json"), None)
         if cand and cand.exists():
             return cand.resolve()
 
-    eval_results_dir = results_dir / "evaluation_results"
     baselines_dir = results_dir.parent / "baselines"
-
-    # 3. Clean run_id (remove 'run_' prefix if provided)
     clean_id = target.strip().replace("run_", "")
 
-    # Check baselines directory structure: tests/evaluation/baselines/<baseline>/results/run_<clean_id>
-    for b_sub in ("common", "proposed_radg", "always_on_hitl", "llm_only"):
-        b_cand = baselines_dir / b_sub / "results" / f"run_{clean_id}"
-        if b_cand.is_dir():
-            cand = next(b_cand.glob("comparative_results*.json"), None) or next(b_cand.glob("evaluation_results*.json"), None)
-            if cand and cand.exists():
+    # 3. Check comparative results under results_dir (including [LLM]/[timestamp] and legacy run_*)
+    for cand in sorted(results_dir.glob(f"**/*{clean_id}*/*.json"), reverse=True):
+        if "comparative_results" in cand.name or "evaluation_results" in cand.name:
+            return cand.resolve()
+
+    # 4. Check baselines directory structure: tests/evaluation/baselines/<baseline>/results/**/<clean_id>
+    if baselines_dir.exists():
+        for cand in sorted(baselines_dir.glob(f"**/*{clean_id}*/*.json"), reverse=True):
+            if "evaluation_results" in cand.name or "comparative_results" in cand.name:
                 return cand.resolve()
 
-    # Check evaluation_results_<clean_id>.json in results_dir
-    cand1 = results_dir / f"evaluation_results_{clean_id}.json"
+    # 5. Check direct files in results_dir
+    cand1 = results_dir / f"comparative_results_{clean_id}.json"
     if cand1.exists():
         return cand1.resolve()
+    cand2 = results_dir / f"evaluation_results_{clean_id}.json"
+    if cand2.exists():
+        return cand2.resolve()
 
-    # Check evaluation_results/run_<clean_id>/evaluation_results*.json
-    run_cand = eval_results_dir / f"run_{clean_id}"
-    if run_cand.is_dir():
-        cand2 = next(run_cand.glob("evaluation_results*.json"), None)
-        if cand2 and cand2.exists():
-            return cand2.resolve()
-
-    # Check evaluation_results/<target>/evaluation_results*.json
-    target_cand = eval_results_dir / target
-    if target_cand.is_dir():
-        cand3 = next(target_cand.glob("evaluation_results*.json"), None)
-        if cand3 and cand3.exists():
-            return cand3.resolve()
-
-    # Check if target is 'latest'
+    # 6. Check if target is 'latest'
     if target.lower() in ("latest", "last"):
         all_runs = get_available_runs(results_dir)
         if all_runs:
             return all_runs[-1]["json_path"]
 
-    # Not found: provide informative error with available runs
     available = [r["run_id"] for r in get_available_runs(results_dir)]
     available_str = ", ".join(f"'{rid}'" for rid in available) if available else "None"
     raise FileNotFoundError(
@@ -509,6 +517,7 @@ def resolve_target_json(target: str, results_dir: Path) -> Path:
         f"Available Run IDs: {available_str}\n"
         f"Run 'uv run python tests/evaluation/generate_visuals.py --list' to see all."
     )
+
 
 def plot_deployment_flow_sankey(results_data: dict[str, Any], output_prefix: Path) -> None:
     """Generate a 4-stage Sankey diagram showing intent ingestion, admission, controller verification, and operational human burden."""
@@ -1190,26 +1199,28 @@ def find_matching_proposed_data(
 
     run_id = always_on_data.get("metadata", {}).get("run_id")
     if run_id:
-        target_run_dir = proposed_results_dir / f"run_{run_id}"
-        if target_run_dir.exists():
-            for f in sorted(target_run_dir.glob("evaluation_results*.json"), reverse=True):
+        clean_run = run_id.replace("run_", "")
+        for cand in sorted(proposed_results_dir.glob(f"**/*{clean_run}*/*.json"), reverse=True):
+            if "evaluation_results" in cand.name:
                 try:
-                    with open(f, encoding="utf-8") as fp:
+                    with open(cand, encoding="utf-8") as fp:
                         return json.load(fp)
                 except Exception:
                     pass
 
     # Fallback to latest run in proposed_radg
     if proposed_results_dir.exists():
-        run_dirs = [d for d in proposed_results_dir.iterdir() if d.is_dir() and d.name.startswith("run_")]
-        run_dirs.sort(key=lambda d: d.name, reverse=True)
-        for rd in run_dirs:
-            for f in sorted(rd.glob("evaluation_results*.json"), reverse=True):
-                try:
-                    with open(f, encoding="utf-8") as fp:
-                        return json.load(fp)
-                except Exception:
-                    pass
+        all_jsons = sorted(
+            proposed_results_dir.glob("**/evaluation_results*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        for jf in all_jsons:
+            try:
+                with open(jf, encoding="utf-8") as fp:
+                    return json.load(fp)
+            except Exception:
+                pass
 
     # Legacy archive fallback
     legacy_json = project_root / "tests" / "evaluation" / "archive" / "results_legacy" / "evaluation_results.json"
@@ -1800,19 +1811,28 @@ def generate_run_visuals(
 
     meta = data.get("metadata", {})
     run_id = meta.get("run_id", "latest")
+    clean_run_id = run_id.replace("run_", "")
+    model_name = meta.get("model", "unknown_model")
+    clean_model = sanitize_model_name(model_name)
+    baseline_id = meta.get("baseline_id") or "proposed_radg"
 
     project_root = Path(__file__).resolve().parent.parent.parent
-    results_root = project_root / "tests" / "evaluation" / "results"
-    eval_results_root = results_root / "evaluation_results"
 
     if target_dir is None:
         # If json_path is already inside the run package directory, keep that directory
-        if json_path.parent.name == f"run_{run_id}" or (
-            json_path.parent.name.startswith("run_") and json_path.parent.parent == eval_results_root
-        ):
+        if json_path.parent != json_path.parent.parent:
             target_dir = json_path.parent
         else:
-            target_dir = eval_results_root / f"run_{run_id}"
+            target_dir = (
+                project_root
+                / "tests"
+                / "evaluation"
+                / "baselines"
+                / baseline_id
+                / "results"
+                / clean_model
+                / clean_run_id
+            )
 
     target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1834,7 +1854,6 @@ def generate_run_visuals(
             shutil.copy2(md_source, dest_md)
 
     # 4. Generate figures based on baseline type
-    baseline_id = meta.get("baseline_id") or "proposed_radg"
     if baseline_id == "llm_only":
         plot_llm_only_dashboard(data, target_dir / "llm_only_ablation_dashboard")
 
@@ -1843,6 +1862,8 @@ def generate_run_visuals(
             "deployment_flow_sankey",
             "wasted_compute_overhead",
             "deployment_outcomes",
+            "scalability_projection",
+            "gate_accuracy_matrix",
         ]:
             for ext in [".png", ".pdf"]:
                 old_f = target_dir / f"{old_stem}{ext}"
@@ -1853,11 +1874,11 @@ def generate_run_visuals(
         print("    └── llm_only_ablation_dashboard.png / .pdf")
     elif baseline_id == "always_on_hitl":
         proposed_data = find_matching_proposed_data(data, json_path)
-        plot_always_on_scalability_projection(data, target_dir / "scalability_projection", proposed_data=proposed_data)
         plot_always_on_dashboard(data, target_dir / "always_on_ablation_dashboard", proposed_data=proposed_data)
 
-        # Prune redundant figures
+        # Prune redundant figures (including scalability_projection)
         for old_stem in [
+            "scalability_projection",
             "gate_accuracy_matrix",
             "latency_tokens_overhead",
             "presentation_slide_dashboard",
@@ -1870,16 +1891,16 @@ def generate_run_visuals(
                     old_f.unlink()
 
         print(f"[✓] Visual assets updated for Always-On HITL in: {target_dir}")
-        print("    ├── scalability_projection.png / .pdf (Cumulative Step Chart: Cognitive Fatigue & Savings)")
         print("    └── always_on_ablation_dashboard.png / .pdf (16:9 Master Slide-Ready Dashboard)")
     else:
-        plot_gate_accuracy_matrix(data, target_dir / "gate_accuracy_matrix")
         plot_presentation_slide_dashboard(data, target_dir / "presentation_slide_dashboard")
 
-        # Prune redundant figures
+        # Prune redundant figures (including gate_accuracy_matrix)
         for old_stem in [
+            "gate_accuracy_matrix",
             "deployment_flow_sankey",
             "latency_tokens_overhead",
+            "scalability_projection",
         ]:
             for ext in [".png", ".pdf"]:
                 old_f = target_dir / f"{old_stem}{ext}"
@@ -1887,7 +1908,6 @@ def generate_run_visuals(
                     old_f.unlink()
 
         print(f"[✓] Visual assets updated in: {target_dir}")
-        print("    ├── gate_accuracy_matrix.png / .pdf")
         print("    └── presentation_slide_dashboard.png / .pdf")
 
     return target_dir
@@ -1905,16 +1925,16 @@ def resolve_baseline_data(baseline_id: str, comparative_data: dict[str, Any]) ->
 
     project_root = Path(__file__).resolve().parent.parent.parent
     base_dir = project_root / "tests" / "evaluation" / "baselines" / baseline_id / "results"
-    
+
     # 1. First check explicit included_runs metadata
     included_runs = comparative_data.get("metadata", {}).get("included_runs", {})
     specific_run = included_runs.get(baseline_id)
     if specific_run:
-        target_dir = base_dir / specific_run if specific_run.startswith("run_") else base_dir / f"run_{specific_run}"
-        if target_dir.exists():
-            for f in sorted(target_dir.glob("evaluation_results*.json"), reverse=True):
+        clean_spec = specific_run.replace("run_", "")
+        for cand in sorted(base_dir.glob(f"**/*{clean_spec}*/*.json"), reverse=True):
+            if "evaluation_results" in cand.name:
                 try:
-                    with open(f, encoding="utf-8") as fp:
+                    with open(cand, encoding="utf-8") as fp:
                         return json.load(fp)
                 except Exception:
                     pass
@@ -1922,26 +1942,28 @@ def resolve_baseline_data(baseline_id: str, comparative_data: dict[str, Any]) ->
     # 2. Check matching comparative run_id
     run_id = comparative_data.get("metadata", {}).get("run_id")
     if run_id:
-        target_dir = base_dir / f"run_{run_id}"
-        if target_dir.exists():
-            for f in sorted(target_dir.glob("evaluation_results*.json"), reverse=True):
+        clean_id = run_id.replace("run_", "")
+        for cand in sorted(base_dir.glob(f"**/*{clean_id}*/*.json"), reverse=True):
+            if "evaluation_results" in cand.name:
                 try:
-                    with open(f, encoding="utf-8") as fp:
+                    with open(cand, encoding="utf-8") as fp:
                         return json.load(fp)
                 except Exception:
                     pass
 
-    # 3. Fallback to latest run
+    # 3. Fallback to latest run under base_dir
     if base_dir.exists():
-        runs = [d for d in base_dir.iterdir() if d.is_dir() and d.name.startswith("run_")]
-        runs.sort(key=lambda d: d.name, reverse=True)
-        for rd in runs:
-            for f in sorted(rd.glob("evaluation_results*.json"), reverse=True):
-                try:
-                    with open(f, encoding="utf-8") as fp:
-                        return json.load(fp)
-                except Exception:
-                    pass
+        all_jsons = sorted(
+            base_dir.glob("**/evaluation_results*.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        for jf in all_jsons:
+            try:
+                with open(jf, encoding="utf-8") as fp:
+                    return json.load(fp)
+            except Exception:
+                pass
 
     return None
 
@@ -2677,8 +2699,20 @@ def generate_comparative_visuals(
     with open(comparative_json_path, encoding="utf-8") as f:
         data = json.load(f)
 
+    meta = data.get("metadata", {})
+    run_id = meta.get("run_id", "latest")
+    clean_run_id = run_id.replace("run_", "")
+    model_name = meta.get("model", "unknown_model")
+    clean_model = sanitize_model_name(model_name)
+
+    project_root = Path(__file__).resolve().parent.parent.parent
+    results_root = project_root / "tests" / "evaluation" / "results"
+
     if target_dir is None:
-        target_dir = comparative_json_path.parent
+        if comparative_json_path.parent != comparative_json_path.parent.parent:
+            target_dir = comparative_json_path.parent
+        else:
+            target_dir = results_root / clean_model / clean_run_id
 
     target_dir.mkdir(parents=True, exist_ok=True)
 
@@ -2699,6 +2733,11 @@ def generate_comparative_visuals(
         data, target_dir / "comparative_scalability_projection"
     )
     print("    ├── comparative_scalability_projection.png / .pdf")
+
+    # Point 2: Generate gate_accuracy_matrix from proposed_radg in comparative results folder
+    if prop_data:
+        plot_gate_accuracy_matrix(prop_data, target_dir / "gate_accuracy_matrix")
+        print("    ├── gate_accuracy_matrix.png / .pdf")
 
     print(f"[✓] Comparative visual assets generated in: {target_dir}")
     print("    ├── comparative_pillars_breakdown.png / .pdf")
