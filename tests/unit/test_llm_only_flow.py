@@ -72,7 +72,7 @@ def test_llm_only_graph_turn_flow(monkeypatch: pytest.MonkeyPatch) -> None:
     }
 
     # Pass 1 & Pass 2 happen in the first stream call!
-    events_1 = list(graph.stream(initial_state, config=config, stream_mode="updates"))
+    _ = list(graph.stream(initial_state, config=config, stream_mode="updates"))
     state_after_stream_1 = graph.get_state(config)
 
     # Should pause at radg interrupt (Turn 2 failed blind retry)
@@ -90,7 +90,7 @@ def test_llm_only_graph_turn_flow(monkeypatch: pytest.MonkeyPatch) -> None:
         "action": "replan",
         "feedback": "Route traffic from Berlin to Frankfurt with at least 12 dB GSNR.",
     }
-    events_2 = list(graph.stream(Command(resume=resume_payload), config=config, stream_mode="updates"))
+    _ = list(graph.stream(Command(resume=resume_payload), config=config, stream_mode="updates"))
     state_after_stream_2 = graph.get_state(config)
 
     # Turn 3 completes to END!

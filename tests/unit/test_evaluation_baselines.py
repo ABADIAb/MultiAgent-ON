@@ -242,9 +242,10 @@ class TestLLMOnlyEvaluator:
             json.dump(data, f)
 
         out_dir = generate_run_visuals(json_path, target_dir=test_dir)
-        assert (out_dir / "deployment_flow_sankey.png").exists()
-        assert (out_dir / "wasted_compute_overhead.png").exists()
         assert (out_dir / "llm_only_ablation_dashboard.png").exists()
+        assert (out_dir / "llm_only_ablation_dashboard.pdf").exists()
+        assert not (out_dir / "deployment_flow_sankey.png").exists()
+        assert not (out_dir / "wasted_compute_overhead.png").exists()
 
     def test_always_on_hitl_visuals_generation(self, tmp_path: pytest.TempPathFactory) -> None:
         import json
@@ -280,12 +281,11 @@ class TestLLMOnlyEvaluator:
         old_file.write_text("dummy")
 
         out_dir = generate_run_visuals(json_path, target_dir=test_dir)
-        assert (out_dir / "wasted_compute_overhead.png").exists()
-        assert (out_dir / "wasted_compute_overhead.pdf").exists()
         assert (out_dir / "scalability_projection.png").exists()
         assert (out_dir / "scalability_projection.pdf").exists()
         assert (out_dir / "always_on_ablation_dashboard.png").exists()
         assert (out_dir / "always_on_ablation_dashboard.pdf").exists()
+        assert not (out_dir / "wasted_compute_overhead.png").exists()
         assert not (out_dir / "gate_accuracy_matrix.png").exists()
 
 
@@ -595,5 +595,43 @@ class TestAlwaysOnCorpusConvergence:
         assert results[2]["id"] == "inf_01"
         assert results[2]["baseline"] == "always_on_hitl"
         assert results[2]["initial_action"] == "replan"
+
+
+class TestComparativeVisualsGeneration:
+    """Verify generation of comparative evaluation visuals including scalability projection."""
+
+    def test_comparative_scalability_projection_generation(self, tmp_path: pytest.TempPathFactory) -> None:
+        from pathlib import Path
+        from tests.evaluation.generate_visuals import plot_comparative_scalability_projection
+
+        test_dir = Path(str(tmp_path))
+        baselines_data = {
+            "proposed_radg": {
+                "demands": [
+                    {"id": "d1", "class": "I_Nominal", "hitl_count": 0, "controller_error": False, "total_elapsed_seconds": 3.0},
+                    {"id": "d2", "class": "II_Ambiguous", "hitl_count": 1, "controller_error": False, "total_elapsed_seconds": 8.0},
+                    {"id": "d3", "class": "III_Infeasible", "hitl_count": 1, "controller_error": False, "total_elapsed_seconds": 12.0},
+                ]
+            },
+            "always_on_hitl": {
+                "demands": [
+                    {"id": "d1", "class": "I_Nominal", "hitl_count": 1, "controller_error": False, "total_elapsed_seconds": 10.0},
+                    {"id": "d2", "class": "II_Ambiguous", "hitl_count": 1, "controller_error": False, "total_elapsed_seconds": 11.0},
+                    {"id": "d3", "class": "III_Infeasible", "hitl_count": 1, "controller_error": False, "total_elapsed_seconds": 13.0},
+                ]
+            },
+            "llm_only": {
+                "demands": [
+                    {"id": "d1", "class": "I_Nominal", "hitl_count": 0, "controller_error": False, "total_elapsed_seconds": 2.5},
+                    {"id": "d2", "class": "II_Ambiguous", "hitl_count": 0, "controller_error": True, "total_elapsed_seconds": 3.0},
+                    {"id": "d3", "class": "III_Infeasible", "hitl_count": 0, "controller_error": True, "total_elapsed_seconds": 3.0},
+                ]
+            },
+        }
+
+        plot_comparative_scalability_projection(baselines_data, test_dir)
+        assert (test_dir / "comparative_scalability_projection.png").exists()
+        assert (test_dir / "comparative_scalability_projection.pdf").exists()
+
 
 

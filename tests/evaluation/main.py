@@ -584,7 +584,7 @@ def run_comparative_mode(
             generate_run_visuals(json_file, target_dir=r_path)
             console.print(f"  [green]✓[/green] [bold white]{b_id.upper()}:[/bold white] Updated summary & visuals in [cyan]{r_path.name}[/cyan]")
         except Exception as e:
-            logger.warning(f"Could not regenerate artifacts for {b_id}: {e}")
+            console.print(f"  [yellow]Warning: Could not regenerate artifacts for {b_id}: {e}[/yellow]")
 
     run_id = time.strftime("%Y%m%d_%H%M%S")
     common_output_dir = BASELINES_DIR / "common" / "results" / f"run_{run_id}"
@@ -610,7 +610,9 @@ def run_comparative_mode(
             f"  ├── comparative_results.json\n"
             f"  ├── comparative_summary.md\n"
             f"  ├── comparative_pillars_breakdown.png / .pdf\n"
-            f"  └── comparative_radar_pillars.png / .pdf",
+            f"  ├── comparative_radar_pillars.png / .pdf\n"
+            f"  ├── comparative_deployment_flow_sankey.png / .pdf\n"
+            f"  └── comparative_scalability_projection.png / .pdf",
             title="🏆 Comparison Synthesized Successfully",
             border_style="green",
             box=box.ROUNDED,

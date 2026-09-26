@@ -387,7 +387,7 @@ def generate_comparative_report(
         p_radg.get("pillar_3", {}),
         p_radg.get("pillar_4", {}),
     )
-    p1_hitl, p2_hitl, p3_hitl, p4_hitl = (
+    p1_hitl, _p2_hitl, p3_hitl, p4_hitl = (
         p_hitl.get("pillar_1", {}),
         p_hitl.get("pillar_2", {}),
         p_hitl.get("pillar_3", {}),

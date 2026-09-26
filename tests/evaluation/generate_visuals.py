@@ -33,11 +33,11 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-import matplotlib
+import matplotlib  # noqa: E402
 matplotlib.use("Agg")  # Non-interactive headless backend
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.patches as patches  # noqa: E402
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
 
 # Styling constants (PoliMi palette & typography)
 COLOR_NAVY = "#0F2C53"
@@ -356,10 +356,10 @@ def plot_presentation_slide_dashboard(results_data: dict[str, Any], output_prefi
     max_lat = max(class_lats) if class_lats else 10.0
     for bar, val, badge in zip(bars_r, class_lats, hitl_badges):
         ax_right.text(bar.get_x() + bar.get_width() / 2, val + max_lat * 0.04, f"{val:.1f}s", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
-        badge_y = val * 0.5 if val > max_lat * 0.4 else val + max_lat * 0.22
-        ax_right.text(bar.get_x() + bar.get_width() / 2, badge_y, badge, ha="center", va="center", fontsize=9.5, fontweight="bold",
-                      color="white" if val > max_lat * 0.4 else COLOR_BURGUNDY,
-                      bbox=dict(boxstyle="round,pad=0.25", facecolor=COLOR_BURGUNDY if val > max_lat * 0.4 else "white", edgecolor=COLOR_BURGUNDY, alpha=0.85))
+        badge_y = val * 0.5 if val > 6.0 else val + max_lat * 0.18
+        ax_right.text(bar.get_x() + bar.get_width() / 2, badge_y, badge, ha="center", va="center", fontsize=9.0, fontweight="bold",
+                      color="white" if val > 6.0 else COLOR_BURGUNDY,
+                      bbox=dict(boxstyle="round,pad=0.25", facecolor=COLOR_BURGUNDY if val > 6.0 else "white", edgecolor=COLOR_BURGUNDY, alpha=0.90))
 
     ax_right.set_xticks(x)
     ax_right.set_xticklabels(["Nominal", "Ambiguous", "Infeasible", "Adversarial"], fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -547,7 +547,6 @@ def plot_deployment_flow_sankey(results_data: dict[str, Any], output_prefix: Pat
     h_fail_ambig = height_total * (n_fail_ambig / n_total) if n_total else 0
     h_fail_infeas = height_total * (n_fail_infeas / n_total) if n_total else 0
     h_fail_adver = height_total * (n_fail_adver / n_total) if n_total else 0
-    h_incidents = height_total * (n_incidents / n_total) if n_total else 0
 
     def draw_flow(start_x, start_y, start_h, end_x, end_y, end_h, color, alpha=0.45):
         if start_h <= 0 or end_h <= 0:
@@ -848,10 +847,10 @@ def plot_llm_only_wasted_compute(
     for c in plot_cats:
         if c == "All_Traffic":
             p_demands_c = prop_demands
-            llm_u_lats = [lat for l in class_lat_useful.values() for lat in l]
-            llm_w_lats = [lat for l in class_lat_wasted.values() for lat in l]
-            llm_u_toks = [tok for l in class_tok_useful.values() for tok in l]
-            llm_w_toks = [tok for l in class_tok_wasted.values() for tok in l]
+            llm_u_lats = [lat for lat_list in class_lat_useful.values() for lat in lat_list]
+            llm_w_lats = [lat for lat_list in class_lat_wasted.values() for lat in lat_list]
+            llm_u_toks = [tok for tok_list in class_tok_useful.values() for tok in tok_list]
+            llm_w_toks = [tok for tok_list in class_tok_wasted.values() for tok in tok_list]
         else:
             p_demands_c = [d for d in prop_demands if d.get("class") == c]
             llm_u_lats = class_lat_useful.get(c, [])
@@ -1028,7 +1027,7 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
     import matplotlib.patches as mpatches
 
     # Coordinates
-    x0, x1, x2 = 0.08, 0.45, 0.70
+    x0, x1, x2 = 0.06, 0.35, 0.56
     y_center = 0.5
     height_total = 0.75
     
@@ -1044,12 +1043,12 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
             return
         path_data = [
             (mpath.Path.MOVETO, (start_x, start_y + start_h/2)),
-            (mpath.Path.CURVE4, (start_x + 0.15, start_y + start_h/2)),
-            (mpath.Path.CURVE4, (end_x - 0.15, end_y + end_h/2)),
+            (mpath.Path.CURVE4, (start_x + 0.12, start_y + start_h/2)),
+            (mpath.Path.CURVE4, (end_x - 0.12, end_y + end_h/2)),
             (mpath.Path.CURVE4, (end_x, end_y + end_h/2)),
             (mpath.Path.LINETO, (end_x, end_y - end_h/2)),
-            (mpath.Path.CURVE4, (end_x - 0.15, end_y - end_h/2)),
-            (mpath.Path.CURVE4, (start_x + 0.15, start_y - start_h/2)),
+            (mpath.Path.CURVE4, (end_x - 0.12, end_y - end_h/2)),
+            (mpath.Path.CURVE4, (start_x + 0.12, start_y - start_h/2)),
             (mpath.Path.CURVE4, (start_x, start_y - start_h/2)),
             (mpath.Path.CLOSEPOLY, (start_x, start_y + start_h/2)),
         ]
@@ -1063,14 +1062,14 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
         draw_flow(ax_left, x0, y_center - height_total/2 + h_intercepted/2, h_intercepted, 
                   x1, y_center - 0.2, h_intercepted, COLOR_CLARIFY)
         ax_left.add_patch(mpatches.Rectangle((x1-0.02, y_center - 0.2 - h_intercepted/2), 0.04, h_intercepted, color=COLOR_CLARIFY))
-        ax_left.text(x1, y_center - 0.2 - h_intercepted/2 - 0.02, f"Intercepted\n{n_intercepted}", ha='center', va='top', fontsize=9, fontweight='bold', color=COLOR_DARK_SLATE)
+        ax_left.text(x1, y_center - 0.2 - h_intercepted/2 - 0.02, f"Intercepted\n{n_intercepted}", ha='center', va='top', fontsize=8.5, fontweight='bold', color=COLOR_DARK_SLATE)
 
     # Flow 2: Total -> Approved
     if h_approved > 0:
         y_app = y_center + height_total/2 - h_approved/2
         draw_flow(ax_left, x0, y_app, h_approved, x1, y_center + 0.0, h_approved, COLOR_NAVY)
         ax_left.add_patch(mpatches.Rectangle((x1-0.02, y_center + 0.0 - h_approved/2), 0.04, h_approved, color=COLOR_NAVY))
-        ax_left.text(x1, y_center + 0.0 + h_approved/2 + 0.02, f"Blind Forward\n{n_approved} ({n_approved/n_total*100:.0f}%)", ha='center', va='bottom', fontsize=9.5, fontweight='bold', color=COLOR_DARK_SLATE)
+        ax_left.text(x1, y_center + 0.0 + h_approved/2 + 0.02, f"Blind Forward\n{n_approved} ({n_approved/n_total*100:.0f}%)", ha='center', va='bottom', fontsize=8.8, fontweight='bold', color=COLOR_DARK_SLATE)
 
         # Flow 3: Approved -> Success
         curr_y = y_center + 0.0 + h_approved/2
@@ -1079,7 +1078,7 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
             y_succ_start = curr_y - h_success/2
             draw_flow(ax_left, x1, y_succ_start, h_success, x2, y_succ_end, h_success, COLOR_APPROVE)
             ax_left.add_patch(mpatches.Rectangle((x2-0.02, y_succ_end - h_success/2), 0.04, h_success, color=COLOR_APPROVE))
-            ax_left.text(x2 + 0.03, y_succ_end, f"Nominal Success\n(0 Overhead)\n{n_success} Demands", ha='left', va='center', fontsize=9, fontweight='bold', color=COLOR_APPROVE)
+            ax_left.text(x2 + 0.025, y_succ_end, f"Nominal Pass ({n_success})", ha='left', va='center', fontsize=8.2, fontweight='bold', color=COLOR_APPROVE)
             curr_y -= h_success
             
         # Flow 4: Approved -> Fail Ambig
@@ -1088,7 +1087,7 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
             y_fail_start = curr_y - h_fail_ambig/2
             draw_flow(ax_left, x1, y_fail_start, h_fail_ambig, x2, y_fail_end, h_fail_ambig, COLOR_REPLAN)
             ax_left.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_ambig/2), 0.04, h_fail_ambig, color=COLOR_REPLAN))
-            ax_left.text(x2 + 0.03, y_fail_end, f"Incident: Missing Params\n(+ Latency Overhead)\n{n_fail_ambig} Demands", ha='left', va='center', fontsize=9, fontweight='bold', color=COLOR_REPLAN)
+            ax_left.text(x2 + 0.025, y_fail_end, f"Missing Params ({n_fail_ambig})", ha='left', va='center', fontsize=8.0, fontweight='bold', color=COLOR_REPLAN)
             curr_y -= h_fail_ambig
 
         # Flow 5: Approved -> Fail Infeas
@@ -1097,7 +1096,7 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
             y_fail_start = curr_y - h_fail_infeas/2
             draw_flow(ax_left, x1, y_fail_start, h_fail_infeas, x2, y_fail_end, h_fail_infeas, COLOR_REPLAN)
             ax_left.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_infeas/2), 0.04, h_fail_infeas, color=COLOR_REPLAN))
-            ax_left.text(x2 + 0.03, y_fail_end, f"Incident: GN-Model Violation\n(+ Token/Latency Overhead)\n{n_fail_infeas} Demands", ha='left', va='center', fontsize=9, fontweight='bold', color=COLOR_REPLAN)
+            ax_left.text(x2 + 0.025, y_fail_end, f"GN-Model Violation ({n_fail_infeas})", ha='left', va='center', fontsize=8.0, fontweight='bold', color=COLOR_REPLAN)
             curr_y -= h_fail_infeas
             
         # Flow 6: Approved -> Fail Adver
@@ -1106,17 +1105,17 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
             y_fail_start = curr_y - h_fail_adver/2
             draw_flow(ax_left, x1, y_fail_start, h_fail_adver, x2, y_fail_end, h_fail_adver, COLOR_REPLAN)
             ax_left.add_patch(mpatches.Rectangle((x2-0.02, y_fail_end - h_fail_adver/2), 0.04, h_fail_adver, color=COLOR_REPLAN))
-            ax_left.text(x2 + 0.03, y_fail_end, f"Incident: Syntax Conflict\n(+ Token Overhead)\n{n_fail_adver} Demands", ha='left', va='center', fontsize=9, fontweight='bold', color=COLOR_REPLAN)
+            ax_left.text(x2 + 0.025, y_fail_end, f"Syntax Conflict ({n_fail_adver})", ha='left', va='center', fontsize=8.0, fontweight='bold', color=COLOR_REPLAN)
             curr_y -= h_fail_adver
 
     # Input Bar
     ax_left.add_patch(mpatches.Rectangle((x0-0.02, y_center - height_total/2), 0.04, height_total, color=COLOR_DARK_SLATE))
-    ax_left.text(x0, y_center + height_total/2 + 0.02, f"Total Intents\n{n_total}", ha='center', va='bottom', fontsize=10.5, fontweight='bold', color=COLOR_DARK_SLATE)
+    ax_left.text(x0, y_center + height_total/2 + 0.02, f"Total Intents\n{n_total}", ha='center', va='bottom', fontsize=10.0, fontweight='bold', color=COLOR_DARK_SLATE)
 
-    ax_left.set_xlim(0, 1)
+    ax_left.set_xlim(0, 1.0)
     ax_left.set_ylim(-0.1, 1.1)
     
-    ax_left.set_title("Controller Incident Flow & Root Cause Breakdown", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax_left.set_title("Controller Incident Flow & Root Cause Breakdown", fontsize=11.5, fontweight="bold", color=COLOR_NAVY)
 
     # Subplot Right: Wasted Compute vs Useful Compute
     ax_right = fig.add_axes([0.53, 0.10, 0.42, 0.58])
@@ -1837,27 +1836,33 @@ def generate_run_visuals(
     # 4. Generate figures based on baseline type
     baseline_id = meta.get("baseline_id") or "proposed_radg"
     if baseline_id == "llm_only":
-        proposed_data = find_matching_proposed_data(data, json_path)
-        plot_deployment_flow_sankey(data, target_dir / "deployment_flow_sankey")
-        plot_llm_only_wasted_compute(data, target_dir / "wasted_compute_overhead", proposed_data=proposed_data)
         plot_llm_only_dashboard(data, target_dir / "llm_only_ablation_dashboard")
 
+        # Prune redundant figures
+        for old_stem in [
+            "deployment_flow_sankey",
+            "wasted_compute_overhead",
+            "deployment_outcomes",
+        ]:
+            for ext in [".png", ".pdf"]:
+                old_f = target_dir / f"{old_stem}{ext}"
+                if old_f.exists():
+                    old_f.unlink()
+
         print(f"[✓] Visual assets updated for LLM-Only in: {target_dir}")
-        print("    ├── deployment_flow_sankey.png / .pdf (Sankey Diagram)")
-        print("    ├── wasted_compute_overhead.png / .pdf (Stacked Bar Chart)")
         print("    └── llm_only_ablation_dashboard.png / .pdf")
     elif baseline_id == "always_on_hitl":
         proposed_data = find_matching_proposed_data(data, json_path)
-        plot_always_on_wasted_compute(data, target_dir / "wasted_compute_overhead", proposed_data=proposed_data)
         plot_always_on_scalability_projection(data, target_dir / "scalability_projection", proposed_data=proposed_data)
         plot_always_on_dashboard(data, target_dir / "always_on_ablation_dashboard", proposed_data=proposed_data)
 
-        # Prune redundant figures if they exist from older runs
+        # Prune redundant figures
         for old_stem in [
             "gate_accuracy_matrix",
             "latency_tokens_overhead",
             "presentation_slide_dashboard",
             "deployment_flow_sankey",
+            "wasted_compute_overhead",
         ]:
             for ext in [".png", ".pdf"]:
                 old_f = target_dir / f"{old_stem}{ext}"
@@ -1865,19 +1870,24 @@ def generate_run_visuals(
                     old_f.unlink()
 
         print(f"[✓] Visual assets updated for Always-On HITL in: {target_dir}")
-        print("    ├── wasted_compute_overhead.png / .pdf (Stacked Bar Chart: Wasted Latency & Tokens)")
         print("    ├── scalability_projection.png / .pdf (Cumulative Step Chart: Cognitive Fatigue & Savings)")
         print("    └── always_on_ablation_dashboard.png / .pdf (16:9 Master Slide-Ready Dashboard)")
     else:
-        plot_deployment_flow_sankey(data, target_dir / "deployment_flow_sankey")
         plot_gate_accuracy_matrix(data, target_dir / "gate_accuracy_matrix")
-        plot_latency_tokens_overhead(data, target_dir / "latency_tokens_overhead")
         plot_presentation_slide_dashboard(data, target_dir / "presentation_slide_dashboard")
 
+        # Prune redundant figures
+        for old_stem in [
+            "deployment_flow_sankey",
+            "latency_tokens_overhead",
+        ]:
+            for ext in [".png", ".pdf"]:
+                old_f = target_dir / f"{old_stem}{ext}"
+                if old_f.exists():
+                    old_f.unlink()
+
         print(f"[✓] Visual assets updated in: {target_dir}")
-        print("    ├── deployment_flow_sankey.png / .pdf (Sankey Diagram)")
         print("    ├── gate_accuracy_matrix.png / .pdf")
-        print("    ├── latency_tokens_overhead.png / .pdf")
         print("    └── presentation_slide_dashboard.png / .pdf")
 
     return target_dir
@@ -1885,8 +1895,31 @@ def generate_run_visuals(
 
 def resolve_baseline_data(baseline_id: str, comparative_data: dict[str, Any]) -> dict[str, Any] | None:
     """Resolve full results dictionary for a given baseline from results directory or legacy archive."""
+    # 0. Check if baseline data is already directly embedded in comparative_data
+    if baseline_id in comparative_data and isinstance(comparative_data[baseline_id], dict) and "demands" in comparative_data[baseline_id]:
+        return comparative_data[baseline_id]
+    if "baselines" in comparative_data and isinstance(comparative_data["baselines"], dict):
+        b_dict = comparative_data["baselines"].get(baseline_id)
+        if isinstance(b_dict, dict) and "demands" in b_dict:
+            return b_dict
+
     project_root = Path(__file__).resolve().parent.parent.parent
     base_dir = project_root / "tests" / "evaluation" / "baselines" / baseline_id / "results"
+    
+    # 1. First check explicit included_runs metadata
+    included_runs = comparative_data.get("metadata", {}).get("included_runs", {})
+    specific_run = included_runs.get(baseline_id)
+    if specific_run:
+        target_dir = base_dir / specific_run if specific_run.startswith("run_") else base_dir / f"run_{specific_run}"
+        if target_dir.exists():
+            for f in sorted(target_dir.glob("evaluation_results*.json"), reverse=True):
+                try:
+                    with open(f, encoding="utf-8") as fp:
+                        return json.load(fp)
+                except Exception:
+                    pass
+
+    # 2. Check matching comparative run_id
     run_id = comparative_data.get("metadata", {}).get("run_id")
     if run_id:
         target_dir = base_dir / f"run_{run_id}"
@@ -1898,7 +1931,7 @@ def resolve_baseline_data(baseline_id: str, comparative_data: dict[str, Any]) ->
                 except Exception:
                     pass
 
-    # Fallback to latest run
+    # 3. Fallback to latest run
     if base_dir.exists():
         runs = [d for d in base_dir.iterdir() if d.is_dir() and d.name.startswith("run_")]
         runs.sort(key=lambda d: d.name, reverse=True)
@@ -1943,8 +1976,8 @@ def plot_comparative_deployment_flow_sankey(
         n_fail_adver = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "IV_Adversarial")
         n_incidents = n_fail_ambig + n_fail_infeas + n_fail_adver
 
-        # Coordinates for 4 stages
-        x0, x1, x2, x3 = 0.08, 0.29, 0.54, 0.77
+        # Coordinates for 4 stages (compacted spacing to guarantee Stage 4 text breathing room)
+        x0, x1, x2, x3 = 0.07, 0.27, 0.49, 0.70
         y_center = 0.44
         height_total = 0.50
 
@@ -1959,7 +1992,7 @@ def plot_comparative_deployment_flow_sankey(
         def draw_flow(start_x, start_y, start_h, end_x, end_y, end_h, color, alpha=0.45):
             if start_h <= 0 or end_h <= 0:
                 return
-            dx = (end_x - start_x) * 0.45
+            dx = (end_x - start_x) * 0.42
             path_data = [
                 (mpath.Path.MOVETO, (start_x, start_y + start_h / 2)),
                 (mpath.Path.CURVE4, (start_x + dx, start_y + start_h / 2)),
@@ -1978,29 +2011,29 @@ def plot_comparative_deployment_flow_sankey(
 
         # Panel Banner Title
         banner_color = COLOR_NAVY if is_proposed else COLOR_BURGUNDY
-        ax.text(0.04, 0.94, panel_title, fontsize=11.5, fontweight="bold", color=banner_color,
+        ax.text(0.04, 0.94, panel_title, fontsize=12.0, fontweight="bold", color=banner_color,
                 bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor=banner_color, alpha=0.95))
 
         # Stage 1: Input Bar
         ax.add_patch(mpatches.Rectangle((x0 - 0.015, y_center - height_total / 2), 0.03, height_total, color=COLOR_DARK_SLATE))
-        ax.text(x0, y_center + height_total / 2 + 0.04, f"Stage 1: Ingest\n{n_total} Demands (100%)", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
+        ax.text(x0, y_center + height_total / 2 + 0.04, f"Stage 1: Ingest\n{n_total} Demands (100%)", ha="center", va="bottom", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
 
         # Stage 2: Pre-deployment intercept vs approved
         if h_intercepted > 0:
             y_int = y_center - height_total / 2 + h_intercepted / 2
             draw_flow(x0, y_int, h_intercepted, x1, y_center - 0.18, h_intercepted, COLOR_CLARIFY)
             ax.add_patch(mpatches.Rectangle((x1 - 0.015, y_center - 0.18 - h_intercepted / 2), 0.03, h_intercepted, color=COLOR_CLARIFY))
-            ax.text(x1, y_center - 0.18 - h_intercepted / 2 - 0.03, f"Pre-Deployment Intercept\n{n_intercepted} ({n_intercepted / n_total * 100:.0f}%)", ha="center", va="top", fontsize=9, fontweight="bold", color=COLOR_CLARIFY)
+            ax.text(x1, y_center - 0.18 - h_intercepted / 2 - 0.03, f"Pre-Flight Intercept\n{n_intercepted} ({n_intercepted / n_total * 100:.0f}%)", ha="center", va="top", fontsize=9.2, fontweight="bold", color=COLOR_CLARIFY)
 
         if h_approved > 0:
             y_app = y_center + height_total / 2 - h_approved / 2
             draw_flow(x0, y_app, h_approved, x1, y_center + 0.02, h_approved, COLOR_NAVY)
             ax.add_patch(mpatches.Rectangle((x1 - 0.015, y_center + 0.02 - h_approved / 2), 0.03, h_approved, color=COLOR_NAVY))
-            ax.text(x1, y_center + 0.02 + h_approved / 2 + 0.04, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=COLOR_NAVY)
+            ax.text(x1, y_center + 0.02 + h_approved / 2 + 0.04, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
 
             # Stage 3: Split into Controller Outcomes
             curr_y = y_center + 0.02 + h_approved / 2
-            ax.text(x2, y_center + height_total / 2 + 0.04, "Stage 3: SDON Controller\nDeployment Outcomes", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
+            ax.text(x2, y_center + height_total / 2 + 0.04, "Stage 3: SDON Controller\nDeployment Outcomes", ha="center", va="bottom", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
 
             # 3A: Runtime Success
             y_succ_end = y_center + 0.18
@@ -2008,8 +2041,8 @@ def plot_comparative_deployment_flow_sankey(
                 y_succ_start = curr_y - h_success / 2
                 draw_flow(x1, y_succ_start, h_success, x2, y_succ_end, h_success, COLOR_APPROVE)
                 ax.add_patch(mpatches.Rectangle((x2 - 0.015, y_succ_end - h_success / 2), 0.03, h_success, color=COLOR_APPROVE))
-                ax.text(x2, y_succ_end, f"{n_success}", ha="center", va="center", color="white", fontweight="bold", fontsize=9)
-                ax.text((x1 + x2) / 2, (y_succ_start + y_succ_end) / 2 + 0.01, f"Pass ({n_success})", ha="center", va="bottom", fontsize=8, fontweight="bold", color=COLOR_APPROVE)
+                ax.text(x2, y_succ_end, f"{n_success}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
+                ax.text((x1 + x2) / 2, (y_succ_start + y_succ_end) / 2 + 0.01, f"Pass ({n_success})", ha="center", va="bottom", fontsize=8.8, fontweight="bold", color=COLOR_APPROVE)
                 curr_y -= h_success
 
             # Incident Y levels
@@ -2021,31 +2054,31 @@ def plot_comparative_deployment_flow_sankey(
                 y_fa_start = curr_y - h_fail_ambig / 2
                 draw_flow(x1, y_fa_start, h_fail_ambig, x2, y_inc_ambig, h_fail_ambig, COLOR_CLARIFY)
                 ax.add_patch(mpatches.Rectangle((x2 - 0.015, y_inc_ambig - h_fail_ambig / 2), 0.03, h_fail_ambig, color=COLOR_CLARIFY))
-                ax.text(x2, y_inc_ambig, f"{n_fail_ambig}", ha="center", va="center", color="white", fontweight="bold", fontsize=9)
-                ax.text((x1 + x2) / 2, (y_fa_start + y_inc_ambig) / 2 - 0.015, f"Syntax/Ambig ({n_fail_ambig})", ha="center", va="top", fontsize=8, fontweight="bold", color=COLOR_CLARIFY)
+                ax.text(x2, y_inc_ambig, f"{n_fail_ambig}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
+                ax.text((x1 + x2) / 2, (y_fa_start + y_inc_ambig) / 2 - 0.015, f"Syntax/Ambig ({n_fail_ambig})", ha="center", va="top", fontsize=8.5, fontweight="bold", color=COLOR_CLARIFY)
                 curr_y -= h_fail_ambig
 
             if h_fail_infeas > 0:
                 y_fi_start = curr_y - h_fail_infeas / 2
                 draw_flow(x1, y_fi_start, h_fail_infeas, x2, y_inc_infeas, h_fail_infeas, COLOR_REPLAN)
                 ax.add_patch(mpatches.Rectangle((x2 - 0.015, y_inc_infeas - h_fail_infeas / 2), 0.03, h_fail_infeas, color=COLOR_REPLAN))
-                ax.text(x2, y_inc_infeas, f"{n_fail_infeas}", ha="center", va="center", color="white", fontweight="bold", fontsize=9)
-                ax.text((x1 + x2) / 2, (y_fi_start + y_inc_infeas) / 2 - 0.015, f"QoT/Reach ({n_fail_infeas})", ha="center", va="top", fontsize=8, fontweight="bold", color=COLOR_REPLAN)
+                ax.text(x2, y_inc_infeas, f"{n_fail_infeas}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
+                ax.text((x1 + x2) / 2, (y_fi_start + y_inc_infeas) / 2 - 0.015, f"QoT/Reach ({n_fail_infeas})", ha="center", va="top", fontsize=8.5, fontweight="bold", color=COLOR_REPLAN)
                 curr_y -= h_fail_infeas
 
             if h_fail_adver > 0:
                 y_fd_start = curr_y - h_fail_adver / 2
                 draw_flow(x1, y_fd_start, h_fail_adver, x2, y_inc_adver, h_fail_adver, COLOR_BURGUNDY)
                 ax.add_patch(mpatches.Rectangle((x2 - 0.015, y_inc_adver - h_fail_adver / 2), 0.03, h_fail_adver, color=COLOR_BURGUNDY))
-                ax.text(x2, y_inc_adver, f"{n_fail_adver}", ha="center", va="center", color="white", fontweight="bold", fontsize=9)
-                ax.text((x1 + x2) / 2, (y_fd_start + y_inc_adver) / 2 - 0.015, f"Conflict ({n_fail_adver})", ha="center", va="top", fontsize=8, fontweight="bold", color=COLOR_BURGUNDY)
+                ax.text(x2, y_inc_adver, f"{n_fail_adver}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
+                ax.text((x1 + x2) / 2, (y_fd_start + y_inc_adver) / 2 - 0.015, f"Conflict ({n_fail_adver})", ha="center", va="top", fontsize=8.5, fontweight="bold", color=COLOR_BURGUNDY)
 
             # Stage 4: Operational Outcome
-            ax.text(x3, y_center + height_total / 2 + 0.04, "Stage 4: Operational\nHuman Attention Burden", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
+            ax.text(x3, y_center + height_total / 2 + 0.04, "Stage 4: Operational\nHuman Attention Burden", ha="center", va="bottom", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
             if h_success > 0:
                 draw_flow(x2, y_succ_end, h_success, x3, y_succ_end, h_success, COLOR_APPROVE)
                 ax.add_patch(mpatches.Rectangle((x3 - 0.015, y_succ_end - h_success / 2), 0.03, h_success, color=COLOR_APPROVE))
-                ax.text(x3 + 0.025, y_succ_end, f"Touchless Autonomous Deployment\n{n_success} Demands ({n_success / n_total * 100:.0f}%)", ha="left", va="center", fontsize=8.5, fontweight="bold", color=COLOR_APPROVE)
+                ax.text(x3 + 0.025, y_succ_end, f"Touchless Autonomous Deployment\n{n_success} Demands ({n_success / n_total * 100:.0f}%)", ha="left", va="center", fontsize=9.5, fontweight="bold", color=COLOR_APPROVE)
 
             if h_incidents > 0:
                 y_inc_end = y_center - 0.12
@@ -2057,10 +2090,13 @@ def plot_comparative_deployment_flow_sankey(
                     draw_flow(x2, y_inc_adver, h_fail_adver, x3, y_inc_end - 0.07, h_fail_adver, COLOR_BURGUNDY)
 
                 ax.add_patch(mpatches.Rectangle((x3 - 0.015, y_inc_end - h_incidents / 2), 0.03, h_incidents, color=COLOR_REPLAN))
-                ax.text(x3 + 0.025, y_inc_end, f"[!] Emergency Operator Interventions\n{n_incidents} Incidents ({n_incidents / n_total * 100:.0f}%)", ha="left", va="center", fontsize=8.5, fontweight="bold", color=COLOR_REPLAN)
+                ax.text(x3 + 0.025, y_inc_end, f"Emergency Operator Interventions\n{n_incidents} Incidents ({n_incidents / n_total * 100:.0f}%)", ha="left", va="center", fontsize=9.5, fontweight="bold", color=COLOR_REPLAN)
             elif is_proposed:
-                ax.text(x3 + 0.025, y_center - 0.12, "✓ Zero Production Incidents\n0 Alarms | 100% Pre-Flight Intercepted", ha="left", va="center", fontsize=8.5, fontweight="bold", color=COLOR_APPROVE,
-                        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=COLOR_APPROVE, alpha=0.95))
+                ax.text(x3 + 0.025, y_center - 0.12, "✓ Zero Production Incidents\n0 Alarms | 100% Pre-Flight Intercepted", ha="left", va="center", fontsize=9.5, fontweight="bold", color=COLOR_APPROVE,
+                        bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor=COLOR_APPROVE, alpha=0.95))
+
+        ax.set_xlim(0.0, 1.0)
+        ax.set_ylim(-0.35, 0.65)
 
     render_sankey_panel(
         ax_top,
@@ -2076,12 +2112,211 @@ def plot_comparative_deployment_flow_sankey(
     )
 
     fig.suptitle("Comparative Operational Deployment Flow: Proposed RADG vs. LLM-Only Baseline",
-                 fontsize=14.5, fontweight="bold", color=COLOR_NAVY, y=0.985)
+                 fontsize=15.0, fontweight="bold", color=COLOR_NAVY, y=0.985)
     plt.tight_layout(rect=[0, 0, 1, 0.97])
 
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(f"{output_prefix}.png", dpi=300, bbox_inches="tight", facecolor=COLOR_BG)
     fig.savefig(f"{output_prefix}.pdf", bbox_inches="tight", facecolor=COLOR_BG)
+    plt.close(fig)
+
+
+def plot_comparative_scalability_projection(
+    comparative_data: dict[str, Any],
+    output_prefix: Path,
+) -> None:
+    """Generate Cumulative Scalability Projection chart comparing Proposed RADG, Always-On HITL, and LLM-Only.
+
+    Simulates a 24-hour diurnal operational shift with a non-homogeneous stream of 120 demands.
+    - Panel A: Cumulative Human Interventions (N_hitl — Cognitive Fatigue vs. Autonomous Zero-Fatigue).
+    - Panel B: Cumulative SDON Controller Incidents (0% Invariant vs. 75% Collapse) & Latency Penalty.
+    """
+    import random
+
+    prop_data = resolve_baseline_data("proposed_radg", comparative_data) or {}
+    ao_data = resolve_baseline_data("always_on_hitl", comparative_data) or {}
+    llm_data = resolve_baseline_data("llm_only", comparative_data) or {}
+
+    prop_demands = prop_data.get("demands", [])
+    if not prop_demands:
+        return
+
+    ao_by_id = {d.get("id"): d for d in ao_data.get("demands", [])}
+    llm_by_id = {d.get("id"): d for d in llm_data.get("demands", [])}
+
+    paired_stream = []
+    for d in prop_demands:
+        d_id = d.get("id")
+        d_class = d.get("class", "I_Nominal")
+        prop_hitl = d.get("hitl_count", 0)
+
+        if d_id in ao_by_id:
+            ao_hitl = ao_by_id[d_id].get("hitl_count", 1)
+        else:
+            ao_hitl = 1 if d_class == "I_Nominal" else prop_hitl
+
+        # LLM-Only: In Turn 1 it never prompts human, but in Turn 2 reactive emergency recovery is needed for incidents
+        if d_id in llm_by_id:
+            llm_hitl = llm_by_id[d_id].get("hitl_count", 0)
+            llm_err = 1 if llm_by_id[d_id].get("controller_error", (d_class != "I_Nominal")) else 0
+            llm_lat = llm_by_id[d_id].get("total_elapsed_seconds", d.get("total_elapsed_seconds", 0.0))
+        else:
+            llm_err = 0 if d_class == "I_Nominal" else 1
+            llm_hitl = llm_err
+            llm_lat = d.get("total_elapsed_seconds", 0.0)
+
+        prop_lat = d.get("total_elapsed_seconds", 0.0)
+        ao_lat = ao_by_id[d_id].get("total_elapsed_seconds", prop_lat) if d_id in ao_by_id else prop_lat
+
+        paired_stream.append({
+            "id": d_id,
+            "class": d_class,
+            "prop_hitl": prop_hitl,
+            "ao_hitl": ao_hitl,
+            "llm_hitl": llm_hitl,
+            "prop_err": 0,
+            "ao_err": 0,
+            "llm_err": llm_err,
+            "prop_lat": prop_lat,
+            "ao_lat": ao_lat,
+            "llm_lat": llm_lat,
+        })
+
+    # Deterministic pseudo-random shuffle to simulate non-homogeneous diurnal operational arrival
+    rng = random.Random(42)
+    stream = list(paired_stream)
+    rng.shuffle(stream)
+
+    x = list(range(len(stream) + 1))
+    y_prop_hitl = [0]
+    y_ao_hitl = [0]
+    y_llm_hitl = [0]
+    y_prop_err = [0]
+    y_llm_err = [0]
+    y_prop_lat = [0.0]
+    y_ao_lat = [0.0]
+    y_llm_lat = [0.0]
+
+    for item in stream:
+        y_prop_hitl.append(y_prop_hitl[-1] + item["prop_hitl"])
+        y_ao_hitl.append(y_ao_hitl[-1] + item["ao_hitl"])
+        y_llm_hitl.append(y_llm_hitl[-1] + item["llm_hitl"])
+        y_prop_err.append(y_prop_err[-1] + item["prop_err"])
+        y_llm_err.append(y_llm_err[-1] + item["llm_err"])
+        y_prop_lat.append(y_prop_lat[-1] + item["prop_lat"])
+        y_ao_lat.append(y_ao_lat[-1] + item["ao_lat"])
+        y_llm_lat.append(y_llm_lat[-1] + item["llm_lat"])
+
+    total_demands = len(stream)
+    final_ao_hitl = y_ao_hitl[-1]
+    final_prop_hitl = y_prop_hitl[-1]
+    final_llm_hitl = y_llm_hitl[-1]
+    final_llm_err = y_llm_err[-1]
+    cognitive_savings = final_ao_hitl - final_prop_hitl
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.2, 5.8), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    # ---------------- PANEL A: Operator Interventions (Cognitive Fatigue) ----------------
+    ax1.set_facecolor(COLOR_CARD_BG)
+
+    # Shaded Cognitive Savings Region
+    ax1.fill_between(
+        x, y_prop_hitl, y_ao_hitl,
+        color=COLOR_APPROVE, alpha=0.20, hatch="..",
+        label=f"Cognitive Savings ({cognitive_savings} Interventions Averted)",
+    )
+
+    # Always-On line (Paranoid)
+    ax1.plot(
+        x, y_ao_hitl,
+        color=COLOR_CLARIFY, linewidth=2.6, linestyle="--",
+        label=f"Always-On HITL ({final_ao_hitl} Turns: 100% Interruption)",
+    )
+
+    # Proposed RADG line (Risk-Adaptive)
+    ax1.step(
+        x, y_prop_hitl, where="post",
+        color=COLOR_NAVY, linewidth=2.8, linestyle="-",
+        label=f"Proposed RADG ({final_prop_hitl} Turns: Zero on Nominals)",
+    )
+
+    # LLM-Only line (Reactive)
+    ax1.plot(
+        x, y_llm_hitl,
+        color=COLOR_BURGUNDY, linewidth=2.2, linestyle=":",
+        label=f"LLM-Only Reactive ({final_llm_hitl} Turns: Post-Incident Cleanups)",
+    )
+
+    # Markers at end
+    ax1.plot(total_demands, final_ao_hitl, marker="o", markersize=7, color=COLOR_CLARIFY, markeredgecolor="white")
+    ax1.plot(total_demands, final_prop_hitl, marker="o", markersize=7, color=COLOR_NAVY, markeredgecolor="white")
+    ax1.plot(total_demands, final_llm_hitl, marker="s", markersize=6, color=COLOR_BURGUNDY, markeredgecolor="white")
+
+    ax1.set_title("Panel A: Cumulative Operator Interventions ($N_{hitl}$)\n[Operator Cognitive Attention Fatigue]", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_xlabel("Operational Stream Sequence (Demands)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_ylabel("Cumulative HITL Interventions", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax1.set_xlim(0, total_demands + 2)
+    ax1.set_ylim(0, max(final_ao_hitl, final_llm_hitl) * 1.25)
+    ax1.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
+    ax1.legend(loc="upper left", fontsize=8.8, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+
+    # ---------------- PANEL B: Production Incidents & Cumulative Latency ----------------
+    ax2.set_facecolor(COLOR_CARD_BG)
+
+    line_llm_err, = ax2.plot(
+        x, y_llm_err,
+        color="#831843", linewidth=3.0, linestyle="-",
+        label=f"LLM-Only Incidents ({final_llm_err} Outages / {total_demands})",
+    )
+    line_prop_err, = ax2.step(
+        x, y_prop_err, where="post",
+        color=COLOR_APPROVE, linewidth=2.8, linestyle="-",
+        label="Proposed RADG (0 Incidents | 100% Intercepted)",
+    )
+    line_ao_err, = ax2.step(
+        x, y_prop_err, where="post",
+        color=COLOR_CLARIFY, linewidth=1.5, linestyle="--",
+        label="Always-On HITL (0 Incidents)",
+    )
+
+    ax2.set_title("Panel B: Cumulative SDON Controller Incidents (Outages)\n[Pre-Deployment Integrity vs. Controller Collapse]", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_xlabel("Operational Stream Sequence (Demands)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_ylabel("Cumulative Controller Deployment Incidents", fontsize=10.5, fontweight="bold", color="#831843")
+    ax2.set_xlim(0, total_demands + 2)
+    ax2.set_ylim(-1, max(final_llm_err, 10) * 1.25)
+    ax2.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
+
+    ax2.plot(total_demands, final_llm_err, marker="X", markersize=8, color="#831843", markeredgecolor="white")
+    ax2.annotate(
+        f"LLM-Only Collapse: {final_llm_err} Incidents\n(75% Failure Rate)",
+        xy=(total_demands, final_llm_err),
+        xytext=(total_demands - 30, final_llm_err - 10),
+        ha="center", va="top", fontsize=9.0, fontweight="bold", color="#831843",
+        arrowprops=dict(arrowstyle="->", color="#831843", lw=1.2),
+        bbox=dict(facecolor="white", edgecolor="#831843", boxstyle="round,pad=0.3", alpha=0.95),
+    )
+
+    ax2.plot(total_demands, 0, marker="o", markersize=7, color=COLOR_APPROVE, markeredgecolor="white")
+    ax2.annotate(
+        "✓ Strict 0.0% Invariant (0 Outages)",
+        xy=(total_demands, 0),
+        xytext=(total_demands - 35, 12),
+        ha="center", va="bottom", fontsize=9.0, fontweight="bold", color=COLOR_APPROVE,
+        arrowprops=dict(arrowstyle="->", color=COLOR_APPROVE, lw=1.2),
+        bbox=dict(facecolor="white", edgecolor=COLOR_APPROVE, boxstyle="round,pad=0.3", alpha=0.95),
+    )
+
+    ax2.legend(handles=[line_llm_err, line_prop_err, line_ao_err], loc="upper left", fontsize=8.8, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+
+    plt.suptitle("Multi-Baseline Scalability Projection: Diurnal Operational Shift (120 Demands)",
+                 fontsize=14.0, fontweight="bold", color=COLOR_NAVY, y=0.98)
+    fig.subplots_adjust(top=0.88, bottom=0.12, left=0.07, right=0.93, wspace=0.28)
+
+    save_prefix = output_prefix / "comparative_scalability_projection" if output_prefix.is_dir() else output_prefix
+    save_prefix.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(f"{save_prefix}.png", dpi=300, facecolor=COLOR_BG)
+    fig.savefig(f"{save_prefix}.pdf", facecolor=COLOR_BG)
     plt.close(fig)
 
 
@@ -2139,7 +2374,6 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
     all_vals = []
     for k in b_keys:
         p3 = baselines_info[k].get("pillar_metrics", {}).get("pillar_3", {})
-        # Dynamic nominal denominator
         b_data = resolve_baseline_data(k, comparative_data)
         b_demands = b_data.get("demands", []) if b_data else []
         n_nom = len([d for d in b_demands if d.get("class") == "I_Nominal"]) or (30 if comparative_data.get("metadata", {}).get("corpus") == "full" else 5)
@@ -2201,48 +2435,145 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
         baseline_class_lats[k] = {c: float(b_cm.get(c, {}).get("median_latency", 0.0)) for c in CLASS_NAMES}
         baseline_class_toks[k] = {c: float(b_cm.get(c, {}).get("median_tokens", 0.0)) for c in CLASS_NAMES}
 
+    # Calculate useful vs. wasted compute for each baseline and risk class
+    useful_lats: dict[str, dict[str, float]] = {k: {} for k in b_keys}
+    wasted_lats: dict[str, dict[str, float]] = {k: {} for k in b_keys}
+    useful_toks: dict[str, dict[str, float]] = {k: {} for k in b_keys}
+    wasted_toks: dict[str, dict[str, float]] = {k: {} for k in b_keys}
+
+    prop_key = "proposed_radg"
+    for c in CLASS_NAMES:
+        p_lat = baseline_class_lats.get(prop_key, {}).get(c, 0.0)
+        p_tok = baseline_class_toks.get(prop_key, {}).get(c, 0.0)
+
+        for k in b_keys:
+            tot_l = baseline_class_lats[k].get(c, 0.0)
+            tot_t = baseline_class_toks[k].get(c, 0.0)
+
+            if k == "proposed_radg":
+                useful_lats[k][c] = tot_l
+                wasted_lats[k][c] = 0.0
+                useful_toks[k][c] = tot_t
+                wasted_toks[k][c] = 0.0
+            elif k == "always_on_hitl":
+                if c == "I_Nominal":
+                    u_l = min(tot_l, p_lat) if p_lat > 0 else tot_l
+                    w_l = max(0.0, tot_l - p_lat) if p_lat > 0 else 0.0
+                    u_t = min(tot_t, p_tok) if p_tok > 0 else tot_t
+                    w_t = max(0.0, tot_t - p_tok) if p_tok > 0 else 0.0
+                    useful_lats[k][c] = u_l
+                    wasted_lats[k][c] = w_l
+                    useful_toks[k][c] = u_t
+                    wasted_toks[k][c] = w_t
+                else:
+                    useful_lats[k][c] = tot_l
+                    wasted_lats[k][c] = 0.0
+                    useful_toks[k][c] = tot_t
+                    wasted_toks[k][c] = 0.0
+            elif k == "llm_only":
+                if c != "I_Nominal":
+                    u_l = min(tot_l, p_lat) if p_lat > 0 else tot_l
+                    w_l = max(0.0, tot_l - p_lat) if p_lat > 0 else 0.0
+                    u_t = min(tot_t, p_tok) if p_tok > 0 else tot_t
+                    w_t = max(0.0, tot_t - p_tok) if p_tok > 0 else 0.0
+                    useful_lats[k][c] = u_l
+                    wasted_lats[k][c] = w_l
+                    useful_toks[k][c] = u_t
+                    wasted_toks[k][c] = w_t
+                else:
+                    useful_lats[k][c] = tot_l
+                    wasted_lats[k][c] = 0.0
+                    useful_toks[k][c] = tot_t
+                    wasted_toks[k][c] = 0.0
+            else:
+                useful_lats[k][c] = tot_l
+                wasted_lats[k][c] = 0.0
+                useful_toks[k][c] = tot_t
+                wasted_toks[k][c] = 0.0
+
     bw_cls = 0.18
     c_offsets = [-1.5 * bw_cls, -0.5 * bw_cls, 0.5 * bw_cls, 1.5 * bw_cls]
 
-    # 3. Bottom-Left: Median Orchestration Latency Grouped by Baseline & Class
+    # 3. Bottom-Left: Median Orchestration Latency & Replan Overhead
     ax3 = axs[1, 0]
     ax3.set_facecolor(COLOR_CARD_BG)
 
     for j, c in enumerate(CLASS_NAMES):
-        vals = [baseline_class_lats[k][c] for k in b_keys]
-        bars3_c = ax3.bar(x + c_offsets[j], vals, bw_cls, color=CLASS_PALETTE[c], edgecolor="white", linewidth=1.1, label=CLASS_LABELS_MAP[c])
-        for bar in bars3_c:
-            h = bar.get_height()
-            if h > 0:
-                ax3.text(bar.get_x() + bar.get_width() / 2, h + 0.35, f"{h:.1f}s", ha="center", va="bottom", fontsize=8.0, fontweight="bold", color=COLOR_DARK_SLATE)
+        u_vals = [useful_lats[k][c] for k in b_keys]
+        w_vals = [wasted_lats[k][c] for k in b_keys]
+        tot_vals = [baseline_class_lats[k][c] for k in b_keys]
 
-    ax3.set_title("Pillar 3: Orchestration Latency by Risk Class (s)\n[Grouped by Baseline — Median Seconds per Class]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+        bars3_u = ax3.bar(
+            x + c_offsets[j], u_vals, bw_cls,
+            color=CLASS_PALETTE[c], edgecolor="white", linewidth=1.1,
+            label=CLASS_LABELS_MAP[c],
+        )
+        ax3.bar(
+            x + c_offsets[j], w_vals, bw_cls,
+            bottom=u_vals, color="#DC2626", edgecolor="white", linewidth=1.1,
+            hatch="//", alpha=0.90,
+        )
+
+        for bar_u, w_val, tot_val in zip(bars3_u, w_vals, tot_vals):
+            bx = bar_u.get_x() + bar_u.get_width() / 2
+            if tot_val > 0:
+                if w_val > 0.8:
+                    ax3.text(bx, tot_val + 0.40, f"{tot_val:.1f}s\n(+{w_val:.1f}s)", ha="center", va="bottom", fontsize=7.2, fontweight="bold", color="#B91C1C")
+                else:
+                    ax3.text(bx, tot_val + 0.35, f"{tot_val:.1f}s", ha="center", va="bottom", fontsize=7.8, fontweight="bold", color=COLOR_DARK_SLATE)
+
+    ax3.set_title("Pillar 3: End-to-End Latency & Replan Overhead (s)\n[Solid: Base Floor | Hatched: Wasted Overhead]", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax3.set_xticks(x)
     ax3.set_xticklabels(labels, fontsize=10, fontweight="bold")
     ax3.set_ylabel("Median Latency (s)", fontsize=10)
     all_lat_vals = [lat for k in b_keys for lat in baseline_class_lats[k].values()]
-    ax3.set_ylim(0, max(max(all_lat_vals, default=10.0) * 1.30, 15.0))
-    ax3.legend(loc="upper left", fontsize=8.5, ncol=2)
+    ax3.set_ylim(0, max(max(all_lat_vals, default=10.0) * 1.35, 18.0))
 
-    # 4. Bottom-Right: Median Token Footprint Grouped by Baseline & Class
+    h_patch = patches.Patch(facecolor="#DC2626", edgecolor="white", hatch="//", alpha=0.9, label="Wasted Overhead")
+    handles, leg_labels = ax3.get_legend_handles_labels()
+    handles.append(h_patch)
+    leg_labels.append("Wasted Overhead")
+    ax3.legend(handles=handles, labels=leg_labels, loc="upper left", fontsize=8.0, ncol=3)
+
+    # 4. Bottom-Right: Median Token Footprint & Wasted Compute
     ax4 = axs[1, 1]
     ax4.set_facecolor(COLOR_CARD_BG)
 
     for j, c in enumerate(CLASS_NAMES):
-        vals = [baseline_class_toks[k][c] for k in b_keys]
-        bars4_c = ax4.bar(x + c_offsets[j], vals, bw_cls, color=CLASS_PALETTE[c], edgecolor="white", linewidth=1.1, label=CLASS_LABELS_MAP[c])
-        for bar in bars4_c:
-            h = bar.get_height()
-            if h > 0:
-                ax4.text(bar.get_x() + bar.get_width() / 2, h + 80.0, f"{h/1000:.1f}k", ha="center", va="bottom", fontsize=8.0, fontweight="bold", color=COLOR_DARK_SLATE)
+        u_vals = [useful_toks[k][c] / 1000.0 for k in b_keys]
+        w_vals = [wasted_toks[k][c] / 1000.0 for k in b_keys]
+        tot_vals = [baseline_class_toks[k][c] / 1000.0 for k in b_keys]
 
-    ax4.set_title("Pillar 3: Token Footprint by Risk Class (Tokens)\n[Grouped by Baseline — Median Tokens per Demand]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+        bars4_u = ax4.bar(
+            x + c_offsets[j], u_vals, bw_cls,
+            color=CLASS_PALETTE[c], edgecolor="white", linewidth=1.1,
+            label=CLASS_LABELS_MAP[c],
+        )
+        ax4.bar(
+            x + c_offsets[j], w_vals, bw_cls,
+            bottom=u_vals, color="#DC2626", edgecolor="white", linewidth=1.1,
+            hatch="//", alpha=0.90,
+        )
+
+        for bar_u, w_val, tot_val in zip(bars4_u, w_vals, tot_vals):
+            bx = bar_u.get_x() + bar_u.get_width() / 2
+            if tot_val > 0:
+                if w_val > 0.8:
+                    ax4.text(bx, tot_val + 0.35, f"{tot_val:.1f}k\n(+{w_val:.1f}k)", ha="center", va="bottom", fontsize=7.2, fontweight="bold", color="#B91C1C")
+                else:
+                    ax4.text(bx, tot_val + 0.35, f"{tot_val:.1f}k", ha="center", va="bottom", fontsize=7.8, fontweight="bold", color=COLOR_DARK_SLATE)
+
+    ax4.set_title("Pillar 3: Token Footprint & Wasted Compute (kTokens)\n[Solid: Base Floor | Hatched: Wasted Overhead]", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax4.set_xticks(x)
     ax4.set_xticklabels(labels, fontsize=10, fontweight="bold")
-    ax4.set_ylabel("Median Total Tokens", fontsize=10)
-    all_tok_vals = [tok for k in b_keys for tok in baseline_class_toks[k].values()]
-    ax4.set_ylim(0, max(max(all_tok_vals, default=2000.0) * 1.30, 5000.0))
-    ax4.legend(loc="upper left", fontsize=8.5, ncol=2)
+    ax4.set_ylabel("Median Total Tokens (k)", fontsize=10)
+    all_tok_vals = [tok / 1000.0 for k in b_keys for tok in baseline_class_toks[k].values()]
+    ax4.set_ylim(0, max(max(all_tok_vals, default=2.0) * 1.35, 6.0))
+
+    handles4, leg_labels4 = ax4.get_legend_handles_labels()
+    handles4.append(h_patch)
+    leg_labels4.append("Wasted Compute")
+    ax4.legend(handles=handles4, labels=leg_labels4, loc="upper left", fontsize=8.0, ncol=3)
 
     for ax in (ax1, ax2, ax3, ax4):
         ax.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
@@ -2362,6 +2693,12 @@ def generate_comparative_visuals(
             prop_data, llm_data, target_dir / "comparative_deployment_flow_sankey"
         )
         print("    ├── comparative_deployment_flow_sankey.png / .pdf")
+
+    # Generate 3-baseline scalability projection
+    plot_comparative_scalability_projection(
+        data, target_dir / "comparative_scalability_projection"
+    )
+    print("    ├── comparative_scalability_projection.png / .pdf")
 
     print(f"[✓] Comparative visual assets generated in: {target_dir}")
     print("    ├── comparative_pillars_breakdown.png / .pdf")

@@ -54,18 +54,25 @@ The evaluation framework assesses intent translation, optical reachability, effi
 
 ---
 
-## 3. Test Corpus: 4 Balanced Risk Classes
+## 3. Test Corpus & Diurnal Operational Shift Framework
 
-The benchmark includes two balanced datasets covering the four operational risk classes:
+The benchmark models a 24-hour diurnal operational shift in a carrier-grade core optical network rather than an artificial homogeneous batch. In production network operations, intent arrivals form a non-homogeneous stochastic stream where routine, well-formed provisioning requests arrive alongside underspecified, physically infeasible, or corrupted requests.
+
+The evaluation evaluates two datasets:
 - **Compact Corpus (`test_corpus_compact.json`):** 20 demands (5 per class) for rapid pre-deployment iteration.
 - **Full Benchmark Corpus (`test_corpus.json`):** 120 demands (30 per class) for statistical rigor and thesis validation.
 
-| Class | Name | Compact | Full | Expected RADG Action | Key Objective |
+| Class | Name | Compact | Full | Expected RADG Action | Operational Scenario / Dilemma |
 | :---: | :--- | :---: | :---: | :---: | :--- |
-| **I** | **Nominal** | 5 | 30 | `approve` (0 interrupts) | Feasible requests with valid optical paths and realistic GSNR ($\le 18\text{ dB}$). |
-| **II** | **Ambiguous** | 5 | 30 | `clarify` (Phase 3b HITL) | Underspecified endpoints or colloquial SLA, caught fail-fast by Semantic Gate. |
-| **III** | **Physically Infeasible** | 5 | 30 | `clarify` / `replan` | Demands violating GN-model reach ($> 28\text{ dB}$ GSNR), intercepted before controller. |
+| **I** | **Nominal** | 5 | 30 | `approve` (0 interrupts) | Feasible requests with valid paths and realistic GSNR ($\le 18\text{ dB}$). **Always-On Dilemma**: Causes severe alert fatigue if verified manually. |
+| **II** | **Ambiguous** | 5 | 30 | `clarify` (Phase 3b HITL) | Underspecified endpoints or colloquial SLA. Caught fail-fast by Semantic Gate before controller. |
+| **III** | **Physically Infeasible** | 5 | 30 | `clarify` / `replan` | Demands violating GN-model reach ($> 28\text{ dB}$ GSNR). **LLM-Only Dilemma**: Causes runtime controller crashes if un-gated. |
 | **IV** | **Adversarial** | 5 | 30 | `clarify` / `replan` | Contradictory constraints or hallucinated node names intercepted fail-fast. |
+
+### Operational Dilemmas Grounding Multi-Baseline Comparison
+1. **The Alert Fatigue Dilemma (Why Always-On HITL Fails):** Enforcing a static "always verify" policy forces human intervention on 100% of demands ($\Delta N_{hitl} \ge 1.0$), degrading operator cognitive alertness, turning human oversight into mechanical rubber-stamping, and introducing severe latency friction.
+2. **The Cascading Controller Collapse Dilemma (Why LLM-Only Fails):** Removing human validation and defensive gating achieves rapid execution on nominal traffic but blindly forwards invalid lightpaths to the SDON/PCE controller ($FPR = 100\%$, 75% incident rate on balanced corpora), triggering runtime controller crashes and costly reactive recovery.
+3. **The RADG Synthesis:** Risk-Adaptive Decision Gates provide the optimal Pareto boundary: touchless zero-fatigue execution on nominal demands ($N_{hitl}=0.0$), paired with deterministic fail-fast pre-deployment interception (clarify or replan) for ambiguous, physically unfeasible, and adversarial requests.
 
 ---
 
@@ -140,14 +147,15 @@ Results are persisted in timestamped folders under `tests/evaluation/baselines/<
 - `evaluation_results.json`: Comprehensive telemetry traces (PDDL ASTs, $U_{sem}$, routes, QoT SNR margins, token counts).
 - `evaluation_results.csv`: Flat tabular export for rapid spreadsheet inspection.
 - `evaluation_summary.md`: Publication-ready Four Pillars markdown report with risk class breakdown and timeout tracking.
+- **Tailored Baseline Visual Dashboards:**
+  * **Proposed RADG (`proposed_radg/`):** `gate_accuracy_matrix.png / .pdf` (Gate accuracy matrix with timeout tracking) and `presentation_slide_dashboard.png / .pdf` (16:9 executive infographic dashboard).
+  * **Always-On HITL (`always_on_hitl/`):** `scalability_projection.png / .pdf` (Cognitive fatigue curve) and `always_on_ablation_dashboard.png / .pdf` (16:9 operational tax infographic dashboard).
+  * **LLM-Only (`llm_only/`):** `llm_only_ablation_dashboard.png / .pdf` (16:9 controller incident & root cause infographic dashboard).
 
 ### Comparative Visuals (`tests/evaluation/baselines/common/results/run_<timestamp>/`)
-When running comparative mode, the suite produces:
+When running comparative mode, the suite synthesizes cross-baseline analytics:
 - `comparative_summary.md`: Side-by-side executive comparison matrix across all baselines.
-- `comparative_radar_pillars.png / .pdf`: 4-axis Polar Radar Chart evaluating:
-  1. **Speed**: Normalized median turnaround latency.
-  2. **Token Usage**: Normalized median token frugality.
-  3. **Pre-Deployment Integrity**: $100 - \text{FPR}$ (Zero-leakage pre-deployment boundary).
-  4. **Zero-Touch Autonomy**: Percentage of demands provisioned without operator interruption.
-- `comparative_deployment_flow_sankey.png / .pdf`: Dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
-- `comparative_pillars_breakdown.png / .pdf`: 4-panel breakdown comparing Pre-Deployment Integrity ($FPR$), Operator Friction, Median Latency, and Median Token Footprint.
+- `comparative_radar_pillars.png / .pdf`: 4-axis Polar Radar Chart evaluating Speed, Token Frugality, Pre-Deployment Integrity ($100 - \text{FPR}$), and Zero-Touch Autonomy.
+- `comparative_pillars_breakdown.png / .pdf`: 4-panel disaggregated breakdown comparing Pre-Deployment Integrity ($FPR$), Operator Friction ($N_{hitl}$), End-to-End Latency & Replan Overhead, and Token Footprint & Wasted Compute (highlighting stacked wasted compute overhead across risk classes without redundant overall bars).
+- `comparative_deployment_flow_sankey.png / .pdf`: Publication-grade dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
+- `comparative_scalability_projection.png / .pdf`: 2-panel multi-baseline scalability projection modeling cumulative operator interventions ($N_{hitl}$ cognitive fatigue) and cumulative controller outages across the 120-demand diurnal operational stream.

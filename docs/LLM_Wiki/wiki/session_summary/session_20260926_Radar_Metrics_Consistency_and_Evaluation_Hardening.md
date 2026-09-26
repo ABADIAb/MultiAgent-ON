@@ -1,27 +1,26 @@
 ---
-title: "Technical Handover: Radar Metrics Consistency & Evaluation Hardening"
+title: "Technical Handover: Radar Metrics Consistency & Visuals Consolidation"
 date: 2026-09-26
-tags: [session-summary, handover, radar-chart, fpr-metric, gda-logic, evaluation-suite]
+tags: [session-summary, handover, radar-chart, visuals-consolidation, diurnal-shift]
 status: active
 ---
 
-# Technical Handover Card: 2026-09-26 (Evaluation Hardening & Radar Consistency)
+# Technical Handover Card: 2026-09-26 (Evaluation Hardening & Visuals Consolidation)
 
 ## 1. Scope & Objective
-Eliminate artificial weighting in comparative radar charts, align metrics directly with disaggregated benchmark breakdowns, formalize False Positive Rate (FPR) across the evaluation environment, and update multi-baseline reporting telemetry.
+Consolidate evaluation visuals, eliminate redundant baseline charts, implement comparative 3-way scalability projection, formalize diurnal operational shift framework, and maintain strict Four Pillars metrics consistency.
 
 ## 2. Key Architectural Decisions
-- **Unweighted Radar Metrics:** Removed artificial 70/30 weighting from `compute_comparative_radar_metrics()`; normalized Speed and Token Economy using the exact unweighted macro-average across the 4 balanced benchmark classes (25% each), matching `comparative_pillars_breakdown.png` and ensuring LLM-Only is honestly reflected as slower and costlier.
-- **Zero-Touch Autonomy Grounding:** Explicitly grounded Zero-Touch Autonomy to 0.0% for the un-gated LLM-Only baseline due to 100% false positive leak and 75% controller incidents.
-- **UAR to FPR Standardization:** Completely replaced Unfeasible Approval Rate (UAR) with False Positive Rate (FPR) across `tests/evaluation/README.md`, baseline guides, `metrics.py`, and `reporter.py`.
-- **GDA Logic Hardening:** Updated gate decision accuracy in `runner.py` to treat both `clarify` and `replan` as successful fail-fast interceptions for Classes III and IV.
-- **Timeout/Aborted Demand Tracking:** Hardened `gate_accuracy_matrix` to render timeouts/aborts in distinct deep wine maroon (`#4A0E17`) with dynamic typography.
+- **Wasted Compute Consolidation:** Merged latency/tokens and replan compute into `comparative_pillars_breakdown` as stacked bars (solid base + `#DC2626` hatched wasted compute), eliminating single-baseline overhead plots and redundant "Overall" bars.
+- **Sankey & Scalability Overhaul:** Refined `comparative_deployment_flow_sankey` (pruned individual `llm_only` Sankey) and created 2-panel `comparative_scalability_projection` comparing Proposed RADG, Always-On HITL, and LLM-Only across a 120-demand diurnal shift.
+- **Executive Dashboards Retained:** Preserved 16:9 individual baseline dashboards (`presentation_slide_dashboard`, `always_on_ablation_dashboard`, `llm_only_ablation_dashboard`) with polished spacing for quick visual telemetry.
+- **Diurnal Shift Framework:** Formalized non-homogeneous stochastic arrival, Alert Fatigue Dilemma, and Controller Collapse Dilemma academically in `Drafting_Backlog.md` and `tests/evaluation/README.md`.
 
 ## 3. Test & Code Health
-- **Unit Suite:** 349/349 passing (`uv run pytest tests/unit/ -v` in 6.06s).
-- **Comparative Runs:** Generated clean comparative run `run_20260926_113454` with consistent radar chart and breakdown plots.
+- **Unit Suite:** 350/350 passing (`uv run pytest tests/unit/ -v`).
+- **Code Hygiene:** 100% clean (`uv run ruff check src/ tests/`).
 - **Git Hygiene:** No `.agents/` or `.atl/` files modified or tracked.
 
 ## 4. Exact Cursor & Next Prompt
-- **Cursor:** `tests/evaluation/baselines/common/results/run_20260926_113454/` and `tests/evaluation/README.md`.
-- **Next Prompt:** "Continuemos puliendo el entorno de pruebas, ajustando la presentación de métricas y seleccionando las gráficas más relevantes para el manuscrito de la tesis."
+- **Cursor:** `tests/evaluation/generate_visuals.py`.
+- **Next Prompt:** "Vamos a pulir los diseños y el aspecto estético de las gráficas de evaluación para la tesis."
