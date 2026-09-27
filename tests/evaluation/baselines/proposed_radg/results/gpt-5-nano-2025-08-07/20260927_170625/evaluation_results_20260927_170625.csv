@@ -1,0 +1,21 @@
+id,baseline,class,intent_text,expected_action,initial_action,controller_verdict,final_action,success,hitl_count,elapsed_seconds,prompt_tokens,completion_tokens,total_tokens,crr,usem_score,semantic_agreement,pddl_valid,radg_decision
+intent_nom_01,proposed_radg,I_Nominal,Establish an optical connection from Hamburg to Berlin with 100G capacity.,approve,approve,approve,approve,True,0,5.8,3281,380,3661,1.00,0.0,1.0,True,approve
+intent_nom_02,proposed_radg,I_Nominal,"Establish an optical connection from Hamburg to Berlin avoiding both Bremen and Hannover, with a minimum of 15 dB GSNR and a maximum of 3 hops.",approve,approve,approve,approve,True,0,5.41,3355,418,3773,1.00,0.0,1.0,True,approve
+intent_nom_03,proposed_radg,I_Nominal,Route traffic from Frankfurt to Cologne avoiding Mannheim with minimum 14 dB GSNR.,approve,approve,approve,approve,True,0,5.84,3663,595,4258,1.00,0.0,1.0,True,approve
+intent_nom_04,proposed_radg,I_Nominal,Provision an optical channel from Munich to Stuttgart via Ulm with GSNR at least 15 dB.,approve,approve,approve,approve,True,0,4.55,3207,367,3574,1.00,0.0,1.0,True,approve
+intent_nom_05,proposed_radg,I_Nominal,Connect Hannover to Bremen with minimum 16 dB GSNR.,approve,approve,approve,approve,True,0,4.36,3379,417,3796,1.00,0.0,1.0,True,approve
+intent_amb_01,proposed_radg,II_Ambiguous,Set up a path from Bremen to Frankfurt. Make sure it's secure and has good enough signal for a standard transmission.,clarify,clarify,replan,approve,True,1,12.14,7430,1385,8815,N/A,1.0,0.0,False,approve
+intent_amb_02,proposed_radg,II_Ambiguous,Route traffic from Berlin to the south of Germany as fast as possible.,clarify,clarify,replan,approve,True,1,11.78,7765,1104,8869,N/A,0.5,0.5,True,approve
+intent_amb_03,proposed_radg,II_Ambiguous,Provision a high-bandwidth optical lightpath starting from Frankfurt.,clarify,approve,replan,approve,False,0,5.45,3572,572,4144,N/A,0.0,1.0,True,approve
+intent_amb_04,proposed_radg,II_Ambiguous,Connect Munich to a nearby city with high transmission quality.,clarify,approve,replan,approve,False,0,5.7,3558,532,4090,N/A,0.2,0.8,True,approve
+intent_amb_05,proposed_radg,II_Ambiguous,Set up a lightpath terminating in Hamburg with low latency.,clarify,clarify,replan,approve,True,1,11.94,7830,1164,8994,N/A,0.9,0.1,True,approve
+intent_inf_01,proposed_radg,III_Infeasible,Establish a single direct span from Norden to Munich with at least 30 dB GSNR avoiding Leipzig.,clarify/replan,replan,replan,approve,True,1,12.95,7849,1231,9080,0.67,0.0,1.0,True,approve
+intent_inf_02,proposed_radg,III_Infeasible,Establish an optical connection from Hamburg to Munich with minimum 30 dB GSNR.,clarify/replan,replan,replan,approve,True,1,11.74,7807,1086,8893,1.00,0.0,1.0,True,approve
+intent_inf_03,proposed_radg,III_Infeasible,Provision a single unamplified direct span from Berlin to Frankfurt with 28 dB GSNR.,clarify/replan,replan,replan,approve,True,1,11.8,8302,1136,9438,0.50,0.0,1.0,True,approve
+intent_inf_04,proposed_radg,III_Infeasible,Connect Cologne to Leipzig requiring 35 dB GSNR.,clarify/replan,replan,replan,approve,True,1,11.88,7926,1168,9094,1.00,0.0,1.0,True,approve
+intent_inf_05,proposed_radg,III_Infeasible,Route traffic from Bremen to Munich with at least 29 dB GSNR.,clarify/replan,replan,replan,approve,True,1,12.66,7877,1190,9067,1.00,0.0,1.0,True,approve
+intent_adv_01,proposed_radg,IV_Adversarial,"Route traffic from Leipzig to Cologne using the shortest path by hops, but avoid all intermediate nodes.",clarify/replan,clarify,replan,approve,True,1,12.55,7958,1212,9170,0.00,0.5,0.5,True,approve
+intent_adv_02,proposed_radg,IV_Adversarial,Route traffic from Hamburg to Berlin avoiding Hamburg completely.,clarify/replan,replan,replan,approve,True,1,11.14,7630,1005,8635,1.00,0.0,1.0,True,approve
+intent_adv_03,proposed_radg,IV_Adversarial,Connect node_99 to node_999 with high priority.,clarify/replan,clarify,replan,approve,True,1,12.06,7280,1310,8590,N/A,1.0,0.0,False,approve
+intent_adv_04,proposed_radg,IV_Adversarial,Provision an optical channel from Munich to Munich with 16 dB GSNR.,clarify/replan,replan,replan,approve,True,1,10.91,7439,938,8377,1.00,0.0,1.0,True,approve
+intent_adv_05,proposed_radg,IV_Adversarial,Route traffic from London to Frankfurt avoiding Brussels.,clarify/replan,replan,replan,approve,True,1,11.26,7991,1205,9196,1.00,0.0,1.0,True,approve

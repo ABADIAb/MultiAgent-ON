@@ -47,6 +47,7 @@ SUPPORTED_OPENAI_MODELS: tuple[str, ...] = (
     "gpt-oss-120b",
     "gpt-4o-mini",
     "gpt-4o",
+    "gpt-5-nano-2025-08-07"
 )
 
 
@@ -415,7 +416,7 @@ def create_openai_llm(
         max_tokens: Maximum completion tokens (mapped to max_completion_tokens).
         max_completion_tokens: Explicit max_completion_tokens parameter.
         timeout: Request timeout in seconds. Defaults to LLM_TIMEOUT env or 120.0s.
-        reasoning_effort: Reasoning effort ('none', 'low', 'medium', 'high') for reasoning models.
+        reasoning_effort: Reasoning effort ('none', 'minimal', 'low', 'medium', 'high') for reasoning models.
         extra_body: Additional raw payload attributes.
         **_ignored_kwargs: Safely absorbs provider-specific kwargs.
 
@@ -437,7 +438,8 @@ def create_openai_llm(
 
     resolved_effort = reasoning_effort or os.getenv("OPENAI_REASONING_EFFORT")
     if is_reasoning_model and not resolved_effort:
-        resolved_effort = "none"
+        # resolved_effort = "none"
+        resolved_effort = "minimal"
 
     kwargs: dict[str, Any] = {
         "model": resolved_model,
