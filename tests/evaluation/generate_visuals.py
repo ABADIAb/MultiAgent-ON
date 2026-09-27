@@ -2831,6 +2831,284 @@ def plot_comparative_integrity_pillars(comparative_data: dict[str, Any], output_
 plot_comparative_safety_pillars = plot_comparative_integrity_pillars
 
 
+# ---------------------------------------------------------------------------
+# Cross-Model Comparison Figures
+# ---------------------------------------------------------------------------
+
+def plot_cross_model_efficiency(
+    models_data: list[dict[str, Any]],
+    output_prefix: Path,
+) -> None:
+    """Generate cross-model efficiency comparison (latency + token footprint).
+
+    Args:
+        models_data: List of dicts with keys:
+            - 'label': str  (display name for the model, e.g. 'qwen2.5:3b')
+            - 'comparative_data': dict  (same shape as comparative_results JSON)
+        output_prefix: Output path prefix (without extension).
+    """
+    if not models_data:
+        return
+
+    B_KEYS = ["proposed_radg", "always_on_hitl", "llm_only"]
+    B_LABELS = {
+        "proposed_radg": "Proposed RADG",
+        "always_on_hitl": "Always-On HITL",
+        "llm_only": "LLM-Only",
+    }
+
+    n_models = len(models_data)
+    n_baselines = 3
+    group_width = 0.72
+    bar_w = group_width / n_baselines
+    # Offsets within each model group, centered at 0
+    b_offsets = [(-group_width / 2 + bar_w * i + bar_w / 2) for i in range(n_baselines)]
+
+    x = np.arange(n_models)
+    model_labels = [m["label"] for m in models_data]
+
+    # Pre-compute median latency and median tokens per (model, baseline)
+    # We take the overall median across all demands for simplicity
+    med_latency: list[list[float]] = []  # [model_idx][baseline_idx]
+    med_tokens: list[list[float]] = []   # [model_idx][baseline_idx] in kTokens
+
+    for m_entry in models_data:
+        comp = m_entry["comparative_data"]
+        row_lat = []
+        row_tok = []
+        for b_key in B_KEYS:
+            b_data = resolve_baseline_data(b_key, comp)
+            demands = b_data.get("demands", []) if b_data else []
+            lats = [d.get("total_elapsed_seconds", 0.0) for d in demands]
+            toks = [d.get("total_tokens", 0) for d in demands]
+            row_lat.append(float(np.median(lats)) if lats else 0.0)
+            row_tok.append(float(np.median(toks)) / 1000.0 if toks else 0.0)
+        med_latency.append(row_lat)
+        med_tokens.append(row_tok)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.0, 5.4), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    # ------------------------------------------------------------------ #
+    # Panel 1: Median End-to-End Latency grouped by model
+    # ------------------------------------------------------------------ #
+    ax1.set_facecolor(COLOR_CARD_BG)
+
+    max_lat = 0.0
+    for m_idx in range(n_models):
+        for b_idx, b_key in enumerate(B_KEYS):
+            val = med_latency[m_idx][b_idx]
+            bar_x = x[m_idx] + b_offsets[b_idx]
+            col = BASELINE_COLORS.get(b_key, COLOR_MUTED)
+            ax1.bar(bar_x, val, bar_w * 0.88, color=col, edgecolor="white", linewidth=0.9, alpha=0.92)
+            if val > 0:
+                ax1.text(
+                    bar_x, val + 0.4, f"{val:.1f}s",
+                    ha="center", va="bottom", fontsize=7.5, fontweight="bold", color=COLOR_DARK_SLATE,
+                    rotation=0,
+                )
+            max_lat = max(max_lat, val)
+
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(model_labels, fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_ylabel("Median End-to-End Latency (s)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax1.set_ylim(0, max_lat * 1.32 if max_lat > 0 else 10.0)
+    ax1.set_title("Median Latency by Model & Baseline", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE, pad=10)
+    ax1.grid(axis="y", linestyle=":", alpha=0.55, color=COLOR_CARD_BORDER)
+    ax1.set_axisbelow(True)
+    ax1.spines["top"].set_visible(False)
+    ax1.spines["right"].set_visible(False)
+
+    # ------------------------------------------------------------------ #
+    # Panel 2: Median Token Footprint grouped by model
+    # ------------------------------------------------------------------ #
+    ax2.set_facecolor(COLOR_CARD_BG)
+
+    max_tok = 0.0
+    for m_idx in range(n_models):
+        for b_idx, b_key in enumerate(B_KEYS):
+            val = med_tokens[m_idx][b_idx]
+            bar_x = x[m_idx] + b_offsets[b_idx]
+            col = BASELINE_COLORS.get(b_key, COLOR_MUTED)
+            ax2.bar(bar_x, val, bar_w * 0.88, color=col, edgecolor="white", linewidth=0.9, alpha=0.92)
+            if val > 0:
+                ax2.text(
+                    bar_x, val + 0.05, f"{val:.1f}k",
+                    ha="center", va="bottom", fontsize=7.5, fontweight="bold", color=COLOR_DARK_SLATE,
+                )
+            max_tok = max(max_tok, val)
+
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(model_labels, fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_ylabel("Median Token Footprint (kTokens)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax2.set_ylim(0, max_tok * 1.32 if max_tok > 0 else 5.0)
+    ax2.set_title("Median Token Footprint by Model & Baseline", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE, pad=10)
+    ax2.grid(axis="y", linestyle=":", alpha=0.55, color=COLOR_CARD_BORDER)
+    ax2.set_axisbelow(True)
+    ax2.spines["top"].set_visible(False)
+    ax2.spines["right"].set_visible(False)
+
+    # Shared legend (one per baseline color)
+    legend_handles = [
+        patches.Patch(facecolor=BASELINE_COLORS.get(k, COLOR_MUTED), edgecolor="white", label=B_LABELS[k])
+        for k in B_KEYS
+    ]
+    fig.legend(
+        handles=legend_handles,
+        loc="lower center",
+        ncol=3,
+        fontsize=9.5,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor=COLOR_CARD_BORDER,
+        bbox_to_anchor=(0.5, -0.01),
+    )
+
+    plt.suptitle(
+        "Cross-Model Computational Efficiency: Latency & Token Footprint",
+        fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=1.01,
+    )
+    plt.tight_layout(rect=[0, 0.06, 1, 1.0], w_pad=2.0)
+
+    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG, bbox_inches="tight")
+    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG, bbox_inches="tight")
+    plt.close()
+
+
+def plot_cross_model_gate_accuracy_heatmap(
+    models_data: list[dict[str, Any]],
+    output_prefix: Path,
+) -> None:
+    """Generate a GDA% heatmap and FPR summary table across models.
+
+    Args:
+        models_data: Same structure as plot_cross_model_efficiency.
+        output_prefix: Output path prefix (without extension).
+    """
+    if not models_data:
+        return
+
+    CLASS_NAMES = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
+    CLASS_DISPLAY = ["Nominal", "Ambiguous", "Infeasible", "Adversarial"]
+
+    model_labels = [m["label"] for m in models_data]
+    n_models = len(models_data)
+
+    # Collect per-model per-class GDA and overall FPR
+    gda_matrix: list[list[float]] = []   # [model_idx][class_idx]
+    fpr_vals: list[float] = []
+    gda_overall: list[float] = []
+
+    for m_entry in models_data:
+        comp = m_entry["comparative_data"]
+        prop_data = resolve_baseline_data("proposed_radg", comp)
+        demands = prop_data.get("demands", []) if prop_data else []
+
+        row_gda = []
+        for c in CLASS_NAMES:
+            c_demands = [d for d in demands if d.get("class") == c]
+            if not c_demands:
+                row_gda.append(0.0)
+                continue
+            # GDA: initial_action matches expected_action
+            correct = sum(
+                1 for d in c_demands
+                if str(d.get("initial_action", "")).lower() == str(d.get("expected_action", "")).lower()
+            )
+            row_gda.append(correct / len(c_demands) * 100.0)
+
+        gda_matrix.append(row_gda)
+        gda_overall.append(float(np.mean(row_gda)) if row_gda else 0.0)
+
+        # FPR from pillar_4 of proposed_radg
+        b_info = comp.get("baselines", {}).get("proposed_radg", {})
+        fpr = b_info.get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", 0.0)
+        fpr_vals.append(float(fpr))
+
+    gda_arr = np.array(gda_matrix)  # shape (n_models, n_classes)
+
+    # ------------------------------------------------------------------ #
+    # Figure layout: left heatmap + right bar summary
+    # ------------------------------------------------------------------ #
+    fig = plt.figure(figsize=(13.0, 4.8 + 0.4 * n_models), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    gs = fig.add_gridspec(1, 2, width_ratios=[2.8, 1.0], wspace=0.3)
+    ax_heat = fig.add_subplot(gs[0])
+    ax_bar = fig.add_subplot(gs[1])
+
+    # ---- Heatmap ----
+    im = ax_heat.imshow(
+        gda_arr,
+        cmap="RdYlGn",
+        vmin=0.0,
+        vmax=100.0,
+        aspect="auto",
+    )
+    ax_heat.set_xticks(np.arange(len(CLASS_NAMES)))
+    ax_heat.set_xticklabels(CLASS_DISPLAY, fontsize=10.5, fontweight="bold")
+    ax_heat.set_yticks(np.arange(n_models))
+    ax_heat.set_yticklabels(model_labels, fontsize=10.5, fontweight="bold")
+    ax_heat.set_xlabel("Risk Class", fontsize=11.0, fontweight="bold", color=COLOR_NAVY)
+    ax_heat.set_title(
+        "Gate Decision Accuracy (GDA%) by Model & Risk Class\n(Proposed RADG)",
+        fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE, pad=10,
+    )
+
+    # Annotate cells
+    for i in range(n_models):
+        for j in range(len(CLASS_NAMES)):
+            val = gda_arr[i, j]
+            txt_color = "white" if val < 40.0 or val > 85.0 else COLOR_DARK_SLATE
+            ax_heat.text(
+                j, i, f"{val:.0f}%",
+                ha="center", va="center",
+                fontsize=11.0, fontweight="bold", color=txt_color,
+            )
+
+    cbar = fig.colorbar(im, ax=ax_heat, shrink=0.85, pad=0.02)
+    cbar.set_label("GDA (%)", fontsize=9.5, color=COLOR_MUTED)
+    cbar.ax.tick_params(labelsize=8.5)
+
+    # ---- Right bar: Overall GDA + FPR annotation ----
+    ax_bar.set_facecolor(COLOR_CARD_BG)
+    y_pos = np.arange(n_models)
+    colors_bar = [COLOR_PROPOSED_PRIMARY] * n_models
+
+    bars = ax_bar.barh(y_pos, gda_overall, 0.55, color=colors_bar, edgecolor="white", linewidth=1.0, alpha=0.92)
+    ax_bar.set_yticks(y_pos)
+    ax_bar.set_yticklabels(model_labels, fontsize=9.5, fontweight="bold")
+    ax_bar.set_xlabel("Overall GDA (%)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax_bar.set_xlim(0, 110.0)
+    ax_bar.set_title("Overall GDA\n& FPR", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE, pad=8)
+    ax_bar.axvline(95.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.4, label="Target ≥ 95%")
+
+    for bar, gda_v, fpr_v in zip(bars, gda_overall, fpr_vals):
+        w = bar.get_width()
+        ax_bar.text(
+            min(w + 1.5, 108), bar.get_y() + bar.get_height() / 2,
+            f"{gda_v:.1f}%  FPR:{fpr_v:.1f}%",
+            ha="left", va="center", fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE,
+        )
+
+    ax_bar.legend(fontsize=8.0, loc="lower right", framealpha=0.90)
+    ax_bar.grid(axis="x", linestyle=":", alpha=0.55, color=COLOR_CARD_BORDER)
+    ax_bar.set_axisbelow(True)
+    ax_bar.spines["top"].set_visible(False)
+    ax_bar.spines["right"].set_visible(False)
+    ax_bar.invert_yaxis()
+
+    plt.suptitle(
+        "Cross-Model Gate Accuracy: Proposed RADG across LLM Backends",
+        fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=1.02,
+    )
+    plt.tight_layout()
+
+    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG, bbox_inches="tight")
+    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG, bbox_inches="tight")
+    plt.close()
+
+
 def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output_prefix: Path) -> None:
     """Generate 1x2 Subplots with Latency Boxplots (Left) and Token Footprint Stacked Bars (Right)."""
     baselines_info = comparative_data.get("baselines", {})

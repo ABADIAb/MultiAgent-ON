@@ -1,7 +1,7 @@
 ---
 title: "Weekly Report 2026-09-29"
 date: 2026-09-29
-tags: [weekly, report, thesis, evaluation, baselines, radg, hitl, llm-only, cli, radar-chart, pillars-bar, sprint-4, openai, visuals]
+tags: [weekly, report, thesis, evaluation, baselines, radg, hitl, llm-only, cli, pillars-bar, sprint-4, openai, cross-model, comparative-llms]
 status: active
 ---
 
@@ -40,7 +40,7 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Built a dynamic run version resolver (`resolve_baseline_run()`) in [`tests/evaluation/main.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/main.py), allowing instant switching between specific historical benchmarks via CLI flags or interactive selection.
 
 3. **Publication-Ready Comparative Visual Suite ([`tests/evaluation/generate_visuals.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/generate_visuals.py)):**
-   - Implemented an automated offline visual generation suite producing 300 DPI PNG and vector PDF assets: 5-axis polar radar chart (`comparative_radar_chart`), partitioned pillars (`comparative_integrity_pillars`, `comparative_efficiency_pillars`), detailed breakdowns (`comparative_pillars_breakdown`), deployment flow Sankey, and dynamic-width gate accuracy matrix (`gate_accuracy_matrix`).
+   - Implemented an automated offline visual generation suite producing 300 DPI PNG and vector PDF assets: partitioned pillars (`comparative_integrity_pillars`, `comparative_efficiency_pillars`), detailed breakdowns (`comparative_pillars_breakdown`), deployment flow Sankey, and dynamic-width gate accuracy matrix (`gate_accuracy_matrix`).
    - Harmonized baseline chromatic identities (Proposed RADG: Blue, Always-On: Purple, LLM-Only: Orange) and standardized terminology from "safety" to "integrity" across all figures, legends, and docs.
    - Refined the scalability projection (`comparative_scalability_projection`) to focus on operator cognitive relief by demonstrating 28 interventions averted against Always-On HITL fatigue.
 
@@ -53,23 +53,29 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Realigned physical safety telemetry to enforce the theoretical $UAR=0.0\%$ invariant and un-gated baseline calibration ($FPR=100\%$).
    - Maintained full test suite integrity with 358 passing unit tests (`uv run pytest tests/unit/`) and 100% clean static analysis (`uv run ruff check src/ tests/`).
 
+6. **Cross-Model Comparative LLMs Mode ([`tests/evaluation/main.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/main.py), [`tests/evaluation/generate_visuals.py`](file:///home/felipeab/MultiAgentON/tests/evaluation/generate_visuals.py)):**
+   - Implemented `find_complete_model_runs()` to scan all 3 baselines and surface only timestamps where ALL baselines have completed results, enforcing strict cross-model comparability eligibility.
+   - Added a new **"Comparative LLMs Mode"** wizard step to the interactive CLI: toggle-style multi-model selection (2 min, 4 max), "Continue" unlocked at 2nd model, full Backspace navigation.
+   - Implemented two new cross-model publication figures: `plot_cross_model_efficiency()` (2-panel grouped bar: median latency + median token footprint by model per baseline) and `plot_cross_model_gate_accuracy_heatmap()` (RdYlGn GDA% heatmap by model × risk class, paired with FPR-annotated overall GDA bar).
+   - Outputs persisted to `tests/evaluation/results/cross_model/<timestamp>/` with a companion `.md` metadata report. Structural/invariant figures (Sankey, Pillars) excluded by design — they capture pipeline architecture, not LLM backend effects.
+
 ---
 
 ## 3. What do I plan to accomplish next week?
 
 1. **Draft Thesis Chapter 5 (Experimental Results & Evaluation):** Formally draft Chapter 5 incorporating empirical benchmark tables, Four Pillars radar charts, multi-class breakdowns, and comparative ablation figures.
-2. **Multi-Model Evaluation Benchmarks:** Execute full-corpus runs across integrated local and cloud providers (`qwen2.5:3b`, `gpt-6-luna`), analyzing cross-model trade-offs.
+2. **Multi-Model Cross-LLM Benchmarks:** Execute full-corpus runs on a second model (e.g., `phi4-mini:latest` or a cloud API) and trigger the new **Comparative LLMs Mode** to generate the first real cross-model efficiency and gate accuracy figures.
 3. **Academic Presentation Rehearsal:** Review the full-corpus comparative baseline outcomes and updated slide deck with academic advisor Prof. Massimo Tornatore.
 
 ---
 
 ## 4. Do You Need Support?
 
-- **Current Status:** Comparative baselines, segregated telemetry architecture, cross-baseline visual generators, OpenAI multi-model provider, and interactive CLI navigation are fully functional with 358 passing unit tests.
+- **Current Status:** Comparative baselines, segregated telemetry architecture, cross-baseline and cross-model visual generators, OpenAI multi-model provider, and interactive CLI navigation are fully functional with 358 passing unit tests.
 - **Advisor Review:** Ready to schedule presentation rehearsal and benchmark review with Prof. Massimo Tornatore based on the empirical comparative data.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I engineered a modular comparative evaluation suite with hierarchical telemetry and publication-ready visuals, integrated OpenAI provider support with bidirectional CLI navigation, and enforced adversarial invariants with 358 passing unit tests.
+I engineered a modular comparative evaluation suite with hierarchical telemetry and publication-ready visuals, integrated OpenAI provider and bidirectional CLI navigation, enforced adversarial invariants with 358 passing unit tests, and implemented a Cross-Model Comparative LLMs Mode that automatically surfaces eligible runs and generates cross-model efficiency and gate accuracy figures.

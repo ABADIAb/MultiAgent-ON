@@ -9,7 +9,8 @@ This directory contains the automated, reproducible benchmark suite for evaluati
 ```text
 tests/evaluation/
 ├── main.py                     # Unified interactive CLI & benchmark runner (Rich + Questionary)
-├── results/                    # Global comparative results ([LLM]/[timestamp]/)
+├── results/                    # Global comparative results ([LLM]/[timestamp]/ and cross_model/[timestamp]/)
+│   └── cross_model/            # Cross-model LLM comparison outputs ([timestamp]/)
 ├── baselines/                  # Modular baseline implementations reusing src/
 │   ├── common/                 # Shared runner, token tracker, metrics, and reporter
 │   │   ├── metrics.py          # Four Pillars telemetry formulas (CRR, CFG-PR, FPR, GDA)
@@ -127,6 +128,19 @@ uv run python tests/evaluation/main.py --mode compare \
 uv run python tests/evaluation/generate_visuals.py tests/evaluation/results/qwen2.5_3b/20260926_154258
 ```
 
+### 4.5 Cross-Model Comparative LLMs Mode
+To compare efficiency and gate accuracy across multiple LLM backends using the **interactive wizard**:
+```bash
+uv run python tests/evaluation/main.py
+# Select: "Comparative LLMs Mode (Cross-model efficiency & gate accuracy figures)"
+```
+
+The wizard will:
+1. **Scan eligible model/timestamp pairs** — only timestamps where all 3 baselines (`proposed_radg`, `always_on_hitl`, `llm_only`) have completed evaluation results are shown.
+2. **Allow multi-selection** (minimum 2, maximum 4 models) with toggle-style checkboxes. The "Continue" option appears once at least 2 models are selected.
+3. **Generate two cross-model figures** in `tests/evaluation/results/cross_model/[timestamp]/` alongside a companion `.md` metadata report.
+4. **Backspace** at any point returns to the main mode selection.
+
 ---
 
 ## 5. Automated Recovery Protocol (Multi-Turn HITL)
@@ -160,9 +174,15 @@ Results are persisted in timestamped folders organized hierarchically by sanitiz
 When running comparative mode or full multi-baseline evaluations, cross-baseline analytics and gate diagnostics are generated in `tests/evaluation/results/<LLM>/<timestamp>/`:
 - `comparative_results_<timestamp>.json`: Combined cross-baseline raw traces and pillar metrics.
 - `comparative_summary_<timestamp>.md`: Side-by-side executive comparison matrix across all baselines.
-- `comparative_integrity_pillars.png / .pdf`: 2-panel standalone comparison for Pre-Deployment Integrity & Operator Burden (Pillars 2 & 3: FPR rate and Operator Interventions count; alias `comparative_safety_pillars` maintained).
+- `comparative_integrity_pillars.png / .pdf`: 2-panel standalone comparison for Pre-Deployment Integrity & Operator Burden (Pillars 2 & 3: FPR rate and Operator Interventions count).
 - `comparative_efficiency_pillars.png / .pdf`: 2-panel standalone comparison for Computational Efficiency (Pillar 3: Latency Boxplot distributions on left, Token Footprint Stacked Bars highlighting useful vs. wasted compute on right).
 - `comparative_pillars_breakdown.png / .pdf`: 4-panel comprehensive breakdown covering Integrity, Friction, Latency, and Tokens in a single grid.
 - `comparative_deployment_flow_sankey.png / .pdf`: Publication-grade dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
 - `comparative_scalability_projection.png / .pdf`: Scalability projection modeling cumulative operator interventions ($N_{hitl}$ cognitive fatigue) across the 120-demand diurnal operational stream, comparing Proposed RADG against Always-On HITL.
 - `gate_accuracy_matrix.png / .pdf`: Multi-class confusion matrix and gate decision accuracy breakdown for Proposed RADG across all 4 risk classes, tracking first-try gating accuracy and timeout mitigation.
+
+### Cross-Model Comparison Figures (`tests/evaluation/results/cross_model/<timestamp>/`)
+When running **Comparative LLMs Mode**, cross-model figures are saved in a shared `cross_model/` directory (model-agnostic by design):
+- `cross_model_efficiency.png / .pdf`: 2-panel grouped bar chart showing Median End-to-End Latency (left) and Median Token Footprint (right) grouped by model, with the 3 baselines as colored sub-bars inside each group. Captures LLM-dependent efficiency variability while holding baseline architecture constant.
+- `cross_model_gate_accuracy.png / .pdf`: GDA% heatmap (model × risk class) using a Red–Yellow–Green colormap, paired with a horizontal bar summary showing overall GDA and annotated FPR per model. Validates the FPR ≈ 0% model-agnostic integrity invariant of the Proposed RADG.
+- `cross_model_comparison_<timestamp>.md`: Metadata report listing compared models, their run timestamps, figure descriptions, and methodology notes explaining which figures are structural (invariant across models) vs. model-sensitive.

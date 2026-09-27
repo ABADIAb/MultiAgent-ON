@@ -669,3 +669,8 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 
 
 
+
+## [2026-09-27] debrief2 | Cross-Model Comparative LLMs Mode Implementation
+- Wiki Deep Lint: Updated `index.md` catalog entries for `Weekly_Report_20260929_Felipe_Abadia.md` (added item 6: Cross-Model mode) and `session_20260927_OpenAI_Provider_Integration_and_CLI_Navigation.md` (consolidated full-day two-session card). Added `[[wikilinks]]` to [[weekly_reports/Weekly_Report_20260929_Felipe_Abadia]] and [[session_summary/session_20260927_OpenAI_Provider_Integration_and_CLI_Navigation]]. Updated `tests/evaluation/README.md` (section 4.5 + `cross_model/` output artifact docs).
+- Consistency Audit: Verified `find_complete_model_runs()` correctly filters to timestamps with all 3 baselines present (empirically confirmed: `qwen2.5_3b` found, `gpt-6-luna` excluded). Confirmed `plot_cross_model_efficiency()` and `plot_cross_model_gate_accuracy_heatmap()` reuse canonical `BASELINE_COLORS` and `COLOR_NAVY`/`COLOR_DARK_SLATE` palette — no new color constants introduced. Verified `ruff check` passes clean on both modified files. Confirmed `results/cross_model/` directory committed with `.gitkeep`. Confirmed structural/invariant figures (Sankey, Pillars, Scalability) are architecturally excluded from cross-model mode by design — they measure RADG pipeline properties, not LLM backend effects.
+- Session closure properly logged.

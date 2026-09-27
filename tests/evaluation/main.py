@@ -707,6 +707,188 @@ def run_comparative_mode(
     )
 
 
+
+def find_complete_model_runs() -> dict[str, list[str]]:
+    """Return {sanitized_model: [timestamp, ...]} where every timestamp has
+    evaluation_results for ALL three baselines (proposed_radg, always_on_hitl, llm_only)."""
+    REQUIRED = ["proposed_radg", "always_on_hitl", "llm_only"]
+    # map: model -> {timestamp -> set(baselines present)}
+    model_ts_baselines: dict[str, dict[str, set[str]]] = {}
+
+    for b_id in REQUIRED:
+        b_root = BASELINES_DIR / b_id / "results"
+        if not b_root.exists():
+            continue
+        for json_path in b_root.glob("**/evaluation_results*.json"):
+            # Structure: results/<model>/<timestamp>/evaluation_results_<ts>.json
+            parts = json_path.parts
+            # Find the index of 'results' segment
+            try:
+                res_idx = parts.index("results", parts.index(b_id))
+            except ValueError:
+                continue
+            if len(parts) < res_idx + 3:
+                continue
+            model_seg = parts[res_idx + 1]
+            ts_seg = parts[res_idx + 2]
+            model_ts_baselines.setdefault(model_seg, {}).setdefault(ts_seg, set()).add(b_id)
+
+    complete: dict[str, list[str]] = {}
+    for model, ts_map in model_ts_baselines.items():
+        valid_ts = sorted(
+            [ts for ts, baselines in ts_map.items() if len(baselines) == len(REQUIRED)],
+            reverse=True,
+        )
+        if valid_ts:
+            complete[model] = valid_ts
+
+    return complete
+
+
+def run_cross_model_comparison(selected: list[dict[str, str]]) -> None:
+    """Load comparative JSONs for each selected model/timestamp and generate cross-model figures.
+
+    Args:
+        selected: List of {"model": sanitized_model, "timestamp": ts} dicts.
+    """
+    from tests.evaluation.generate_visuals import (
+        plot_cross_model_efficiency,
+        plot_cross_model_gate_accuracy_heatmap,
+    )
+
+    BASELINES = ["proposed_radg", "always_on_hitl", "llm_only"]
+    CROSS_MODEL_DIR = RESULTS_DIR / "cross_model"
+
+    console.print(
+        Panel(
+            "[bold cyan]Mode: Cross-Model LLM Comparison[/bold cyan]\n"
+            "[dim]Loading comparative results and generating cross-model figures...[/dim]",
+            title="🔬 Cross-Model Analysis",
+            border_style="cyan",
+            box=box.ROUNDED,
+        )
+    )
+
+    models_data: list[dict[str, Any]] = []
+    meta_entries: list[dict[str, str]] = []
+
+    for entry in selected:
+        model_seg = entry["model"]
+        ts = entry["timestamp"]
+
+        # Load the comparative_results JSON if it exists in results/<model>/<ts>/
+        comp_dir = RESULTS_DIR / model_seg / ts
+        comp_json = next(comp_dir.glob("comparative_results*.json"), None) if comp_dir.exists() else None
+
+        if comp_json and comp_json.exists():
+            with open(comp_json, encoding="utf-8") as f:
+                comp_data = json.load(f)
+            console.print(f"  [green]✓[/green] [bold white]{model_seg}[/bold white] @ [cyan]{ts}[/cyan] — loaded comparative JSON")
+        else:
+            # Build comparative_data on-the-fly from individual baseline JSONs
+            comp_data: dict[str, Any] = {"metadata": {"model": model_seg, "run_id": ts}, "baselines": {}}
+            for b_id in BASELINES:
+                b_json = next(
+                    (BASELINES_DIR / b_id / "results" / model_seg / ts).glob("evaluation_results*.json"),
+                    None,
+                )
+                if b_json and b_json.exists():
+                    with open(b_json, encoding="utf-8") as f:
+                        b_raw = json.load(f)
+                    comp_data["baselines"][b_id] = b_raw
+            console.print(f"  [green]✓[/green] [bold white]{model_seg}[/bold white] @ [cyan]{ts}[/cyan] — assembled from baseline JSONs")
+
+        # Resolve human-readable model label from metadata
+        raw_model = comp_data.get("metadata", {}).get("model", model_seg)
+        for b_id in BASELINES:
+            b_dir = BASELINES_DIR / b_id / "results" / model_seg / ts
+            bj = next(b_dir.glob("evaluation_results*.json"), None)
+            if bj:
+                try:
+                    with open(bj, encoding="utf-8") as f:
+                        raw_model = json.load(f).get("metadata", {}).get("model", raw_model)
+                    break
+                except Exception:
+                    pass
+
+        models_data.append({"label": raw_model, "comparative_data": comp_data})
+        meta_entries.append({"model_label": raw_model, "model_dir": model_seg, "timestamp": ts})
+
+    if len(models_data) < 2:
+        console.print("[red]Need at least 2 models with complete data to generate cross-model figures.[/red]")
+        return
+
+    run_id = time.strftime("%Y%m%d_%H%M%S")
+    out_dir = CROSS_MODEL_DIR / run_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    console.print(f"\n[dim]Generating cross-model figures in {out_dir}...[/dim]")
+
+    plot_cross_model_efficiency(models_data, out_dir / "cross_model_efficiency")
+    console.print("  [green]✓[/green] cross_model_efficiency.png / .pdf")
+
+    plot_cross_model_gate_accuracy_heatmap(models_data, out_dir / "cross_model_gate_accuracy")
+    console.print("  [green]✓[/green] cross_model_gate_accuracy.png / .pdf")
+
+    # Write metadata markdown
+    now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+    md_lines = [
+        "---",
+        f"title: \"Cross-Model LLM Comparison — {run_id}\"",
+        f"date: {now_str}",
+        "tags: [cross-model, evaluation, radg, comparative]",
+        "status: active",
+        "---",
+        "",
+        f"# Cross-Model Comparison Report — `{run_id}`",
+        "",
+        f"**Generated:** {now_str}  ",
+        f"**Models compared:** {len(models_data)}  ",
+        "",
+        "## Models & Runs",
+        "",
+        "| # | Model Label | Directory | Timestamp |",
+        "|---|-------------|-----------|-----------|" ,
+    ]
+    for i, me in enumerate(meta_entries, 1):
+        md_lines.append(f"| {i} | `{me['model_label']}` | `{me['model_dir']}` | `{me['timestamp']}` |")
+
+    md_lines += [
+        "",
+        "## Generated Figures",
+        "",
+        "| File | Description |",
+        "|------|-------------|" ,
+        "| `cross_model_efficiency.png/.pdf` | 2-panel grouped bar: Median Latency & Token Footprint per model per baseline. Captures LLM-dependent efficiency variability while holding baseline architecture constant. |",
+        "| `cross_model_gate_accuracy.png/.pdf` | GDA% heatmap (model × risk class) + overall GDA & FPR summary bar for Proposed RADG. Validates model-agnostic integrity guarantees. |",
+        "",
+        "## Methodology Notes",
+        "",
+        "- **Structural figures** (Sankey, Scalability Projection, Integrity Pillars) are NOT regenerated here because they are architectural properties of the RADG pipeline, not LLM-dependent. They are documented once per-model in `results/<model>/<timestamp>/`.",
+        "- **FPR** is expected to remain at `0.0%` across all models — this is the RADG system invariant. Any deviation should be investigated.",
+        "- **Latency and Token Footprint** are the primary variables that differ across LLM backends (local SLMs vs. cloud APIs).",
+        "- **GDA%** may show minor per-class variance driven by each model's conservatism on ambiguous intents.",
+    ]
+
+    md_path = out_dir / f"cross_model_comparison_{run_id}.md"
+    md_path.write_text("\n".join(md_lines), encoding="utf-8")
+    console.print(f"  [green]✓[/green] {md_path.name}")
+
+    console.print()
+    console.print(
+        Panel(
+            f"[bold green]✓ Cross-Model Comparison Complete![/bold green]\n\n"
+            f"[bold white]Output Directory:[/bold white] [cyan]{out_dir}[/cyan]\n"
+            f"  ├── cross_model_efficiency.png / .pdf\n"
+            f"  ├── cross_model_gate_accuracy.png / .pdf\n"
+            f"  └── cross_model_comparison_{run_id}.md",
+            title="🏆 Cross-Model Analysis Complete",
+            border_style="green",
+            box=box.ROUNDED,
+        )
+    )
+
+
 def parse_args() -> argparse.Namespace:
     """Parse CLI flags."""
     parser = argparse.ArgumentParser(
@@ -860,6 +1042,7 @@ def main() -> None:
                         questionary.Choice("Interactive Mode (Single intent, live node tracking, no metrics export)", "interactive"),
                         questionary.Choice("Evaluation Benchmark Mode (Automated test corpus, Four Pillars metrics, export results)", "eval"),
                         questionary.Choice("Comparative Analysis Mode (Compare existing baseline runs with custom/latest run selection)", "compare"),
+                        questionary.Choice("Comparative LLMs Mode (Cross-model efficiency & gate accuracy figures)", "comparative_llms"),
                     ],
                     allow_back=False,
                 )
@@ -871,8 +1054,97 @@ def main() -> None:
                         is_interactive=True,
                     )
                     return
+                if chosen_mode == "comparative_llms":
+                    step_stack.append("comparative_llms")
+                    continue
                 wizard["mode"] = chosen_mode
                 step_stack.append("provider")
+
+            elif step == "comparative_llms":
+                complete_runs = find_complete_model_runs()
+                if not complete_runs:
+                    console.print(
+                        "[yellow]⚠️  No models found with complete results in all 3 baselines.\n"
+                        "Run evaluations for at least 2 models first.[/yellow]"
+                    )
+                    step_stack.pop()
+                    continue
+
+                # Build flat choice list: model/timestamp pairs
+                all_pairs = [
+                    (model_seg, ts)
+                    for model_seg, ts_list in sorted(complete_runs.items())
+                    for ts in ts_list
+                ]
+
+                if len(all_pairs) < 2:
+                    console.print(
+                        "[yellow]⚠️  Need at least 2 complete model/timestamp combinations.\n"
+                        f"Found only {len(all_pairs)}. Run more model evaluations first.[/yellow]"
+                    )
+                    step_stack.pop()
+                    continue
+
+                selected_models: list[dict[str, str]] = wizard.get("cross_model_selected", [])
+
+                while True:
+                    n_selected = len(selected_models)
+                    can_continue = n_selected >= 2
+                    can_add = n_selected < 4
+
+                    # Build choice list for this iteration
+                    pair_choices = []
+                    for model_seg, ts in all_pairs:
+                        already = any(s["model"] == model_seg and s["timestamp"] == ts for s in selected_models)
+                        indicator = " ✓" if already else ""
+                        pair_choices.append(
+                            questionary.Choice(
+                                f"{model_seg}  [{ts}]{indicator}",
+                                value=f"{model_seg}||{ts}",
+                            )
+                        )
+
+                    if can_continue:
+                        pair_choices.append(questionary.Choice("─── Continue with selected models ───", "__CONTINUE__"))
+                    pair_choices.append(questionary.Choice("─── Clear selection ───", "__CLEAR__"))
+
+                    status_msg = f"Selected: {n_selected}/4 model(s) ({'select 1 more to continue' if n_selected < 2 else 'ready — or add more (max 4)'})\n"
+                    action = prompt_select(
+                        f"{status_msg}Select a model/timestamp to toggle (Backspace to go back):",
+                        choices=pair_choices,
+                        allow_back=True,
+                    )
+
+                    if action == BACK_SENTINEL:
+                        selected_models = []
+                        wizard.pop("cross_model_selected", None)
+                        step_stack.pop()
+                        break
+
+                    if action == "__CLEAR__":
+                        selected_models = []
+                        wizard["cross_model_selected"] = []
+                        continue
+
+                    if action == "__CONTINUE__":
+                        wizard["cross_model_selected"] = selected_models
+                        run_cross_model_comparison(selected_models)
+                        return
+
+                    # Toggle selection
+                    model_seg, ts = action.split("||", 1)
+                    existing = next(
+                        (i for i, s in enumerate(selected_models) if s["model"] == model_seg and s["timestamp"] == ts),
+                        None,
+                    )
+                    if existing is not None:
+                        selected_models.pop(existing)
+                    elif can_add:
+                        selected_models.append({"model": model_seg, "timestamp": ts})
+                    else:
+                        console.print("[yellow]Maximum 4 models already selected. Deselect one first.[/yellow]")
+
+                    wizard["cross_model_selected"] = selected_models
 
             elif step == "provider":
                 env_p = args.provider or os.getenv("LLM_PROVIDER")
