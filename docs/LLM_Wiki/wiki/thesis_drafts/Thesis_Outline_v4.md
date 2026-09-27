@@ -60,20 +60,46 @@ This document provides the fourth iteration of the thesis outline, incorporating
 - **4.5 Plan Synthesis and Verification:** The final auditable provisioning trace (Phase 7) and verification of the seven canonical execution paths under Strict TDD.
 
 --------------------------------------------------------------------------------
-# **5 Experimental Evaluation and Results** 
-- **5.1 Experimental Setup:** Definition of the synthetic intent dataset, utilizing a **17-node German Mock Topology** to evaluate realistic fiber lengths and EDFA amplifier placement.
-  - *Citations:* `[[Scope_Pivot_20260706]]` (experimental design).
-- **5.2 Performance Metrics (Four Validation Pillars):** 
-  - *1. Semantic Translation Accuracy:* Constraint Retention Rate (CRR), CFG AST Pass Rate ($v_{struct} \in \{0, 1\}$), Semantic Agreement Score ($1 - d_{sem}$).
-  - *2. Physical Feasibility:* Unfeasible Approval Rate (UAR $\to 0\%$), QoT Feasibility Rate (QFR $\to 100\%$), Physical Infeasibility Interception Rate (PIIR).
-  - *3. Orchestration & Resource Efficiency:* Prompt Token Reduction ($\Delta T_{tokens} > 75\%$ via Scoped GraphRAG), Human Intervention Reduction ($\Delta N_{hitl} > 70\%$), Sub-second deterministic compute ($T_{det} < 15\text{ ms}$), End-to-End Latency ($T_{E2E}$).
-  - *4. RADGs Decision Robustness:* Gate Decision Accuracy (GDA $> 98\%$), False Positive Rate ($\text{FPR} = 0\%$), Selective HITL Precision.
-  - *Citations:* `[[ProblemStatement_v5]]`; `[[Scope_Pivot_20260706]]`.
-- **5.3 Performance under Nominal Conditions:** Results data of the architecture autonomously processing unambiguous, QoT-valid intents. Integrates comparison against No-HITL and Always-HITL baselines.
-- **5.4 Performance under Ambiguity:** Results data of the system engaging the HITL proportionally via reverse prompting when constraints are missing. Integrates comparison against the reactive-retry baseline.
-- **5.5 Summary of Findings:** The computational and operational savings achieved by avoiding post-deployment failures and applying pre-deployment verification.
-  - *Citations:* `[SOTA] Cost_and_accuracy_of_long-term_graph_memory_in_distributed_LLM-based_multi-agent_systems.pdf` (cross-referencing Token Cost savings).
+# **5 Experimental Evaluation and Results**
+## 5.1 Experimental Setup
+  * **5.1.1 Network Topology and Physical Parameters** (Nobel-Germany 17-node)
+  * **5.1.2 LLM Backends Under Evaluation** (`qwen2.5:3b`, `gpt-6-luna`, `gpt-5-nano`)
+  * **5.1.3 Benchmark Corpus and Diurnal Risk Classes** (I–IV, 120-demand full + 20 compact)
+  * **5.1.4 Baseline Architectures** (Proposed RADG, Always-On HITL, LLM-Only)
+  * **5.1.5 Performance Metrics:** The Four Validation Pillars
+## 5.2 Intra-Model Comparative Analysis
 
+*(Representative model: `gpt-6-luna` on full 120 corpus)*
+
+  * **5.2.1 The Alert Fatigue Dilemma: Why Always-On HITL Fails**
+    * Pillars breakdown: latency +X%, tokens +X%, 30 wasted interrupts on nominals
+    * Scalability projection figure
+  * **5.2.2 The Controller Collapse Dilemma: Why LLM-Only Fails**
+    * Sankey: 100% forwarded → 75% controller incidents
+    * $\text{FPR} = 100\%$, wasted compute analysis
+  * **5.2.3 The RADG Synthesis: Pre-Deployment Autonomous Gating**
+    * Gate accuracy matrix
+    * Integrity pillars (FPR), efficiency pillars
+
+## 5.3 Cross-Model Sensitivity Analysis
+  * **5.3.1 Gate Decision Accuracy Across LLM Backends**
+    * Cross-model GDA heatmap ($\text{model} \times \text{risk class}$)
+  * **5.3.2 The FPR–Model Quality Tradeoff**
+    * `qwen` 0.0% vs. `gpt-6-luna` 3.3% vs. `gpt-5-nano` 16.7%
+    * Analysis of where false positives leak (risk class, gate type)
+    * Physical RADG as invariant safety net vs. Semantic RADG as LLM-dependent
+  * **5.3.3 Efficiency Variability: Latency and Token Sensitivity to Backend**
+    * Cross-model efficiency grouped bars
+
+## 5.4 Discussion and Limitations
+
+* **5.4.1 On the $\text{FPR} \neq 0\%$ Observation:** Architectural Guarantees vs. LLM Quality
+* **5.4.2 Corpus Scope and Generalization**
+* **5.4.3 Threats to Validity**
+
+## 5.5 Summary of Findings
+
+* Consolidated comparison table ($\text{all models} \times \text{all baselines} \times \text{all pillars}$)
 --------------------------------------------------------------------------------
 # **6 Conclusion and Future Work** 
 - **6.1 Summary of Contributions:** Reiteration of the value of merging LLM semantic reasoning with formal PDDL constraint solving via the RADGs.

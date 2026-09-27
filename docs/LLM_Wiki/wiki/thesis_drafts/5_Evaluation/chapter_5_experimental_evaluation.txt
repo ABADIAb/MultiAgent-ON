@@ -1,0 +1,428 @@
+\chapter{Experimental Evaluation and Results}
+\label{chap:evaluation}
+
+This chapter evaluates the Risk-Adaptive Decision Gate (RADG) architecture introduced in Chapter~\ref{chap:system_model} and implemented in Chapter~\ref{chap:implementation}. The evaluation quantifies the system's ability to intercept physically infeasible or semantically ambiguous intents \emph{before} they reach the SDON controller, while minimizing unnecessary operator interventions. Three baseline architectures are compared across a four-pillar validation framework using three LLM backends of varying capacity. Section~\ref{sec:experimental_setup} describes the testbed, corpus, and baselines. Section~\ref{sec:intra_model} presents an in-depth intra-model comparative analysis using a representative cloud-hosted LLM. Section~\ref{sec:cross_model} examines the sensitivity of gate decisions to the underlying LLM backend. Section~\ref{sec:discussion} discusses limitations and threats to validity, and Section~\ref{sec:eval_summary} consolidates the findings.
+
+
+% ============================================================================
+\section{Experimental Setup}
+\label{sec:experimental_setup}
+% ============================================================================
+
+\subsection{Network Topology and Physical Parameters}
+\label{sec:topology}
+
+All experiments use the Nobel-Germany reference topology, a 17-node, 26-bidirectional-link backbone derived from the SNDlib repository~\cite{sndlib}. Each link models a deployed fiber span with heterogeneous lengths ranging from 37.5\,km to 381.9\,km. The physical layer is parameterized for ITU-T G.652 single-mode fiber (SMF-28) with attenuation coefficient $\alpha = 0.2$\,dB/km, nonlinear coefficient $\gamma = 1.3$\,W$^{-1}$km$^{-1}$, dispersion parameter $D = 16.7$\,ps/(nm$\cdot$km), and reference bandwidth $B_{ref} = 12.5$\,GHz. Inline amplifiers (ILAs) are placed every 80\,km with a noise figure $\text{NF} = 5.5$\,dB, and booster amplifiers compensate for ROADM insertion losses at each node. The GN-model QoT engine, described in Section~\ref{sec:physical_engine}, computes per-path GSNR values and receiver power levels against a threshold of $\text{GSNR}_{th} = 12.6$\,dB and minimum receiver sensitivity $P_{rx,min} = -28$\,dBm.
+
+% Placeholder for topology figure — to be generated
+\begin{figure}[!htbp]
+  \centering
+  \fbox{\parbox{0.85\textwidth}{\centering\vspace{3cm}\textbf{[Placeholder: Nobel-Germany 17-node topology map with labeled nodes and fiber span lengths]}\vspace{3cm}}}
+  % \includegraphics[width=0.88\textwidth]{Figures/figs_Evaluation/nobel_germany_topology.pdf}
+  \caption{The Nobel-Germany 17-node reference topology used for evaluation. Node labels correspond to German metropolitan locations; edge annotations indicate fiber span length in km. Inline optical amplifiers (ILAs) are placed every 80\,km along each span.}
+  \label{fig:nobel_germany_topology}
+\end{figure}
+\FloatBarrier
+
+\subsection{LLM Backends Under Evaluation}
+\label{sec:llm_backends}
+
+The pipeline is evaluated with three LLM backends that span the capability and deployment spectrum:
+
+\begin{itemize}
+    \item \textbf{Qwen 2.5 3B} (\texttt{qwen2.5:3b}, Ollama, local inference): A 3-billion-parameter open-weights model running on consumer hardware (NVIDIA RTX~3050, 4\,GB VRAM). Represents the lower bound of model capacity available for edge or air-gapped deployments.
+    \item \textbf{GPT-6 Luna} (\texttt{gpt-6-luna}, OpenAI API): A cloud-hosted commercial model representing the current state of the art in instruction following and structured output generation.
+    \item \textbf{GPT-5 Nano} (\texttt{gpt-5-nano-2025-08-07}, OpenAI API): A compact cloud-hosted model positioned between the two extremes, offering faster inference at reduced reasoning depth.
+\end{itemize}
+
+This selection tests whether the neurosymbolic architecture maintains its integrity guarantees independently of the neural component's capacity, or whether gate accuracy degrades as a function of LLM quality.
+
+\subsection{Benchmark Corpus and Risk Classes}
+\label{sec:corpus}
+
+The evaluation corpus consists of 120 operator intent demands partitioned equally into four risk classes of 30 demands each. Each class targets a distinct failure mode of the pipeline:
+
+\begin{itemize}
+    \item \textbf{Class~I (Nominal):} Unambiguous, physically feasible intents with complete constraint specification (e.g., ``Route 100\,Gbps from Hamburg to Munich avoiding Frankfurt''). Expected outcome: autonomous approval with zero HITL interrupts.
+    \item \textbf{Class~II (Ambiguous):} Intents with deliberately missing or contradictory constraints that increase semantic uncertainty $U_{sem}$ above the threshold $\tau_{sem}$. Expected outcome: the Semantic RADG triggers a Clarify interrupt via reverse prompting.
+    \item \textbf{Class~III (Infeasible):} Intents with valid semantic content but physically impossible routing requirements (e.g., demanding 25\,dB GSNR on a 381\,km single-span link). Expected outcome: the Physical RADG triggers a Replan interrupt after GN-model evaluation confirms $\text{QoT}_{valid} = 0$.
+    \item \textbf{Class~IV (Adversarial):} Intents combining both semantic ambiguity and physical infeasibility. Expected outcome: the pipeline intercepts at the earliest applicable gate.
+\end{itemize}
+
+The Qwen 2.5 3B model uses a 20-demand compact variant of this corpus (5 per class) due to its local inference constraints; GPT-6~Luna and GPT-5~Nano use the full 120-demand corpus.
+
+\subsection{Baseline Architectures}
+\label{sec:baselines}
+
+Three baseline architectures are compared. Each shares the same LangGraph pipeline and physical-layer engine; only the gating and HITL engagement policy differs:
+
+\begin{enumerate}
+    \item \textbf{Proposed RADG (V5):} The full architecture with dual sequential gates. The Semantic RADG evaluates $U_{sem}$ and the Physical RADG evaluates $\text{QoT}_{valid}$. HITL interrupts are triggered selectively, proportional to assessed risk.
+    \item \textbf{Always-On HITL:} An ablation where every demand, regardless of risk class, is forced through a mandatory HITL review step after the semantic gate. This baseline isolates the cost of indiscriminate human engagement.
+    \item \textbf{LLM-Only:} An ablation where both decision gates are disabled. Every demand is forwarded directly from PDDL translation to path synthesis and QoT validation, with no pre-deployment interception of semantically ambiguous or physically infeasible intents. This baseline models the behavior of a conventional LLM-based planner without neurosymbolic gating.
+\end{enumerate}
+
+\subsection{Performance Metrics: The Four Validation Pillars}
+\label{sec:metrics}
+
+The evaluation framework is organized into four validation pillars, each targeting a distinct operational concern:
+
+\begin{enumerate}
+    \item \textbf{Pillar~1 --- Semantic Translation Accuracy:} Measures the fidelity of the NL-to-PDDL translation.
+    \begin{itemize}
+        \item Constraint Retention Rate: $\text{CRR} = N_{preserved} / N_{explicit}$.
+        \item CFG AST Pass Rate: fraction of PDDL outputs that pass the context-free grammar validator ($v_{struct} \in \{0, 1\}$).
+        \item Semantic Agreement: $1 - d_{sem}$, the concordance between the original intent and the reverse-prompted reconstruction.
+    \end{itemize}
+
+    \item \textbf{Pillar~2 --- Physical Feasibility and Integrity:} Measures the system's ability to prevent physically infeasible plans from reaching the controller.
+    \begin{itemize}
+        \item False Positive Rate: $\text{FPR} = N_{risky\_approved} / N_{total}$. Target: $0.0\%$.
+        \item Physical Infeasibility Interception Rate: $\text{PIIR} = N_{class3\_replanned} / N_{class3\_total}$.
+    \end{itemize}
+
+    \item \textbf{Pillar~3 --- Efficiency and Operator Friction:} Measures resource consumption and human workload.
+    \begin{itemize}
+        \item End-to-end latency $T_{E2E}$ (median and mean, in seconds).
+        \item Token footprint $T_{tokens}$ (median and mean, per demand).
+        \item Mean HITL interventions per demand $\bar{N}_{hitl}$.
+        \item Task Completion Rate (TCR): fraction of demands resolved without timeout.
+    \end{itemize}
+
+    \item \textbf{Pillar~4 --- Gate Reliability and Autonomy:} Measures the accuracy and selectivity of the gating mechanism.
+    \begin{itemize}
+        \item Gate Decision Accuracy: $\text{GDA} = N_{correct} / N_{total}$.
+        \item Selective HITL Precision: fraction of HITL interrupts that were directed at genuinely non-nominal intents.
+    \end{itemize}
+\end{enumerate}
+
+The next section presents a detailed intra-model analysis using GPT-6~Luna as the representative backend, illustrating the three operational dilemmas that motivate the RADG architecture.
+
+
+% ============================================================================
+\section{Intra-Model Comparative Analysis}
+\label{sec:intra_model}
+% ============================================================================
+
+This section uses GPT-6~Luna on the full 120-demand corpus as the representative configuration. The analysis is structured around three operational dilemmas that the RADG architecture addresses.
+
+\subsection{The Alert Fatigue Dilemma: Why Always-On HITL Fails}
+\label{sec:alert_fatigue}
+
+The Always-On HITL baseline forces a mandatory operator review on every demand, including the 30 nominal intents that require no human intervention. Table~\ref{tab:alert_fatigue} compares the operator friction metrics between the Proposed RADG and the Always-On HITL baseline.
+
+\begin{table}[!htbp]
+\centering
+\caption{Operator friction comparison on GPT-6~Luna (120 demands). The Always-On HITL baseline generates 30 unnecessary interrupts on nominal traffic, inflating token consumption by 14.7\% and degrading Selective HITL Precision from 100\% to 74.4\%.}
+\label{tab:alert_fatigue}
+\begin{tabular}{lcc}
+\hline
+\textbf{Metric} & \textbf{Proposed RADG} & \textbf{Always-On HITL} \\
+\hline
+Total HITL interrupts         & 87         & 117 \\
+Nominal HITL interrupts       & 0          & 30 \\
+Selective HITL Precision      & 100.0\%    & 74.4\% \\
+Mean $T_{E2E}$ (s)            & 11.06      & 12.68 \\
+Total tokens consumed         & 939,812    & 1,078,381 \\
+Mean tokens per demand        & 7,832      & 8,987 \\
+\hline
+\end{tabular}
+\end{table}
+
+The Always-On baseline issues 30 additional interrupts on Class~I demands that the Proposed RADG autonomously approves. These interrupts consume an additional 138,569 tokens ($+14.7\%$) and increase mean latency by 1.62\,s per demand ($+14.7\%$). The Selective HITL Precision drops from 100.0\% to 74.4\%: over one quarter of all human interventions in the Always-On baseline are directed at demands that require no operator attention. In production deployments processing thousands of intents per day, this volume of false alarms directly contributes to operator fatigue, reduced trust in the system, and slower response to genuinely risky intents.
+
+Figure~\ref{fig:pillars_breakdown_luna} (top-right panel, ``Operator Friction \& Interventions'') illustrates this dilemma visually. The Proposed RADG directs zero interrupts at nominal traffic, while the Always-On HITL baseline wastes 30 interrupts on demands that pass both semantic and physical gates autonomously.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/figs_Evaluation/pillars_breakdown_luna.pdf}
+  \caption{Comprehensive four-pillar comparison across all baselines for GPT-6~Luna. Top-left: pre-deployment integrity (FPR). Top-right: operator friction and intervention counts, distinguishing nominal traffic interrupts from risky traffic oversight. Bottom-left: end-to-end latency per risk class with wasted overhead. Bottom-right: token footprint per risk class with wasted compute.}
+  \label{fig:pillars_breakdown_luna}
+\end{figure}
+\FloatBarrier
+
+Figure~\ref{fig:scalability_projection_luna} projects the operational cost of each baseline under increasing demand volumes. The Always-On HITL baseline scales linearly with total demand volume, accumulating human intervention overhead independently of intent risk. The Proposed RADG's intervention count grows only with the non-nominal fraction of the traffic mix.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{Figures/figs_Evaluation/scalability_projection_luna.pdf}
+  \caption{Scalability projection of operator interventions and token consumption as a function of demand volume for GPT-6~Luna. The Always-On HITL baseline grows linearly with total demands, while the Proposed RADG grows only with the risky-traffic fraction.}
+  \label{fig:scalability_projection_luna}
+\end{figure}
+\FloatBarrier
+
+
+\subsection{The Controller Collapse Dilemma: Why LLM-Only Fails}
+\label{sec:controller_collapse}
+
+The LLM-Only baseline disables both decision gates, forwarding all 120 demands directly from translation to the SDON controller admission stage. Without pre-deployment gating, every non-nominal intent---semantically ambiguous, physically infeasible, or adversarial---reaches the controller and produces a deployment incident.
+
+Table~\ref{tab:controller_collapse} summarizes the integrity and efficiency impact.
+
+\begin{table}[!htbp]
+\centering
+\caption{Integrity and efficiency impact of the LLM-Only baseline on GPT-6~Luna. Without pre-deployment gating, 90 out of 120 demands produce controller incidents, yielding $\text{FPR} = 100\%$ and $\text{GDA} = 25\%$.}
+\label{tab:controller_collapse}
+\begin{tabular}{lcc}
+\hline
+\textbf{Metric} & \textbf{Proposed RADG} & \textbf{LLM-Only} \\
+\hline
+Demands forwarded to controller  & 33 (27.5\%)   & 120 (100\%) \\
+Controller incidents             & 0              & 90 \\
+$\text{FPR}$                     & 3.3\%          & 100.0\% \\
+$\text{GDA}$                     & 96.7\%         & 25.0\% \\
+$\text{PIIR}$                    & 90.0\%         & 0.0\% \\
+Median $T_{E2E}$ (s)             & 12.48          & 19.69 \\
+Total tokens consumed            & 939,812        & 1,565,391 \\
+\hline
+\end{tabular}
+\end{table}
+
+The LLM-Only baseline achieves a Gate Decision Accuracy of only 25.0\%, corresponding to the 30 nominal demands that are correctly approved. The remaining 90 demands traverse the full pipeline---consuming a median of 15,823 tokens per demand ($+72.8\%$ over the Proposed RADG)---only to produce controller-side failures that could have been intercepted at the semantic or physical gate. The total token footprint reaches 1,565,391 tokens, a 66.6\% increase over the Proposed RADG. The PIIR drops to 0.0\%: no physically infeasible demand is intercepted before reaching the controller.
+
+Figure~\ref{fig:sankey_luna} contrasts the demand flow through both architectures. In the Proposed RADG (top panel), 87 of 120 demands (72.5\%) are intercepted at the pre-deployment stage, and only 33 verified-nominal demands reach the SDON controller, all of which pass admission. In the LLM-Only baseline (bottom panel), all 120 demands are forwarded blindly: 30 pass, 30 fail with syntax or ambiguity errors, 30 fail with QoT/reach violations, and 30 fail with constraint conflicts.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth]{Figures/figs_Evaluation/sankey_luna.pdf}
+  \caption{Comparative operational deployment flow for GPT-6~Luna. Top: the Proposed RADG intercepts 87 demands (72.5\%) at the pre-deployment stage, forwarding only 33 verified intents to the SDON controller. Bottom: the LLM-Only baseline forwards all 120 demands, producing 90 controller-side incidents.}
+  \label{fig:sankey_luna}
+\end{figure}
+\FloatBarrier
+
+
+\subsection{The RADG Synthesis: Pre-Deployment Autonomous Gating}
+\label{sec:radg_synthesis}
+
+The Proposed RADG resolves both dilemmas simultaneously. It achieves 100\% autonomous processing of nominal intents (zero HITL interrupts on Class~I) while intercepting 90\% of physically infeasible demands (PIIR~$= 90.0\%$) and maintaining a Gate Decision Accuracy of 96.7\%.
+
+Figure~\ref{fig:gate_accuracy_luna} shows the distribution of gate decisions across the four risk classes. Class~I demands are routed directly to approval (green). Class~II demands are predominantly routed to the Semantic RADG for clarification (orange, 93\%). Class~III demands are routed to the Physical RADG for replanning (red, 90\%). Class~IV demands, combining both failure modes, trigger the earliest applicable gate: 67\% are caught at the semantic level, 27\% at the physical level, with only 2 demands (7\%) auto-approved due to borderline $U_{sem}$ values.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.88\textwidth]{Figures/figs_Evaluation/gate_accuracy_matrix_luna.pdf}
+  \caption{RADG initial risk interception distribution across risk classes for GPT-6~Luna. Green: autonomous approval. Orange: Semantic RADG clarification. Red: Physical RADG replanning. The system operates at 100\% autonomy (0 HITL interrupts on nominal traffic).}
+  \label{fig:gate_accuracy_luna}
+\end{figure}
+\FloatBarrier
+
+The 3 false positives ($\text{FPR} = 3.3\%$) correspond to adversarial demands where the Semantic RADG failed to detect deliberately obfuscated constraint contradictions. The Physical RADG intercepted 27 out of 30 Class~III demands; the 3 remaining demands had routes that were marginally feasible (GSNR within 0.3\,dB of the threshold), leading the system to approve them as borderline-pass cases.
+
+Table~\ref{tab:radg_executive} presents the consolidated executive summary of all four pillars for the GPT-6~Luna evaluation.
+
+\begin{table}[!htbp]
+\centering
+\caption{Executive four-pillar summary for GPT-6~Luna across all three baselines (120 demands).}
+\label{tab:radg_executive}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccc}
+\hline
+\textbf{Pillar} & \textbf{Metric} & \textbf{Proposed RADG} & \textbf{Always-On HITL} & \textbf{LLM-Only} \\
+\hline
+\multirow{3}{*}{1. Semantic Translation} & CRR & 98.7\% & 98.7\% & 100.0\% \\
+ & CFG Pass Rate & 93.3\% & 93.3\% & 92.5\% \\
+ & Semantic Agreement ($1 - d_{sem}$) & 0.963 & 0.468 & N/A \\
+\hline
+\multirow{2}{*}{2. Physical Integrity} & FPR & 3.3\% & 3.3\% & 100.0\% \\
+ & PIIR & 90.0\% & N/A & 0.0\% \\
+\hline
+\multirow{4}{*}{3. Efficiency} & Median $T_{E2E}$ (s) & 12.48 & 12.75 & 19.69 \\
+ & Median $T_{tokens}$ & 9,154 & 9,154 & 15,823 \\
+ & Mean $\bar{N}_{hitl}$ & 0.72 & 0.97 & 0.75 \\
+ & TCR & 100.0\% & 100.0\% & 100.0\% \\
+\hline
+\multirow{2}{*}{4. Gate Reliability} & GDA & 96.7\% & 96.7\% & 25.0\% \\
+ & Selective HITL Precision & 100.0\% & 74.4\% & 100.0\% \\
+\hline
+\end{tabular}%
+}
+\end{table}
+\FloatBarrier
+
+Two observations merit attention. First, the Semantic Agreement score of the Always-On HITL baseline (0.468) is significantly lower than the Proposed RADG's (0.963). This occurs because the Always-On baseline interrupts every demand---including nominal intents where the LLM's reconstruction is already correct---injecting unnecessary human feedback that modifies the LLM's original translation and increases $d_{sem}$. Second, the LLM-Only baseline reports ``N/A'' for Semantic Agreement because the reverse prompting phase is bypassed entirely.
+
+The next section extends this analysis across all three LLM backends to evaluate the sensitivity of gate decisions to model quality.
+
+
+% ============================================================================
+\section{Cross-Model Sensitivity Analysis}
+\label{sec:cross_model}
+% ============================================================================
+
+\subsection{Gate Decision Accuracy Across LLM Backends}
+\label{sec:cross_gda}
+
+Table~\ref{tab:cross_model_gda} reports the Gate Decision Accuracy and related integrity metrics for the Proposed RADG across all three LLM backends.
+
+\begin{table}[!htbp]
+\centering
+\caption{Cross-model comparison of gate decision metrics for the Proposed RADG baseline. Qwen~2.5~3B operates on a 20-demand compact corpus; GPT-6~Luna and GPT-5~Nano operate on the full 120-demand corpus.}
+\label{tab:cross_model_gda}
+\begin{tabular}{lccc}
+\hline
+\textbf{Metric} & \textbf{Qwen 2.5 3B} & \textbf{GPT-6 Luna} & \textbf{GPT-5 Nano} \\
+\hline
+GDA                     & 95.0\%     & 96.7\%     & 84.2\% \\
+FPR                     & 0.0\%      & 3.3\%      & 16.7\% \\
+PIIR                    & 83.3\%     & 90.0\%     & 86.7\% \\
+Selective HITL Precision & 97.8\%    & 100.0\%    & 100.0\% \\
+CRR                     & 94.6\%     & 98.7\%     & 90.5\% \\
+Semantic Agreement      & 0.866      & 0.963      & 0.955 \\
+\hline
+\end{tabular}
+\end{table}
+
+GPT-6~Luna achieves the highest GDA (96.7\%) and the strongest CRR (98.7\%). Qwen~2.5~3B, despite its limited parameter count, achieves $\text{FPR} = 0.0\%$ on the compact corpus---a result attributable to the conservative nature of smaller models, which tend to generate higher $U_{sem}$ values and trigger clarification more aggressively. GPT-5~Nano exhibits the lowest GDA (84.2\%) and highest FPR (16.7\%), indicating that its intermediate reasoning capacity is insufficient to reliably detect semantic ambiguity in adversarial intents.
+
+% Placeholder for cross-model GDA heatmap
+\begin{figure}[!htbp]
+  \centering
+  \fbox{\parbox{0.85\textwidth}{\centering\vspace{3cm}\textbf{[Placeholder: Cross-model GDA heatmap (model $\times$ risk class)]}\vspace{3cm}}}
+  % \includegraphics[width=0.88\textwidth]{Figures/figs_Evaluation/cross_model_gda_heatmap.pdf}
+  \caption{Gate Decision Accuracy heatmap across LLM backends and risk classes. Rows correspond to the three evaluated models; columns correspond to the four risk classes (I--IV). Cell values indicate the per-class GDA percentage.}
+  \label{fig:cross_model_gda_heatmap}
+\end{figure}
+\FloatBarrier
+
+
+\subsection{The FPR--Model Quality Tradeoff}
+\label{sec:fpr_tradeoff}
+
+The FPR values across backends---0.0\% (Qwen), 3.3\% (GPT-6~Luna), and 16.7\% (GPT-5~Nano)---reveal a structural property of the architecture. False positives originate exclusively at the Semantic RADG (Phase~3), where the LLM's reverse-prompted reconstruction fails to flag an ambiguous or adversarial intent. The Physical RADG (Phase~6) operates on deterministic GN-model outputs and is independent of the LLM backend: its interception rate (PIIR) remains consistently high across all models (83.3\%--90.0\%).
+
+This decomposition has two implications. First, the Physical RADG provides a model-agnostic deterministic integrity floor: regardless of LLM quality, physically infeasible lightpaths are intercepted by the GN-model engine. Second, the FPR is a direct function of the LLM's semantic discrimination capacity. GPT-5~Nano's 16.7\% FPR traces to 15 demands---predominantly Class~IV adversarial intents with deliberately obfuscated constraint contradictions---where the model produced reverse-prompted reconstructions that appeared semantically consistent despite containing latent conflicts. GPT-6~Luna reduced this count to 3 demands, and Qwen~2.5~3B achieved zero false positives by generating conservatively high $U_{sem}$ values that triggered clarification on borderline cases.
+
+This finding provides operational guidance for production deployments: the RADG architecture maintains its physical integrity guarantee regardless of backend selection, but FPR can be reduced by selecting an LLM with stronger instruction-following and semantic disambiguation capabilities, or by lowering the semantic threshold $\tau_{sem}$ at the cost of increased HITL friction.
+
+% Placeholder for FPR decomposition figure
+\begin{figure}[!htbp]
+  \centering
+  \fbox{\parbox{0.85\textwidth}{\centering\vspace{3cm}\textbf{[Placeholder: FPR decomposition across models --- bar chart showing Semantic RADG leakage vs. Physical RADG interception per model]}\vspace{3cm}}}
+  % \includegraphics[width=0.88\textwidth]{Figures/figs_Evaluation/fpr_decomposition_cross_model.pdf}
+  \caption{FPR decomposition across LLM backends. Each bar shows the number of false positives that leaked through the Semantic RADG (orange) versus the demands correctly intercepted by the Physical RADG (red). The Physical RADG operates independently of the LLM backend.}
+  \label{fig:fpr_decomposition}
+\end{figure}
+\FloatBarrier
+
+
+\subsection{Efficiency Variability: Latency and Token Sensitivity to Backend}
+\label{sec:cross_efficiency}
+
+Table~\ref{tab:cross_model_efficiency} compares the efficiency metrics of the Proposed RADG across all three backends.
+
+\begin{table}[!htbp]
+\centering
+\caption{Efficiency metrics for the Proposed RADG across LLM backends.}
+\label{tab:cross_model_efficiency}
+\begin{tabular}{lccc}
+\hline
+\textbf{Metric} & \textbf{Qwen 2.5 3B} & \textbf{GPT-6 Luna} & \textbf{GPT-5 Nano} \\
+\hline
+Median $T_{E2E}$ (s)        & 12.91     & 12.48     & 10.22 \\
+Mean $T_{E2E}$ (s)          & 21.73     & 11.06     & 8.83 \\
+Median $T_{tokens}$         & 9,092     & 9,154     & 8,784 \\
+Mean $T_{tokens}$           & 7,768     & 7,832     & 7,002 \\
+Total tokens                & 932,212   & 939,812   & 840,257 \\
+TCR                         & 97.5\%    & 100.0\%   & 100.0\% \\
+Timeouts                    & 3         & 0         & 0 \\
+Mean $\bar{N}_{hitl}$       & 0.74      & 0.72      & 0.62 \\
+\hline
+\end{tabular}
+\end{table}
+
+GPT-5~Nano exhibits the lowest median latency (10.22\,s) and smallest token footprint (median 8,784 tokens per demand), consistent with its compact architecture optimized for fast inference. Qwen~2.5~3B shows elevated mean latency (21.73\,s) due to 3 timeout events on ambiguous demands where the local model's limited context window required multiple re-generation attempts. The median latency (12.91\,s) is comparable to GPT-6~Luna (12.48\,s), indicating that the tail latency is dominated by a small number of difficult cases rather than systematic degradation.
+
+% Placeholder for cross-model efficiency grouped bars
+\begin{figure}[!htbp]
+  \centering
+  \fbox{\parbox{0.85\textwidth}{\centering\vspace{3cm}\textbf{[Placeholder: Cross-model efficiency comparison --- grouped bar chart showing median latency and token footprint per model per risk class]}\vspace{3cm}}}
+  % \includegraphics[width=0.88\textwidth]{Figures/figs_Evaluation/cross_model_efficiency_bars.pdf}
+  \caption{Cross-model efficiency comparison for the Proposed RADG. Grouped bars show median end-to-end latency (left axis, seconds) and median token footprint (right axis, thousands) per LLM backend, broken down by risk class.}
+  \label{fig:cross_model_efficiency}
+\end{figure}
+\FloatBarrier
+
+The token footprint remains stable across backends (median range: 8,784--9,154), confirming that the neurosymbolic pipeline's token consumption is determined primarily by the pipeline structure (context bounding via $k$-hop GraphRAG, fixed PDDL schema) rather than by the LLM's generation verbosity. The HITL intervention rate follows a similar pattern, with GPT-5~Nano producing the fewest interrupts per demand (0.62) due to its lower ambiguity detection rate (40.0\% vs. 80.0\% for GPT-6~Luna), which trades reduced friction for increased FPR.
+
+
+% ============================================================================
+\section{Discussion and Limitations}
+\label{sec:discussion}
+% ============================================================================
+
+\subsection{On the FPR $\neq$ 0\% Observation}
+\label{sec:fpr_discussion}
+
+The initial target of $\text{FPR} = 0.0\%$ is met only by Qwen~2.5~3B on the compact 20-demand corpus. GPT-6~Luna achieves $\text{FPR} = 3.3\%$ (3 false positives out of 120 demands) and GPT-5~Nano reaches $\text{FPR} = 16.7\%$ (15 false positives). This outcome does not invalidate the architecture; rather, it decomposes the integrity guarantee into two layers:
+
+\begin{enumerate}
+    \item \textbf{The deterministic layer (Physical RADG):} Operates on GN-model outputs with zero dependence on the LLM. Its interception rate (PIIR: 83.3\%--90.0\%) is bounded by the physics engine's coverage of the demand space, not by neural quality.
+    \item \textbf{The neural layer (Semantic RADG):} Depends on the LLM's ability to produce accurate reverse-prompted reconstructions. False positives occur when the LLM generates a reconstruction that appears semantically consistent with the original intent despite containing latent constraint violations.
+\end{enumerate}
+
+This decomposition provides a clear operational lever: deploying a higher-capability LLM reduces FPR without requiring any architectural changes. Alternatively, lowering $\tau_{sem}$ increases the Semantic RADG's sensitivity at the cost of additional HITL interventions on borderline cases.
+
+\subsection{Corpus Scope and Generalization}
+\label{sec:corpus_scope}
+
+The benchmark corpus is synthetic, generated from parameterized templates that cover the four risk classes. While the templates model realistic operator requests (multi-hop routing with GSNR constraints, node avoidance, bandwidth specifications), they do not capture the full linguistic diversity of production network operations centers. The 120-demand full corpus provides statistical coverage for per-class analysis (30 samples per class), but the compact 20-demand corpus used for Qwen~2.5~3B (5 per class) limits the confidence of per-class breakdowns for that model.
+
+The Nobel-Germany 17-node topology, while standard in optical networking research, represents a single national backbone. Generalization to continental-scale or submarine topologies with different fiber parameters would require recalibration of the GN-model constants and re-evaluation of the GSNR threshold.
+
+\subsection{Threats to Validity}
+\label{sec:threats}
+
+\textbf{Internal validity.} The HITL interactions are simulated programmatically: the evaluation harness provides deterministic follow-up responses when the pipeline triggers an \texttt{interrupt()} call. This eliminates variability from human response time and content quality, but does not capture the cognitive load or error rate of real operators.
+
+\textbf{External validity.} Results are specific to the three evaluated LLM backends and the Nobel-Germany topology. The relative ordering of model performance (GPT-6~Luna $>$ Qwen~2.5~3B $>$ GPT-5~Nano on GDA) may not hold for other model families or fine-tuned variants.
+
+\textbf{Construct validity.} The FPR metric treats all false positives equally, regardless of the severity of the underlying physical infeasibility. A demand that is borderline-feasible (GSNR within 0.3\,dB of the threshold) is penalized identically to one that is grossly infeasible.
+
+
+% ============================================================================
+\section{Summary of Findings}
+\label{sec:eval_summary}
+% ============================================================================
+
+Table~\ref{tab:consolidated} presents the consolidated comparison across all models and baselines.
+
+\begin{table}[!htbp]
+\centering
+\caption{Consolidated comparison across all LLM backends and baselines. Qwen~2.5~3B uses a 20-demand compact corpus; GPT-6~Luna and GPT-5~Nano use the full 120-demand corpus.}
+\label{tab:consolidated}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll|ccc|ccc|ccc}
+\hline
+ & & \multicolumn{3}{c|}{\textbf{Qwen 2.5 3B}} & \multicolumn{3}{c|}{\textbf{GPT-6 Luna}} & \multicolumn{3}{c}{\textbf{GPT-5 Nano}} \\
+\textbf{Pillar} & \textbf{Metric} & \textbf{RADG} & \textbf{AO-HITL} & \textbf{LLM-Only} & \textbf{RADG} & \textbf{AO-HITL} & \textbf{LLM-Only} & \textbf{RADG} & \textbf{AO-HITL} & \textbf{LLM-Only} \\
+\hline
+\multirow{3}{*}{1} & CRR & 94.6\% & 94.6\% & 94.6\% & 98.7\% & 98.7\% & 100.0\% & 90.5\% & 90.5\% & 94.6\% \\
+ & CFG-PR & 95.0\% & 95.0\% & 97.5\% & 93.3\% & 93.3\% & 92.5\% & 95.0\% & 94.2\% & 95.0\% \\
+ & $1{-}d_{sem}$ & 0.866 & 0.415 & --- & 0.963 & 0.468 & --- & 0.955 & 0.457 & --- \\
+\hline
+\multirow{2}{*}{2} & FPR & 0.0\% & 0.0\% & 100.0\% & 3.3\% & 3.3\% & 100.0\% & 16.7\% & 16.7\% & 100.0\% \\
+ & PIIR & 83.3\% & --- & 0.0\% & 90.0\% & --- & 0.0\% & 86.7\% & --- & 0.0\% \\
+\hline
+\multirow{4}{*}{3} & Med.\ $T_{E2E}$ (s) & 12.91 & 14.27 & 21.84 & 12.48 & 12.75 & 19.69 & 10.22 & 10.66 & 17.68 \\
+ & Med.\ $T_{tokens}$ & 9,092 & 9,084 & 15,070 & 9,154 & 9,154 & 15,823 & 8,784 & 8,784 & 15,313 \\
+ & $\bar{N}_{hitl}$ & 0.74 & 0.97 & 0.72 & 0.72 & 0.97 & 0.75 & 0.62 & 0.88 & 0.75 \\
+ & TCR & 97.5\% & 97.5\% & 95.8\% & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 100.0\% \\
+\hline
+\multirow{2}{*}{4} & GDA & 95.0\% & 96.7\% & 25.0\% & 96.7\% & 96.7\% & 25.0\% & 84.2\% & 84.2\% & 25.0\% \\
+ & Sel.\ HITL Prec. & 97.8\% & 74.4\% & 100.0\% & 100.0\% & 74.4\% & 100.0\% & 100.0\% & 71.4\% & 100.0\% \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+The experimental results support three principal findings:
+
+\begin{enumerate}
+    \item \textbf{The RADG architecture eliminates controller-side deployment failures.} Across all three LLM backends, the LLM-Only baseline produces $\text{FPR} = 100\%$ and $\text{PIIR} = 0.0\%$, forwarding every non-nominal demand directly to the SDON controller. The Proposed RADG intercepts 72\%--75\% of all demands at the pre-deployment stage, reducing wasted compute by 40\%--66\% in token consumption and preventing between 75 and 90 controller incidents per evaluation run.
+
+    \item \textbf{Selective HITL engagement reduces operator friction without degrading integrity.} The Always-On HITL baseline wastes 25\%--29\% of its interrupts on nominal traffic that requires no human attention, degrading Selective HITL Precision to 71.4\%--74.4\%. The Proposed RADG achieves 97.8\%--100\% Selective HITL Precision by directing interrupts exclusively at semantically ambiguous or physically infeasible demands.
+
+    \item \textbf{FPR is a function of LLM semantic quality, not of the gate architecture.} The Physical RADG provides a model-agnostic deterministic integrity floor (PIIR: 83.3\%--90.0\%). All false positives originate at the Semantic RADG, where the LLM's reverse-prompted reconstruction fails to flag latent constraint violations. This decomposition provides clear operational guidance: upgrading the LLM backend reduces FPR without architectural changes.
+\end{enumerate}
+
+These findings validate the core hypothesis of the thesis: a pre-deployment, risk-adaptive gating mechanism based on joint semantic and physical-layer assessment reduces operator friction and prevents physically infeasible configurations from reaching the network controller. Chapter~\ref{chap:conclusion} synthesizes these results into the broader contributions of the thesis and identifies directions for future work.

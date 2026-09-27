@@ -28,7 +28,7 @@ flowchart LR
 | :--- | :--- | :--- | :--- | :--- |
 | **Fase 1** | **Capítulo 3** | System Model: The Risk-Adaptive Neurosymbolic Architecture | `Architecture_v5`, `ProblemStatement_v5` | **Borradores Listos** (`3_SystemModel/`) |
 | **Fase 2** | **Capítulo 4** | Neurosymbolic Pipeline Implementation | `src/core/`, `src/nodes/`, `src/services/` | **Borradores Listos** (`4_NPImp/`) |
-| **Fase 3** | **Capítulo 5** | Experimental Evaluation and Results | Sprint 4 Corpus, 17-Node Nobel-Germany, Kimi Benchmarks | Pendiente (post Sprint 4) |
+| **Fase 3** | **Capítulo 5** | Experimental Evaluation and Results | 3 baselines, 3 LLM backends, Nobel-Germany 17-node, Four Pillars | **Borrador Listo** (`5_Evaluation/`) |
 | **Fase 4** | **Capítulo 2** | Background and State of the Art | `literature/`, SOTA papers (Confucius, AutoLight, PoliMi CNSM'25) | Pendiente |
 | **Fase 5** | **Capítulo 1 & 6** | Introduction, Conclusion, and Abstracts | Toda la tesis completada | Pendiente final |
 
@@ -91,28 +91,34 @@ flowchart LR
 
 ### FASE 3: Capítulo 5 — Experimental Evaluation and Results
 
-*Objetivo:* Evaluar cuantitativamente la hipótesis de la tesis utilizando el corpus sintético, demostrando que RADG elimina aprobaciones inseguras ($UAR=0$) y reduce la fricción operativa y de tokens frente a los baselines.
+*Objetivo:* Evaluar cuantitativamente la hipótesis de la tesis utilizando tres baselines (Proposed RADG, Always-On HITL, LLM-Only) sobre tres LLM backends (Qwen 2.5 3B, GPT-6 Luna, GPT-5 Nano), demostrando que el RADG pre-despliegue intercepta configuraciones infeasibles mientras minimiza la fricción operativa del operador.
 
 #### 5.1 Experimental Setup
-- **Contenido:** Topología de prueba (Nobel-Germany 17 nodos, 26 enlaces bidireccionales, SNDlib). Configuración de modelos LLM (`kimi-for-coding-highspeed` y comparativa con razonamiento). Generación del corpus de prueba categorizado: (1) Nominal + Clear, (2) Ambiguous ($U_{sem}$ alto), (3) Infeasible QoT.
-- **Recomendaciones:** Explicar por qué migrar de una topología lineal de 3 nodos a una red de 17 nodos permitió evaluar rutas multi-hop realistas.
+- **5.1.1 Network Topology and Physical Parameters:** Nobel-Germany 17 nodos (SNDlib), SMF-28, GN-model parametrizado.
+- **5.1.2 LLM Backends Under Evaluation:** `qwen2.5:3b` (local/Ollama), `gpt-6-luna` (OpenAI), `gpt-5-nano` (OpenAI).
+- **5.1.3 Benchmark Corpus and Risk Classes:** 120 demandas (full) / 20 (compact), 4 clases de riesgo (I–IV: Nominal, Ambiguous, Infeasible, Adversarial).
+- **5.1.4 Baseline Architectures:** Proposed RADG (dual gates), Always-On HITL (mandatory review), LLM-Only (no gates).
+- **5.1.5 Performance Metrics:** Los Cuatro Pilares de Validación (Semantic Translation, Physical Integrity, Efficiency & Friction, Gate Reliability).
 
-#### 5.2 Performance Metrics
-- **Contenido:** Definición formal estructurada en los 4 Pilares de Validación:
-  1. *Pilar 1 — Semantic Translation Accuracy:* Constraint Retention Rate ($CRR = 100\%$), Context-Free Grammar Pass Rate ($v_{struct} \in \{0, 1\}$), Semantic Agreement ($1 - d_{sem}$).
-  2. *Pilar 2 — Physical Feasibility:* Unfeasible Approval Rate ($UAR = \frac{N_{\text{unfeasible\_approved}}}{N_{\text{total\_intents}}} \to 0\%$), QoT Feasibility Rate ($QFR = \frac{N_{\text{feasible\_approved}}}{N_{\text{approved\_plans}}} \to 100\%$), Physical Infeasibility Interception Rate (PIIR).
-  3. *Pilar 3 — Orchestration & Resource Efficiency:* Prompt Token Reduction ($\Delta T_{tokens} > 75\%$ via Scoped GraphRAG), Human Intervention Reduction ($\Delta N_{hitl} > 70\%$ frente a Always-HITL), latencia determinista ($T_{det} < 15\text{ ms}$) y End-to-End Latency ($T_{E2E}$).
-  4. *Pilar 4 — RADG Decision Robustness:* Gate Decision Accuracy ($GDA > 98\%$), False Positive Rate ($FPR = 0\%$), precisión del interrupt selectivo.
+#### 5.2 Intra-Model Comparative Analysis
+- **Modelo representativo:** `gpt-6-luna` sobre corpus completo de 120 demandas.
+- **5.2.1 The Alert Fatigue Dilemma:** Always-On HITL desperdicia 30 interrupts en tráfico nominal, degradando Selective HITL Precision a 74.4%.
+- **5.2.2 The Controller Collapse Dilemma:** LLM-Only produce FPR=100%, 90 incidentes en controlador, +66.6% tokens desperdiciados.
+- **5.2.3 The RADG Synthesis:** El RADG propuesto resuelve ambos dilemas: 0 HITL en nominals, PIIR=90%, GDA=96.7%.
 
-#### 5.3 Performance under Nominal Conditions
-- **Contenido:** Resultados para intenciones claras y físicamente viables. Demostración de auto-aprobación autónoma ($HIC=0$) sin intervención humana, comparado con *Always-HITL*.
+#### 5.3 Cross-Model Sensitivity Analysis
+- **5.3.1 Gate Decision Accuracy Across LLM Backends:** Heatmap cross-model (model × risk class).
+- **5.3.2 The FPR–Model Quality Tradeoff:** qwen 0.0% vs luna 3.3% vs nano 16.7%. Physical RADG como piso de integridad model-agnostic; Semantic RADG como componente LLM-dependent.
+- **5.3.3 Efficiency Variability:** Latencia y tokens estables cross-model (mediana 8.7k–9.2k tokens).
 
-#### 5.4 Performance under Ambiguity and Physical Infeasibility
-- **Contenido:** Resultados para intenciones con parámetros faltantes (detección temprana de $U_{sem}$ $\to$ *Clarify*) y rutas con GSNR insuficiente (*Suggest Replan*). Comparación contra el baseline *Reactive-Retry* (tipo PoliMi/CNSM 2025).
-- **Recomendaciones:** Demostrar cómo el descarte temprano en la Fase 3 ahorra cómputo frente a intentar simular y desplegar antes de clarificar.
+#### 5.4 Discussion and Limitations
+- **5.4.1 On the FPR ≠ 0% Observation:** Descomposición en capa determinista (Physical RADG) vs capa neural (Semantic RADG).
+- **5.4.2 Corpus Scope and Generalization.**
+- **5.4.3 Threats to Validity.**
 
 #### 5.5 Summary of Findings
-- **Contenido:** Tabla comparativa consolidada (Ours vs No-HITL vs Always-HITL vs Reactive-Retry). Análisis de ahorro de tokens y latencia.
+- Tabla consolidada ($\text{all models} \times \text{all baselines} \times \text{all pillars}$).
+- **Borrador:** `docs/LLM_Wiki/wiki/thesis_drafts/5_Evaluation/chapter_5_experimental_evaluation.txt`
 
 ---
 

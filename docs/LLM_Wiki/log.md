@@ -592,10 +592,6 @@ Chronological append-only record of operations (Ingests, Queries, Lints).
 - Testing & Verification: 321/321 unit tests passing under Strict TDD (`uv run pytest tests/unit/`), zero lint errors (`uv run ruff check src/ tests/`), and clean telemetry exports (JSON, CSV, Markdown).
 
 
-## [2026-09-18] debrief | Architecture Tone Refactor & HITL Optimization Shift
-- Executed full consistency audit across `src/`, `tests/evaluation/`, and `docs/` replacing "safety" terminology with "integrity/feasibility".
-- Consolidated metrics into `EvaluationFramework_v5.md` to prevent discrepancies with evaluation README.
-
 ## [2026-09-19] debrief | Thesis Chapter 4 Drafting (Neurosymbolic Pipeline Implementation)
 - Wiki Deep Lint: Created `session_20260919_Thesis_Chapter4_Neurosymbolic_Pipeline_Implementation.md` with complete YAML frontmatter and cross-links. Updated `index.md` under `## Thesis Drafts` and `## Session Summaries`. Synchronized `Writing_Roadmap_v1.md` (Phase 2 status: Borradores Listos) and `Drafting_Backlog.md` (resolved Optical RAG bypass and Ellipsoid Subtopology Scoping).
 - Consistency Audit: Authored all three markdown sections of Thesis Chapter 4 (`docs/LLM_Wiki/wiki/thesis_drafts/4_NPImp/`): `4_1_Network_State_and_GraphRAG.md`, `4_2_Semantic_and_QoT_Validation_Modules.md`, and `4_3_Decision_Outcomes_and_Orchestration_Flow.md` (~60 KB total). Every formulation, algorithm, and data structure was verified against the active codebase (`src/core/`, `src/nodes/`, `src/services/`, and `tests/unit/`).

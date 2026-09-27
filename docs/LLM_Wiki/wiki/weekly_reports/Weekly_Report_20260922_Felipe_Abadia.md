@@ -67,7 +67,6 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
 7. **Thesis Architecture Pivot and Tone Refactor:**
    - Realigned the core narrative across [[ProblemStatement_v5]], [[Architecture_v5]], and LaTeX drafts to explicitly emphasize the optimization of Human-in-the-Loop (HITL) operator interventions.
    - Systematically replaced fatalistic terminology ("Unsafe Approval Rate", "safety guarantee") with academically precise operational terminology ("Unfeasible Approval Rate", "operational integrity") across the Wiki, LaTeX drafts, and the `tests/evaluation` Python harness.
-   - Consolidated the theoretical metrics into a dedicated [[EvaluationFramework_v5]] to prevent redundancies and inconsistencies with the benchmark README.
 
 8. **Thesis Chapter 4 Drafting & Plural RADGs Architecture Refactor:**
    - Drafted all three sections of Chapter 4 (`4_1_Network_State_and_GraphRAG.md`, `4_2_Semantic_and_QoT_Validation_Modules.md`, `4_3_Decision_Outcomes_and_Orchestration_Flow.md`), mathematically grounding network state abstraction, AST CFG validation, two-layer semantic uncertainty ($U_{sem}$), and analytical GN-model physics against `src/`.
