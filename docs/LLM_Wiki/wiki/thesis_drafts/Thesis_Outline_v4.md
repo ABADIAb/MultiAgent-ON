@@ -40,7 +40,7 @@ This document provides the fourth iteration of the thesis outline, incorporating
 # **3 System Model: The Risk-Adaptive Neurosymbolic Architecture** 
 - **3.1 Formal Problem Definition:** Detailed breakdown of Token Saturation, Hallucinated Physics, Semantic Drift, Post-Deployment Failure, and Suboptimal HITL Engagement.
   - *Citations:* `[[ProblemStatement_v5]]`.
-- **3.2 Proposed Neurosymbolic Framework:** High-level introduction of the LLM-Assisted Risk-Adaptive Decision Gates architecture (The 7-Phase Pipeline) and the fail-fast pre-deployment paradigm.
+- **3.2 Proposed Neurosymbolic Framework:** High-level introduction of the LLM-Assisted Risk-Adaptive Decision Gates architecture (The 7-Phase Pipeline) and the fail-fast pre-deployment architecture.
   - *Citations:* `[[Architecture_v5]]`.
 - **3.3 Strict Neurosymbolic Separation:** Constraining the LLM to linguistic parsing (Intent $\to$ PDDL) and isolating the physics computations to deterministic symbolic solvers.
   - *Citations:* `[[Scope_Pivot_20260706]]`.
@@ -49,7 +49,7 @@ This document provides the fourth iteration of the thesis outline, incorporating
 
 --------------------------------------------------------------------------------
 # **4 Neurosymbolic Pipeline Implementation** 
-- **4.1 The LangGraph Orchestrator:** Structuring the state machine, defining the `AgentState` schema, and establishing atomic checkpointing to govern the 7-phase execution graph.
+- **4.1 The LangGraph Orchestrator:** Structuring the state machine, defining the `AgentState` schema, and establishing atomic checkpointing to control the 7-phase execution graph.
   - *Citations:* `[[Architecture_v5]]`; `[SOTA] LangGraph_2024`.
 - **4.2 Network Context and Subtopology Extraction:** Optical network abstraction (`NetworkNode`, `FiberLink`) based on the Nobel-Germany testbed, and solving token budget saturation via Mock GraphRAG (Phase 1).
   - *Citations:* `[[Architecture_v5]]`; `[SOTA] INTEGRATION_OF_LIVE_NETWORK_KNOWLEDGE_GRAPHS_WITH_RAG...pdf`.

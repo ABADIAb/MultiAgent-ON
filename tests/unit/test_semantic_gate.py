@@ -193,3 +193,29 @@ class TestScoreSemanticAgreement:
             score = _score_semantic_agreement("intent", "recon")
         assert score == pytest.approx(0.5)
 
+    def test_parses_score_with_leading_constraint_numbers(self) -> None:
+        """Numbered list items like '1. Endpoints match' must not be mistaken for score 1.0."""
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(
+            content="Constraint 1: Berlin to Frankfurt with 1 hop.\nDivergence: 0.05"
+        )
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.05)
+
+    def test_parses_multiline_trailing_score(self) -> None:
+        """Trailing score line should be selected over numbers in analysis."""
+        from src.nodes.semantic_gate_node import _score_semantic_agreement
+
+        mock_llm = MagicMock()
+        mock_llm.invoke.return_value = AIMessage(
+            content="Analysis:\n1. Source matches\n2. Target matches\n\n0.0"
+        )
+
+        with patch("src.nodes.semantic_gate_node.get_llm", return_value=mock_llm):
+            score = _score_semantic_agreement("intent", "recon")
+        assert score == pytest.approx(0.0)
+

@@ -23,6 +23,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from langgraph.types import Command
+from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 import questionary
 from rich import box
 from rich.console import Console
@@ -35,8 +36,11 @@ from src.core.graph import compile_graph
 from src.core.llm import (
     DEFAULT_KIMI_MODEL,
     DEFAULT_OLLAMA_MODEL,
+    DEFAULT_OPENAI_MODEL,
     DEFAULT_OPENROUTER_MODEL,
     create_configured_llm,
+    get_supported_openai_models,
+    get_supported_openrouter_models,
     set_llm,
 )
 from src.core.state import ALLOWED_MSGPACK_MODULES
@@ -99,276 +103,592 @@ def print_banner() -> None:
     console.print()
 
 
+BACK_SENTINEL = "__GO_BACK__"
+
+
+def prompt_select_nav(
+    message: str,
+    choices: list[Any],
+    default: Any = None,
+    allow_back: bool = True,
+    style: Any = QUESTIONARY_STYLE,
+) -> Any:
+    """Prompt user with questionary select, supporting Backspace/Esc/Ctrl+H to go back."""
+    q = questionary.select(
+        message,
+        choices=choices,
+        default=default,
+        style=style,
+    )
+    if allow_back:
+        kb = KeyBindings()
+
+        @kb.add("backspace")
+        @kb.add("c-h")
+        @kb.add("escape")
+        def _back(event: Any) -> None:
+            event.app.exit(result=BACK_SENTINEL)
+
+        q.application.key_bindings = merge_key_bindings([q.application.key_bindings, kb])
+
+    val = q.ask()
+    if val is None:
+        console.print("\n[yellow]Execution cancelled by operator.[/yellow]")
+        sys.exit(0)
+    return val
+
+
+def prompt_text_nav(
+    message: str,
+    default: str = "",
+    validate: Any = None,
+    allow_back: bool = True,
+    style: Any = QUESTIONARY_STYLE,
+    placeholder: str = "",
+) -> str:
+    """Prompt user with questionary text, supporting Backspace on empty buffer to go back."""
+    kwargs: dict[str, Any] = {"style": style, "default": default}
+    if validate:
+        kwargs["validate"] = validate
+    if placeholder:
+        kwargs["placeholder"] = placeholder
+
+    q = questionary.text(message, **kwargs)
+    if allow_back:
+        kb = KeyBindings()
+
+        @kb.add("escape")
+        def _esc_back(event: Any) -> None:
+            event.app.exit(result=BACK_SENTINEL)
+
+        @kb.add("backspace")
+        @kb.add("c-h")
+        def _back(event: Any) -> None:
+            buf = event.app.current_buffer
+            if not buf.text:
+                event.app.exit(result=BACK_SENTINEL)
+            else:
+                buf.delete_before_cursor()
+
+        q.application.key_bindings = merge_key_bindings([q.application.key_bindings, kb])
+
+    val = q.ask()
+    if val is None:
+        console.print("\n[yellow]Execution cancelled by operator.[/yellow]")
+        sys.exit(0)
+    return val
+
+
 def interactive_configuration() -> dict[str, Any]:
-    """Interactively prompt operator for LLM provider, model, and execution settings."""
+    """Interactively prompt operator for LLM provider, model, and execution settings with Backspace navigation."""
     env_provider = os.getenv("LLM_PROVIDER", "").lower().strip()
-    if env_provider in ("ollama", "openrouter", "kimi"):
+    if env_provider in ("ollama", "openrouter", "openai", "kimi"):
         default_provider = env_provider
     elif os.getenv("OLLAMA_MODEL") or os.getenv("LLM_PROVIDER") == "ollama":
         default_provider = "ollama"
     elif os.getenv("OPENROUTER_API_KEY"):
         default_provider = "openrouter"
+    elif os.getenv("OPENAI_API_KEY"):
+        default_provider = "openai"
     else:
         default_provider = "kimi"
 
-    provider = questionary.select(
-        "Select LLM Provider:",
-        choices=[
-            questionary.Choice(
-                title="💻 Local Ollama (qwen2.5:3b | RTX 3050 Laptop GPU | 0.2 temp | 2000 max tokens)",
-                value="ollama",
-            ),
-            questionary.Choice(
-                title="🌐 OpenRouter (inclusionai/ling-3.0-flash-vl:free | 0.2 temp | 2000 max tokens)",
-                value="openrouter",
-            ),
-            questionary.Choice(
-                title="⚡ Kimi Coding API (kimi-for-coding-highspeed | 1.0 temp | 8000 max tokens)",
-                value="kimi",
-            ),
-        ],
-        default=default_provider,
-        style=QUESTIONARY_STYLE,
-    ).ask()
+    state_stack: list[str] = ["provider"]
+    context: dict[str, Any] = {
+        "provider": default_provider,
+    }
 
-    if provider is None:
-        console.print("[yellow]Setup cancelled by operator.[/yellow]")
-        sys.exit(0)
+    while state_stack:
+        step = state_stack[-1]
 
-    if provider == "ollama":
-        profile_choice = questionary.select(
-            "Select Execution Profile for Ollama:",
-            choices=[
-                questionary.Choice(
-                    title="⚡ Recommended Default (qwen2.5:3b | 100% GPU VRAM | ~1.5s latency | temp=0.2)",
-                    value="qwen2.5:3b",
-                ),
-                questionary.Choice(
-                    title="🔬 Phi-4 Mini (phi4-mini:latest | 3.8B Params | Fast & Structured | temp=0.2)",
-                    value="phi4-mini:latest",
-                ),
-                questionary.Choice(
-                    title="🧠 Qwen 3 4B (qwen3:4b | 4.0B Params | Native Reasoning | temp=0.2)",
-                    value="qwen3:4b",
-                ),
-                questionary.Choice(
-                    title="🧠 Qwen 3.5 4B (qwen3.5:4b | Hybrid GPU/CPU | Native Reasoning | temp=0.2)",
-                    value="qwen3.5:4b",
-                ),
-                questionary.Choice(
-                    title="🐘 Gemma 4 e4B (gemma4:e4b | 8.0B Params | Heavy CPU Offload | temp=0.2)",
-                    value="gemma4:e4b",
-                ),
-                questionary.Choice(
-                    title="🛠️  Custom Settings (Select model name, temperature, max tokens)",
-                    value="custom",
-                ),
-            ],
-            style=QUESTIONARY_STYLE,
-        ).ask()
+        if step == "provider":
+            choice = prompt_select_nav(
+                "Select LLM Provider (Use Backspace/Esc to go back in submenus):",
+                choices=[
+                    questionary.Choice(
+                        title="💻 Local Ollama (qwen2.5:3b | RTX 3050 Laptop GPU | 0.2 temp | 2000 max tokens)",
+                        value="ollama",
+                    ),
+                    questionary.Choice(
+                        title="🌐 OpenRouter Cloud API (Multi-Model Gateway | Select model & params)",
+                        value="openrouter",
+                    ),
+                    questionary.Choice(
+                        title="🧠 OpenAI API (gpt-6-luna | Fast, Reasoning & Multi-Model | Select params)",
+                        value="openai",
+                    ),
+                    questionary.Choice(
+                        title="⚡ Kimi Coding API (kimi-for-coding-highspeed | 1.0 temp | 8000 max tokens)",
+                        value="kimi",
+                    ),
+                ],
+                default=context.get("provider", default_provider),
+                allow_back=False,
+            )
+            context["provider"] = choice
+            if choice == "ollama":
+                state_stack.append("ollama_profile")
+            elif choice == "openrouter":
+                state_stack.append("openrouter_model")
+            elif choice == "openai":
+                state_stack.append("openai_model")
+            elif choice == "kimi":
+                state_stack.append("kimi_profile")
 
-        if profile_choice is None:
-            console.print("[yellow]Setup cancelled by operator.[/yellow]")
-            sys.exit(0)
+        # --- Ollama Steps ---
+        elif step == "ollama_profile":
+            profile_choice = prompt_select_nav(
+                "Select Execution Profile for Ollama:",
+                choices=[
+                    questionary.Choice(
+                        title="⚡ Recommended Default (qwen2.5:3b | 100% GPU VRAM | ~1.5s latency | temp=0.2)",
+                        value="qwen2.5:3b",
+                    ),
+                    questionary.Choice(
+                        title="🔬 Phi-4 Mini (phi4-mini:latest | 3.8B Params | Fast & Structured | temp=0.2)",
+                        value="phi4-mini:latest",
+                    ),
+                    questionary.Choice(
+                        title="🧠 Qwen 3 4B (qwen3:4b | 4.0B Params | Native Reasoning | temp=0.2)",
+                        value="qwen3:4b",
+                    ),
+                    questionary.Choice(
+                        title="🧠 Qwen 3.5 4B (qwen3.5:4b | Hybrid GPU/CPU | Native Reasoning | temp=0.2)",
+                        value="qwen3.5:4b",
+                    ),
+                    questionary.Choice(
+                        title="🐘 Gemma 4 e4B (gemma4:e4b | 8.0B Params | Heavy CPU Offload | temp=0.2)",
+                        value="gemma4:e4b",
+                    ),
+                    questionary.Choice(
+                        title="🛠️  Custom Settings (Select model name, temperature, max tokens)",
+                        value="custom",
+                    ),
+                ],
+                allow_back=True,
+            )
+            if profile_choice == BACK_SENTINEL:
+                state_stack.pop()
+                continue
 
-        if profile_choice in ("qwen2.5:3b", "phi4-mini:latest", "qwen3:4b", "qwen3.5:4b", "gemma4:e4b"):
+            if profile_choice in ("qwen2.5:3b", "phi4-mini:latest", "qwen3:4b", "qwen3.5:4b", "gemma4:e4b"):
+                is_thinking = (
+                    "qwen3" in profile_choice
+                    or "3.5" in profile_choice
+                    or "gemma4" in profile_choice
+                ) and "qwen2" not in profile_choice
+                max_tokens = 3000 if is_thinking else 2000
+                return {
+                    "provider": "ollama",
+                    "model": profile_choice,
+                    "temperature": 0.2,
+                    "max_tokens": max_tokens,
+                    "think_effort": None,
+                    "thinking_disabled": False,
+                }
+            state_stack.append("ollama_custom_model")
+
+        elif step == "ollama_custom_model":
+            custom_model = prompt_text_nav(
+                "Enter Ollama Model Name:",
+                default=os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL,
+                allow_back=True,
+            )
+            if custom_model == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["ollama_custom_model"] = custom_model
+            state_stack.append("ollama_temp")
+
+        elif step == "ollama_temp":
+            temp_str = prompt_text_nav(
+                "Sampling Temperature (0.0 to 1.0):",
+                default="0.2",
+                validate=lambda val: True if 0.0 <= float(val) <= 1.0 else "Must be between 0.0 and 1.0",
+                allow_back=True,
+            )
+            if temp_str == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["ollama_temp"] = float(temp_str or "0.2")
+            state_stack.append("ollama_tokens")
+
+        elif step == "ollama_tokens":
+            c_model = context.get("ollama_custom_model", "")
             is_thinking = (
-                "qwen3" in profile_choice
-                or "3.5" in profile_choice
-                or "gemma4" in profile_choice
-            ) and "qwen2" not in profile_choice
-            max_tokens = 3000 if is_thinking else 2000
+                "qwen3" in c_model
+                or "3.5" in c_model
+                or "gemma4" in c_model
+            ) and "qwen2" not in c_model
+            default_tok = "3000" if is_thinking else "2000"
+            tokens_str = prompt_text_nav(
+                "Max Completion Tokens:",
+                default=default_tok,
+                validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
+                allow_back=True,
+            )
+            if tokens_str == BACK_SENTINEL:
+                state_stack.pop()
+                continue
             return {
                 "provider": "ollama",
-                "model": profile_choice,
-                "temperature": 0.2,
-                "max_tokens": max_tokens,
+                "model": c_model,
+                "temperature": context["ollama_temp"],
+                "max_tokens": int(tokens_str or default_tok),
                 "think_effort": None,
                 "thinking_disabled": False,
             }
 
-        custom_model = questionary.text(
-            "Enter Ollama Model Name:",
-            default=os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL,
-            style=QUESTIONARY_STYLE,
-        ).ask()
-        if custom_model is None:
-            sys.exit(0)
-
-        temp_str = questionary.text(
-            "Sampling Temperature (0.0 to 1.0):",
-            default="0.2",
-            validate=lambda val: True if 0.0 <= float(val) <= 1.0 else "Must be between 0.0 and 1.0",
-            style=QUESTIONARY_STYLE,
-        ).ask()
-
-        is_thinking = (
-            "qwen3" in custom_model
-            or "3.5" in custom_model
-            or "gemma4" in custom_model
-        ) and "qwen2" not in custom_model
-        default_tok = "3000" if is_thinking else "2000"
-        tokens_str = questionary.text(
-            "Max Completion Tokens:",
-            default=default_tok,
-            validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
-            style=QUESTIONARY_STYLE,
-        ).ask()
-
-        return {
-            "provider": "ollama",
-            "model": custom_model,
-            "temperature": float(temp_str or "0.2"),
-            "max_tokens": int(tokens_str or default_tok),
-            "think_effort": None,
-            "thinking_disabled": False,
-        }
-
-    if provider == "openrouter":
-        profile_choice = questionary.select(
-            "Select Execution Profile for OpenRouter:",
-            choices=[
+        # --- OpenRouter Steps ---
+        elif step == "openrouter_model":
+            configured_models = get_supported_openrouter_models()
+            default_model = os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
+            choices = [
                 questionary.Choice(
-                    title="⚡ Recommended Default (inclusionai/ling-3.0-flash-vl:free | 2000 max tokens | temp=0.2)",
+                    title=f"⚡ Default ({m})" if m == default_model else f"🤖 {m}",
+                    value=m,
+                )
+                for m in configured_models
+            ]
+            choices.append(
+                questionary.Choice(
+                    title="🛠️  Custom Model Slug (Type manually)",
+                    value="custom",
+                )
+            )
+            selected_model = prompt_select_nav(
+                "Select OpenRouter Model:",
+                choices=choices,
+                default=default_model if default_model in configured_models else (configured_models[0] if configured_models else None),
+                allow_back=True,
+            )
+            if selected_model == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            if selected_model == "custom":
+                state_stack.append("openrouter_custom_model")
+            else:
+                context["openrouter_model"] = selected_model
+                state_stack.append("openrouter_params")
+
+        elif step == "openrouter_custom_model":
+            default_model = os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
+            selected_model = prompt_text_nav(
+                "Enter OpenRouter Model Slug (e.g. 'openai/gpt-4o-mini', 'anthropic/claude-3.5-sonnet'):",
+                default=default_model,
+                allow_back=True,
+            )
+            if selected_model == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["openrouter_model"] = selected_model
+            state_stack.append("openrouter_params")
+
+        elif step == "openrouter_params":
+            sel_m = context["openrouter_model"]
+            param_choice = prompt_select_nav(
+                f"Parameters for {sel_m}:",
+                choices=[
+                    questionary.Choice(
+                        title="⚡ Default Parameters (temp=0.2 | 2000 max tokens)",
+                        value="default",
+                    ),
+                    questionary.Choice(
+                        title="🛠️  Custom Parameters (Adjust temperature and max tokens)",
+                        value="custom",
+                    ),
+                ],
+                allow_back=True,
+            )
+            if param_choice == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            if param_choice == "default":
+                return {
+                    "provider": "openrouter",
+                    "model": sel_m,
+                    "temperature": 0.2,
+                    "max_tokens": 2000,
+                    "think_effort": None,
+                    "thinking_disabled": False,
+                }
+            state_stack.append("openrouter_temp")
+
+        elif step == "openrouter_temp":
+            temp_str = prompt_text_nav(
+                "Sampling Temperature (0.0 to 1.0):",
+                default="0.2",
+                validate=lambda val: True if 0.0 <= float(val) <= 1.0 else "Must be between 0.0 and 1.0",
+                allow_back=True,
+            )
+            if temp_str == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["openrouter_temp"] = float(temp_str or "0.2")
+            state_stack.append("openrouter_tokens")
+
+        elif step == "openrouter_tokens":
+            tokens_str = prompt_text_nav(
+                "Max Completion Tokens:",
+                default="2000",
+                validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
+                allow_back=True,
+            )
+            if tokens_str == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            return {
+                "provider": "openrouter",
+                "model": context["openrouter_model"],
+                "temperature": context["openrouter_temp"],
+                "max_tokens": int(tokens_str or "2000"),
+                "think_effort": None,
+                "thinking_disabled": False,
+            }
+
+        # --- OpenAI Steps ---
+        elif step == "openai_model":
+            configured_models = get_supported_openai_models()
+            default_model = os.getenv("OPENAI_MODEL") or DEFAULT_OPENAI_MODEL
+            choices = [
+                questionary.Choice(
+                    title=f"⚡ Default ({m})" if m == default_model else f"🤖 {m}",
+                    value=m,
+                )
+                for m in configured_models
+            ]
+            choices.append(
+                questionary.Choice(
+                    title="🛠️  Custom Model Slug (Type manually)",
+                    value="custom",
+                )
+            )
+            selected_model = prompt_select_nav(
+                "Select OpenAI Model:",
+                choices=choices,
+                default=default_model if default_model in configured_models else (configured_models[0] if configured_models else None),
+                allow_back=True,
+            )
+            if selected_model == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            if selected_model == "custom":
+                state_stack.append("openai_custom_model")
+            else:
+                context["openai_model"] = selected_model
+                state_stack.append("openai_params")
+
+        elif step == "openai_custom_model":
+            default_model = os.getenv("OPENAI_MODEL") or DEFAULT_OPENAI_MODEL
+            selected_model = prompt_text_nav(
+                "Enter OpenAI Model Name (e.g. 'gpt-6-luna', 'gpt-oss-120b'):",
+                default=default_model,
+                allow_back=True,
+            )
+            if selected_model == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["openai_model"] = selected_model
+            state_stack.append("openai_params")
+
+        elif step == "openai_params":
+            sel_m = context["openai_model"]
+            is_reasoning = any(tag in sel_m.lower() for tag in ("gpt-6", "o1", "o3", "o4"))
+            param_choices = [
+                questionary.Choice(
+                    title="⚡ Recommended Economical (reasoning_effort=low | 2000 max tokens)",
+                    value="low",
+                ) if is_reasoning else questionary.Choice(
+                    title="⚡ Default Parameters (temp=0.2 | 2000 max tokens)",
                     value="default",
                 ),
                 questionary.Choice(
-                    title="🛠️  Custom Settings (Select model slug, temperature, max tokens)",
+                    title="⚡ Zero Reasoning Overhead (reasoning_effort=none | zero extra token cost)",
+                    value="none",
+                ) if is_reasoning else questionary.Choice(
+                    title="⚡ Deterministic (temp=0.0 | 2000 max tokens)",
+                    value="zero",
+                ),
+                questionary.Choice(
+                    title="🛠️  Custom Parameters (Adjust tokens and reasoning)",
                     value="custom",
                 ),
-            ],
-            style=QUESTIONARY_STYLE,
-        ).ask()
+            ]
+            param_choice = prompt_select_nav(
+                f"Parameters for {sel_m}:",
+                choices=param_choices,
+                allow_back=True,
+            )
+            if param_choice == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            if param_choice in ("low", "none", "default", "zero"):
+                reasoning_effort = param_choice if (is_reasoning and param_choice in ("low", "none")) else None
+                temp = 0.0 if param_choice == "zero" else (None if is_reasoning else 0.2)
+                return {
+                    "provider": "openai",
+                    "model": sel_m,
+                    "temperature": temp,
+                    "max_tokens": 2000,
+                    "reasoning_effort": reasoning_effort,
+                    "thinking_disabled": False,
+                }
+            if is_reasoning:
+                state_stack.append("openai_effort")
+            else:
+                context["openai_effort"] = None
+                state_stack.append("openai_tokens")
 
-        if profile_choice is None:
-            console.print("[yellow]Setup cancelled by operator.[/yellow]")
-            sys.exit(0)
+        elif step == "openai_effort":
+            effort = prompt_select_nav(
+                "Select Reasoning Effort:",
+                choices=[
+                    questionary.Choice("none (Fastest, zero reasoning token cost)", "none"),
+                    questionary.Choice("low (Economical reasoning)", "low"),
+                    questionary.Choice("medium (Standard reasoning)", "medium"),
+                    questionary.Choice("high (Thorough reasoning)", "high"),
+                ],
+                default=os.getenv("OPENAI_REASONING_EFFORT", "none"),
+                allow_back=True,
+            )
+            if effort == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["openai_effort"] = effort
+            state_stack.append("openai_tokens")
 
-        if profile_choice == "default":
-            model = os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL
+        elif step == "openai_tokens":
+            tokens_str = prompt_text_nav(
+                "Max Completion Tokens:",
+                default="2000",
+                validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
+                allow_back=True,
+            )
+            if tokens_str == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            sel_m = context["openai_model"]
+            is_reasoning = any(tag in sel_m.lower() for tag in ("gpt-6", "o1", "o3", "o4"))
             return {
-                "provider": "openrouter",
-                "model": model,
-                "temperature": 0.2,
-                "max_tokens": 2000,
-                "think_effort": None,
+                "provider": "openai",
+                "model": sel_m,
+                "temperature": None if is_reasoning else 0.2,
+                "max_tokens": int(tokens_str or "2000"),
+                "reasoning_effort": context.get("openai_effort"),
                 "thinking_disabled": False,
             }
 
-        custom_model = questionary.text(
-            "Enter OpenRouter Model Slug:",
-            default=os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL,
-            style=QUESTIONARY_STYLE,
-        ).ask()
-        if custom_model is None:
-            sys.exit(0)
+        # --- Kimi Steps ---
+        elif step == "kimi_profile":
+            profile_choice = prompt_select_nav(
+                "Select Execution Profile for Kimi:",
+                choices=[
+                    questionary.Choice(
+                        title="⚡ Recommended Default (kimi-for-coding-highspeed | 8000 max tokens | temp=1.0)",
+                        value="default",
+                    ),
+                    questionary.Choice(
+                        title="🛠️  Custom Settings (Select model, temperature, reasoning tokens)",
+                        value="custom",
+                    ),
+                ],
+                allow_back=True,
+            )
+            if profile_choice == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            if profile_choice == "default":
+                return {
+                    "provider": "kimi",
+                    "model": DEFAULT_KIMI_MODEL,
+                    "temperature": 1.0,
+                    "max_tokens": 8000,
+                    "think_effort": None,
+                    "thinking_disabled": False,
+                }
+            state_stack.append("kimi_model")
 
-        temp_str = questionary.text(
-            "Sampling Temperature (0.0 to 1.0):",
-            default="0.2",
-            validate=lambda val: True if 0.0 <= float(val) <= 1.0 else "Must be between 0.0 and 1.0",
-            style=QUESTIONARY_STYLE,
-        ).ask()
+        elif step == "kimi_model":
+            model = prompt_select_nav(
+                "Select Kimi LLM Model:",
+                choices=[
+                    questionary.Choice(title="kimi-for-coding-highspeed (Ultra-fast reasoning, 262k ctx)", value="kimi-for-coding-highspeed"),
+                    questionary.Choice(title="k3 (1M context reasoning model)", value="k3"),
+                    questionary.Choice(title="kimi-for-coding (Standard coding model)", value="kimi-for-coding"),
+                ],
+                allow_back=True,
+            )
+            if model == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["kimi_model"] = model
+            if model == "k3":
+                state_stack.append("kimi_reasoning")
+            else:
+                context["kimi_reasoning_mode"] = None
+                state_stack.append("kimi_temp")
 
-        tokens_str = questionary.text(
-            "Max Completion Tokens:",
-            default="2000",
-            validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
-            style=QUESTIONARY_STYLE,
-        ).ask()
+        elif step == "kimi_reasoning":
+            reasoning_mode = prompt_select_nav(
+                "Configure Reasoning (Thinking) Mode:",
+                choices=[
+                    questionary.Choice(title="Default high effort reasoning", value="default"),
+                    questionary.Choice(title="Low effort reasoning", value="low"),
+                    questionary.Choice(title="Disable thinking mode (fastest, lower precision)", value="disabled"),
+                ],
+                allow_back=True,
+            )
+            if reasoning_mode == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["kimi_reasoning_mode"] = reasoning_mode
+            state_stack.append("kimi_temp")
 
-        return {
-            "provider": "openrouter",
-            "model": custom_model,
-            "temperature": float(temp_str or "0.2"),
-            "max_tokens": int(tokens_str or "2000"),
-            "think_effort": None,
-            "thinking_disabled": False,
-        }
+        elif step == "kimi_temp":
+            thinking_disabled = (context.get("kimi_reasoning_mode") == "disabled")
+            default_temp = "0.6" if thinking_disabled else "1.0"
+            temp_str = prompt_text_nav(
+                "Sampling Temperature (0.0 to 1.0):",
+                default=default_temp,
+                validate=lambda val: True if 0.0 <= float(val) <= 1.0 else "Must be between 0.0 and 1.0",
+                allow_back=True,
+            )
+            if temp_str == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            context["kimi_temp"] = float(temp_str or default_temp)
+            state_stack.append("kimi_tokens")
 
-    # Kimi provider flow
-    profile_choice = questionary.select(
-        "Select Execution Profile for Kimi:",
-        choices=[
-            questionary.Choice(
-                title="⚡ Recommended Default (kimi-for-coding-highspeed | 8000 max tokens | temp=1.0)",
-                value="default",
-            ),
-            questionary.Choice(
-                title="🛠️  Custom Settings (Select model, temperature, reasoning tokens)",
-                value="custom",
-            ),
-        ],
-        style=QUESTIONARY_STYLE,
-    ).ask()
-
-    if profile_choice is None:
-        console.print("[yellow]Setup cancelled by operator.[/yellow]")
-        sys.exit(0)
-
-    if profile_choice == "default":
-        return {
-            "provider": "kimi",
-            "model": DEFAULT_KIMI_MODEL,
-            "temperature": 1.0,
-            "max_tokens": 8000,
-            "think_effort": None,
-            "thinking_disabled": False,
-        }
-
-    model = questionary.select(
-        "Select Kimi LLM Model:",
-        choices=[
-            questionary.Choice(title="kimi-for-coding-highspeed (Ultra-fast reasoning, 262k ctx)", value="kimi-for-coding-highspeed"),
-            questionary.Choice(title="k3 (1M context reasoning model)", value="k3"),
-            questionary.Choice(title="kimi-for-coding (Standard coding model)", value="kimi-for-coding"),
-        ],
-        style=QUESTIONARY_STYLE,
-    ).ask()
-
-    if model is None:
-        sys.exit(0)
-
-    thinking_disabled = False
-    think_effort = None
-    if model == "k3":
-        reasoning_mode = questionary.select(
-            "Configure Reasoning (Thinking) Mode:",
-            choices=[
-                questionary.Choice(title="Default high effort reasoning", value="default"),
-                questionary.Choice(title="Low effort reasoning", value="low"),
-                questionary.Choice(title="Disable thinking mode (fastest, lower precision)", value="disabled"),
-            ],
-            style=QUESTIONARY_STYLE,
-        ).ask()
-        if reasoning_mode == "disabled":
-            thinking_disabled = True
-        elif reasoning_mode == "low":
-            think_effort = "low"
-
-    default_temp = "0.6" if thinking_disabled else "1.0"
-    temp_str = questionary.text(
-        "Sampling Temperature (0.0 to 1.0):",
-        default=default_temp,
-        validate=lambda val: True if 0.0 <= float(val) <= 1.0 else "Must be between 0.0 and 1.0",
-        style=QUESTIONARY_STYLE,
-    ).ask()
-
-    default_tokens = "8000" if model == "kimi-for-coding-highspeed" else "2500"
-    tokens_str = questionary.text(
-        "Max Completion Tokens:",
-        default=default_tokens,
-        validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
-        style=QUESTIONARY_STYLE,
-    ).ask()
+        elif step == "kimi_tokens":
+            model = context["kimi_model"]
+            default_tokens = "8000" if model == "kimi-for-coding-highspeed" else "2500"
+            tokens_str = prompt_text_nav(
+                "Max Completion Tokens:",
+                default=default_tokens,
+                validate=lambda val: True if val.isdigit() and int(val) > 0 else "Must be a positive integer",
+                allow_back=True,
+            )
+            if tokens_str == BACK_SENTINEL:
+                state_stack.pop()
+                continue
+            thinking_disabled = (context.get("kimi_reasoning_mode") == "disabled")
+            think_effort = "low" if (context.get("kimi_reasoning_mode") == "low") else None
+            return {
+                "provider": "kimi",
+                "model": model,
+                "temperature": context["kimi_temp"],
+                "max_tokens": int(tokens_str or default_tokens),
+                "think_effort": think_effort,
+                "thinking_disabled": thinking_disabled,
+            }
 
     return {
         "provider": "kimi",
-        "model": model,
-        "temperature": float(temp_str or default_temp),
-        "max_tokens": int(tokens_str or default_tokens),
-        "think_effort": think_effort,
-        "thinking_disabled": thinking_disabled,
+        "model": DEFAULT_KIMI_MODEL,
+        "temperature": 1.0,
+        "max_tokens": 8000,
+        "think_effort": None,
+        "thinking_disabled": False,
     }
 
 
@@ -483,27 +803,30 @@ def handle_hitl_interrupt(interrupt_val: dict[str, Any]) -> dict[str, Any] | Non
             questionary.Choice(title="❌ Cancel", value="cancel"),
         ]
 
-    action = questionary.select(
-        "Select Action (Use ↑/↓ arrows, press Enter):",
-        choices=choices,
-        style=QUESTIONARY_STYLE,
-    ).ask()
+    while True:
+        action = prompt_select_nav(
+            "Select Action (Use ↑/↓ arrows, press Enter):",
+            choices=choices,
+            allow_back=False,
+        )
 
-    if action is None or action == "cancel":
-        console.print("[yellow]Pipeline execution cancelled by operator.[/yellow]")
-        return None
-
-    if action in ("refine", "replan", "clarify"):
-        feedback = questionary.text(
-            "Enter your feedback / updated constraints:",
-            style=QUESTIONARY_STYLE,
-        ).ask()
-        if feedback is None:
+        if action is None or action == "cancel":
             console.print("[yellow]Pipeline execution cancelled by operator.[/yellow]")
             return None
-        return {"action": action, "feedback": feedback.strip()}
 
-    return {"action": action}
+        if action in ("refine", "replan", "clarify"):
+            feedback = prompt_text_nav(
+                "Enter your feedback / updated constraints (Backspace on empty to return):",
+                allow_back=True,
+            )
+            if feedback == BACK_SENTINEL:
+                continue
+            if feedback is None:
+                console.print("[yellow]Pipeline execution cancelled by operator.[/yellow]")
+                return None
+            return {"action": action, "feedback": feedback.strip()}
+
+        return {"action": action}
 
 
 def display_results(result: dict[str, Any]) -> None:
@@ -575,9 +898,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--provider",
         type=str,
-        choices=["ollama", "openrouter", "kimi"],
-        default=os.getenv("LLM_PROVIDER", "ollama" if os.getenv("OLLAMA_MODEL") else ("openrouter" if os.getenv("OPENROUTER_API_KEY") else "kimi")),
-        help="Active LLM provider ('ollama', 'openrouter' or 'kimi', default from LLM_PROVIDER or auto-detected)",
+        choices=["ollama", "openrouter", "openai", "kimi"],
+        default=os.getenv("LLM_PROVIDER", "ollama" if os.getenv("OLLAMA_MODEL") else ("openrouter" if os.getenv("OPENROUTER_API_KEY") else ("openai" if os.getenv("OPENAI_API_KEY") else "kimi"))),
+        help="Active LLM provider ('ollama', 'openrouter', 'openai' or 'kimi', default from LLM_PROVIDER or auto-detected)",
     )
     parser.add_argument(
         "--model",
@@ -630,6 +953,20 @@ def main() -> None:
                 )
             )
             sys.exit(1)
+    elif provider == "openai":
+        api_key = os.getenv("OPENAI_API_KEY", "")
+        if not api_key:
+            console.print(
+                Panel(
+                    "[bold red]ERROR: OPENAI_API_KEY is not set in your environment or .env file.[/bold red]\n\n"
+                    "Please configure your .env file with:\n"
+                    '  OPENAI_API_KEY="your-api-key-here"\n'
+                    f'  OPENAI_MODEL="{DEFAULT_OPENAI_MODEL}"',
+                    title="[bold red]Missing OpenAI API Credentials[/bold red]",
+                    border_style="red",
+                )
+            )
+            sys.exit(1)
     elif provider == "kimi":
         api_key = os.getenv("KIMI_API_KEY", "")
         if not api_key:
@@ -664,35 +1001,53 @@ def main() -> None:
             default_tokens = 3000 if is_thinking else 2000
         elif provider == "openrouter":
             default_model = (
-                os.getenv("OPENROUTER_MODEL") or os.getenv("OP_LING_MODEL") or DEFAULT_OPENROUTER_MODEL
+                os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
             )
             default_temp = 0.2
             default_tokens = 2000
+        elif provider == "openai":
+            default_model = os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_MODEL)
+            resolved_m = args.model or default_model
+            is_reasoning = any(tag in resolved_m.lower() for tag in ("gpt-6", "o1", "o3", "o4"))
+            default_temp = None if is_reasoning else 0.2
+            default_tokens = 2000
+            default_effort = os.getenv("OPENAI_REASONING_EFFORT", "none" if is_reasoning else None)
+            llm_config = {
+                "provider": provider,
+                "model": resolved_m,
+                "temperature": args.temperature if args.temperature is not None else default_temp,
+                "max_tokens": args.max_tokens or default_tokens,
+                "think_effort": None,
+                "reasoning_effort": default_effort,
+                "thinking_disabled": False,
+            }
+            user_input = query_from_args or "Route 100G optical circuit from Berlin to Frankfurt with at least 15 dB GSNR"
         else:
             default_model = os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL)
             default_temp = 1.0
             default_tokens = 8000
-        llm_config = {
-            "provider": provider,
-            "model": args.model or default_model,
-            "temperature": args.temperature if args.temperature is not None else default_temp,
-            "max_tokens": args.max_tokens or default_tokens,
-            "think_effort": None,
-            "thinking_disabled": False,
-        }
-        user_input = query_from_args or "Route 100G optical circuit from Berlin to Frankfurt with at least 15 dB GSNR"
+            llm_config = {
+                "provider": provider,
+                "model": args.model or default_model,
+                "temperature": args.temperature if args.temperature is not None else default_temp,
+                "max_tokens": args.max_tokens or default_tokens,
+                "think_effort": None,
+                "thinking_disabled": False,
+            }
+            user_input = query_from_args or "Route 100G optical circuit from Berlin to Frankfurt with at least 15 dB GSNR"
     else:
-        llm_config = interactive_configuration()
-        example_intent = "Route 100G optical circuit from Berlin to Frankfurt with at least 15 dB GSNR"
-        raw_input = questionary.text(
-            "Enter Operator Intent:",
-            placeholder=example_intent,
-            style=QUESTIONARY_STYLE,
-        ).ask()
-        if raw_input is None:
-            console.print("[yellow]Setup cancelled by operator.[/yellow]")
-            sys.exit(0)
-        user_input = raw_input.strip() or example_intent
+        while True:
+            llm_config = interactive_configuration()
+            example_intent = "Route 100G optical circuit from Berlin to Frankfurt with at least 15 dB GSNR"
+            raw_input = prompt_text_nav(
+                "Enter Operator Intent:",
+                placeholder=example_intent,
+                allow_back=True,
+            )
+            if raw_input == BACK_SENTINEL:
+                continue
+            user_input = raw_input.strip() or example_intent
+            break
 
     # Initialize LLM via multi-provider factory
     llm = create_configured_llm(
@@ -701,6 +1056,7 @@ def main() -> None:
         temperature=float(llm_config["temperature"]) if llm_config.get("temperature") is not None else None,
         max_tokens=int(llm_config["max_tokens"]) if llm_config.get("max_tokens") is not None else None,
         think_effort=str(llm_config["think_effort"]) if llm_config.get("think_effort") else None,
+        reasoning_effort=str(llm_config["reasoning_effort"]) if llm_config.get("reasoning_effort") else None,
         thinking_disabled=bool(llm_config.get("thinking_disabled", False)),
     )
     set_llm(llm)
@@ -777,4 +1133,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Execution interrupted by operator. Exiting...[/yellow]")
+        sys.exit(0)

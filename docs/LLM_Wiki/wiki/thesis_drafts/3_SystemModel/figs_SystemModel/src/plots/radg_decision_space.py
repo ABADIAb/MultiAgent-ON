@@ -51,21 +51,21 @@ def generate_figure_3_4():
             ha="center", va="center", fontsize=9.5, fontweight="bold", color="#1C4532",
             bbox=dict(boxstyle="round,pad=0.4", fc="#FFFFFF", ec="#22543D", lw=1.2, alpha=0.9))
     ax.text(0.15, 1.3, "Semantic clarity established\nPhysical QoT satisfies target\nZero human interruptions",
-            ha="center", va="center", fontsize=8, color="#22543D")
+            ha="center", va="center", fontsize=9, color="#22543D")
 
     # Zone II: Suggest Replan
     ax.text(0.15, -2.8, "ZONE II:\nSUGGEST REPLAN\n($a = \\text{replan}$)",
             ha="center", va="center", fontsize=9.5, fontweight="bold", color="#742A2A",
             bbox=dict(boxstyle="round,pad=0.4", fc="#FFFFFF", ec="#742A2A", lw=1.2, alpha=0.9))
     ax.text(0.15, -4.6, "Semantic intent understood\nTransmission infeasible\nHITL constraint relaxation",
-            ha="center", va="center", fontsize=8, color="#742A2A")
+            ha="center", va="center", fontsize=9, color="#742A2A")
 
     # Zone III: Early Clarify
     ax.text(0.65, 0.2, "ZONE III:\nEARLY HITL CLARIFY\n($a = \\text{clarify}$)",
             ha="center", va="center", fontsize=10.5, fontweight="bold", color="#7B341E",
             bbox=dict(boxstyle="round,pad=0.45", fc="#FFFFFF", ec="#7B341E", lw=1.3, alpha=0.95))
     ax.text(0.65, -1.8, "Grammar violation ($v_{struct} = 0$)\nor semantic divergence ($d_{sem} > \\tau_{sem}$)\nPhysical simulation strictly bypassed",
-            ha="center", va="center", fontsize=8.5, color="#7B341E")
+            ha="center", va="center", fontsize=9.5, color="#7B341E")
 
     # Grid & Spines
     ax.grid(True, linestyle=":", alpha=0.5, color="#718096")

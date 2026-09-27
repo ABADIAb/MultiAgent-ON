@@ -42,3 +42,9 @@ docs/LLM_Wiki/raw/
 # Draw.io temporary lock & backup files
 .\$*.drawio*
 *.drawio.bkp
+
+# Generated visuals and binary exports
+*.png
+*.pdf
+!docs/LLM_Wiki/**/*.png
+!docs/LLM_Wiki/**/*.pdf

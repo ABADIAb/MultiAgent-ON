@@ -56,9 +56,11 @@ RULES:
 3. ALL CONSTRAINTS BELONG IN (:goal (and ...)):
    - ALL operator constraints ((min-gsnr ...), (bandwidth ...), (max-hops ...), (avoid-node ...), (avoid-link ...), (via ...)) MUST be placed inside the (:goal (and ...)) section!
    - The (:init ...) section is STRICTLY for network topology predicates ((connected ...) and (link-active ...)). NEVER place constraints in (:init ...)!
-4. NO PLACEHOLDERS OR DUMMY VALUES:
+4. NO PLACEHOLDERS, DUMMY VALUES, OR ARBITRARY NUMBER CONVERSIONS:
    - ONLY emit constraint predicates if they are EXPLICITLY requested in the operator intent.
    - NEVER invent default or placeholder values! E.g. if the operator does NOT specify GSNR, DO NOT emit (min-gsnr 0).
+   - NEVER convert non-numeric, adversarial, or invalid constraint values (such as 'NaN', 'null', 'undefined', 'inf', 'none', or text) into 0, 1, or any valid number!
+   - If an intent specifies an invalid, corrupted, or non-numeric constraint (e.g. 'GSNR constraint: NaN dB'), you MUST emit the literal value exactly as written (e.g. (min-gsnr NaN)) so downstream syntax validators can catch the violation. NEVER emit (min-gsnr 0) when the input says NaN!
    - NEVER emit (bandwidth ...) or (bandwidth 1) unless the operator explicitly mentions bandwidth, capacity, or bitrate (e.g., '100G', '400G'). If bandwidth is not mentioned, omit (bandwidth ...).
    - If no specific constraints are mentioned, the (:goal ...) section MUST contain ONLY (route <source> <target>).
 5. AVOIDANCE CONSTRAINTS:
