@@ -1973,12 +1973,52 @@ def plot_comparative_deployment_flow_sankey(
     llm_only_data: dict[str, Any],
     output_prefix: Path,
 ) -> None:
-    """Generate combined dual-panel 4-stage operational Sankey diagram contrasting Proposed RADG vs. LLM-Only."""
+    """Generate combined dual-panel 3-stage operational Sankey diagram contrasting Proposed RADG vs. LLM-Only.
+
+    Features:
+    - Aspect ratio matching comparative_scalability_projection (~1.42:1).
+    - Robust flow ribbon thickness with high-contrast semi-transparent badges ("Nominal", "Non-Nominal").
+    - Aesthetic horizontal divider line between subplots.
+    - 3 distinct shades of red for LLM-Only Stage 2 -> 3 non-nominal failures (Syntax, QoT, Conflict).
+    """
     import matplotlib.path as mpath
     import matplotlib.patches as mpatches
 
-    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(14.5, 11.5), dpi=300)
+    color_approve_dark = "#15803D"
+    color_nom_gray = "#64748B"
+    color_non_nom_flow = "#F59E0B"
+
+    # 3 distinct tones of red for LLM-Only failure modes
+    color_red_light = "#F87171"       # Light coral-red (Syntax / Ambiguity)
+    color_red_mid = "#DC2626"         # Pure red (QoT / Reach Violation)
+    color_red_dark = "#7F1D1D"        # Dark crimson / burgundy (Constraint Conflict)
+    color_red_light_text = "#B91C1C"
+    color_red_mid_text = "#991B1B"
+    color_red_dark_text = "#450A0A"
+
+    # Sizing matched to comparative_scalability_projection (8.2 / 5.8 = 1.414)
+    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(9.8, 6.9), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
+
+    def draw_flow(ax, start_x, start_y, start_h, end_x, end_y, end_h, color, alpha=0.55):
+        if start_h <= 0 or end_h <= 0:
+            return
+        dx = (end_x - start_x) * 0.45
+        path_data = [
+            (mpath.Path.MOVETO, (start_x, start_y + start_h / 2)),
+            (mpath.Path.CURVE4, (start_x + dx, start_y + start_h / 2)),
+            (mpath.Path.CURVE4, (end_x - dx, end_y + end_h / 2)),
+            (mpath.Path.CURVE4, (end_x, end_y + end_h / 2)),
+            (mpath.Path.LINETO, (end_x, end_y - end_h / 2)),
+            (mpath.Path.CURVE4, (end_x - dx, end_y - end_h / 2)),
+            (mpath.Path.CURVE4, (start_x + dx, start_y - start_h / 2)),
+            (mpath.Path.CURVE4, (start_x, start_y - start_h / 2)),
+            (mpath.Path.CLOSEPOLY, (start_x, start_y + start_h / 2)),
+        ]
+        codes, verts = zip(*path_data)
+        path = mpath.Path(verts, codes)
+        patch = mpatches.PathPatch(path, facecolor=color, alpha=alpha, edgecolor="none", zorder=2)
+        ax.add_patch(patch)
 
     def render_sankey_panel(ax, demands, panel_title, is_proposed=True):
         ax.set_facecolor(COLOR_BG)
@@ -1986,6 +2026,9 @@ def plot_comparative_deployment_flow_sankey(
         n_total = len(demands)
         if n_total == 0:
             return
+
+        n_nominal = sum(1 for d in demands if d.get("class") == "I_Nominal")
+        n_non_nominal = n_total - n_nominal
 
         n_intercepted = sum(1 for d in demands if d.get("initial_action") in ["clarify", "replan"])
         n_approved = sum(1 for d in demands if d.get("initial_action") == "approve")
@@ -1996,146 +2039,160 @@ def plot_comparative_deployment_flow_sankey(
         n_fail_ambig = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "II_Ambiguous")
         n_fail_infeas = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "III_Infeasible")
         n_fail_adver = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "IV_Adversarial")
-        n_incidents = n_fail_ambig + n_fail_infeas + n_fail_adver
 
-        # Coordinates for 4 stages (compacted spacing to guarantee Stage 4 text breathing room)
-        x0, x1, x2, x3 = 0.07, 0.27, 0.49, 0.70
-        y_center = 0.44
-        height_total = 0.50
+        # Coordinates for 3 stages
+        x0, x1, x2 = 0.12, 0.49, 0.85
+        bar_w = 0.034
+        y_center = 0.40
+        height_total = 0.54
 
-        h_intercepted = height_total * (n_intercepted / n_total) if n_total else 0
-        h_approved = height_total * (n_approved / n_total) if n_total else 0
-        h_success = height_total * (n_success / n_total) if n_total else 0
-        h_fail_ambig = height_total * (n_fail_ambig / n_total) if n_total else 0
-        h_fail_infeas = height_total * (n_fail_infeas / n_total) if n_total else 0
-        h_fail_adver = height_total * (n_fail_adver / n_total) if n_total else 0
-        h_incidents = height_total * (n_incidents / n_total) if n_total else 0
+        h_nom = height_total * (n_nominal / n_total)
+        h_non_nom = height_total * (n_non_nominal / n_total)
 
-        def draw_flow(start_x, start_y, start_h, end_x, end_y, end_h, color, alpha=0.45):
-            if start_h <= 0 or end_h <= 0:
-                return
-            dx = (end_x - start_x) * 0.42
-            path_data = [
-                (mpath.Path.MOVETO, (start_x, start_y + start_h / 2)),
-                (mpath.Path.CURVE4, (start_x + dx, start_y + start_h / 2)),
-                (mpath.Path.CURVE4, (end_x - dx, end_y + end_h / 2)),
-                (mpath.Path.CURVE4, (end_x, end_y + end_h / 2)),
-                (mpath.Path.LINETO, (end_x, end_y - end_h / 2)),
-                (mpath.Path.CURVE4, (end_x - dx, end_y - end_h / 2)),
-                (mpath.Path.CURVE4, (start_x + dx, start_y - start_h / 2)),
-                (mpath.Path.CURVE4, (start_x, start_y - start_h / 2)),
-                (mpath.Path.CLOSEPOLY, (start_x, start_y + start_h / 2)),
-            ]
-            codes, verts = zip(*path_data)
-            path = mpath.Path(verts, codes)
-            patch = mpatches.PathPatch(path, facecolor=color, alpha=alpha, edgecolor="none")
-            ax.add_patch(patch)
+        y_nom_start = y_center + (height_total / 2) - (h_nom / 2)
+        y_non_nom_start = y_center - (height_total / 2) + (h_non_nom / 2)
 
         # Panel Banner Title
         banner_color = COLOR_NAVY if is_proposed else COLOR_BURGUNDY
-        ax.text(0.04, 0.94, panel_title, fontsize=12.0, fontweight="bold", color=banner_color,
-                bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor=banner_color, alpha=0.95))
+        ax.text(0.02, 0.98, panel_title, fontsize=12.2, fontweight="bold", color=banner_color,
+                bbox=dict(boxstyle="round,pad=0.30", facecolor="white", edgecolor=banner_color, alpha=0.95))
 
-        # Stage 1: Input Bar
-        ax.add_patch(mpatches.Rectangle((x0 - 0.015, y_center - height_total / 2), 0.03, height_total, color=COLOR_DARK_SLATE))
-        ax.text(x0, y_center + height_total / 2 + 0.04, f"Stage 1: Ingest\n{n_total} Demands (100%)", ha="center", va="bottom", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
+        # Stage 1: Ingest Rectangles (Nominal top in Gray, Non-Nominal bottom in Amber)
+        ax.add_patch(mpatches.Rectangle((x0 - bar_w / 2, y_nom_start - h_nom / 2), bar_w, h_nom, color=color_nom_gray, zorder=3))
+        ax.add_patch(mpatches.Rectangle((x0 - bar_w / 2, y_non_nom_start - h_non_nom / 2), bar_w, h_non_nom, color=color_non_nom_flow, zorder=3))
+        ax.text(x0, y_center + height_total / 2 + 0.045, f"Stage 1: Ingest\n{n_total} Demands (100%)", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_DARK_SLATE)
 
-        # Stage 2: Pre-deployment intercept vs approved
-        if h_intercepted > 0:
-            y_int = y_center - height_total / 2 + h_intercepted / 2
-            draw_flow(x0, y_int, h_intercepted, x1, y_center - 0.18, h_intercepted, COLOR_CLARIFY)
-            ax.add_patch(mpatches.Rectangle((x1 - 0.015, y_center - 0.18 - h_intercepted / 2), 0.03, h_intercepted, color=COLOR_CLARIFY))
-            ax.text(x1, y_center - 0.18 - h_intercepted / 2 - 0.03, f"Pre-Flight Intercept\n{n_intercepted} ({n_intercepted / n_total * 100:.0f}%)", ha="center", va="top", fontsize=9.2, fontweight="bold", color=COLOR_CLARIFY)
+        x_badge = (x0 + x1) / 2
 
-        if h_approved > 0:
-            y_app = y_center + height_total / 2 - h_approved / 2
-            draw_flow(x0, y_app, h_approved, x1, y_center + 0.02, h_approved, COLOR_NAVY)
-            ax.add_patch(mpatches.Rectangle((x1 - 0.015, y_center + 0.02 - h_approved / 2), 0.03, h_approved, color=COLOR_NAVY))
-            ax.text(x1, y_center + 0.02 + h_approved / 2 + 0.04, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+        if is_proposed:
+            # PROPOSED RADG
+            h_fwd = height_total * (n_approved / n_total)
+            h_int = height_total * (n_intercepted / n_total)
+            y_fwd_target = y_center + 0.14
+            y_int_target = y_center - 0.16
 
-            # Stage 3: Split into Controller Outcomes
-            curr_y = y_center + 0.02 + h_approved / 2
-            ax.text(x2, y_center + height_total / 2 + 0.04, "Stage 3: SDON Controller\nDeployment Outcomes", ha="center", va="bottom", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
+            # Flow Nominal (Gray) -> Stage 2 Forwarded
+            draw_flow(ax, x0 + bar_w / 2, y_nom_start, h_nom, x1 - bar_w / 2, y_fwd_target, h_fwd, color_nom_gray, alpha=0.48)
+            # Flow Non-Nominal (Amber) -> Stage 2 Intercept
+            draw_flow(ax, x0 + bar_w / 2, y_non_nom_start, h_non_nom, x1 - bar_w / 2, y_int_target, h_int, color_non_nom_flow, alpha=0.58)
 
-            # 3A: Runtime Success
-            y_succ_end = y_center + 0.18
-            if h_success > 0:
-                y_succ_start = curr_y - h_success / 2
-                draw_flow(x1, y_succ_start, h_success, x2, y_succ_end, h_success, COLOR_APPROVE)
-                ax.add_patch(mpatches.Rectangle((x2 - 0.015, y_succ_end - h_success / 2), 0.03, h_success, color=COLOR_APPROVE))
-                ax.text(x2, y_succ_end, f"{n_success}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
-                ax.text((x1 + x2) / 2, (y_succ_start + y_succ_end) / 2 + 0.01, f"Pass ({n_success})", ha="center", va="bottom", fontsize=8.8, fontweight="bold", color=COLOR_APPROVE)
-                curr_y -= h_success
+            # Stage 1 -> 2 Badges
+            y_nom_mid = (y_nom_start + y_fwd_target) / 2
+            y_non_nom_mid = (y_non_nom_start + y_int_target) / 2
+            ax.text(x_badge, y_nom_mid, "Nominal", ha="center", va="center", fontsize=9.8, fontweight="bold", color=COLOR_DARK_SLATE,
+                    bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=color_nom_gray, alpha=0.88, lw=0.9), zorder=5)
+            ax.text(x_badge, y_non_nom_mid, "Non-Nominal", ha="center", va="center", fontsize=9.8, fontweight="bold", color="#78350F",
+                    bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=color_non_nom_flow, alpha=0.88, lw=0.9), zorder=5)
 
-            # Incident Y levels
-            y_inc_ambig = y_center + 0.03
-            y_inc_infeas = y_center - 0.09
-            y_inc_adver = y_center - 0.20
+            # Stage 2: Admission (Forwarded in Navy, Intercepted in Amber)
+            ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_fwd_target - h_fwd / 2), bar_w, h_fwd, color=COLOR_NAVY, zorder=3))
+            ax.text(x1, y_fwd_target + h_fwd / 2 + 0.045, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_NAVY)
 
-            if h_fail_ambig > 0:
-                y_fa_start = curr_y - h_fail_ambig / 2
-                draw_flow(x1, y_fa_start, h_fail_ambig, x2, y_inc_ambig, h_fail_ambig, COLOR_CLARIFY)
-                ax.add_patch(mpatches.Rectangle((x2 - 0.015, y_inc_ambig - h_fail_ambig / 2), 0.03, h_fail_ambig, color=COLOR_CLARIFY))
-                ax.text(x2, y_inc_ambig, f"{n_fail_ambig}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
-                ax.text((x1 + x2) / 2, (y_fa_start + y_inc_ambig) / 2 - 0.015, f"Syntax/Ambig ({n_fail_ambig})", ha="center", va="top", fontsize=8.5, fontweight="bold", color=COLOR_CLARIFY)
-                curr_y -= h_fail_ambig
+            ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_int_target - h_int / 2), bar_w, h_int, color=color_non_nom_flow, zorder=3))
+            ax.text(x1, y_int_target - h_int / 2 - 0.045, f"Pre-Deployment Interception\n{n_intercepted} ({n_intercepted / n_total * 100:.0f}%)", ha="center", va="top", fontsize=10.2, fontweight="bold", color="#92400E")
 
-            if h_fail_infeas > 0:
-                y_fi_start = curr_y - h_fail_infeas / 2
-                draw_flow(x1, y_fi_start, h_fail_infeas, x2, y_inc_infeas, h_fail_infeas, COLOR_REPLAN)
-                ax.add_patch(mpatches.Rectangle((x2 - 0.015, y_inc_infeas - h_fail_infeas / 2), 0.03, h_fail_infeas, color=COLOR_REPLAN))
-                ax.text(x2, y_inc_infeas, f"{n_fail_infeas}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
-                ax.text((x1 + x2) / 2, (y_fi_start + y_inc_infeas) / 2 - 0.015, f"QoT/Reach ({n_fail_infeas})", ha="center", va="top", fontsize=8.5, fontweight="bold", color=COLOR_REPLAN)
-                curr_y -= h_fail_infeas
+            # Stage 3: Pass (100% of forwarded demands pass cleanly)
+            ax.text(x2, y_center + height_total / 2 + 0.045, "Stage 3: SDON Controller\nDeployment Outcomes", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_DARK_SLATE)
+            draw_flow(ax, x1 + bar_w / 2, y_fwd_target, h_fwd, x2 - bar_w / 2, y_fwd_target, h_fwd, COLOR_APPROVE, alpha=0.55)
+            ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y_fwd_target - h_fwd / 2), bar_w, h_fwd, color=COLOR_APPROVE, zorder=3))
+            ax.text(x2, y_fwd_target, f"{n_approved}", ha="center", va="center", color="white", fontweight="bold", fontsize=10.8, zorder=4)
+            ax.text((x1 + x2) / 2, y_fwd_target, f"Pass ({n_approved})", ha="center", va="center", fontsize=10.5, fontweight="bold", color=color_approve_dark, zorder=5)
 
-            if h_fail_adver > 0:
-                y_fd_start = curr_y - h_fail_adver / 2
-                draw_flow(x1, y_fd_start, h_fail_adver, x2, y_inc_adver, h_fail_adver, COLOR_BURGUNDY)
-                ax.add_patch(mpatches.Rectangle((x2 - 0.015, y_inc_adver - h_fail_adver / 2), 0.03, h_fail_adver, color=COLOR_BURGUNDY))
-                ax.text(x2, y_inc_adver, f"{n_fail_adver}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.5)
-                ax.text((x1 + x2) / 2, (y_fd_start + y_inc_adver) / 2 - 0.015, f"Conflict ({n_fail_adver})", ha="center", va="top", fontsize=8.5, fontweight="bold", color=COLOR_BURGUNDY)
+        else:
+            # LLM-ONLY BASELINE
+            flow_gap = 0.016
+            y_nom_target = y_center + (height_total / 2) - (h_nom / 2) + flow_gap / 2
+            y_non_nom_target = y_center - (height_total / 2) + (h_non_nom / 2) - flow_gap / 2
 
-            # Stage 4: Operational Outcome
-            ax.text(x3, y_center + height_total / 2 + 0.04, "Stage 4: Operational\nHuman Attention Burden", ha="center", va="bottom", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
-            if h_success > 0:
-                draw_flow(x2, y_succ_end, h_success, x3, y_succ_end, h_success, COLOR_APPROVE)
-                ax.add_patch(mpatches.Rectangle((x3 - 0.015, y_succ_end - h_success / 2), 0.03, h_success, color=COLOR_APPROVE))
-                ax.text(x3 + 0.025, y_succ_end, f"Touchless Autonomous Deployment\n{n_success} Demands ({n_success / n_total * 100:.0f}%)", ha="left", va="center", fontsize=9.5, fontweight="bold", color=COLOR_APPROVE)
+            # Slightly separated flows from Stage 1 to Stage 2
+            draw_flow(ax, x0 + bar_w / 2, y_nom_start, h_nom, x1 - bar_w / 2, y_nom_target, h_nom, color_nom_gray, alpha=0.48)
+            draw_flow(ax, x0 + bar_w / 2, y_non_nom_start, h_non_nom, x1 - bar_w / 2, y_non_nom_target, h_non_nom, color_non_nom_flow, alpha=0.58)
 
-            if h_incidents > 0:
-                y_inc_end = y_center - 0.12
-                if h_fail_ambig > 0:
-                    draw_flow(x2, y_inc_ambig, h_fail_ambig, x3, y_inc_end + 0.07, h_fail_ambig, COLOR_CLARIFY)
-                if h_fail_infeas > 0:
-                    draw_flow(x2, y_inc_infeas, h_fail_infeas, x3, y_inc_end, h_fail_infeas, COLOR_REPLAN)
-                if h_fail_adver > 0:
-                    draw_flow(x2, y_inc_adver, h_fail_adver, x3, y_inc_end - 0.07, h_fail_adver, COLOR_BURGUNDY)
+            # Stage 1 -> 2 Badges
+            ax.text(x_badge, (y_nom_start + y_nom_target) / 2, "Nominal", ha="center", va="center", fontsize=9.8, fontweight="bold", color=COLOR_DARK_SLATE,
+                    bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=color_nom_gray, alpha=0.88, lw=0.9), zorder=5)
+            ax.text(x_badge, (y_non_nom_start + y_non_nom_target) / 2, "Non-Nominal", ha="center", va="center", fontsize=9.8, fontweight="bold", color="#78350F",
+                    bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=color_non_nom_flow, alpha=0.88, lw=0.9), zorder=5)
 
-                ax.add_patch(mpatches.Rectangle((x3 - 0.015, y_inc_end - h_incidents / 2), 0.03, h_incidents, color=COLOR_REPLAN))
-                ax.text(x3 + 0.025, y_inc_end, f"Emergency Operator Interventions\n{n_incidents} Incidents ({n_incidents / n_total * 100:.0f}%)", ha="left", va="center", fontsize=9.5, fontweight="bold", color=COLOR_REPLAN)
-            elif is_proposed:
-                ax.text(x3 + 0.025, y_center - 0.12, "✓ Zero Production Incidents\n0 Alarms | 100% Pre-Flight Intercepted", ha="left", va="center", fontsize=9.5, fontweight="bold", color=COLOR_APPROVE,
-                        bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor=COLOR_APPROVE, alpha=0.95))
+            # Stage 2: Admission (Stacked: Nominal gray top, Non-Nominal yellow bottom - 100% forwarded)
+            ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_nom_target - h_nom / 2), bar_w, h_nom, color=color_nom_gray, zorder=3))
+            ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_non_nom_target - h_non_nom / 2), bar_w, h_non_nom, color=color_non_nom_flow, zorder=3))
+            ax.text(x1, y_center + height_total / 2 + 0.045, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_NAVY)
 
-        ax.set_xlim(0.0, 1.0)
-        ax.set_ylim(-0.35, 0.65)
+            # Stage 3: SDON Controller Outcomes
+            ax.text(x2, y_center + height_total / 2 + 0.045, "Stage 3: SDON Controller\nDeployment Outcomes", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_DARK_SLATE)
+
+            # Nominal -> Pass (Green)
+            h_success = height_total * (n_success / n_total)
+            draw_flow(ax, x1 + bar_w / 2, y_nom_target, h_nom, x2 - bar_w / 2, y_nom_target, h_success, COLOR_APPROVE, alpha=0.55)
+            ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y_nom_target - h_success / 2), bar_w, h_success, color=COLOR_APPROVE, zorder=3))
+            ax.text(x2, y_nom_target, f"{n_success}", ha="center", va="center", color="white", fontweight="bold", fontsize=10.8, zorder=4)
+            ax.text((x1 + x2) / 2, y_nom_target, f"Pass ({n_success})", ha="center", va="center", fontsize=10.2, fontweight="bold", color=color_approve_dark, zorder=5)
+
+            # Non-Nominal split into 3 shades of RED:
+            h_f1 = height_total * (n_fail_ambig / n_total)
+            h_f2 = height_total * (n_fail_infeas / n_total)
+            h_f3 = height_total * (n_fail_adver / n_total)
+
+            curr_y_start = y_non_nom_target + h_non_nom / 2
+
+            y3_f1 = y_center + 0.04
+            y3_f2 = y_center - 0.10
+            y3_f3 = y_center - 0.24
+
+            # 1. Syntax/Ambig (Light Red / Coral)
+            y_f1_start = curr_y_start - h_f1 / 2
+            draw_flow(ax, x1 + bar_w / 2, y_f1_start, h_f1, x2 - bar_w / 2, y3_f1, h_f1, color_red_light, alpha=0.62)
+            ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y3_f1 - h_f1 / 2), bar_w, h_f1, color=color_red_light, zorder=3))
+            ax.text(x2, y3_f1, f"{n_fail_ambig}", ha="center", va="center", color="white", fontweight="bold", fontsize=10.8, zorder=4)
+            ax.text((x1 + x2) / 2, (y_f1_start + y3_f1) / 2, f"Syntax/Ambig ({n_fail_ambig})", ha="center", va="center", fontsize=9.8, fontweight="bold", color=color_red_light_text, zorder=5)
+            curr_y_start -= h_f1
+
+            # 2. QoT/Reach (Mid Red)
+            y_f2_start = curr_y_start - h_f2 / 2
+            draw_flow(ax, x1 + bar_w / 2, y_f2_start, h_f2, x2 - bar_w / 2, y3_f2, h_f2, color_red_mid, alpha=0.62)
+            ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y3_f2 - h_f2 / 2), bar_w, h_f2, color=color_red_mid, zorder=3))
+            ax.text(x2, y3_f2, f"{n_fail_infeas}", ha="center", va="center", color="white", fontweight="bold", fontsize=10.8, zorder=4)
+            ax.text((x1 + x2) / 2, (y_f2_start + y3_f2) / 2, f"QoT/Reach ({n_fail_infeas})", ha="center", va="center", fontsize=9.8, fontweight="bold", color=color_red_mid_text, zorder=5)
+            curr_y_start -= h_f2
+
+            # 3. Conflict (Dark Red / Burgundy)
+            y_f3_start = curr_y_start - h_f3 / 2
+            draw_flow(ax, x1 + bar_w / 2, y_f3_start, h_f3, x2 - bar_w / 2, y3_f3, h_f3, color_red_dark, alpha=0.62)
+            ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y3_f3 - h_f3 / 2), bar_w, h_f3, color=color_red_dark, zorder=3))
+            ax.text(x2, y3_f3, f"{n_fail_adver}", ha="center", va="center", color="white", fontweight="bold", fontsize=10.8, zorder=4)
+            ax.text((x1 + x2) / 2, (y_f3_start + y3_f3) / 2, f"Conflict ({n_fail_adver})", ha="center", va="center", fontsize=9.8, fontweight="bold", color=color_red_dark_text, zorder=5)
+
+        ax.set_xlim(0.00, 1.00)
+        ax.set_ylim(-0.25, 1.06)
 
     render_sankey_panel(
         ax_top,
         proposed_data.get("demands", []),
-        "Panel A: Proposed RADG (V5) — Safe Autonomous Pre-Deployment Gating (Zero Controller Incidents)",
+        "Proposed RADG - Autonomous Pre-Deployment Gating",
         is_proposed=True,
     )
     render_sankey_panel(
         ax_bot,
         llm_only_data.get("demands", []),
-        "Panel B: LLM-Only Baseline — Blind Forwarding (Un-gated Admission -> 75% Controller Integrity Collapse)",
+        "LLM-Only Baseline - Blind Forwarding",
         is_proposed=False,
     )
 
     fig.suptitle("Comparative Operational Deployment Flow: Proposed RADG vs. LLM-Only Baseline",
-                 fontsize=15.0, fontweight="bold", color=COLOR_NAVY, y=0.985)
-    plt.tight_layout(rect=[0, 0, 1, 0.97])
+                 fontsize=14.0, fontweight="bold", color=COLOR_NAVY, y=0.985)
+
+    plt.tight_layout(rect=[0, 0.02, 1, 0.96], h_pad=1.8)
+
+    # Compute exact midpoint between ax_top and ax_bot for the aesthetic divider line
+    fig.canvas.draw()
+    bbox_top = ax_top.get_position()
+    bbox_bot = ax_bot.get_position()
+    divider_y = (bbox_top.y0 + bbox_bot.y1) / 2.0
+
+    line = plt.Line2D([0.04, 0.96], [divider_y, divider_y], transform=fig.transFigure,
+                      color=COLOR_CARD_BORDER, linestyle="-", linewidth=1.5, alpha=0.85)
+    fig.add_artist(line)
 
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(f"{output_prefix}.png", dpi=300, bbox_inches="tight", facecolor=COLOR_BG)

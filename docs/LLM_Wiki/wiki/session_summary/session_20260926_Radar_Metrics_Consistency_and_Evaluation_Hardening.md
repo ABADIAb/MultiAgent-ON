@@ -16,6 +16,7 @@ Consolidate evaluation hierarchy (`<LLM>/<timestamp>`), sanitize models, moderni
 - **Visuals Consolidation & Scalability:** Moved `gate_accuracy_matrix` to comparative suite; refactored `comparative_scalability_projection` to single-panel ($N_{hitl}$ fatigue).
 - **Radar Chart Discarded:** Removed `comparative_radar_pillars` due to mathematical distortion in normalized inverse axes (`1/Latency`, `1/Tokens`) and artificial 0% autonomy for un-gated baselines.
 - **Defensible Comparative Suite:** Standardized on `comparative_pillars_breakdown`, `comparative_deployment_flow_sankey`, `comparative_scalability_projection`, and `gate_accuracy_matrix`.
+- **Sankey Redesign (Stage 3 & Aesthetic Polish):** Refactored `comparative_deployment_flow_sankey` to 1.42 aspect ratio, robust ribbons, semi-transparent flow badges, panel divider, and 3-tier red palette for LLM-Only failures.
 
 ## 3. Test & Code Health
 - **Unit Suite:** 353/353 passing (`uv run pytest tests/unit/`).
@@ -23,5 +24,5 @@ Consolidate evaluation hierarchy (`<LLM>/<timestamp>`), sanitize models, moderni
 - **Git Hygiene:** No `.agents/` or `.atl/` files staged or tracked.
 
 ## 4. Exact Cursor & Next Prompt
-- **Cursor:** `tests/evaluation/generate_visuals.py` (reviewing remaining comparative figures).
-- **Next Prompt:** "Continuemos revisando las demás gráficas comparativas de evaluación."
+- **Cursor:** `tests/evaluation/generate_visuals.py` (deployment flow Sankey polished; PR #75 updated).
+- **Next Prompt:** "Continuemos revisando las demás gráficas comparativas o análisis de resultados."
