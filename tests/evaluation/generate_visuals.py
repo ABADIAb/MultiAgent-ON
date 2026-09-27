@@ -51,10 +51,70 @@ COLOR_BG = "#FFFFFF"
 COLOR_CARD_BG = "#F8FAFC"
 COLOR_CARD_BORDER = "#CBD5E1"
 
-# Action colors
+# Action colors (Reserved for Gate Actions and Invariant Status)
 COLOR_APPROVE = "#16A34A"   # Green
 COLOR_CLARIFY = "#D97706"   # Amber / Orange
-COLOR_REPLAN = "#DC2626"    # Red / Burgundy
+COLOR_REPLAN = "#DC2626"    # Red / Physical RADG
+# COLOR_BURGUNDY = "#4A0E17" defined above (Timeout / Aborted / Fatal Error)
+
+# Baseline Identity Colors
+COLOR_PROPOSED_PRIMARY = "#1E40AF"     # Royal Navy Blue (Proposed RADG)
+COLOR_HITL_PRIMARY = "#7C3AED"         # Violet / Purple (Always-On HITL)
+COLOR_LLM_ONLY_PRIMARY = "#EA580C"     # Deep Orange / Rust (LLM-Only)
+
+BASELINE_COLORS = {
+    "proposed_radg": COLOR_PROPOSED_PRIMARY,
+    "always_on_hitl": COLOR_HITL_PRIMARY,
+    "llm_only": COLOR_LLM_ONLY_PRIMARY,
+}
+
+# 4 distinct shades per baseline corresponding to:
+# Class I (Nominal)    -> 900 shade (deepest tone)
+# Class II (Ambiguous)  -> 600 shade (vibrant tone)
+# Class III (Infeasible)-> 400 shade (medium tone)
+# Class IV (Adversarial)-> 200 shade (soft/lightest tone)
+BASELINE_CLASS_SHADES = {
+    "proposed_radg": {
+        "I_Nominal": "#1E3A8A",      # 900 Deep Blue
+        "II_Ambiguous": "#2563EB",   # 600 Royal Blue
+        "III_Infeasible": "#60A5FA", # 400 Sky Blue
+        "IV_Adversarial": "#BFDBFE", # 200 Ice Blue
+    },
+    "always_on_hitl": {
+        "I_Nominal": "#4C1D95",      # 900 Deep Violet
+        "II_Ambiguous": "#7C3AED",   # 600 Vibrant Purple
+        "III_Infeasible": "#A78BFA", # 400 Medium Purple
+        "IV_Adversarial": "#DDD6FE", # 200 Soft Lavender
+    },
+    "llm_only": {
+        "I_Nominal": "#9A3412",      # 900 Burnt Rust Orange
+        "II_Ambiguous": "#EA580C",   # 600 Vibrant Orange
+        "III_Infeasible": "#FB923C", # 400 Bright Orange
+        "IV_Adversarial": "#FED7AA", # 200 Soft Peach
+    },
+}
+
+# Darker shades for hatched wasted compute / overhead
+BASELINE_OVERHEAD_SHADES = {
+    "proposed_radg": {
+        "I_Nominal": "#0F172A",
+        "II_Ambiguous": "#1E3A8A",
+        "III_Infeasible": "#1D4ED8",
+        "IV_Adversarial": "#3B82F6",
+    },
+    "always_on_hitl": {
+        "I_Nominal": "#2E1065",
+        "II_Ambiguous": "#4C1D95",
+        "III_Infeasible": "#5B21B6",
+        "IV_Adversarial": "#7C3AED",
+    },
+    "llm_only": {
+        "I_Nominal": "#431407",
+        "II_Ambiguous": "#7C2D12",
+        "III_Infeasible": "#9A3412",
+        "IV_Adversarial": "#C2410C",
+    },
+}
 
 CLASS_LABELS = {
     "I_Nominal": "Class I\n(Nominal)",
@@ -94,9 +154,11 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
             counts[c][act] += 1
 
     x = np.arange(len(CLASS_SHORT_NAMES))
-    bar_width = 0.55
+    num_classes = len(CLASS_SHORT_NAMES)
+    # Dynamic bar width based on category count to fill space cleanly and provide ample room for text
+    bar_width = min(0.72, max(0.55, 2.8 / max(num_classes, 1)))
 
-    fig, ax = plt.subplots(figsize=(10.0, 5.5), dpi=300)
+    fig, ax = plt.subplots(figsize=(7.6, 4.8), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
     ax.set_facecolor(COLOR_CARD_BG)
 
@@ -105,13 +167,13 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
     replan_vals = [counts[c]["replan"] for c in CLASS_SHORT_NAMES]
     timeout_vals = [counts[c]["timeout"] for c in CLASS_SHORT_NAMES]
 
-    # Stacked bars
-    ax.bar(x, approve_vals, bar_width, label="Approve (Direct Auto-Route)", color=COLOR_APPROVE, edgecolor="white", linewidth=1.2)
-    ax.bar(x, clarify_vals, bar_width, bottom=approve_vals, label="Clarify (Semantic RADG)", color=COLOR_CLARIFY, edgecolor="white", linewidth=1.2)
+    # Stacked bars with slim white edge so interior segment space is maximized
+    ax.bar(x, approve_vals, bar_width, label="Approve (Direct Auto-Route)", color=COLOR_APPROVE, edgecolor="white", linewidth=0.8)
+    ax.bar(x, clarify_vals, bar_width, bottom=approve_vals, label="Clarify (Semantic RADG)", color=COLOR_CLARIFY, edgecolor="white", linewidth=0.8)
     bottom_replan = [a + b for a, b in zip(approve_vals, clarify_vals)]
-    ax.bar(x, replan_vals, bar_width, bottom=bottom_replan, label="Replan (Physical RADG)", color=COLOR_REPLAN, edgecolor="white", linewidth=1.2)
+    ax.bar(x, replan_vals, bar_width, bottom=bottom_replan, label="Replan (Physical RADG)", color=COLOR_REPLAN, edgecolor="white", linewidth=0.8)
     bottom_timeout = [r + b for r, b in zip(replan_vals, bottom_replan)]
-    ax.bar(x, timeout_vals, bar_width, bottom=bottom_timeout, label="Timeout / Aborted", color=COLOR_BURGUNDY, edgecolor="white", linewidth=1.2)
+    ax.bar(x, timeout_vals, bar_width, bottom=bottom_timeout, label="Timeout / Aborted", color=COLOR_BURGUNDY, edgecolor="white", linewidth=0.8)
 
     # Annotate bar segments with counts
     for i, c in enumerate(CLASS_SHORT_NAMES):
@@ -124,8 +186,17 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
             (counts[c]["timeout"], "white"),
         ]:
             if val > 0:
-                fs = 8.5 if val <= 1 else (9.5 if val <= 3 else 11)
-                ax.text(x[i], y_offset + val / 2, f"{val} ({val/tot*100:.0f}%)", ha="center", va="center", color=color, fontweight="bold", fontsize=fs)
+                pct = val / tot * 100
+                txt = f"{val} ({pct:.0f}%)"
+                if val == 1:
+                    fs = 7.0
+                elif val <= 3:
+                    fs = 7.8
+                elif val <= 6:
+                    fs = 8.5
+                else:
+                    fs = 9.2
+                ax.text(x[i], y_offset + val / 2, txt, ha="center", va="center", color=color, fontweight="bold", fontsize=fs)
                 y_offset += val
 
     totals = [sum(counts[c].values()) for c in CLASS_SHORT_NAMES]
@@ -140,15 +211,17 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
     c1_pct_str = f"{c1_auto_pct:.0f}%" if c1_auto_pct.is_integer() else f"{c1_auto_pct:.1f}%"
     c1_text = f"{c1_pct_str} Autonomous\n({c1_hitl} HITL Interrupt{'s' if c1_hitl != 1 else ''})"
 
-    ax.text(x[0], totals[0] + max_demands * 0.03, c1_text, ha="center", va="bottom", fontsize=8.8, color=COLOR_DARK_SLATE, fontweight="bold",
+    ax.text(x[0], totals[0] + max_demands * 0.03, c1_text, ha="center", va="bottom", fontsize=8.5, color=COLOR_DARK_SLATE, fontweight="bold",
             bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=COLOR_CARD_BORDER, alpha=0.9))
 
     ax.set_xticks(x)
-    ax.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax.set_ylabel("Demands Evaluated (Count)", fontsize=12, fontweight="bold", color=COLOR_NAVY)
+    ax.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax.set_xlim(-0.65, len(CLASS_SHORT_NAMES) - 0.35)
+    ax.set_ylabel("Demands Evaluated (Count)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
     ax.set_ylim(0, y_limit)
     tick_step = max(1, int(round(max_demands / 6)))
     ax.set_yticks(range(0, int(y_limit) + 1, tick_step))
+    ax.tick_params(axis="y", labelsize=9.5)
 
     ax.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
     ax.set_axisbelow(True)
@@ -156,16 +229,16 @@ def plot_gate_accuracy_matrix(results_data: dict[str, Any], output_prefix: Path)
         spine.set_color(COLOR_CARD_BORDER)
 
     title_text = "RADG Initial Risk Interception Distribution across Risk Classes"
-    ax.set_title(title_text, fontsize=15, fontweight="bold", color=COLOR_NAVY, pad=36)
+    ax.set_title(title_text, fontsize=12.5, fontweight="bold", color=COLOR_NAVY, pad=32)
 
     ax.legend(
         loc="upper center",
-        bbox_to_anchor=(0.5, 1.10),
+        bbox_to_anchor=(0.5, 1.12),
         ncol=4,
         framealpha=0.95,
         facecolor="white",
         edgecolor=COLOR_CARD_BORDER,
-        fontsize=9.5,
+        fontsize=8.5,
     )
     plt.tight_layout()
 
@@ -890,22 +963,22 @@ def plot_llm_only_wasted_compute(
 
     # Panel A: Latency
     ax_lat.set_facecolor(COLOR_CARD_BG)
-    ax_lat.bar(x - bw / 2, prop_lats, bw, color=COLOR_NAVY, edgecolor="white", linewidth=1.2, label="Proposed RADG (Optimal Floor)")
-    ax_lat.bar(x + bw / 2, llm_useful_lats, bw, color="#0284C7", edgecolor="white", linewidth=1.2, label="LLM-Only Base / Useful Turn 2")
-    ax_lat.bar(x + bw / 2, llm_wasted_lats, bw, bottom=llm_useful_lats, color=COLOR_REPLAN, edgecolor="white", linewidth=1.2, hatch="///", label="Wasted Turn 1 (Aborted Deploy)")
+    ax_lat.bar(x - bw / 2, prop_lats, bw, color=COLOR_PROPOSED_PRIMARY, edgecolor="white", linewidth=1.2, label="Proposed RADG (Optimal Floor)")
+    ax_lat.bar(x + bw / 2, llm_useful_lats, bw, color=BASELINE_CLASS_SHADES["llm_only"]["IV_Adversarial"], edgecolor="white", linewidth=1.2, label="LLM-Only Base / Useful Turn 2")
+    ax_lat.bar(x + bw / 2, llm_wasted_lats, bw, bottom=llm_useful_lats, color=COLOR_LLM_ONLY_PRIMARY, edgecolor="white", linewidth=1.2, hatch="///", label="Wasted Turn 1 (Aborted Deploy)")
 
     for i in range(len(plot_cats)):
         p_val = prop_lats[i]
         tot_llm = llm_useful_lats[i] + llm_wasted_lats[i]
         wasted = llm_wasted_lats[i]
 
-        ax_lat.text(x[i] - bw / 2, p_val + 0.35, f"{p_val:.1f}s", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_NAVY)
+        ax_lat.text(x[i] - bw / 2, p_val + 0.35, f"{p_val:.1f}s", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_PROPOSED_PRIMARY)
 
         if wasted > 0.2:
             pct = (wasted / llm_useful_lats[i] * 100.0) if llm_useful_lats[i] > 0 else 0
-            ax_lat.text(x[i] + bw / 2, tot_llm + 0.35, f"{tot_llm:.1f}s\n(+{pct:.0f}%)", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_REPLAN)
+            ax_lat.text(x[i] + bw / 2, tot_llm + 0.35, f"{tot_llm:.1f}s\n(+{pct:.0f}%)", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_LLM_ONLY_PRIMARY)
         else:
-            ax_lat.text(x[i] + bw / 2, tot_llm + 0.35, f"{tot_llm:.1f}s", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color="#0284C7")
+            ax_lat.text(x[i] + bw / 2, tot_llm + 0.35, f"{tot_llm:.1f}s", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE)
 
     ax_lat.set_xticks(x)
     ax_lat.set_xticklabels(cat_labels, fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -918,22 +991,22 @@ def plot_llm_only_wasted_compute(
 
     # Panel B: Tokens
     ax_tok.set_facecolor(COLOR_CARD_BG)
-    ax_tok.bar(x - bw / 2, prop_toks, bw, color=COLOR_NAVY, edgecolor="white", linewidth=1.2, label="Proposed RADG (Optimal Floor)")
-    ax_tok.bar(x + bw / 2, llm_useful_toks, bw, color="#0284C7", edgecolor="white", linewidth=1.2, label="LLM-Only Base / Useful Turn 2")
-    ax_tok.bar(x + bw / 2, llm_wasted_toks, bw, bottom=llm_useful_toks, color=COLOR_CLARIFY, edgecolor="white", linewidth=1.2, hatch="///", label="Wasted Turn 1 Tokens (RFC 8040 Retry)")
+    ax_tok.bar(x - bw / 2, prop_toks, bw, color=COLOR_PROPOSED_PRIMARY, edgecolor="white", linewidth=1.2, label="Proposed RADG (Optimal Floor)")
+    ax_tok.bar(x + bw / 2, llm_useful_toks, bw, color=BASELINE_CLASS_SHADES["llm_only"]["IV_Adversarial"], edgecolor="white", linewidth=1.2, label="LLM-Only Base / Useful Turn 2")
+    ax_tok.bar(x + bw / 2, llm_wasted_toks, bw, bottom=llm_useful_toks, color=COLOR_LLM_ONLY_PRIMARY, edgecolor="white", linewidth=1.2, hatch="///", label="Wasted Turn 1 Tokens (RFC 8040 Retry)")
 
     for i in range(len(plot_cats)):
         p_val = prop_toks[i]
         tot_llm = llm_useful_toks[i] + llm_wasted_toks[i]
         wasted = llm_wasted_toks[i]
 
-        ax_tok.text(x[i] - bw / 2, p_val + max(prop_toks) * 0.02, f"{p_val/1000:.1f}k", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_NAVY)
+        ax_tok.text(x[i] - bw / 2, p_val + max(prop_toks) * 0.02, f"{p_val/1000:.1f}k", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_PROPOSED_PRIMARY)
 
         if wasted > 100:
             pct = (wasted / llm_useful_toks[i] * 100.0) if llm_useful_toks[i] > 0 else 0
-            ax_tok.text(x[i] + bw / 2, tot_llm + max(prop_toks) * 0.02, f"{tot_llm/1000:.1f}k\n(+{pct:.0f}%)", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_CLARIFY)
+            ax_tok.text(x[i] + bw / 2, tot_llm + max(prop_toks) * 0.02, f"{tot_llm/1000:.1f}k\n(+{pct:.0f}%)", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_LLM_ONLY_PRIMARY)
         else:
-            ax_tok.text(x[i] + bw / 2, tot_llm + max(prop_toks) * 0.02, f"{tot_llm/1000:.1f}k", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color="#0284C7")
+            ax_tok.text(x[i] + bw / 2, tot_llm + max(prop_toks) * 0.02, f"{tot_llm/1000:.1f}k", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE)
 
     ax_tok.set_xticks(x)
     ax_tok.set_xticklabels(cat_labels, fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -1077,8 +1150,8 @@ def plot_llm_only_dashboard(results_data: dict[str, Any], output_prefix: Path) -
     # Flow 2: Total -> Approved
     if h_approved > 0:
         y_app = y_center + height_total/2 - h_approved/2
-        draw_flow(ax_left, x0, y_app, h_approved, x1, y_center + 0.0, h_approved, COLOR_NAVY)
-        ax_left.add_patch(mpatches.Rectangle((x1-0.02, y_center + 0.0 - h_approved/2), 0.04, h_approved, color=COLOR_NAVY))
+        draw_flow(ax_left, x0, y_app, h_approved, x1, y_center + 0.0, h_approved, COLOR_LLM_ONLY_PRIMARY)
+        ax_left.add_patch(mpatches.Rectangle((x1-0.02, y_center + 0.0 - h_approved/2), 0.04, h_approved, color=COLOR_LLM_ONLY_PRIMARY))
         ax_left.text(x1, y_center + 0.0 + h_approved/2 + 0.02, f"Blind Forward\n{n_approved} ({n_approved/n_total*100:.0f}%)", ha='center', va='bottom', fontsize=8.8, fontweight='bold', color=COLOR_DARK_SLATE)
 
         # Flow 3: Approved -> Success
@@ -1310,22 +1383,22 @@ def plot_always_on_wasted_compute(
 
     # ---------------- PANEL A: Latency ----------------
     ax_lat.set_facecolor(COLOR_CARD_BG)
-    ax_lat.bar(x - bw / 2, base_lats, bw, color=COLOR_NAVY, edgecolor="white", linewidth=1.2, label="Proposed RADG (Optimal Floor)")
-    ax_lat.bar(x + bw / 2, useful_lats, bw, color=COLOR_NAVY, edgecolor="white", linewidth=1.2, label="Always-On Base Floor")
-    ax_lat.bar(x + bw / 2, wasted_lats, bw, bottom=useful_lats, color=COLOR_REPLAN, edgecolor="white", linewidth=1.2, hatch="//", label="Wasted Latency Overhead (Delta)")
+    ax_lat.bar(x - bw / 2, base_lats, bw, color=COLOR_PROPOSED_PRIMARY, edgecolor="white", linewidth=1.2, label="Proposed RADG (Optimal Floor)")
+    ax_lat.bar(x + bw / 2, useful_lats, bw, color=BASELINE_CLASS_SHADES["always_on_hitl"]["IV_Adversarial"], edgecolor="white", linewidth=1.2, label="Always-On Base Floor")
+    ax_lat.bar(x + bw / 2, wasted_lats, bw, bottom=useful_lats, color=COLOR_HITL_PRIMARY, edgecolor="white", linewidth=1.2, hatch="//", label="Wasted Latency Overhead (Delta)")
 
     for i in range(len(plot_cats)):
         b_val = base_lats[i]
         a_val = ao_lats[i]
         wasted = wasted_lats[i]
 
-        ax_lat.text(x[i] - bw / 2, b_val + 0.35, f"{b_val:.1f}s", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_NAVY)
+        ax_lat.text(x[i] - bw / 2, b_val + 0.35, f"{b_val:.1f}s", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_PROPOSED_PRIMARY)
 
         if wasted > 0.2:
             pct = (wasted / base_lats[i] * 100.0) if base_lats[i] > 0 else 0
-            ax_lat.text(x[i] + bw / 2, a_val + 0.35, f"{a_val:.1f}s\n(+{pct:.0f}%)", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_REPLAN)
+            ax_lat.text(x[i] + bw / 2, a_val + 0.35, f"{a_val:.1f}s\n(+{pct:.0f}%)", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_HITL_PRIMARY)
         else:
-            ax_lat.text(x[i] + bw / 2, a_val + 0.35, f"{a_val:.1f}s", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_NAVY)
+            ax_lat.text(x[i] + bw / 2, a_val + 0.35, f"{a_val:.1f}s", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE)
 
     ax_lat.set_xticks(x)
     ax_lat.set_xticklabels(cat_labels, fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -1338,22 +1411,22 @@ def plot_always_on_wasted_compute(
 
     # ---------------- PANEL B: Tokens ----------------
     ax_tok.set_facecolor(COLOR_CARD_BG)
-    ax_tok.bar(x - bw / 2, base_toks, bw, color=COLOR_NAVY, edgecolor="white", linewidth=1.2, label="Proposed RADG (Optimal Floor)")
-    ax_tok.bar(x + bw / 2, useful_toks, bw, color=COLOR_NAVY, edgecolor="white", linewidth=1.2, label="Always-On Base Floor")
-    ax_tok.bar(x + bw / 2, wasted_toks, bw, bottom=useful_toks, color=COLOR_CLARIFY, edgecolor="white", linewidth=1.2, hatch="//", label="Redundant Prompt Tokens (Delta)")
+    ax_tok.bar(x - bw / 2, base_toks, bw, color=COLOR_PROPOSED_PRIMARY, edgecolor="white", linewidth=1.2, label="Proposed RADG (Optimal Floor)")
+    ax_tok.bar(x + bw / 2, useful_toks, bw, color=COLOR_PROPOSED_PRIMARY, edgecolor="white", linewidth=1.2, label="Always-On Base Floor")
+    ax_tok.bar(x + bw / 2, wasted_toks, bw, bottom=useful_toks, color=COLOR_HITL_PRIMARY, edgecolor="white", linewidth=1.2, hatch="//", label="Redundant Prompt Tokens (Delta)")
 
     for i in range(len(plot_cats)):
         b_val = base_toks[i]
         a_val = ao_toks[i]
         wasted = wasted_toks[i]
 
-        ax_tok.text(x[i] - bw / 2, b_val + max(base_toks) * 0.02, f"{b_val/1000:.1f}k", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_NAVY)
+        ax_tok.text(x[i] - bw / 2, b_val + max(base_toks) * 0.02, f"{b_val/1000:.1f}k", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_PROPOSED_PRIMARY)
 
         if wasted > 100:
             pct = (wasted / base_toks[i] * 100.0) if base_toks[i] > 0 else 0
-            ax_tok.text(x[i] + bw / 2, a_val + max(base_toks) * 0.02, f"{a_val/1000:.1f}k\n(+{pct:.0f}%)", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_CLARIFY)
+            ax_tok.text(x[i] + bw / 2, a_val + max(base_toks) * 0.02, f"{a_val/1000:.1f}k\n(+{pct:.0f}%)", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_HITL_PRIMARY)
         else:
-            ax_tok.text(x[i] + bw / 2, a_val + max(base_toks) * 0.02, f"{a_val/1000:.1f}k", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_NAVY)
+            ax_tok.text(x[i] + bw / 2, a_val + max(base_toks) * 0.02, f"{a_val/1000:.1f}k", ha="center", va="bottom", fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE)
 
     ax_tok.set_xticks(x)
     ax_tok.set_xticklabels(cat_labels, fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -1456,20 +1529,20 @@ def plot_always_on_scalability_projection(
     # 2. Always-On HITL Line
     ax.plot(
         x, y_ao,
-        color=COLOR_CLARIFY, linewidth=2.8, linestyle="--",
+        color=COLOR_HITL_PRIMARY, linewidth=2.8, linestyle="--",
         label="Always-On HITL (Paranoid: 100% Interruption Rate)",
     )
 
     # 3. Proposed RADG Line (Step-wise to emphasize horizontal plateau on nominal traffic)
     ax.step(
         x, y_prop, where="post",
-        color=COLOR_NAVY, linewidth=2.8, linestyle="-",
+        color=COLOR_PROPOSED_PRIMARY, linewidth=2.8, linestyle="-",
         label="Proposed RADG (Risk-Adaptive: Zero-Fatigue on Nominals)",
     )
 
     # End point markers
-    ax.plot(total_demands, final_ao, marker="o", markersize=8, color=COLOR_CLARIFY, markeredgecolor="white", markeredgewidth=1.5)
-    ax.plot(total_demands, final_prop, marker="o", markersize=8, color=COLOR_NAVY, markeredgecolor="white", markeredgewidth=1.5)
+    ax.plot(total_demands, final_ao, marker="o", markersize=8, color=COLOR_HITL_PRIMARY, markeredgecolor="white", markeredgewidth=1.5)
+    ax.plot(total_demands, final_prop, marker="o", markersize=8, color=COLOR_PROPOSED_PRIMARY, markeredgecolor="white", markeredgewidth=1.5)
 
     # Dynamic End annotations scaling with data size
     offset_x_ao = max(1.0, total_demands * 0.03)
@@ -1479,9 +1552,9 @@ def plot_always_on_scalability_projection(
         xy=(total_demands, final_ao),
         xytext=(total_demands - offset_x_ao, final_ao + offset_y_ao),
         ha="right", va="bottom",
-        fontsize=9.5, fontweight="bold", color=COLOR_CLARIFY,
-        arrowprops=dict(arrowstyle="->", color=COLOR_CLARIFY, lw=1.2),
-        bbox=dict(facecolor="white", edgecolor=COLOR_CLARIFY, boxstyle="round,pad=0.3", alpha=0.95),
+        fontsize=9.5, fontweight="bold", color=COLOR_HITL_PRIMARY,
+        arrowprops=dict(arrowstyle="->", color=COLOR_HITL_PRIMARY, lw=1.2),
+        bbox=dict(facecolor="white", edgecolor=COLOR_HITL_PRIMARY, boxstyle="round,pad=0.3", alpha=0.95),
     )
 
     offset_x_prop = max(2.0, total_demands * 0.12)
@@ -1491,9 +1564,9 @@ def plot_always_on_scalability_projection(
         xy=(total_demands, final_prop),
         xytext=(total_demands - offset_x_prop, y_text_prop),
         ha="center", va="top",
-        fontsize=9.5, fontweight="bold", color=COLOR_NAVY,
-        arrowprops=dict(arrowstyle="->", color=COLOR_NAVY, lw=1.3),
-        bbox=dict(facecolor="white", edgecolor=COLOR_NAVY, boxstyle="round,pad=0.35", alpha=0.95),
+        fontsize=9.5, fontweight="bold", color=COLOR_PROPOSED_PRIMARY,
+        arrowprops=dict(arrowstyle="->", color=COLOR_PROPOSED_PRIMARY, lw=1.3),
+        bbox=dict(facecolor="white", edgecolor=COLOR_PROPOSED_PRIMARY, boxstyle="round,pad=0.35", alpha=0.95),
     )
 
     # Dynamic badge placement inside shaded region (or with pointer if gap is narrow)
@@ -1689,15 +1762,15 @@ def plot_always_on_dashboard(
     delta_k = delta_tok / 1000.0
     ao_k = ao_tok / 1000.0
 
-    ax_tok.bar(bx[0], base_k, bar_width, color=COLOR_NAVY, edgecolor="white", linewidth=1.1)
-    ax_tok.bar(bx[1], base_k, bar_width, color=COLOR_NAVY, edgecolor="white", linewidth=1.1)
-    ax_tok.bar(bx[1], delta_k, bar_width, bottom=base_k, color=COLOR_CLARIFY, edgecolor="white", linewidth=1.1, hatch="//")
+    ax_tok.bar(bx[0], base_k, bar_width, color=COLOR_PROPOSED_PRIMARY, edgecolor="white", linewidth=1.1)
+    ax_tok.bar(bx[1], base_k, bar_width, color=COLOR_PROPOSED_PRIMARY, edgecolor="white", linewidth=1.1)
+    ax_tok.bar(bx[1], delta_k, bar_width, bottom=base_k, color=COLOR_HITL_PRIMARY, edgecolor="white", linewidth=1.1, hatch="//")
 
-    ax_tok.axhline(base_k, color=COLOR_NAVY, linestyle="--", linewidth=1.2, alpha=0.7)
+    ax_tok.axhline(base_k, color=COLOR_PROPOSED_PRIMARY, linestyle="--", linewidth=1.2, alpha=0.7)
     ax_tok.text(bx[0], base_k / 2, f"{base_k:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=10)
     ax_tok.text(bx[1], base_k / 2, f"{base_k:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=8.5)
     ax_tok.text(bx[1], base_k + delta_k / 2, f"+{delta_k:.1f}k", ha="center", va="center", color="white", fontweight="bold", fontsize=8.5)
-    ax_tok.text(bx[1], ao_k + 0.3, f"{ao_k:.1f}k\n(+{tok_pct:.0f}%)", ha="center", va="bottom", color=COLOR_CLARIFY, fontweight="bold", fontsize=9)
+    ax_tok.text(bx[1], ao_k + 0.3, f"{ao_k:.1f}k\n(+{tok_pct:.0f}%)", ha="center", va="bottom", color=COLOR_HITL_PRIMARY, fontweight="bold", fontsize=9)
 
     ax_tok.set_xticks(bx)
     ax_tok.set_xticklabels(b_labels, fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -1709,7 +1782,6 @@ def plot_always_on_dashboard(
     # 5. Right Subplot: Scalability Step Curve
     ax_right = fig.add_axes([0.54, 0.10, 0.41, 0.58])
     ax_right.set_facecolor(COLOR_CARD_BG)
-
     ax_right.fill_between(
         x, y_prop, y_ao,
         color=COLOR_APPROVE, alpha=0.22, hatch="..",
@@ -1717,34 +1789,34 @@ def plot_always_on_dashboard(
     )
     ax_right.plot(
         x, y_ao,
-        color=COLOR_CLARIFY, linewidth=2.5, linestyle="--",
+        color=COLOR_HITL_PRIMARY, linewidth=2.5, linestyle="--",
         label="Always-On HITL (100% Interruption)",
     )
     ax_right.step(
         x, y_prop, where="post",
-        color=COLOR_NAVY, linewidth=2.5, linestyle="-",
+        color=COLOR_PROPOSED_PRIMARY, linewidth=2.5, linestyle="-",
         label="Proposed RADG (Zero on Nominals)",
     )
 
-    ax_right.plot(total_demands, final_ao, marker="o", markersize=7, color=COLOR_CLARIFY, markeredgecolor="white")
-    ax_right.plot(total_demands, final_prop, marker="o", markersize=7, color=COLOR_NAVY, markeredgecolor="white")
+    ax_right.plot(total_demands, final_ao, marker="o", markersize=7, color=COLOR_HITL_PRIMARY, markeredgecolor="white")
+    ax_right.plot(total_demands, final_prop, marker="o", markersize=7, color=COLOR_PROPOSED_PRIMARY, markeredgecolor="white")
 
     # End point callouts
     ax_right.annotate(
         f"Always-On: {final_ao}",
         xy=(total_demands, final_ao),
         xytext=(total_demands - max(1.0, total_demands * 0.04), final_ao + max(1.0, final_ao * 0.08)),
-        ha="right", va="bottom", fontsize=8.8, fontweight="bold", color=COLOR_CLARIFY,
-        arrowprops=dict(arrowstyle="->", color=COLOR_CLARIFY, lw=1.1),
-        bbox=dict(facecolor="white", edgecolor=COLOR_CLARIFY, boxstyle="round,pad=0.25", alpha=0.95),
+        ha="right", va="bottom", fontsize=8.8, fontweight="bold", color=COLOR_HITL_PRIMARY,
+        arrowprops=dict(arrowstyle="->", color=COLOR_HITL_PRIMARY, lw=1.1),
+        bbox=dict(facecolor="white", edgecolor=COLOR_HITL_PRIMARY, boxstyle="round,pad=0.25", alpha=0.95),
     )
     ax_right.annotate(
         f"Proposed RADG: {final_prop}",
         xy=(total_demands, final_prop),
         xytext=(total_demands - max(2.0, total_demands * 0.14), max(1.0, final_prop * 0.42)),
-        ha="center", va="top", fontsize=8.8, fontweight="bold", color=COLOR_NAVY,
-        arrowprops=dict(arrowstyle="->", color=COLOR_NAVY, lw=1.1),
-        bbox=dict(facecolor="white", edgecolor=COLOR_NAVY, boxstyle="round,pad=0.25", alpha=0.95),
+        ha="center", va="top", fontsize=8.8, fontweight="bold", color=COLOR_PROPOSED_PRIMARY,
+        arrowprops=dict(arrowstyle="->", color=COLOR_PROPOSED_PRIMARY, lw=1.1),
+        bbox=dict(facecolor="white", edgecolor=COLOR_PROPOSED_PRIMARY, boxstyle="round,pad=0.25", alpha=0.95),
     )
 
     # Shaded region callout badge
@@ -2054,7 +2126,7 @@ def plot_comparative_deployment_flow_sankey(
         y_non_nom_start = y_center - (height_total / 2) + (h_non_nom / 2)
 
         # Panel Banner Title
-        banner_color = COLOR_NAVY if is_proposed else COLOR_BURGUNDY
+        banner_color = COLOR_PROPOSED_PRIMARY if is_proposed else COLOR_LLM_ONLY_PRIMARY
         ax.text(0.02, 0.98, panel_title, fontsize=12.2, fontweight="bold", color=banner_color,
                 bbox=dict(boxstyle="round,pad=0.30", facecolor="white", edgecolor=banner_color, alpha=0.95))
 
@@ -2086,8 +2158,8 @@ def plot_comparative_deployment_flow_sankey(
                     bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=color_non_nom_flow, alpha=0.88, lw=0.9), zorder=5)
 
             # Stage 2: Admission (Forwarded in Navy, Intercepted in Amber)
-            ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_fwd_target - h_fwd / 2), bar_w, h_fwd, color=COLOR_NAVY, zorder=3))
-            ax.text(x1, y_fwd_target + h_fwd / 2 + 0.045, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_NAVY)
+            ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_fwd_target - h_fwd / 2), bar_w, h_fwd, color=COLOR_PROPOSED_PRIMARY, zorder=3))
+            ax.text(x1, y_fwd_target + h_fwd / 2 + 0.045, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_PROPOSED_PRIMARY)
 
             ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_int_target - h_int / 2), bar_w, h_int, color=color_non_nom_flow, zorder=3))
             ax.text(x1, y_int_target - h_int / 2 - 0.045, f"Pre-Deployment Interception\n{n_intercepted} ({n_intercepted / n_total * 100:.0f}%)", ha="center", va="top", fontsize=10.2, fontweight="bold", color="#92400E")
@@ -2118,7 +2190,7 @@ def plot_comparative_deployment_flow_sankey(
             # Stage 2: Admission (Stacked: Nominal gray top, Non-Nominal yellow bottom - 100% forwarded)
             ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_nom_target - h_nom / 2), bar_w, h_nom, color=color_nom_gray, zorder=3))
             ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_non_nom_target - h_non_nom / 2), bar_w, h_non_nom, color=color_non_nom_flow, zorder=3))
-            ax.text(x1, y_center + height_total / 2 + 0.045, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_NAVY)
+            ax.text(x1, y_center + height_total / 2 + 0.045, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_LLM_ONLY_PRIMARY)
 
             # Stage 3: SDON Controller Outcomes
             ax.text(x2, y_center + height_total / 2 + 0.045, "Stage 3: SDON Controller\nDeployment Outcomes", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_DARK_SLATE)
@@ -2258,7 +2330,7 @@ def plot_comparative_scalability_projection(
     cognitive_savings = final_ao_hitl - final_prop_hitl
     pct_savings = (cognitive_savings / final_ao_hitl * 100.0) if final_ao_hitl > 0 else 0.0
 
-    fig, ax = plt.subplots(figsize=(8.2, 5.8), dpi=300)
+    fig, ax = plt.subplots(figsize=(7.2, 4.8), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
     ax.set_facecolor(COLOR_CARD_BG)
 
@@ -2272,37 +2344,37 @@ def plot_comparative_scalability_projection(
     # Always-On line (Paranoid)
     ax.plot(
         x, y_ao_hitl,
-        color=COLOR_CLARIFY, linewidth=2.6, linestyle="--",
+        color=COLOR_HITL_PRIMARY, linewidth=2.6, linestyle="--",
         label=f"Always-On HITL ({final_ao_hitl} Turns: 100% Interruption)",
     )
 
     # Proposed RADG line (Risk-Adaptive)
     ax.step(
         x, y_prop_hitl, where="post",
-        color=COLOR_NAVY, linewidth=2.8, linestyle="-",
+        color=COLOR_PROPOSED_PRIMARY, linewidth=2.8, linestyle="-",
         label=f"Proposed RADG ({final_prop_hitl} Turns: Zero on Nominals)",
     )
 
     # Markers at end
-    ax.plot(total_demands, final_ao_hitl, marker="o", markersize=7, color=COLOR_CLARIFY, markeredgecolor="white")
-    ax.plot(total_demands, final_prop_hitl, marker="o", markersize=7, color=COLOR_NAVY, markeredgecolor="white")
+    ax.plot(total_demands, final_ao_hitl, marker="o", markersize=7, color=COLOR_HITL_PRIMARY, markeredgecolor="white")
+    ax.plot(total_demands, final_prop_hitl, marker="o", markersize=7, color=COLOR_PROPOSED_PRIMARY, markeredgecolor="white")
 
     # End point callouts
     ax.annotate(
         f"Always-On: {final_ao_hitl}",
         xy=(total_demands, final_ao_hitl),
         xytext=(total_demands - max(1.0, total_demands * 0.04), final_ao_hitl + max(1.0, final_ao_hitl * 0.08)),
-        ha="right", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_CLARIFY,
-        arrowprops=dict(arrowstyle="->", color=COLOR_CLARIFY, lw=1.2),
-        bbox=dict(facecolor="white", edgecolor=COLOR_CLARIFY, boxstyle="round,pad=0.3", alpha=0.95),
+        ha="right", va="bottom", fontsize=9.5, fontweight="bold", color=COLOR_HITL_PRIMARY,
+        arrowprops=dict(arrowstyle="->", color=COLOR_HITL_PRIMARY, lw=1.2),
+        bbox=dict(facecolor="white", edgecolor=COLOR_HITL_PRIMARY, boxstyle="round,pad=0.25", alpha=0.95),
     )
     ax.annotate(
         f"Proposed RADG: {final_prop_hitl}",
         xy=(total_demands, final_prop_hitl),
         xytext=(total_demands - max(2.0, total_demands * 0.14), max(1.0, final_prop_hitl * 0.42)),
-        ha="center", va="top", fontsize=10.5, fontweight="bold", color=COLOR_NAVY,
-        arrowprops=dict(arrowstyle="->", color=COLOR_NAVY, lw=1.2),
-        bbox=dict(facecolor="white", edgecolor=COLOR_NAVY, boxstyle="round,pad=0.3", alpha=0.95),
+        ha="center", va="top", fontsize=9.5, fontweight="bold", color=COLOR_PROPOSED_PRIMARY,
+        arrowprops=dict(arrowstyle="->", color=COLOR_PROPOSED_PRIMARY, lw=1.2),
+        bbox=dict(facecolor="white", edgecolor=COLOR_PROPOSED_PRIMARY, boxstyle="round,pad=0.25", alpha=0.95),
     )
 
     # Shaded region callout badge
@@ -2312,7 +2384,7 @@ def plot_comparative_scalability_projection(
         ax.text(
             mid_idx, (y_prop_hitl[mid_idx] + y_ao_hitl[mid_idx]) / 2.0,
             f"PROTECTED ATTENTION\n({pct_savings:.1f}% Fatigue Reduction)",
-            ha="center", va="center", fontsize=9.2, fontweight="bold", color=COLOR_APPROVE,
+            ha="center", va="center", fontsize=8.5, fontweight="bold", color=COLOR_APPROVE,
             bbox=dict(facecolor="white", edgecolor=COLOR_APPROVE, boxstyle="round,pad=0.25", alpha=0.95),
         )
     else:
@@ -2324,20 +2396,20 @@ def plot_comparative_scalability_projection(
             f"PROTECTED ATTENTION\n({pct_savings:.1f}% Fatigue Reduction)",
             xy=(target_x, target_y),
             xytext=(badge_x, badge_y),
-            ha="center", va="center", fontsize=9.2, fontweight="bold", color=COLOR_APPROVE,
+            ha="center", va="center", fontsize=8.5, fontweight="bold", color=COLOR_APPROVE,
             arrowprops=dict(arrowstyle="->", color=COLOR_APPROVE, lw=1.2, connectionstyle="arc3,rad=-0.15"),
-            bbox=dict(facecolor="white", edgecolor=COLOR_APPROVE, boxstyle="round,pad=0.3", alpha=0.95),
+            bbox=dict(facecolor="white", edgecolor=COLOR_APPROVE, boxstyle="round,pad=0.25", alpha=0.95),
         )
 
-    ax.set_title("Cumulative Operator Interventions ($N_{hitl}$)", fontsize=13.5, fontweight="bold", color=COLOR_NAVY, pad=12)
-    ax.set_xlabel("Operational Stream Sequence (Demands)", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax.set_ylabel("Cumulative HITL Interventions", fontsize=11.5, fontweight="bold", color=COLOR_NAVY)
-    ax.tick_params(axis="both", labelsize=10.5)
+    ax.set_title("Cumulative Operator Interventions ($N_{hitl}$): Proposed RADG vs. Always-On HITL", fontsize=12.0, fontweight="bold", color=COLOR_NAVY, pad=12)
+    ax.set_xlabel("Operational Stream Sequence (Demands)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax.set_ylabel("Cumulative HITL Interventions", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax.tick_params(axis="both", labelsize=9.5)
     x_margin = max(1.0, total_demands * 0.05)
     ax.set_xlim(0, total_demands + x_margin)
     ax.set_ylim(0, max(final_ao_hitl, final_prop_hitl, 1) * 1.25)
     ax.grid(axis="y", linestyle="--", alpha=0.4, color=COLOR_CARD_BORDER)
-    ax.legend(loc="upper left", fontsize=11.0, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+    ax.legend(loc="upper left", fontsize=9.2, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
 
     save_prefix = output_prefix / "comparative_scalability_projection" if output_prefix.is_dir() else output_prefix
     save_prefix.parent.mkdir(parents=True, exist_ok=True)
@@ -2363,18 +2435,14 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
         "always_on_hitl": "Always-On HITL",
         "llm_only": "LLM-Only",
     }
-    baseline_colors = {
-        "proposed_radg": COLOR_NAVY,
-        "always_on_hitl": COLOR_CLARIFY,
-        "llm_only": COLOR_BURGUNDY,
-    }
+    baseline_colors = BASELINE_COLORS
 
     labels = [baseline_labels.get(k, k) for k in b_keys]
     colors = [baseline_colors.get(k, COLOR_MUTED) for k in b_keys]
     x = np.arange(len(b_keys))
     bar_width = 0.50
 
-    fig, axs = plt.subplots(2, 2, figsize=(13.5, 9.5), dpi=300)
+    fig, axs = plt.subplots(2, 2, figsize=(10.5, 7.8), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
 
     # 1. Top-Left: Pre-Deployment Integrity (FPR)
@@ -2383,15 +2451,16 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
     fpr_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", 0.0) for k in b_keys]
     bars1 = ax1.bar(x, fpr_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
     ax1.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target Invariant (0.0%)")
-    ax1.set_title("False Positive Rate (FPR, %)", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_title("Pre-Deployment Integrity (FPR, %)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax1.set_xticks(x)
-    ax1.set_xticklabels(labels, fontsize=10, fontweight="bold")
-    ax1.set_ylabel("FPR (%)", fontsize=10)
+    ax1.set_xticklabels(labels, fontsize=9.5, fontweight="bold")
+    ax1.set_ylabel("FPR (%)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax1.tick_params(axis="y", labelsize=9.0)
     ax1.set_ylim(-0.5, max(max(fpr_vals, default=0.0) + 15.0, 10.0))
     for bar in bars1:
         h = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width() / 2, h + 0.5, f"{h:.1f}%", ha="center", va="bottom", fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax1.legend(loc="upper left", fontsize=9)
+        ax1.text(bar.get_x() + bar.get_width() / 2, h + 0.5, f"{h:.1f}%", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.legend(loc="upper left", fontsize=8.5)
 
     # 2. Top-Right: Operator Friction & Interventions (Count: Nominal Fatigue vs Risky Oversight/Recovery)
     ax2 = axs[0, 1]
@@ -2412,69 +2481,53 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
         risky_counts.append(risky_interrupts)
 
     bw2 = 0.35
-    bars2_nom = ax2.bar(
-        x - bw2 / 2, nom_counts, bw2,
-        color="#0284C7", edgecolor="white", linewidth=1.2,
-        label="Nominal Traffic (Alert Fatigue)",
-    )
-
-    # Risky traffic: Proactive Gate Oversight (RADG/HITL) vs Reactive Incident Recovery (LLM-Only)
+    bars2_nom = []
     bars2_risky = []
     for i, k in enumerate(b_keys):
-        is_reactive = (k == "llm_only")
-        r_color = "#DC2626" if is_reactive else "#64748B"
+        b_col = baseline_colors.get(k, COLOR_MUTED)
+        b_shd = BASELINE_CLASS_SHADES.get(k, {}).get("III_Infeasible", b_col)
+
+        bar_n = ax2.bar(
+            x[i] - bw2 / 2, nom_counts[i], bw2,
+            color=b_col, edgecolor="white", linewidth=1.2,
+        )
+        bars2_nom.append(bar_n)
+
         bar_r = ax2.bar(
             x[i] + bw2 / 2, risky_counts[i], bw2,
-            color=r_color, edgecolor="white", linewidth=1.2,
-            hatch="//",
+            color=b_shd, edgecolor="white", linewidth=1.2,
+            hatch="//", alpha=0.90,
         )
         bars2_risky.append(bar_r)
 
     target_line = ax2.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target on Nominals (0)")
-    ax2.set_title("Operator Friction & Interventions", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_title("Operator Friction & Interventions (Count)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax2.set_xticks(x)
-    ax2.set_xticklabels(labels, fontsize=10, fontweight="bold")
-    ax2.set_ylabel("Total Operator Interventions", fontsize=10)
+    ax2.set_xticklabels(labels, fontsize=9.5, fontweight="bold")
+    ax2.set_ylabel("Total Operator Interventions", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax2.tick_params(axis="y", labelsize=9.0)
     max_c = max(max(nom_counts + risky_counts, default=0), 10)
     ax2.set_ylim(-2, max_c * 1.45)
 
-    for bar, count in zip(bars2_nom, nom_counts):
+    for i, k in enumerate(b_keys):
+        bar_n = bars2_nom[i][0]
+        bar_r = bars2_risky[i][0]
+        b_col = baseline_colors.get(k, COLOR_DARK_SLATE)
         ax2.text(
-            bar.get_x() + bar.get_width() / 2, count + max_c * 0.02,
-            f"{count}", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color="#0284C7"
+            bar_n.get_x() + bar_n.get_width() / 2, nom_counts[i] + max_c * 0.02,
+            f"{nom_counts[i]}", ha="center", va="bottom", fontsize=9.0, fontweight="bold", color=b_col
         )
-    for i, (bar_container, count) in enumerate(zip(bars2_risky, risky_counts)):
-        bar = bar_container[0]
-        is_reactive = (b_keys[i] == "llm_only")
-        t_color = "#DC2626" if is_reactive else "#475569"
         ax2.text(
-            bar.get_x() + bar.get_width() / 2, count + max_c * 0.02,
-            f"{count}", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=t_color
+            bar_r.get_x() + bar_r.get_width() / 2, risky_counts[i] + max_c * 0.02,
+            f"{risky_counts[i]}", ha="center", va="bottom", fontsize=9.0, fontweight="bold", color=b_col
         )
 
-    p_nom = patches.Patch(facecolor="#0284C7", edgecolor="white", label="Nominal Traffic (Alert Fatigue)")
-    p_pro = patches.Patch(facecolor="#64748B", edgecolor="white", hatch="//", label="Proactive Oversight (Gate Interception)")
-    handles2 = [target_line, p_nom, p_pro]
-    if any(k == "llm_only" for k in b_keys):
-        p_reac = patches.Patch(facecolor="#DC2626", edgecolor="white", hatch="//", label="Reactive Recovery (Controller Crash)")
-        handles2.append(p_reac)
-    ax2.legend(handles=handles2, loc="upper left", fontsize=7.8, framealpha=0.92)
+    p_nom = patches.Patch(facecolor="#475569", edgecolor="white", label="Nominal Traffic (Alert Fatigue)")
+    p_risky = patches.Patch(facecolor="#475569", edgecolor="white", hatch="//", alpha=0.90, label="Risky Traffic (Oversight / Recovery)")
+    handles2 = [target_line, p_nom, p_risky]
+    ax2.legend(handles=handles2, loc="upper left", fontsize=8.0, framealpha=0.92)
 
     # Resolve per-class metrics across baselines for grouped bar panels 3 & 4
-    # Nominal matches gate_accuracy_matrix (#16A34A Green)
-    CLASS_PALETTE = {
-        "I_Nominal": COLOR_APPROVE,   # "#16A34A" Green
-        "II_Ambiguous": "#D97706",    # Amber
-        "III_Infeasible": "#DC2626",  # Red
-        "IV_Adversarial": "#7C3AED",  # Purple
-    }
-    # Darker shades for each class to represent wasted overhead
-    CLASS_OVERHEAD_PALETTE = {
-        "I_Nominal": "#14532D",       # Deep Forest Green
-        "II_Ambiguous": "#92400E",     # Deep Amber / Brown
-        "III_Infeasible": "#991B1B",   # Deep Crimson
-        "IV_Adversarial": "#5B21B6",   # Deep Violet
-    }
     CLASS_NAMES = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
     CLASS_LABELS_MAP = {
         "I_Nominal": "Nominal",
@@ -2571,37 +2624,40 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
         w_vals = [wasted_lats[k][c] for k in b_keys]
         tot_vals = [baseline_class_lats[k][c] for k in b_keys]
 
+        u_cols = [BASELINE_CLASS_SHADES.get(k, {}).get(c, COLOR_MUTED) for k in b_keys]
+        w_cols = [BASELINE_OVERHEAD_SHADES.get(k, {}).get(c, COLOR_MUTED) for k in b_keys]
+
         bars3_u = ax3.bar(
             x + c_offsets[j], u_vals, bw_cls,
-            color=CLASS_PALETTE[c], edgecolor="white", linewidth=1.1,
+            color=u_cols, edgecolor="white", linewidth=1.1,
             label=CLASS_LABELS_MAP[c],
         )
         ax3.bar(
             x + c_offsets[j], w_vals, bw_cls,
-            bottom=u_vals, color=CLASS_OVERHEAD_PALETTE[c], edgecolor="white", linewidth=1.1,
+            bottom=u_vals, color=w_cols, edgecolor="white", linewidth=1.1,
             hatch="//", alpha=0.92,
         )
 
         for bar_u, w_val, tot_val in zip(bars3_u, w_vals, tot_vals):
             bx = bar_u.get_x() + bar_u.get_width() / 2
             if tot_val > 0:
-                if w_val > 0.8:
-                    ax3.text(bx, tot_val + 0.40, f"{tot_val:.1f}s\n(+{w_val:.1f}s)", ha="center", va="bottom", fontsize=7.2, fontweight="bold", color=CLASS_OVERHEAD_PALETTE[c])
-                else:
-                    ax3.text(bx, tot_val + 0.35, f"{tot_val:.1f}s", ha="center", va="bottom", fontsize=7.8, fontweight="bold", color=COLOR_DARK_SLATE)
+                ax3.text(bx, tot_val + 0.35, f"{tot_val:.1f}s", ha="center", va="bottom", fontsize=8.0, fontweight="bold", color=COLOR_DARK_SLATE)
 
     ax3.set_title("End-to-End Latency & Replan Overhead (s)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax3.set_xticks(x)
-    ax3.set_xticklabels(labels, fontsize=10, fontweight="bold")
-    ax3.set_ylabel("Median Latency (s)", fontsize=10)
+    ax3.set_xticklabels(labels, fontsize=9.5, fontweight="bold")
+    ax3.set_ylabel("Median Latency (s)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax3.tick_params(axis="y", labelsize=9.0)
     all_lat_vals = [lat for k in b_keys for lat in baseline_class_lats[k].values()]
     ax3.set_ylim(0, max(max(all_lat_vals, default=10.0) * 1.35, 18.0))
 
-    h_patch = patches.Patch(facecolor="#64748B", edgecolor="white", hatch="//", alpha=0.9, label="Wasted Overhead")
-    handles, leg_labels = ax3.get_legend_handles_labels()
-    handles.append(h_patch)
-    leg_labels.append("Wasted Overhead")
-    ax3.legend(handles=handles, labels=leg_labels, loc="upper left", fontsize=8.0, ncol=3)
+    SHADE_ICONS = ["#1E293B", "#475569", "#94A3B8", "#CBD5E1"]
+    class_patches = [
+        patches.Patch(facecolor=SHADE_ICONS[idx], edgecolor="white", label=CLASS_LABELS_MAP[c])
+        for idx, c in enumerate(CLASS_NAMES)
+    ]
+    h_patch = patches.Patch(facecolor="#475569", edgecolor="white", hatch="//", alpha=0.9, label="Wasted Overhead")
+    ax3.legend(handles=class_patches + [h_patch], loc="upper left", fontsize=8.0, ncol=3)
 
     # 4. Bottom-Right: Median Token Footprint & Wasted Compute
     ax4 = axs[1, 1]
@@ -2612,44 +2668,42 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
         w_vals = [wasted_toks[k][c] / 1000.0 for k in b_keys]
         tot_vals = [baseline_class_toks[k][c] / 1000.0 for k in b_keys]
 
+        u_cols = [BASELINE_CLASS_SHADES.get(k, {}).get(c, COLOR_MUTED) for k in b_keys]
+        w_cols = [BASELINE_OVERHEAD_SHADES.get(k, {}).get(c, COLOR_MUTED) for k in b_keys]
+
         bars4_u = ax4.bar(
             x + c_offsets[j], u_vals, bw_cls,
-            color=CLASS_PALETTE[c], edgecolor="white", linewidth=1.1,
+            color=u_cols, edgecolor="white", linewidth=1.1,
             label=CLASS_LABELS_MAP[c],
         )
         ax4.bar(
             x + c_offsets[j], w_vals, bw_cls,
-            bottom=u_vals, color=CLASS_OVERHEAD_PALETTE[c], edgecolor="white", linewidth=1.1,
+            bottom=u_vals, color=w_cols, edgecolor="white", linewidth=1.1,
             hatch="//", alpha=0.92,
         )
 
         for bar_u, w_val, tot_val in zip(bars4_u, w_vals, tot_vals):
             bx = bar_u.get_x() + bar_u.get_width() / 2
             if tot_val > 0:
-                if w_val > 0.8:
-                    ax4.text(bx, tot_val + 0.35, f"{tot_val:.1f}k\n(+{w_val:.1f}k)", ha="center", va="bottom", fontsize=7.2, fontweight="bold", color=CLASS_OVERHEAD_PALETTE[c])
-                else:
-                    ax4.text(bx, tot_val + 0.35, f"{tot_val:.1f}k", ha="center", va="bottom", fontsize=7.8, fontweight="bold", color=COLOR_DARK_SLATE)
+                ax4.text(bx, tot_val + 0.35, f"{tot_val:.1f}", ha="center", va="bottom", fontsize=8.0, fontweight="bold", color=COLOR_DARK_SLATE)
 
     ax4.set_title("Token Footprint & Wasted Compute (kTokens)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax4.set_xticks(x)
-    ax4.set_xticklabels(labels, fontsize=10, fontweight="bold")
-    ax4.set_ylabel("Median Total Tokens (k)", fontsize=10)
+    ax4.set_xticklabels(labels, fontsize=9.5, fontweight="bold")
+    ax4.set_ylabel("Median Total Tokens (k)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax4.tick_params(axis="y", labelsize=9.0)
     all_tok_vals = [tok / 1000.0 for k in b_keys for tok in baseline_class_toks[k].values()]
     ax4.set_ylim(0, max(max(all_tok_vals, default=2.0) * 1.35, 6.0))
 
-    handles4, leg_labels4 = ax4.get_legend_handles_labels()
-    h_patch4 = patches.Patch(facecolor="#64748B", edgecolor="white", hatch="//", alpha=0.9, label="Wasted Compute")
-    handles4.append(h_patch4)
-    leg_labels4.append("Wasted Compute")
-    ax4.legend(handles=handles4, labels=leg_labels4, loc="upper left", fontsize=8.0, ncol=3)
+    h_patch4 = patches.Patch(facecolor="#475569", edgecolor="white", hatch="//", alpha=0.9, label="Wasted Compute")
+    ax4.legend(handles=class_patches + [h_patch4], loc="upper left", fontsize=8.0, ncol=3)
 
     for ax in (ax1, ax2, ax3, ax4):
         ax.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    plt.suptitle("MultiAgent-ON: Four Pillars Baseline Comparison (Multi-Class Disaggregated)", fontsize=13.5, fontweight="bold", color=COLOR_NAVY, y=0.98)
+    plt.suptitle("Comprehensive Four Pillars Comparison across All Baselines", fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=0.98)
     plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
@@ -2657,8 +2711,8 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
     plt.close()
 
 
-def plot_comparative_safety_pillars(comparative_data: dict[str, Any], output_prefix: Path) -> None:
-    """Generate 2-panel standalone comparison for Pre-Deployment Safety & Operator Burden (Pillars 2 & 3)."""
+def plot_comparative_integrity_pillars(comparative_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate 2-panel standalone comparison for Pre-Deployment Integrity & Operator Burden (Pillars 2 & 3)."""
     baselines_info = comparative_data.get("baselines", {})
     if not baselines_info:
         return
@@ -2673,34 +2727,31 @@ def plot_comparative_safety_pillars(comparative_data: dict[str, Any], output_pre
         "always_on_hitl": "Always-On HITL",
         "llm_only": "LLM-Only",
     }
-    baseline_colors = {
-        "proposed_radg": COLOR_NAVY,
-        "always_on_hitl": COLOR_CLARIFY,
-        "llm_only": COLOR_BURGUNDY,
-    }
+    baseline_colors = BASELINE_COLORS
 
     labels = [baseline_labels.get(k, k) for k in b_keys]
     colors = [baseline_colors.get(k, COLOR_MUTED) for k in b_keys]
     x = np.arange(len(b_keys))
     bar_width = 0.45
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.0, 5.0), dpi=300)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.2, 4.6), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
 
-    # 1. Left: False Positive Rate (FPR)
+    # 1. Left: Pre-Deployment Integrity (FPR)
     ax1.set_facecolor(COLOR_CARD_BG)
     fpr_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", 0.0) for k in b_keys]
     bars1 = ax1.bar(x, fpr_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
     ax1.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target Invariant (0.0%)")
-    ax1.set_title("False Positive Rate (FPR, %)", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_title("Pre-Deployment Integrity (FPR, %)", fontsize=11.0, fontweight="bold", color=COLOR_DARK_SLATE)
     ax1.set_xticks(x)
-    ax1.set_xticklabels(labels, fontsize=10.5, fontweight="bold")
-    ax1.set_ylabel("FPR (%)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax1.set_xticklabels(labels, fontsize=9.5, fontweight="bold")
+    ax1.set_ylabel("FPR (%)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax1.tick_params(axis="y", labelsize=9.0)
     ax1.set_ylim(-0.5, max(max(fpr_vals, default=0.0) + 15.0, 10.0))
     for bar in bars1:
         h = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width() / 2, h + 0.5, f"{h:.1f}%", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax1.legend(loc="upper left", fontsize=9.5)
+        ax1.text(bar.get_x() + bar.get_width() / 2, h + 0.5, f"{h:.1f}%", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.legend(loc="upper left", fontsize=8.5)
 
     # 2. Right: Operator Friction & Interventions
     ax2.set_facecolor(COLOR_CARD_BG)
@@ -2719,64 +2770,65 @@ def plot_comparative_safety_pillars(comparative_data: dict[str, Any], output_pre
         risky_counts.append(risky_interrupts)
 
     bw2 = 0.32
-    bars2_nom = ax2.bar(
-        x - bw2 / 2, nom_counts, bw2,
-        color="#0284C7", edgecolor="white", linewidth=1.2,
-        label="Nominal Traffic (Alert Fatigue)",
-    )
-
+    bars2_nom = []
     bars2_risky = []
     for i, k in enumerate(b_keys):
-        is_reactive = (k == "llm_only")
-        r_color = "#DC2626" if is_reactive else "#64748B"
+        b_col = baseline_colors.get(k, COLOR_MUTED)
+        b_shd = BASELINE_CLASS_SHADES.get(k, {}).get("III_Infeasible", b_col)
+
+        bar_n = ax2.bar(
+            x[i] - bw2 / 2, nom_counts[i], bw2,
+            color=b_col, edgecolor="white", linewidth=1.2,
+        )
+        bars2_nom.append(bar_n)
+
         bar_r = ax2.bar(
             x[i] + bw2 / 2, risky_counts[i], bw2,
-            color=r_color, edgecolor="white", linewidth=1.2,
-            hatch="//",
+            color=b_shd, edgecolor="white", linewidth=1.2,
+            hatch="//", alpha=0.90,
         )
         bars2_risky.append(bar_r)
 
     target_line = ax2.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target on Nominals (0)")
-    ax2.set_title("Operator Friction & Interventions (Count)", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_title("Operator Friction & Interventions (Count)", fontsize=11.0, fontweight="bold", color=COLOR_DARK_SLATE)
     ax2.set_xticks(x)
-    ax2.set_xticklabels(labels, fontsize=10.5, fontweight="bold")
-    ax2.set_ylabel("Total Operator Interventions", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax2.set_xticklabels(labels, fontsize=9.5, fontweight="bold")
+    ax2.set_ylabel("Total Operator Interventions", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax2.tick_params(axis="y", labelsize=9.0)
     max_c = max(max(nom_counts + risky_counts, default=0), 10)
     ax2.set_ylim(-2, max_c * 1.40)
 
-    for bar, count in zip(bars2_nom, nom_counts):
+    for i, k in enumerate(b_keys):
+        bar_n = bars2_nom[i][0]
+        bar_r = bars2_risky[i][0]
+        b_col = baseline_colors.get(k, COLOR_DARK_SLATE)
         ax2.text(
-            bar.get_x() + bar.get_width() / 2, count + max_c * 0.02,
-            f"{count}", ha="center", va="bottom", fontsize=10, fontweight="bold", color="#0284C7"
+            bar_n.get_x() + bar_n.get_width() / 2, nom_counts[i] + max_c * 0.02,
+            f"{nom_counts[i]}", ha="center", va="bottom", fontsize=9.0, fontweight="bold", color=b_col
         )
-    for i, (bar_container, count) in enumerate(zip(bars2_risky, risky_counts)):
-        bar = bar_container[0]
-        is_reactive = (b_keys[i] == "llm_only")
-        t_color = "#DC2626" if is_reactive else "#475569"
         ax2.text(
-            bar.get_x() + bar.get_width() / 2, count + max_c * 0.02,
-            f"{count}", ha="center", va="bottom", fontsize=10, fontweight="bold", color=t_color
+            bar_r.get_x() + bar_r.get_width() / 2, risky_counts[i] + max_c * 0.02,
+            f"{risky_counts[i]}", ha="center", va="bottom", fontsize=9.0, fontweight="bold", color=b_col
         )
 
-    p_nom = patches.Patch(facecolor="#0284C7", edgecolor="white", label="Nominal Traffic (Alert Fatigue)")
-    p_pro = patches.Patch(facecolor="#64748B", edgecolor="white", hatch="//", label="Proactive Oversight (Gate Interception)")
-    handles2 = [target_line, p_nom, p_pro]
-    if any(k == "llm_only" for k in b_keys):
-        p_reac = patches.Patch(facecolor="#DC2626", edgecolor="white", hatch="//", label="Reactive Recovery (Controller Crash)")
-        handles2.append(p_reac)
-    ax2.legend(handles=handles2, loc="upper left", fontsize=8.2, framealpha=0.92)
+    h_nom = patches.Patch(facecolor="#475569", edgecolor="white", label="Nominal Traffic (Alert Fatigue)")
+    h_risky = patches.Patch(facecolor="#475569", edgecolor="white", hatch="//", alpha=0.90, label="Risky Traffic (Oversight / Recovery)")
+    ax2.legend(handles=[target_line, h_nom, h_risky], loc="upper left", fontsize=8.0, framealpha=0.92)
 
     for ax in (ax1, ax2):
         ax.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    plt.suptitle("Pre-Deployment Safety & Operator Burden Comparison", fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=0.98)
+    plt.suptitle("Pre-Deployment Integrity and Operator Burden across All Baselines", fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=0.98)
     plt.tight_layout(rect=[0, 0, 1, 0.95])
 
     plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
     plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
     plt.close()
+
+
+plot_comparative_safety_pillars = plot_comparative_integrity_pillars
 
 
 def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output_prefix: Path) -> None:
@@ -2798,18 +2850,6 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
     labels = [baseline_labels.get(k, k) for k in b_keys]
     x = np.arange(len(b_keys))
 
-    CLASS_PALETTE = {
-        "I_Nominal": COLOR_APPROVE,
-        "II_Ambiguous": "#D97706",
-        "III_Infeasible": "#DC2626",
-        "IV_Adversarial": "#7C3AED",
-    }
-    CLASS_OVERHEAD_PALETTE = {
-        "I_Nominal": "#14532D",
-        "II_Ambiguous": "#92400E",
-        "III_Infeasible": "#991B1B",
-        "IV_Adversarial": "#5B21B6",
-    }
     CLASS_NAMES = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
     CLASS_LABELS_MAP = {
         "I_Nominal": "Nominal",
@@ -2867,7 +2907,7 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
     bw_cls = 0.18
     c_offsets = [-1.5 * bw_cls, -0.5 * bw_cls, 0.5 * bw_cls, 1.5 * bw_cls]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.6), dpi=300)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.8, 5.0), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
 
     # 1. Left Subplot: Latency Boxplots
@@ -2890,19 +2930,23 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
             medianprops=dict(color="white", linewidth=1.6),
             whiskerprops=dict(color=COLOR_DARK_SLATE, linewidth=1.1),
             capprops=dict(color=COLOR_DARK_SLATE, linewidth=1.1),
-            flierprops=dict(marker=".", markerfacecolor=CLASS_PALETTE[c], markeredgecolor="none", markersize=5, alpha=0.5),
+            flierprops=dict(marker=".", markerfacecolor="#475569", markeredgecolor="none", markersize=5, alpha=0.5),
         )
-        for patch in bp1["boxes"]:
-            patch.set_facecolor(CLASS_PALETTE[c])
+        for i_box, patch in enumerate(bp1["boxes"]):
+            k = b_keys[i_box]
+            box_col = BASELINE_CLASS_SHADES.get(k, {}).get(c, COLOR_MUTED)
+            patch.set_facecolor(box_col)
             patch.set_edgecolor(COLOR_DARK_SLATE)
             patch.set_linewidth(1.0)
             patch.set_alpha(0.88)
 
-    ax1.set_title("End-to-End Latency Distribution across Classes (Seconds)\n(Outliers >165s capped for display; LLM-Only retries reach 491s)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_title("Turnaround Latency across Risk Classes\n(Capped at 165s; LLM-Only reaches 491s)", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
     ax1.set_xticks(x)
-    ax1.set_xticklabels(labels, fontsize=10.5, fontweight="bold")
-    ax1.set_ylabel("Turnaround Latency (Seconds)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax1.set_xticklabels(labels, fontsize=9.0, fontweight="bold")
+    ax1.set_ylabel("Turnaround Latency (Seconds)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax1.tick_params(axis="y", labelsize=9.0)
     ax1.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
+    ax1.set_xlim(-0.55, 2.55)
     ax1.set_ylim(0, 165.0)
 
     # 2. Right Subplot: Token Stacked Bars (Useful vs. Wasted)
@@ -2913,34 +2957,43 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
         w_vals = [wasted_toks[k][c] / 1000.0 for k in b_keys]
         tot_vals = [baseline_class_toks[k][c] / 1000.0 for k in b_keys]
 
+        u_cols = [BASELINE_CLASS_SHADES.get(k, {}).get(c, COLOR_MUTED) for k in b_keys]
+        w_cols = [BASELINE_OVERHEAD_SHADES.get(k, {}).get(c, COLOR_MUTED) for k in b_keys]
+
         ax2.bar(
             bar_positions, u_vals, bw_cls * 0.85,
-            color=CLASS_PALETTE[c], edgecolor=COLOR_DARK_SLATE, linewidth=0.8,
+            color=u_cols, edgecolor=COLOR_DARK_SLATE, linewidth=0.8,
             alpha=0.88,
         )
         ax2.bar(
             bar_positions, w_vals, bw_cls * 0.85,
-            bottom=u_vals, color=CLASS_OVERHEAD_PALETTE[c], edgecolor=COLOR_DARK_SLATE, linewidth=0.8,
+            bottom=u_vals, color=w_cols, edgecolor=COLOR_DARK_SLATE, linewidth=0.8,
             hatch="//", alpha=0.92,
         )
 
         for bar_idx, (bx, w_val, tot_val) in enumerate(zip(bar_positions, w_vals, tot_vals)):
             if tot_val > 0:
                 ax2.text(
-                    bx, tot_val + 0.25, f"{tot_val:.1f}k",
-                    ha="center", va="bottom", fontsize=7.2, fontweight="bold", color=COLOR_DARK_SLATE
+                    bx, tot_val + 0.25, f"{tot_val:.1f}",
+                    ha="center", va="bottom", fontsize=8.0, fontweight="bold", color=COLOR_DARK_SLATE
                 )
 
-    ax2.set_title("Token Footprint Breakdown (Useful vs. Wasted Overhead)", fontsize=11.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_title("Token Footprint Breakdown\n(Useful Tokens vs. Wasted Overhead)", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
     ax2.set_xticks(x)
-    ax2.set_xticklabels(labels, fontsize=10.5, fontweight="bold")
-    ax2.set_ylabel("Token Footprint (kTokens)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax2.set_xticklabels(labels, fontsize=9.0, fontweight="bold")
+    ax2.set_ylabel("Token Footprint (kTokens)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
+    ax2.tick_params(axis="y", labelsize=9.0)
     ax2.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
-    ax2.set_ylim(0, 18.5)
+    ax2.set_xlim(-0.55, 2.55)
+    ax2.set_ylim(0, 21.0)
 
     # Shared Legends
-    class_patches = [patches.Patch(facecolor=CLASS_PALETTE[c], edgecolor=COLOR_DARK_SLATE, label=CLASS_LABELS_MAP[c]) for c in CLASS_NAMES]
-    overhead_patch = patches.Patch(facecolor="#64748B", edgecolor=COLOR_DARK_SLATE, hatch="//", label="Wasted Tokens")
+    SHADE_ICONS = ["#1E293B", "#475569", "#94A3B8", "#CBD5E1"]
+    class_patches = [
+        patches.Patch(facecolor=SHADE_ICONS[idx], edgecolor=COLOR_DARK_SLATE, label=CLASS_LABELS_MAP[c])
+        for idx, c in enumerate(CLASS_NAMES)
+    ]
+    overhead_patch = patches.Patch(facecolor="#475569", edgecolor=COLOR_DARK_SLATE, hatch="//", label="Wasted Tokens")
     mean_marker = mlines.Line2D([], [], color=COLOR_DARK_SLATE, marker="o", markerfacecolor="white", linestyle="None", markersize=5, label="Mean Latency")
     median_line = mlines.Line2D([], [], color="white", linewidth=2.0, label="Median Latency")
 
@@ -2950,7 +3003,7 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
         ncol=3,
         fontsize=8.0,
         framealpha=0.95,
-        title="Risk Classes & Stats",
+        title="Risk Classes (Dark -> Light) & Stats",
         title_fontsize=8.5,
     )
     ax2.legend(
@@ -2959,7 +3012,7 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
         ncol=3,
         fontsize=8.0,
         framealpha=0.95,
-        title="Token Breakdown",
+        title="Risk Classes (Dark -> Light) & Overhead",
         title_fontsize=8.5,
     )
 
@@ -2967,8 +3020,8 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-    plt.suptitle("Comparative Efficiency: Latency Distributions (Boxplots) & Token Footprint (Stacked Bars)", fontsize=12.5, fontweight="bold", color=COLOR_NAVY, y=0.98)
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.suptitle("Computational Efficiency across All Baselines: Latency and Token Footprint", fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.94], w_pad=1.8)
 
     plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
     plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
@@ -3001,7 +3054,7 @@ def generate_comparative_visuals(
     target_dir.mkdir(parents=True, exist_ok=True)
 
     plot_comparative_pillars_bar(data, target_dir / "comparative_pillars_breakdown")
-    plot_comparative_safety_pillars(data, target_dir / "comparative_safety_pillars")
+    plot_comparative_integrity_pillars(data, target_dir / "comparative_integrity_pillars")
     plot_comparative_efficiency_pillars(data, target_dir / "comparative_efficiency_pillars")
 
     # Generate combined dual-panel Sankey comparing Proposed RADG vs. LLM-Only
@@ -3026,7 +3079,7 @@ def generate_comparative_visuals(
 
     print(f"[✓] Comparative visual assets generated in: {target_dir}")
     print("    ├── comparative_pillars_breakdown.png / .pdf")
-    print("    ├── comparative_safety_pillars.png / .pdf")
+    print("    ├── comparative_integrity_pillars.png / .pdf")
     print("    └── comparative_efficiency_pillars.png / .pdf")
 
     return target_dir
