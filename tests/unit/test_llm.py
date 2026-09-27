@@ -408,6 +408,17 @@ class TestCreateConfiguredLLM:
         assert isinstance(llm, ChatOpenAI)
         assert not isinstance(llm, OpenRouterChatOpenAI)
 
+    def test_create_configured_llm_openai(self, monkeypatch):
+        """create_configured_llm creates ChatOpenAI when provider is openai."""
+        from langchain_openai import ChatOpenAI
+        from src.core.llm import OpenRouterChatOpenAI, create_configured_llm
+
+        monkeypatch.setenv("OPENAI_API_KEY", "test-openai-key")
+        llm = create_configured_llm(provider="openai")
+        assert isinstance(llm, ChatOpenAI)
+        assert not isinstance(llm, OpenRouterChatOpenAI)
+        assert llm.model_name == "gpt-6-luna"
+
     def test_create_configured_llm_from_env_provider(self, monkeypatch):
         """create_configured_llm reads LLM_PROVIDER from environment."""
         from src.core.llm import OpenRouterChatOpenAI, create_configured_llm
@@ -426,7 +437,7 @@ class TestCreateConfiguredLLM:
 
     def test_llm_timeout_env_var(self, monkeypatch):
         """LLM_TIMEOUT environment variable overrides default timeout across providers."""
-        from src.core.llm import create_kimi_llm, create_ollama_llm, create_openrouter_llm
+        from src.core.llm import create_kimi_llm, create_ollama_llm, create_openai_llm, create_openrouter_llm
 
         monkeypatch.setenv("LLM_TIMEOUT", "42.0")
         kimi = create_kimi_llm(api_key="test-key")
@@ -437,6 +448,61 @@ class TestCreateConfiguredLLM:
 
         ollama = create_ollama_llm(base_url="http://localhost:11434/v1")
         assert ollama.request_timeout == 42.0
+
+        openai_llm = create_openai_llm(api_key="test-key")
+        assert openai_llm.request_timeout == 42.0
+
+
+class TestCreateOpenAILLM:
+    """Test the OpenAI LLM factory function and helpers."""
+
+    def test_get_supported_openai_models(self, monkeypatch):
+        """Supported models helper returns defaults or parses OPENAI_MODELS env."""
+        from src.core.llm import SUPPORTED_OPENAI_MODELS, get_supported_openai_models
+
+        monkeypatch.delenv("OPENAI_MODELS", raising=False)
+        assert get_supported_openai_models() == SUPPORTED_OPENAI_MODELS
+
+        monkeypatch.setenv("OPENAI_MODELS", "gpt-6-luna, gpt-oss-120b , gpt-4o")
+        assert get_supported_openai_models() == ("gpt-6-luna", "gpt-oss-120b", "gpt-4o")
+
+    def test_create_openai_llm_reasoning_model_defaults(self):
+        """Reasoning models (gpt-6, o1) configure max_completion_tokens and reasoning_effort."""
+        from src.core.llm import create_openai_llm
+
+        llm = create_openai_llm(
+            api_key="test-key",
+            model="gpt-6-luna",
+            max_tokens=2500,
+        )
+        assert llm.model_name == "gpt-6-luna"
+        assert llm.max_tokens == 2500
+        assert llm.reasoning_effort == "low"
+        # Temperature is omitted (None) for reasoning models to avoid 400 error
+        assert llm.temperature is None
+
+    def test_create_openai_llm_reasoning_effort_override(self):
+        """Explicit reasoning_effort is respected."""
+        from src.core.llm import create_openai_llm
+
+        llm = create_openai_llm(
+            api_key="test-key",
+            model="gpt-6-luna",
+            reasoning_effort="none",
+        )
+        assert llm.reasoning_effort == "none"
+
+    def test_create_openai_llm_standard_model(self):
+        """Non-reasoning models keep default temperature of 0.2."""
+        from src.core.llm import create_openai_llm
+
+        llm = create_openai_llm(
+            api_key="test-key",
+            model="gpt-4o-mini",
+        )
+        assert llm.model_name == "gpt-4o-mini"
+        assert llm.temperature == 0.2
+        assert llm.max_tokens == 2000
 
 
 

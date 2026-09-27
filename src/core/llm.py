@@ -37,6 +37,28 @@ def get_supported_openrouter_models() -> tuple[str, ...]:
     return SUPPORTED_OPENROUTER_MODELS
 
 
+# Default model and endpoint on official OpenAI API
+DEFAULT_OPENAI_MODEL = "gpt-6-luna"
+DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
+SUPPORTED_OPENAI_MODELS: tuple[str, ...] = (
+    "gpt-6-luna",
+    "gpt-6-sol",
+    "gpt-6-astra",
+    "gpt-oss-120b",
+    "gpt-4o-mini",
+    "gpt-4o",
+)
+
+
+def get_supported_openai_models() -> tuple[str, ...]:
+    """Retrieve supported OpenAI models from OPENAI_MODELS env or fallback list."""
+    if env_val := os.getenv("OPENAI_MODELS"):
+        models = [m.strip() for m in env_val.split(",") if m.strip()]
+        if models:
+            return tuple(models)
+    return SUPPORTED_OPENAI_MODELS
+
+
 # Default model and endpoint on Ollama
 DEFAULT_OLLAMA_MODEL = "qwen2.5:3b"
 DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434/v1"
@@ -368,15 +390,89 @@ def create_ollama_llm(
 
 
 
+def create_openai_llm(
+    *,
+    api_key: str,
+    base_url: str | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    max_tokens: int | None = None,
+    max_completion_tokens: int | None = None,
+    timeout: float | None = None,
+    reasoning_effort: str | None = None,
+    extra_body: dict[str, Any] | None = None,
+    **_ignored_kwargs: Any,
+) -> ChatOpenAI:
+    """Create a ChatOpenAI instance configured for the official OpenAI API.
+
+    Args:
+        api_key: API key for OpenAI.
+        base_url: Custom base URL (optional).
+        model: Model identifier (defaults to OPENAI_MODEL env or DEFAULT_OPENAI_MODEL).
+        temperature: Sampling temperature. For reasoning models (gpt-6, o1, o3, o4),
+                     temperature is omitted or fixed to 1.0 to prevent API 400 errors.
+                     For standard models, defaults to 0.2.
+        max_tokens: Maximum completion tokens (mapped to max_completion_tokens).
+        max_completion_tokens: Explicit max_completion_tokens parameter.
+        timeout: Request timeout in seconds. Defaults to LLM_TIMEOUT env or 120.0s.
+        reasoning_effort: Reasoning effort ('none', 'low', 'medium', 'high') for reasoning models.
+        extra_body: Additional raw payload attributes.
+        **_ignored_kwargs: Safely absorbs provider-specific kwargs.
+
+    Returns:
+        A configured ChatOpenAI instance.
+    """
+    resolved_model = model or os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_MODEL)
+    resolved_base_url = base_url or os.getenv("OPENAI_BASE_URL") or None
+    resolved_timeout = resolve_llm_timeout(timeout)
+
+    is_reasoning_model = any(
+        tag in resolved_model.lower()
+        for tag in ("gpt-6", "o1", "o3", "o4")
+    )
+
+    resolved_tokens = max_completion_tokens if max_completion_tokens is not None else (
+        max_tokens if max_tokens is not None else 2000
+    )
+
+    resolved_effort = reasoning_effort or os.getenv("OPENAI_REASONING_EFFORT")
+    if is_reasoning_model and not resolved_effort:
+        resolved_effort = "low"
+
+    kwargs: dict[str, Any] = {
+        "model": resolved_model,
+        "api_key": api_key,
+        "max_completion_tokens": resolved_tokens,
+        "timeout": resolved_timeout,
+    }
+
+    if is_reasoning_model:
+        # OpenAI reasoning models only support temperature=1 or omitted
+        if temperature is not None and abs(temperature - 1.0) < 1e-4:
+            kwargs["temperature"] = 1.0
+    else:
+        kwargs["temperature"] = 0.2 if temperature is None else temperature
+
+    if resolved_effort:
+        kwargs["reasoning_effort"] = resolved_effort
+
+    if resolved_base_url:
+        kwargs["base_url"] = resolved_base_url
+    if extra_body:
+        kwargs["extra_body"] = extra_body
+
+    return ChatOpenAI(**kwargs)
+
+
 def create_configured_llm(
     provider: str | None = None,
     **kwargs: Any,
 ) -> BaseChatModel:
-    """Create an LLM instance based on provider selection ('ollama', 'openrouter', or 'kimi').
+    """Create an LLM instance based on provider selection ('ollama', 'openrouter', 'openai', or 'kimi').
 
     If provider is not explicitly passed, resolves from LLM_PROVIDER env var.
     Defaults to 'ollama' if LLM_PROVIDER is 'ollama', 'openrouter' if OPENROUTER_API_KEY is present,
-    otherwise falls back to 'kimi'.
+    'openai' if OPENAI_API_KEY is present, otherwise falls back to 'kimi'.
     """
     active_provider = (provider or os.getenv("LLM_PROVIDER", "")).lower().strip()
     if not active_provider:
@@ -384,6 +480,8 @@ def create_configured_llm(
             active_provider = "ollama"
         elif os.getenv("OPENROUTER_API_KEY"):
             active_provider = "openrouter"
+        elif os.getenv("OPENAI_API_KEY"):
+            active_provider = "openai"
         else:
             active_provider = "kimi"
 
@@ -394,6 +492,12 @@ def create_configured_llm(
         if not api_key:
             raise ValueError("OPENROUTER_API_KEY is not set in environment or arguments.")
         return create_openrouter_llm(api_key=api_key, **kwargs)
+    elif active_provider == "openai":
+        api_key = kwargs.pop("api_key", None) or os.getenv("OPENAI_API_KEY", "")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY is not set in environment or arguments.")
+        base_url = kwargs.pop("base_url", None) or os.getenv("OPENAI_BASE_URL") or None
+        return create_openai_llm(api_key=api_key, base_url=base_url, **kwargs)
     elif active_provider == "kimi":
         api_key = kwargs.pop("api_key", None) or os.getenv("KIMI_API_KEY", "")
         if not api_key:
@@ -402,7 +506,7 @@ def create_configured_llm(
         return create_kimi_llm(api_key=api_key, base_url=base_url or None, **kwargs)
     else:
         raise ValueError(
-            f"Unsupported LLM provider: '{active_provider}'. Supported options: 'ollama', 'openrouter', 'kimi'."
+            f"Unsupported LLM provider: '{active_provider}'. Supported options: 'ollama', 'openrouter', 'openai', 'kimi'."
         )
 
 

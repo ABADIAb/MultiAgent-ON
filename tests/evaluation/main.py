@@ -33,6 +33,7 @@ from langchain_core.messages import HumanMessage  # noqa: E402
 from langgraph.checkpoint.memory import InMemorySaver  # noqa: E402
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer  # noqa: E402
 from langgraph.types import Command  # noqa: E402
+from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 import questionary  # noqa: E402
 from rich import box  # noqa: E402
 from rich.console import Console  # noqa: E402
@@ -45,9 +46,11 @@ from src.core.llm import (  # noqa: E402
     DEFAULT_KIMI_MODEL,
     DEFAULT_LLM_TIMEOUT,
     DEFAULT_OLLAMA_MODEL,
+    DEFAULT_OPENAI_MODEL,
     DEFAULT_OPENROUTER_MODEL,
     SUPPORTED_OLLAMA_MODELS,
     create_configured_llm,
+    get_supported_openai_models,
     get_supported_openrouter_models,
     resolve_llm_timeout,
     set_llm,
@@ -85,6 +88,8 @@ FULL_CORPUS_PATH = PROJECT_ROOT / "tests" / "evaluation" / "test_corpus.json"
 BASELINES_DIR = PROJECT_ROOT / "tests" / "evaluation" / "baselines"
 RESULTS_DIR = PROJECT_ROOT / "tests" / "evaluation" / "results"
 
+BACK_SENTINEL = "__GO_BACK__"
+
 QUESTIONARY_STYLE = questionary.Style(
     [
         ("qmark", "fg:#00ffff bold"),
@@ -98,25 +103,71 @@ QUESTIONARY_STYLE = questionary.Style(
 )
 
 
-def prompt_select(message: str, choices: list[Any], default: Any = None) -> Any:
-    """Prompt user with questionary select and exit cleanly on cancel / Ctrl+C."""
-    val = questionary.select(message, choices=choices, default=default, style=QUESTIONARY_STYLE).ask()
+def prompt_select(
+    message: str,
+    choices: list[Any],
+    default: Any = None,
+    allow_back: bool = False,
+) -> Any:
+    """Prompt user with questionary select and exit cleanly on cancel / Ctrl+C, supporting Backspace."""
+    q = questionary.select(message, choices=choices, default=default, style=QUESTIONARY_STYLE)
+    if allow_back:
+        kb = KeyBindings()
+
+        @kb.add("backspace")
+        @kb.add("c-h")
+        @kb.add("escape")
+        def _back(event: Any) -> None:
+            event.app.exit(result=BACK_SENTINEL)
+
+        q.application.key_bindings = merge_key_bindings([q.application.key_bindings, kb])
+
+    val = q.ask()
     if val is None:
         console.print("\n[yellow]Execution cancelled by operator.[/yellow]")
         sys.exit(0)
     return val
 
 
-def prompt_text(message: str, default: str = "", validate: Any = None) -> str:
-    """Prompt user with questionary text and exit cleanly on cancel / Ctrl+C."""
+def prompt_text(
+    message: str,
+    default: str = "",
+    validate: Any = None,
+    allow_back: bool = False,
+    placeholder: str = "",
+) -> str:
+    """Prompt user with questionary text and exit cleanly on cancel / Ctrl+C, supporting Backspace on empty."""
     kwargs: dict[str, Any] = {"style": QUESTIONARY_STYLE, "default": default}
     if validate:
         kwargs["validate"] = validate
-    val = questionary.text(message, **kwargs).ask()
+    if placeholder:
+        kwargs["placeholder"] = placeholder
+
+    q = questionary.text(message, **kwargs)
+    if allow_back:
+        kb = KeyBindings()
+
+        @kb.add("escape")
+        def _esc_back(event: Any) -> None:
+            event.app.exit(result=BACK_SENTINEL)
+
+        @kb.add("backspace")
+        @kb.add("c-h")
+        def _back(event: Any) -> None:
+            buf = event.app.current_buffer
+            if not buf.text:
+                event.app.exit(result=BACK_SENTINEL)
+            else:
+                buf.delete_before_cursor()
+
+        q.application.key_bindings = merge_key_bindings([q.application.key_bindings, kb])
+
+    val = q.ask()
     if val is None:
         console.print("\n[yellow]Execution cancelled by operator.[/yellow]")
         sys.exit(0)
     return val
+
 
 BASELINE_DESCRIPTIONS: dict[str, str] = {
     "proposed_radg": "Proposed RADG: Author's solution with fail-fast Semantic & Physical RADGs",
@@ -720,8 +771,15 @@ def parse_args() -> argparse.Namespace:
         "--provider",
         type=str,
         default=os.getenv("LLM_PROVIDER", "ollama"),
-        choices=["ollama", "openrouter", "kimi"],
+        choices=["ollama", "openrouter", "openai", "kimi"],
         help="LLM provider",
+    )
+    parser.add_argument(
+        "--reasoning-effort",
+        type=str,
+        default=os.getenv("OPENAI_REASONING_EFFORT", None),
+        choices=["none", "low", "medium", "high"],
+        help="Reasoning effort for OpenAI reasoning models ('none', 'low', 'medium', 'high')",
     )
     parser.add_argument(
         "--model",
@@ -779,106 +837,319 @@ def main() -> None:
 
     # Interactive configuration if neither baseline nor mode is specified
     is_fully_interactive = (args.baseline is None and args.mode is None and args.intent is None)
-
-    # 1. Resolve Mode first
-    mode = args.mode
-    if is_fully_interactive:
-        mode = prompt_select(
-            "Select Execution Mode:",
-            choices=[
-                questionary.Choice("Interactive Mode (Single intent, live node tracking, no metrics export)", "interactive"),
-                questionary.Choice("Evaluation Benchmark Mode (Automated test corpus, Four Pillars metrics, export results)", "eval"),
-                questionary.Choice("Comparative Analysis Mode (Compare existing baseline runs with custom/latest run selection)", "compare"),
-            ],
-        )
-    elif args.intent:
-        mode = "interactive"
-    elif mode is None:
-        mode = prompt_select(
-            "Select Execution Mode:",
-            choices=[
-                questionary.Choice("Interactive Mode (Single intent, live node tracking, no metrics export)", "interactive"),
-                questionary.Choice("Evaluation Benchmark Mode (Automated test corpus, Four Pillars metrics, export results)", "eval"),
-                questionary.Choice("Comparative Analysis Mode (Compare existing baseline runs with custom/latest run selection)", "compare"),
-            ],
-        )
-
-    if mode == "compare":
-        run_comparative_mode(
-            proposed_run=args.proposed_run,
-            hitl_run=args.hitl_run,
-            llm_run=args.llm_run,
-            is_interactive=True,
-        )
-        return
-
-    # 2. Resolve Provider and Model (only needed for interactive and eval modes)
     provider = args.provider
     model = args.model
     timeout = resolve_llm_timeout(args.timeout)
     temperature = args.temperature
+    baseline = args.baseline
+    mode = args.mode
+    intent_text = args.intent
+    corpus_choice = args.corpus
 
     if is_fully_interactive:
-        provider = prompt_select(
-            "Select LLM Provider:",
-            choices=[
-                questionary.Choice("Ollama (Local Open-Weights)", "ollama"),
-                questionary.Choice("OpenRouter (Cloud API)", "openrouter"),
-                questionary.Choice("Kimi / Moonshot (Cloud API)", "kimi"),
-            ],
-            default=provider,
-        )
+        step_stack: list[str] = ["mode"]
+        wizard: dict[str, Any] = {}
 
-        if provider == "openrouter":
-            configured_models = get_supported_openrouter_models()
-            default_m = os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
-            choices = [
-                questionary.Choice(f"{m} (Default)" if m == default_m else m, m)
-                for m in configured_models
-            ]
-            choices.append(questionary.Choice("Enter custom model slug...", "custom"))
+        while step_stack:
+            step = step_stack[-1]
 
-            selected_m = prompt_select(
-                "Select OpenRouter Model:",
-                choices=choices,
-                default=default_m if default_m in configured_models else (choices[0].value if choices else None),
-            )
-            if selected_m == "custom":
-                model = prompt_text(
+            if step == "mode":
+                chosen_mode = prompt_select(
+                    "Select Execution Mode:",
+                    choices=[
+                        questionary.Choice("Interactive Mode (Single intent, live node tracking, no metrics export)", "interactive"),
+                        questionary.Choice("Evaluation Benchmark Mode (Automated test corpus, Four Pillars metrics, export results)", "eval"),
+                        questionary.Choice("Comparative Analysis Mode (Compare existing baseline runs with custom/latest run selection)", "compare"),
+                    ],
+                    allow_back=False,
+                )
+                if chosen_mode == "compare":
+                    run_comparative_mode(
+                        proposed_run=args.proposed_run,
+                        hitl_run=args.hitl_run,
+                        llm_run=args.llm_run,
+                        is_interactive=True,
+                    )
+                    return
+                wizard["mode"] = chosen_mode
+                step_stack.append("provider")
+
+            elif step == "provider":
+                env_p = args.provider or os.getenv("LLM_PROVIDER")
+                chosen_p = prompt_select(
+                    "Select LLM Provider (Backspace/Esc to go back):",
+                    choices=[
+                        questionary.Choice("Ollama (Local Open-Weights)", "ollama"),
+                        questionary.Choice("OpenRouter (Cloud API)", "openrouter"),
+                        questionary.Choice("OpenAI (Cloud API)", "openai"),
+                        questionary.Choice("Kimi / Moonshot (Cloud API)", "kimi"),
+                    ],
+                    default=wizard.get("provider", env_p if env_p in ("ollama", "openrouter", "openai", "kimi") else "ollama"),
+                    allow_back=True,
+                )
+                if chosen_p == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["provider"] = chosen_p
+                if chosen_p == "openrouter":
+                    step_stack.append("openrouter_model")
+                elif chosen_p == "openai":
+                    step_stack.append("openai_model")
+                elif chosen_p == "ollama":
+                    step_stack.append("ollama_model")
+                else:
+                    step_stack.append("kimi_model")
+
+            elif step == "openrouter_model":
+                configured_models = get_supported_openrouter_models()
+                default_m = os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
+                choices = [
+                    questionary.Choice(f"{m} (Default)" if m == default_m else m, m)
+                    for m in configured_models
+                ]
+                choices.append(questionary.Choice("Enter custom model slug...", "custom"))
+                selected_m = prompt_select(
+                    "Select OpenRouter Model:",
+                    choices=choices,
+                    default=default_m if default_m in configured_models else (choices[0].value if choices else None),
+                    allow_back=True,
+                )
+                if selected_m == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                if selected_m == "custom":
+                    step_stack.append("openrouter_custom_model")
+                else:
+                    wizard["model"] = selected_m
+                    step_stack.append("baseline")
+
+            elif step == "openrouter_custom_model":
+                default_m = os.getenv("OPENROUTER_MODEL") or DEFAULT_OPENROUTER_MODEL
+                custom_m = prompt_text(
                     "Enter OpenRouter Model Slug (e.g. 'openai/gpt-4o-mini', 'anthropic/claude-3.5-sonnet'):",
                     default=default_m,
+                    allow_back=True,
                 )
-            else:
-                model = selected_m
-        elif provider == "ollama":
-            choices = [questionary.Choice(m, m) for m in SUPPORTED_OLLAMA_MODELS]
-            choices.append(questionary.Choice("Enter custom model name...", "custom"))
-            default_m = os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
-            selected_m = prompt_select(
-                "Select Ollama Model:",
-                choices=choices,
-                default=default_m if default_m in SUPPORTED_OLLAMA_MODELS else (choices[0].value if choices else None),
-            )
-            if selected_m == "custom":
-                model = prompt_text(
+                if custom_m == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["model"] = custom_m
+                step_stack.append("baseline")
+
+            elif step == "openai_model":
+                configured_models = get_supported_openai_models()
+                default_m = os.getenv("OPENAI_MODEL") or DEFAULT_OPENAI_MODEL
+                choices = [
+                    questionary.Choice(f"{m} (Default)" if m == default_m else m, m)
+                    for m in configured_models
+                ]
+                choices.append(questionary.Choice("Enter custom model name...", "custom"))
+                selected_m = prompt_select(
+                    "Select OpenAI Model:",
+                    choices=choices,
+                    default=default_m if default_m in configured_models else (choices[0].value if choices else None),
+                    allow_back=True,
+                )
+                if selected_m == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                if selected_m == "custom":
+                    step_stack.append("openai_custom_model")
+                else:
+                    wizard["model"] = selected_m
+                    step_stack.append("baseline")
+
+            elif step == "openai_custom_model":
+                default_m = os.getenv("OPENAI_MODEL") or DEFAULT_OPENAI_MODEL
+                custom_m = prompt_text(
+                    "Enter OpenAI Model Name (e.g. 'gpt-6-luna', 'gpt-oss-120b'):",
+                    default=default_m,
+                    allow_back=True,
+                )
+                if custom_m == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["model"] = custom_m
+                step_stack.append("baseline")
+
+            elif step == "ollama_model":
+                choices = [questionary.Choice(m, m) for m in SUPPORTED_OLLAMA_MODELS]
+                choices.append(questionary.Choice("Enter custom model name...", "custom"))
+                default_m = os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
+                selected_m = prompt_select(
+                    "Select Ollama Model:",
+                    choices=choices,
+                    default=default_m if default_m in SUPPORTED_OLLAMA_MODELS else (choices[0].value if choices else None),
+                    allow_back=True,
+                )
+                if selected_m == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                if selected_m == "custom":
+                    step_stack.append("ollama_custom_model")
+                else:
+                    wizard["model"] = selected_m
+                    step_stack.append("baseline")
+
+            elif step == "ollama_custom_model":
+                default_m = os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
+                custom_m = prompt_text(
                     "Enter Ollama Model Name:",
                     default=default_m,
+                    allow_back=True,
                 )
-            else:
-                model = selected_m
-        else:  # kimi
-            model = prompt_text(
-                "Enter Model Name for Kimi:",
-                default=os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL),
-            )
+                if custom_m == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["model"] = custom_m
+                step_stack.append("baseline")
+
+            elif step == "kimi_model":
+                custom_m = prompt_text(
+                    "Enter Model Name for Kimi:",
+                    default=os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL),
+                    allow_back=True,
+                )
+                if custom_m == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["model"] = custom_m
+                step_stack.append("baseline")
+
+            elif step == "baseline":
+                chosen_b = prompt_select(
+                    "Select Baseline Architecture to Run:",
+                    choices=[
+                        questionary.Choice("Proposed RADG (Dual Fail-Fast Risk Gates)", "proposed_radg"),
+                        questionary.Choice("Always-On HITL (Paranoid Mandatory Clarification on Nominals)", "always_on_hitl"),
+                        questionary.Choice("LLM-Only (No Semantic Gate / Controller Error Simulation)", "llm_only"),
+                        questionary.Choice("Run All Baselines (Comparative Suite)", "all"),
+                    ],
+                    allow_back=True,
+                    default=wizard.get("baseline"),
+                )
+                if chosen_b == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["baseline"] = chosen_b
+                if wizard["mode"] == "interactive":
+                    step_stack.append("intent_source")
+                else:
+                    step_stack.append("eval_corpus")
+
+            elif step == "intent_source":
+                chosen_src = prompt_select(
+                    "How would you like to provide the intent?",
+                    choices=[
+                        questionary.Choice("Select from Benchmark Presets (Nominal, Ambiguous, Infeasible, Adversarial)", "preset"),
+                        questionary.Choice("Enter Custom Natural Language Intent", "custom"),
+                    ],
+                    allow_back=True,
+                )
+                if chosen_src == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["intent_source"] = chosen_src
+                if chosen_src == "preset":
+                    step_stack.append("intent_preset")
+                else:
+                    step_stack.append("intent_custom")
+
+            elif step == "intent_preset":
+                with open(COMPACT_CORPUS_PATH, encoding="utf-8") as f:
+                    presets = json.load(f)
+                preset_choices = [
+                    questionary.Choice(f"[{p['id']}] ({p['class']}) {p['intent_text'][:60]}...", p['intent_text'])
+                    for p in presets
+                ]
+                chosen_preset = prompt_select(
+                    "Choose a preset demand:",
+                    choices=preset_choices,
+                    allow_back=True,
+                )
+                if chosen_preset == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["intent_text"] = chosen_preset
+                break
+
+            elif step == "intent_custom":
+                custom_intent = prompt_text(
+                    "Enter your optical network intent:",
+                    default="Route 100G from Berlin to Frankfurt with at least 15 dB GSNR.",
+                    allow_back=True,
+                )
+                if custom_intent == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["intent_text"] = custom_intent
+                break
+
+            elif step == "eval_corpus":
+                chosen_corpus = prompt_select(
+                    "Select Benchmark Corpus:",
+                    choices=[
+                        questionary.Choice("Compact Corpus (20 Demands - 4 Balanced Classes)", "compact"),
+                        questionary.Choice("Full Corpus (120 Demands - 4 Balanced Classes)", "full"),
+                    ],
+                    allow_back=True,
+                )
+                if chosen_corpus == BACK_SENTINEL:
+                    step_stack.pop()
+                    continue
+                wizard["corpus"] = chosen_corpus
+                break
+
+        mode = wizard["mode"]
+        provider = wizard["provider"]
+        model = wizard["model"]
+        baseline = wizard["baseline"]
+        intent_text = wizard.get("intent_text")
+        corpus_choice = wizard.get("corpus", "compact")
     else:
+        # Non-fully interactive execution: resolve mode first if not set
+        if mode is None:
+            if args.intent:
+                mode = "interactive"
+            else:
+                mode = prompt_select(
+                    "Select Execution Mode:",
+                    choices=[
+                        questionary.Choice("Interactive Mode (Single intent, live node tracking, no metrics export)", "interactive"),
+                        questionary.Choice("Evaluation Benchmark Mode (Automated test corpus, Four Pillars metrics, export results)", "eval"),
+                        questionary.Choice("Comparative Analysis Mode (Compare existing baseline runs with custom/latest run selection)", "compare"),
+                    ],
+                )
+
+        if mode == "compare":
+            run_comparative_mode(
+                proposed_run=args.proposed_run,
+                hitl_run=args.hitl_run,
+                llm_run=args.llm_run,
+                is_interactive=False,
+            )
+            return
+
         if not model:
             if provider == "ollama":
                 model = os.getenv("OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
             elif provider == "openrouter":
                 model = os.getenv("OPENROUTER_MODEL", DEFAULT_OPENROUTER_MODEL)
+            elif provider == "openai":
+                model = os.getenv("OPENAI_MODEL", DEFAULT_OPENAI_MODEL)
             else:
                 model = os.getenv("KIMI_MODEL", DEFAULT_KIMI_MODEL)
+
+        if baseline is None:
+            baseline = prompt_select(
+                "Select Baseline Architecture to Run:",
+                choices=[
+                    questionary.Choice("Proposed RADG (Dual Fail-Fast Risk Gates)", "proposed_radg"),
+                    questionary.Choice("Always-On HITL (Paranoid Mandatory Clarification on Nominals)", "always_on_hitl"),
+                    questionary.Choice("LLM-Only (No Semantic Gate / Controller Error Simulation)", "llm_only"),
+                    questionary.Choice("Run All Baselines (Comparative Suite)", "all"),
+                ],
+            )
 
     # Initialize shared LLM instance
     console.print(f"[dim]Configuring LLM provider: {provider} | Model: {model} | Timeout: {timeout}s...[/dim]")
@@ -887,27 +1158,16 @@ def main() -> None:
         model=model,
         temperature=temperature,
         timeout=timeout,
+        reasoning_effort=getattr(args, "reasoning_effort", None),
     )
     set_llm(llm)
-
-    # 3. Select Baseline
-    baseline = args.baseline
-    if baseline is None:
-        baseline = prompt_select(
-            "Select Baseline Architecture to Run:",
-            choices=[
-                questionary.Choice("Proposed RADG (Dual Fail-Fast Risk Gates)", "proposed_radg"),
-                questionary.Choice("Always-On HITL (Paranoid Mandatory Clarification on Nominals)", "always_on_hitl"),
-                questionary.Choice("LLM-Only (No Semantic Gate / Controller Error Simulation)", "llm_only"),
-                questionary.Choice("Run All Baselines (Comparative Suite)", "all"),
-            ],
-        )
 
     # -------------------------------------------------------------------------
     # Mode A: Interactive Execution
     # -------------------------------------------------------------------------
     if mode == "interactive":
-        intent_text = args.intent
+        if not intent_text:
+            intent_text = args.intent
         if not intent_text:
             intent_source = prompt_select(
                 "How would you like to provide the intent?",
@@ -957,15 +1217,16 @@ def main() -> None:
     # Mode B: Evaluation Benchmark Execution
     # -------------------------------------------------------------------------
     else:
-        corpus_choice = args.corpus
-        if is_fully_interactive and args.corpus == "compact":
-            corpus_choice = prompt_select(
-                "Select Benchmark Corpus:",
-                choices=[
-                    questionary.Choice("Compact Corpus (20 Demands - 4 Balanced Classes)", "compact"),
-                    questionary.Choice("Full Corpus (120 Demands - 4 Balanced Classes)", "full"),
-                ],
-            )
+        if not corpus_choice:
+            corpus_choice = args.corpus or "compact"
+            if not args.corpus:
+                corpus_choice = prompt_select(
+                    "Select Benchmark Corpus:",
+                    choices=[
+                        questionary.Choice("Compact Corpus (20 Demands - 4 Balanced Classes)", "compact"),
+                        questionary.Choice("Full Corpus (120 Demands - 4 Balanced Classes)", "full"),
+                    ],
+                )
 
         target_corpus_file = COMPACT_CORPUS_PATH if corpus_choice == "compact" else FULL_CORPUS_PATH
         with open(target_corpus_file, encoding="utf-8") as f:
