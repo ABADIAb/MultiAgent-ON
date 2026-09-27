@@ -548,7 +548,7 @@ def interactive_configuration() -> dict[str, Any]:
                     questionary.Choice("medium (Standard reasoning)", "medium"),
                     questionary.Choice("high (Thorough reasoning)", "high"),
                 ],
-                default=os.getenv("OPENAI_REASONING_EFFORT", "low"),
+                default=os.getenv("OPENAI_REASONING_EFFORT", "none"),
                 allow_back=True,
             )
             if effort == BACK_SENTINEL:
@@ -1011,7 +1011,7 @@ def main() -> None:
             is_reasoning = any(tag in resolved_m.lower() for tag in ("gpt-6", "o1", "o3", "o4"))
             default_temp = None if is_reasoning else 0.2
             default_tokens = 2000
-            default_effort = os.getenv("OPENAI_REASONING_EFFORT", "low" if is_reasoning else None)
+            default_effort = os.getenv("OPENAI_REASONING_EFFORT", "none" if is_reasoning else None)
             llm_config = {
                 "provider": provider,
                 "model": resolved_m,

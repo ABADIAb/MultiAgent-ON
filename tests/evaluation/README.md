@@ -160,7 +160,9 @@ Results are persisted in timestamped folders organized hierarchically by sanitiz
 When running comparative mode or full multi-baseline evaluations, cross-baseline analytics and gate diagnostics are generated in `tests/evaluation/results/<LLM>/<timestamp>/`:
 - `comparative_results_<timestamp>.json`: Combined cross-baseline raw traces and pillar metrics.
 - `comparative_summary_<timestamp>.md`: Side-by-side executive comparison matrix across all baselines.
-- `comparative_pillars_breakdown.png / .pdf`: 4-panel disaggregated breakdown comparing Pre-Deployment Integrity ($FPR$), Operator Friction ($N_{hitl}$), End-to-End Latency & Replan Overhead, and Token Footprint & Wasted Compute.
+- `comparative_safety_pillars.png / .pdf`: 2-panel standalone comparison for Pre-Deployment Safety & Operator Burden (Pillars 2 & 3: FPR rate and Operator Interventions count).
+- `comparative_efficiency_pillars.png / .pdf`: 2-panel standalone comparison for Computational Efficiency (Pillar 3: Latency Boxplot distributions on left, Token Footprint Stacked Bars highlighting useful vs. wasted compute on right).
+- `comparative_pillars_breakdown.png / .pdf`: 4-panel comprehensive breakdown covering Safety, Friction, Latency, and Tokens in a single grid.
 - `comparative_deployment_flow_sankey.png / .pdf`: Publication-grade dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
 - `comparative_scalability_projection.png / .pdf`: Scalability projection modeling cumulative operator interventions ($N_{hitl}$ cognitive fatigue) across the 120-demand diurnal operational stream, comparing Proposed RADG against Always-On HITL.
 - `gate_accuracy_matrix.png / .pdf`: Multi-class confusion matrix and gate decision accuracy breakdown for Proposed RADG across all 4 risk classes, tracking first-try gating accuracy and timeout mitigation.

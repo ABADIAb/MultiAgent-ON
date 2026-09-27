@@ -37,6 +37,7 @@ from tests.evaluation.baselines.common.reporter import sanitize_model_name  # no
 
 import matplotlib  # noqa: E402
 matplotlib.use("Agg")  # Non-interactive headless backend
+import matplotlib.lines as mlines  # noqa: E402
 import matplotlib.patches as patches  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
@@ -2382,7 +2383,7 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
     fpr_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", 0.0) for k in b_keys]
     bars1 = ax1.bar(x, fpr_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
     ax1.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target Invariant (0.0%)")
-    ax1.set_title("Pillar 2: False Positive Rate (FPR, %)\n[Lower is Better - Target: 0.0%]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_title("False Positive Rate (FPR, %)", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
     ax1.set_xticks(x)
     ax1.set_xticklabels(labels, fontsize=10, fontweight="bold")
     ax1.set_ylabel("FPR (%)", fontsize=10)
@@ -2392,46 +2393,87 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
         ax1.text(bar.get_x() + bar.get_width() / 2, h + 0.5, f"{h:.1f}%", ha="center", va="bottom", fontsize=10, fontweight="bold", color=COLOR_DARK_SLATE)
     ax1.legend(loc="upper left", fontsize=9)
 
-    # 2. Top-Right: Operator Fatigue (Nominal Traffic vs All Traffic)
+    # 2. Top-Right: Operator Friction & Interventions (Count: Nominal Fatigue vs Risky Oversight/Recovery)
     ax2 = axs[0, 1]
     ax2.set_facecolor(COLOR_CARD_BG)
 
-    nom_vals = []
-    all_vals = []
+    nom_counts = []
+    risky_counts = []
     for k in b_keys:
         p3 = baselines_info[k].get("pillar_metrics", {}).get("pillar_3", {})
-        b_data = resolve_baseline_data(k, comparative_data)
-        b_demands = b_data.get("demands", []) if b_data else []
-        n_nom = len([d for d in b_demands if d.get("class") == "I_Nominal"]) or (30 if comparative_data.get("metadata", {}).get("corpus") == "full" else 5)
-        nom_interrupts = p3.get("nominal_hitl_interrupts", 0)
-        nom_vals.append(nom_interrupts / n_nom)
-        all_vals.append(p3.get("mean_hitl_turns", 0.0))
+        nom_interrupts = int(p3.get("nominal_hitl_interrupts", 0))
+        tot_interrupts = int(p3.get("total_hitl_interrupts", 0))
+        if tot_interrupts == 0 and nom_interrupts == 0:
+            cm = baselines_info[k].get("class_metrics", {})
+            nom_interrupts = int(cm.get("I_Nominal", {}).get("hitl_count", 0))
+            tot_interrupts = sum(int(c_info.get("hitl_count", 0)) for c_info in cm.values())
+        risky_interrupts = max(0, tot_interrupts - nom_interrupts)
+        nom_counts.append(nom_interrupts)
+        risky_counts.append(risky_interrupts)
 
     bw2 = 0.35
-    bars2_nom = ax2.bar(x - bw2 / 2, nom_vals, bw2, color="#0284C7", edgecolor="white", linewidth=1.2, label="Nominal Traffic (Target: 0)")
-    bars2_all = ax2.bar(x + bw2 / 2, all_vals, bw2, color="#64748B", edgecolor="white", linewidth=1.2, hatch="//", label="All Traffic (Selective Risk Oversight)")
+    bars2_nom = ax2.bar(
+        x - bw2 / 2, nom_counts, bw2,
+        color="#0284C7", edgecolor="white", linewidth=1.2,
+        label="Nominal Traffic (Alert Fatigue)",
+    )
 
-    ax2.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target on Nominals (0 Turns)")
-    ax2.set_title("Pillar 3: Operator Friction & Interventions (N_hitl)\n[Nominal Zero-Fatigue vs. Selective Oversight]", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
+    # Risky traffic: Proactive Gate Oversight (RADG/HITL) vs Reactive Incident Recovery (LLM-Only)
+    bars2_risky = []
+    for i, k in enumerate(b_keys):
+        is_reactive = (k == "llm_only")
+        r_color = "#DC2626" if is_reactive else "#64748B"
+        bar_r = ax2.bar(
+            x[i] + bw2 / 2, risky_counts[i], bw2,
+            color=r_color, edgecolor="white", linewidth=1.2,
+            hatch="//",
+        )
+        bars2_risky.append(bar_r)
+
+    target_line = ax2.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target on Nominals (0)")
+    ax2.set_title("Operator Friction & Interventions", fontsize=11, fontweight="bold", color=COLOR_DARK_SLATE)
     ax2.set_xticks(x)
     ax2.set_xticklabels(labels, fontsize=10, fontweight="bold")
-    ax2.set_ylabel("Mean N_hitl Turns", fontsize=10)
-    ax2.set_ylim(-0.05, max(max(all_vals + nom_vals, default=0.0) + 0.45, 1.4))
+    ax2.set_ylabel("Total Operator Interventions", fontsize=10)
+    max_c = max(max(nom_counts + risky_counts, default=0), 10)
+    ax2.set_ylim(-2, max_c * 1.45)
 
-    for bar in bars2_nom:
-        h = bar.get_height()
-        ax2.text(bar.get_x() + bar.get_width() / 2, h + 0.03, f"{h:.2f}", ha="center", va="bottom", fontsize=9, fontweight="bold", color="#0284C7")
-    for bar in bars2_all:
-        h = bar.get_height()
-        ax2.text(bar.get_x() + bar.get_width() / 2, h + 0.03, f"{h:.2f}", ha="center", va="bottom", fontsize=9, fontweight="bold", color="#475569")
-    ax2.legend(loc="upper left", fontsize=8.5)
+    for bar, count in zip(bars2_nom, nom_counts):
+        ax2.text(
+            bar.get_x() + bar.get_width() / 2, count + max_c * 0.02,
+            f"{count}", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color="#0284C7"
+        )
+    for i, (bar_container, count) in enumerate(zip(bars2_risky, risky_counts)):
+        bar = bar_container[0]
+        is_reactive = (b_keys[i] == "llm_only")
+        t_color = "#DC2626" if is_reactive else "#475569"
+        ax2.text(
+            bar.get_x() + bar.get_width() / 2, count + max_c * 0.02,
+            f"{count}", ha="center", va="bottom", fontsize=9.5, fontweight="bold", color=t_color
+        )
+
+    p_nom = patches.Patch(facecolor="#0284C7", edgecolor="white", label="Nominal Traffic (Alert Fatigue)")
+    p_pro = patches.Patch(facecolor="#64748B", edgecolor="white", hatch="//", label="Proactive Oversight (Gate Interception)")
+    handles2 = [target_line, p_nom, p_pro]
+    if any(k == "llm_only" for k in b_keys):
+        p_reac = patches.Patch(facecolor="#DC2626", edgecolor="white", hatch="//", label="Reactive Recovery (Controller Crash)")
+        handles2.append(p_reac)
+    ax2.legend(handles=handles2, loc="upper left", fontsize=7.8, framealpha=0.92)
 
     # Resolve per-class metrics across baselines for grouped bar panels 3 & 4
+    # Nominal matches gate_accuracy_matrix (#16A34A Green)
     CLASS_PALETTE = {
-        "I_Nominal": "#0284C7",      # Sky Blue
+        "I_Nominal": COLOR_APPROVE,   # "#16A34A" Green
         "II_Ambiguous": "#D97706",    # Amber
         "III_Infeasible": "#DC2626",  # Red
         "IV_Adversarial": "#7C3AED",  # Purple
+    }
+    # Darker shades for each class to represent wasted overhead
+    CLASS_OVERHEAD_PALETTE = {
+        "I_Nominal": "#14532D",       # Deep Forest Green
+        "II_Ambiguous": "#92400E",     # Deep Amber / Brown
+        "III_Infeasible": "#991B1B",   # Deep Crimson
+        "IV_Adversarial": "#5B21B6",   # Deep Violet
     }
     CLASS_NAMES = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
     CLASS_LABELS_MAP = {
@@ -2536,26 +2578,26 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
         )
         ax3.bar(
             x + c_offsets[j], w_vals, bw_cls,
-            bottom=u_vals, color="#DC2626", edgecolor="white", linewidth=1.1,
-            hatch="//", alpha=0.90,
+            bottom=u_vals, color=CLASS_OVERHEAD_PALETTE[c], edgecolor="white", linewidth=1.1,
+            hatch="//", alpha=0.92,
         )
 
         for bar_u, w_val, tot_val in zip(bars3_u, w_vals, tot_vals):
             bx = bar_u.get_x() + bar_u.get_width() / 2
             if tot_val > 0:
                 if w_val > 0.8:
-                    ax3.text(bx, tot_val + 0.40, f"{tot_val:.1f}s\n(+{w_val:.1f}s)", ha="center", va="bottom", fontsize=7.2, fontweight="bold", color="#B91C1C")
+                    ax3.text(bx, tot_val + 0.40, f"{tot_val:.1f}s\n(+{w_val:.1f}s)", ha="center", va="bottom", fontsize=7.2, fontweight="bold", color=CLASS_OVERHEAD_PALETTE[c])
                 else:
                     ax3.text(bx, tot_val + 0.35, f"{tot_val:.1f}s", ha="center", va="bottom", fontsize=7.8, fontweight="bold", color=COLOR_DARK_SLATE)
 
-    ax3.set_title("Pillar 3: End-to-End Latency & Replan Overhead (s)\n[Solid: Base Floor | Hatched: Wasted Overhead]", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax3.set_title("End-to-End Latency & Replan Overhead (s)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax3.set_xticks(x)
     ax3.set_xticklabels(labels, fontsize=10, fontweight="bold")
     ax3.set_ylabel("Median Latency (s)", fontsize=10)
     all_lat_vals = [lat for k in b_keys for lat in baseline_class_lats[k].values()]
     ax3.set_ylim(0, max(max(all_lat_vals, default=10.0) * 1.35, 18.0))
 
-    h_patch = patches.Patch(facecolor="#DC2626", edgecolor="white", hatch="//", alpha=0.9, label="Wasted Overhead")
+    h_patch = patches.Patch(facecolor="#64748B", edgecolor="white", hatch="//", alpha=0.9, label="Wasted Overhead")
     handles, leg_labels = ax3.get_legend_handles_labels()
     handles.append(h_patch)
     leg_labels.append("Wasted Overhead")
@@ -2577,19 +2619,19 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
         )
         ax4.bar(
             x + c_offsets[j], w_vals, bw_cls,
-            bottom=u_vals, color="#DC2626", edgecolor="white", linewidth=1.1,
-            hatch="//", alpha=0.90,
+            bottom=u_vals, color=CLASS_OVERHEAD_PALETTE[c], edgecolor="white", linewidth=1.1,
+            hatch="//", alpha=0.92,
         )
 
         for bar_u, w_val, tot_val in zip(bars4_u, w_vals, tot_vals):
             bx = bar_u.get_x() + bar_u.get_width() / 2
             if tot_val > 0:
                 if w_val > 0.8:
-                    ax4.text(bx, tot_val + 0.35, f"{tot_val:.1f}k\n(+{w_val:.1f}k)", ha="center", va="bottom", fontsize=7.2, fontweight="bold", color="#B91C1C")
+                    ax4.text(bx, tot_val + 0.35, f"{tot_val:.1f}k\n(+{w_val:.1f}k)", ha="center", va="bottom", fontsize=7.2, fontweight="bold", color=CLASS_OVERHEAD_PALETTE[c])
                 else:
                     ax4.text(bx, tot_val + 0.35, f"{tot_val:.1f}k", ha="center", va="bottom", fontsize=7.8, fontweight="bold", color=COLOR_DARK_SLATE)
 
-    ax4.set_title("Pillar 3: Token Footprint & Wasted Compute (kTokens)\n[Solid: Base Floor | Hatched: Wasted Overhead]", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax4.set_title("Token Footprint & Wasted Compute (kTokens)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
     ax4.set_xticks(x)
     ax4.set_xticklabels(labels, fontsize=10, fontweight="bold")
     ax4.set_ylabel("Median Total Tokens (k)", fontsize=10)
@@ -2597,7 +2639,8 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
     ax4.set_ylim(0, max(max(all_tok_vals, default=2.0) * 1.35, 6.0))
 
     handles4, leg_labels4 = ax4.get_legend_handles_labels()
-    handles4.append(h_patch)
+    h_patch4 = patches.Patch(facecolor="#64748B", edgecolor="white", hatch="//", alpha=0.9, label="Wasted Compute")
+    handles4.append(h_patch4)
     leg_labels4.append("Wasted Compute")
     ax4.legend(handles=handles4, labels=leg_labels4, loc="upper left", fontsize=8.0, ncol=3)
 
@@ -2608,6 +2651,324 @@ def plot_comparative_pillars_bar(comparative_data: dict[str, Any], output_prefix
 
     plt.suptitle("MultiAgent-ON: Four Pillars Baseline Comparison (Multi-Class Disaggregated)", fontsize=13.5, fontweight="bold", color=COLOR_NAVY, y=0.98)
     plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
+    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
+    plt.close()
+
+
+def plot_comparative_safety_pillars(comparative_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate 2-panel standalone comparison for Pre-Deployment Safety & Operator Burden (Pillars 2 & 3)."""
+    baselines_info = comparative_data.get("baselines", {})
+    if not baselines_info:
+        return
+
+    all_b_keys = ["proposed_radg", "always_on_hitl", "llm_only"]
+    b_keys = [k for k in all_b_keys if k in baselines_info]
+    if not b_keys:
+        b_keys = list(baselines_info.keys())
+
+    baseline_labels = {
+        "proposed_radg": "Proposed RADG",
+        "always_on_hitl": "Always-On HITL",
+        "llm_only": "LLM-Only",
+    }
+    baseline_colors = {
+        "proposed_radg": COLOR_NAVY,
+        "always_on_hitl": COLOR_CLARIFY,
+        "llm_only": COLOR_BURGUNDY,
+    }
+
+    labels = [baseline_labels.get(k, k) for k in b_keys]
+    colors = [baseline_colors.get(k, COLOR_MUTED) for k in b_keys]
+    x = np.arange(len(b_keys))
+    bar_width = 0.45
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.0, 5.0), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    # 1. Left: False Positive Rate (FPR)
+    ax1.set_facecolor(COLOR_CARD_BG)
+    fpr_vals = [baselines_info[k].get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", 0.0) for k in b_keys]
+    bars1 = ax1.bar(x, fpr_vals, bar_width, color=colors, edgecolor="white", linewidth=1.2)
+    ax1.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target Invariant (0.0%)")
+    ax1.set_title("False Positive Rate (FPR, %)", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(labels, fontsize=10.5, fontweight="bold")
+    ax1.set_ylabel("FPR (%)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax1.set_ylim(-0.5, max(max(fpr_vals, default=0.0) + 15.0, 10.0))
+    for bar in bars1:
+        h = bar.get_height()
+        ax1.text(bar.get_x() + bar.get_width() / 2, h + 0.5, f"{h:.1f}%", ha="center", va="bottom", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.legend(loc="upper left", fontsize=9.5)
+
+    # 2. Right: Operator Friction & Interventions
+    ax2.set_facecolor(COLOR_CARD_BG)
+    nom_counts = []
+    risky_counts = []
+    for k in b_keys:
+        p3 = baselines_info[k].get("pillar_metrics", {}).get("pillar_3", {})
+        nom_interrupts = int(p3.get("nominal_hitl_interrupts", 0))
+        tot_interrupts = int(p3.get("total_hitl_interrupts", 0))
+        if tot_interrupts == 0 and nom_interrupts == 0:
+            cm = baselines_info[k].get("class_metrics", {})
+            nom_interrupts = int(cm.get("I_Nominal", {}).get("hitl_count", 0))
+            tot_interrupts = sum(int(c_info.get("hitl_count", 0)) for c_info in cm.values())
+        risky_interrupts = max(0, tot_interrupts - nom_interrupts)
+        nom_counts.append(nom_interrupts)
+        risky_counts.append(risky_interrupts)
+
+    bw2 = 0.32
+    bars2_nom = ax2.bar(
+        x - bw2 / 2, nom_counts, bw2,
+        color="#0284C7", edgecolor="white", linewidth=1.2,
+        label="Nominal Traffic (Alert Fatigue)",
+    )
+
+    bars2_risky = []
+    for i, k in enumerate(b_keys):
+        is_reactive = (k == "llm_only")
+        r_color = "#DC2626" if is_reactive else "#64748B"
+        bar_r = ax2.bar(
+            x[i] + bw2 / 2, risky_counts[i], bw2,
+            color=r_color, edgecolor="white", linewidth=1.2,
+            hatch="//",
+        )
+        bars2_risky.append(bar_r)
+
+    target_line = ax2.axhline(0.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.5, label="Target on Nominals (0)")
+    ax2.set_title("Operator Friction & Interventions (Count)", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(labels, fontsize=10.5, fontweight="bold")
+    ax2.set_ylabel("Total Operator Interventions", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    max_c = max(max(nom_counts + risky_counts, default=0), 10)
+    ax2.set_ylim(-2, max_c * 1.40)
+
+    for bar, count in zip(bars2_nom, nom_counts):
+        ax2.text(
+            bar.get_x() + bar.get_width() / 2, count + max_c * 0.02,
+            f"{count}", ha="center", va="bottom", fontsize=10, fontweight="bold", color="#0284C7"
+        )
+    for i, (bar_container, count) in enumerate(zip(bars2_risky, risky_counts)):
+        bar = bar_container[0]
+        is_reactive = (b_keys[i] == "llm_only")
+        t_color = "#DC2626" if is_reactive else "#475569"
+        ax2.text(
+            bar.get_x() + bar.get_width() / 2, count + max_c * 0.02,
+            f"{count}", ha="center", va="bottom", fontsize=10, fontweight="bold", color=t_color
+        )
+
+    p_nom = patches.Patch(facecolor="#0284C7", edgecolor="white", label="Nominal Traffic (Alert Fatigue)")
+    p_pro = patches.Patch(facecolor="#64748B", edgecolor="white", hatch="//", label="Proactive Oversight (Gate Interception)")
+    handles2 = [target_line, p_nom, p_pro]
+    if any(k == "llm_only" for k in b_keys):
+        p_reac = patches.Patch(facecolor="#DC2626", edgecolor="white", hatch="//", label="Reactive Recovery (Controller Crash)")
+        handles2.append(p_reac)
+    ax2.legend(handles=handles2, loc="upper left", fontsize=8.2, framealpha=0.92)
+
+    for ax in (ax1, ax2):
+        ax.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+    plt.suptitle("Pre-Deployment Safety & Operator Burden Comparison", fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
+    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
+    plt.close()
+
+
+def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output_prefix: Path) -> None:
+    """Generate 1x2 Subplots with Latency Boxplots (Left) and Token Footprint Stacked Bars (Right)."""
+    baselines_info = comparative_data.get("baselines", {})
+    if not baselines_info:
+        return
+
+    all_b_keys = ["proposed_radg", "always_on_hitl", "llm_only"]
+    b_keys = [k for k in all_b_keys if k in baselines_info]
+    if not b_keys:
+        b_keys = list(baselines_info.keys())
+
+    baseline_labels = {
+        "proposed_radg": "Proposed RADG",
+        "always_on_hitl": "Always-On HITL",
+        "llm_only": "LLM-Only",
+    }
+    labels = [baseline_labels.get(k, k) for k in b_keys]
+    x = np.arange(len(b_keys))
+
+    CLASS_PALETTE = {
+        "I_Nominal": COLOR_APPROVE,
+        "II_Ambiguous": "#D97706",
+        "III_Infeasible": "#DC2626",
+        "IV_Adversarial": "#7C3AED",
+    }
+    CLASS_OVERHEAD_PALETTE = {
+        "I_Nominal": "#14532D",
+        "II_Ambiguous": "#92400E",
+        "III_Infeasible": "#991B1B",
+        "IV_Adversarial": "#5B21B6",
+    }
+    CLASS_NAMES = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
+    CLASS_LABELS_MAP = {
+        "I_Nominal": "Nominal",
+        "II_Ambiguous": "Ambiguous",
+        "III_Infeasible": "Infeasible",
+        "IV_Adversarial": "Adversarial",
+    }
+
+    baseline_demands: dict[str, list[dict[str, Any]]] = {}
+    baseline_class_toks: dict[str, dict[str, float]] = {}
+
+    for k in b_keys:
+        b_data = resolve_baseline_data(k, comparative_data)
+        b_demands = b_data.get("demands", []) if b_data else []
+        baseline_demands[k] = b_demands
+
+        b_cm = baselines_info[k].get("class_metrics") or baselines_info[k].get("pillar_metrics", {}).get("pillar_3", {}).get("class_metrics")
+        if not b_cm:
+            b_cm = {}
+            for c in CLASS_NAMES:
+                c_d = [d for d in b_demands if d.get("class") == c]
+                toks = [d.get("total_tokens", 0) for d in c_d]
+                b_cm[c] = {
+                    "median_tokens": float(np.median(toks)) if toks else 0.0,
+                }
+        baseline_class_toks[k] = {c: float(b_cm.get(c, {}).get("median_tokens", 0.0)) for c in CLASS_NAMES}
+
+    useful_toks: dict[str, dict[str, float]] = {k: {} for k in b_keys}
+    wasted_toks: dict[str, dict[str, float]] = {k: {} for k in b_keys}
+    p_tok = baseline_class_toks.get("proposed_radg", {})
+
+    for c in CLASS_NAMES:
+        for k in b_keys:
+            tot_t = baseline_class_toks[k].get(c, 0.0)
+            if k == "proposed_radg":
+                useful_toks[k][c] = tot_t
+                wasted_toks[k][c] = 0.0
+            elif k == "always_on_hitl":
+                if c == "I_Nominal":
+                    pt = p_tok.get(c, 0.0)
+                    useful_toks[k][c] = min(tot_t, pt) if pt > 0 else tot_t
+                    wasted_toks[k][c] = max(0.0, tot_t - pt) if pt > 0 else 0.0
+                else:
+                    useful_toks[k][c] = tot_t
+                    wasted_toks[k][c] = 0.0
+            elif k == "llm_only":
+                if c != "I_Nominal":
+                    pt = p_tok.get(c, 0.0)
+                    useful_toks[k][c] = min(tot_t, pt) if pt > 0 else tot_t
+                    wasted_toks[k][c] = max(0.0, tot_t - pt) if pt > 0 else 0.0
+                else:
+                    useful_toks[k][c] = tot_t
+                    wasted_toks[k][c] = 0.0
+
+    bw_cls = 0.18
+    c_offsets = [-1.5 * bw_cls, -0.5 * bw_cls, 0.5 * bw_cls, 1.5 * bw_cls]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14.5, 5.6), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    # 1. Left Subplot: Latency Boxplots
+    ax1.set_facecolor(COLOR_CARD_BG)
+    for j, c in enumerate(CLASS_NAMES):
+        class_positions = [x[i] + c_offsets[j] for i in range(len(b_keys))]
+        class_data = []
+        for k in b_keys:
+            demands = baseline_demands.get(k, [])
+            lats = [d.get("total_elapsed_seconds", 0.0) for d in demands if d.get("class") == c]
+            class_data.append(lats if lats else [0.0])
+
+        bp1 = ax1.boxplot(
+            class_data,
+            positions=class_positions,
+            widths=bw_cls * 0.85,
+            patch_artist=True,
+            showmeans=True,
+            meanprops=dict(marker="o", markeredgecolor=COLOR_DARK_SLATE, markerfacecolor="white", markersize=4.5),
+            medianprops=dict(color="white", linewidth=1.6),
+            whiskerprops=dict(color=COLOR_DARK_SLATE, linewidth=1.1),
+            capprops=dict(color=COLOR_DARK_SLATE, linewidth=1.1),
+            flierprops=dict(marker=".", markerfacecolor=CLASS_PALETTE[c], markeredgecolor="none", markersize=5, alpha=0.5),
+        )
+        for patch in bp1["boxes"]:
+            patch.set_facecolor(CLASS_PALETTE[c])
+            patch.set_edgecolor(COLOR_DARK_SLATE)
+            patch.set_linewidth(1.0)
+            patch.set_alpha(0.88)
+
+    ax1.set_title("End-to-End Latency Distribution across Classes (Seconds)\n(Outliers >165s capped for display; LLM-Only retries reach 491s)", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(labels, fontsize=10.5, fontweight="bold")
+    ax1.set_ylabel("Turnaround Latency (Seconds)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax1.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
+    ax1.set_ylim(0, 165.0)
+
+    # 2. Right Subplot: Token Stacked Bars (Useful vs. Wasted)
+    ax2.set_facecolor(COLOR_CARD_BG)
+    for j, c in enumerate(CLASS_NAMES):
+        bar_positions = [x[i] + c_offsets[j] for i in range(len(b_keys))]
+        u_vals = [useful_toks[k][c] / 1000.0 for k in b_keys]
+        w_vals = [wasted_toks[k][c] / 1000.0 for k in b_keys]
+        tot_vals = [baseline_class_toks[k][c] / 1000.0 for k in b_keys]
+
+        ax2.bar(
+            bar_positions, u_vals, bw_cls * 0.85,
+            color=CLASS_PALETTE[c], edgecolor=COLOR_DARK_SLATE, linewidth=0.8,
+            alpha=0.88,
+        )
+        ax2.bar(
+            bar_positions, w_vals, bw_cls * 0.85,
+            bottom=u_vals, color=CLASS_OVERHEAD_PALETTE[c], edgecolor=COLOR_DARK_SLATE, linewidth=0.8,
+            hatch="//", alpha=0.92,
+        )
+
+        for bar_idx, (bx, w_val, tot_val) in enumerate(zip(bar_positions, w_vals, tot_vals)):
+            if tot_val > 0:
+                ax2.text(
+                    bx, tot_val + 0.25, f"{tot_val:.1f}k",
+                    ha="center", va="bottom", fontsize=7.2, fontweight="bold", color=COLOR_DARK_SLATE
+                )
+
+    ax2.set_title("Token Footprint Breakdown (Useful vs. Wasted Overhead)", fontsize=11.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(labels, fontsize=10.5, fontweight="bold")
+    ax2.set_ylabel("Token Footprint (kTokens)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax2.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
+    ax2.set_ylim(0, 18.5)
+
+    # Shared Legends
+    class_patches = [patches.Patch(facecolor=CLASS_PALETTE[c], edgecolor=COLOR_DARK_SLATE, label=CLASS_LABELS_MAP[c]) for c in CLASS_NAMES]
+    overhead_patch = patches.Patch(facecolor="#64748B", edgecolor=COLOR_DARK_SLATE, hatch="//", label="Wasted Tokens")
+    mean_marker = mlines.Line2D([], [], color=COLOR_DARK_SLATE, marker="o", markerfacecolor="white", linestyle="None", markersize=5, label="Mean Latency")
+    median_line = mlines.Line2D([], [], color="white", linewidth=2.0, label="Median Latency")
+
+    ax1.legend(
+        handles=class_patches + [median_line, mean_marker],
+        loc="upper left",
+        ncol=3,
+        fontsize=8.0,
+        framealpha=0.95,
+        title="Risk Classes & Stats",
+        title_fontsize=8.5,
+    )
+    ax2.legend(
+        handles=class_patches + [overhead_patch],
+        loc="upper left",
+        ncol=3,
+        fontsize=8.0,
+        framealpha=0.95,
+        title="Token Breakdown",
+        title_fontsize=8.5,
+    )
+
+    for ax in (ax1, ax2):
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+    plt.suptitle("Comparative Efficiency: Latency Distributions (Boxplots) & Token Footprint (Stacked Bars)", fontsize=12.5, fontweight="bold", color=COLOR_NAVY, y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
 
     plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
     plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
@@ -2640,6 +3001,8 @@ def generate_comparative_visuals(
     target_dir.mkdir(parents=True, exist_ok=True)
 
     plot_comparative_pillars_bar(data, target_dir / "comparative_pillars_breakdown")
+    plot_comparative_safety_pillars(data, target_dir / "comparative_safety_pillars")
+    plot_comparative_efficiency_pillars(data, target_dir / "comparative_efficiency_pillars")
 
     # Generate combined dual-panel Sankey comparing Proposed RADG vs. LLM-Only
     prop_data = resolve_baseline_data("proposed_radg", data)
@@ -2662,7 +3025,9 @@ def generate_comparative_visuals(
         print("    ├── gate_accuracy_matrix.png / .pdf")
 
     print(f"[✓] Comparative visual assets generated in: {target_dir}")
-    print("    └── comparative_pillars_breakdown.png / .pdf")
+    print("    ├── comparative_pillars_breakdown.png / .pdf")
+    print("    ├── comparative_safety_pillars.png / .pdf")
+    print("    └── comparative_efficiency_pillars.png / .pdf")
 
     return target_dir
 

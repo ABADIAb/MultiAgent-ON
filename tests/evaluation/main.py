@@ -33,7 +33,7 @@ from langchain_core.messages import HumanMessage  # noqa: E402
 from langgraph.checkpoint.memory import InMemorySaver  # noqa: E402
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer  # noqa: E402
 from langgraph.types import Command  # noqa: E402
-from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings  # noqa: E402
 import questionary  # noqa: E402
 from rich import box  # noqa: E402
 from rich.console import Console  # noqa: E402

@@ -437,7 +437,7 @@ def create_openai_llm(
 
     resolved_effort = reasoning_effort or os.getenv("OPENAI_REASONING_EFFORT")
     if is_reasoning_model and not resolved_effort:
-        resolved_effort = "low"
+        resolved_effort = "none"
 
     kwargs: dict[str, Any] = {
         "model": resolved_model,

@@ -477,7 +477,7 @@ class TestCreateOpenAILLM:
         )
         assert llm.model_name == "gpt-6-luna"
         assert llm.max_tokens == 2500
-        assert llm.reasoning_effort == "low"
+        assert llm.reasoning_effort == "none"
         # Temperature is omitted (None) for reasoning models to avoid 400 error
         assert llm.temperature is None
 
@@ -488,9 +488,9 @@ class TestCreateOpenAILLM:
         llm = create_openai_llm(
             api_key="test-key",
             model="gpt-6-luna",
-            reasoning_effort="none",
+            reasoning_effort="low",
         )
-        assert llm.reasoning_effort == "none"
+        assert llm.reasoning_effort == "low"
 
     def test_create_openai_llm_standard_model(self):
         """Non-reasoning models keep default temperature of 0.2."""
