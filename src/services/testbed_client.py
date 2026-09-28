@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 
 import httpx
 
+from src.core.constants import AMPLIFIER
 from src.core.state import FiberLink, NetworkNode, TopologySnapshot
 
 logger = logging.getLogger(__name__)
@@ -49,27 +50,38 @@ def _build_link_amplifiers(length_km: float) -> list[dict]:
     """Generate realistic EDFA amplifier placements for a fiber link.
 
     Places:
-      - Booster at 0.0 km (gain calibrated to compensate node mux/connector loss)
+      - Booster at 0.0 km (operating in characterized range [10-23] dB,
+        compensating node mux/connector loss)
       - Inline Amplifiers (ILAs) every ~60-80 km for links > 55 km
-      - Preamp at destination (at length_km)
+        (operating in characterized range [10-23] dB)
+      - Preamp at destination (at length_km, operating in characterized
+        range [18-32] dB with VOA attenuation pad for short spans)
     """
     amps: list[dict] = [
         {
             "position_km": 0.0,
-            "gain_dB": 3.0,
+            "gain_dB": AMPLIFIER.booster_min_gain_dB,
             "amp_type": "booster",
-            "att_dB": 0.0,
+            "att_dB": round(AMPLIFIER.booster_min_gain_dB - 3.0, 2),
+            "power_out_dBm": 1.0,
         }
     ]
 
     if length_km <= 55.0:
         # Single span: Preamp at end
         span_loss = length_km * 0.25 + 1.0  # att_coeff (0.25 dB/km) + connector (1.0 dB)
+        if span_loss < AMPLIFIER.preamp_min_gain_dB:
+            preamp_gain = AMPLIFIER.preamp_min_gain_dB
+            preamp_att = round(AMPLIFIER.preamp_min_gain_dB - span_loss, 2)
+        else:
+            preamp_gain = min(span_loss, AMPLIFIER.preamp_max_gain_dB)
+            preamp_att = 0.0
+
         amps.append({
             "position_km": round(length_km, 1),
-            "gain_dB": round(span_loss, 2),
+            "gain_dB": round(preamp_gain, 2),
             "amp_type": "preamp",
-            "att_dB": 0.0,
+            "att_dB": preamp_att,
         })
     else:
         # Multi-span: target span length ~70 km
@@ -78,19 +90,29 @@ def _build_link_amplifiers(length_km: float) -> list[dict]:
         for i in range(1, num_spans):
             pos = i * span_len
             ila_gain = span_len * 0.25 + 2.0  # span att + 2 connectors
+            ila_gain_clamped = max(
+                AMPLIFIER.ila_min_gain_dB, min(ila_gain, AMPLIFIER.ila_max_gain_dB)
+            )
             amps.append({
                 "position_km": round(pos, 1),
-                "gain_dB": round(ila_gain, 2),
+                "gain_dB": round(ila_gain_clamped, 2),
                 "amp_type": "ila",
                 "att_dB": 0.0,
             })
         # Preamp at destination
         last_span_loss = span_len * 0.25 + 1.0
+        if last_span_loss < AMPLIFIER.preamp_min_gain_dB:
+            preamp_gain = AMPLIFIER.preamp_min_gain_dB
+            preamp_att = round(AMPLIFIER.preamp_min_gain_dB - last_span_loss, 2)
+        else:
+            preamp_gain = min(last_span_loss, AMPLIFIER.preamp_max_gain_dB)
+            preamp_att = 0.0
+
         amps.append({
             "position_km": round(length_km, 1),
-            "gain_dB": round(last_span_loss, 2),
+            "gain_dB": round(preamp_gain, 2),
             "amp_type": "preamp",
-            "att_dB": 0.0,
+            "att_dB": preamp_att,
         })
     return amps
 

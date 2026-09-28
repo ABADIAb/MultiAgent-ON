@@ -1,0 +1,420 @@
+{
+  "metadata": {
+    "date": "2026-09-28 12:47:51",
+    "run_id": "20260928_124751",
+    "provider": "openai",
+    "model": "gpt-5-nano-2025-08-07",
+    "timeout_seconds": 120.0,
+    "corpus": "full",
+    "comparison_type": "multi_baseline_ablation",
+    "baselines_evaluated": [
+      "proposed_radg",
+      "always_on_hitl",
+      "llm_only"
+    ]
+  },
+  "baselines": {
+    "proposed_radg": {
+      "total_demands": 120,
+      "pillar_metrics": {
+        "pillar_1": {
+          "crr_rate": 90.11,
+          "operable_crr_rate": 93.24,
+          "total_explicit_constraints": 91,
+          "total_preserved_constraints": 82,
+          "operable_explicit": 74,
+          "operable_preserved": 69,
+          "cfg_pass_rate": 93.33,
+          "mean_semantic_agreement": 0.767,
+          "mean_well_formed_agreement": 0.963,
+          "ambiguity_catch_rate": 55.0
+        },
+        "pillar_2": {
+          "fpr_rate": 10.0,
+          "uar_rate": 5.26,
+          "unfeasible_approved_count": 2,
+          "total_approved_count": 38,
+          "piir_rate": 90.0,
+          "class_3_replan_count": 27,
+          "class_3_total": 30
+        },
+        "pillar_3": {
+          "task_completion_rate": 100.0,
+          "completed_demands_count": 120,
+          "timeout_demands_count": 0,
+          "max_turns_exceeded_count": 0,
+          "mean_e2e_latency_seconds": 12.4,
+          "median_e2e_latency_seconds": 14.05,
+          "total_tokens_consumed": 872546,
+          "mean_tokens_per_intent": 7271.2,
+          "median_tokens_per_intent": 8702.0,
+          "total_hitl_interrupts": 82,
+          "mean_hitl_turns": 0.68,
+          "nominal_hitl_interrupts": 1,
+          "hitl_efficiency": 96.67,
+          "class_metrics": {
+            "I_Nominal": {
+              "count": 30,
+              "mean_latency": 6.93,
+              "median_latency": 6.37,
+              "mean_tokens": 3951,
+              "median_tokens": 3833.5,
+              "total_tokens": 118530,
+              "hitl_count": 1,
+              "mean_hitl": 0.03
+            },
+            "II_Ambiguous": {
+              "count": 30,
+              "mean_latency": 13.07,
+              "median_latency": 14.09,
+              "mean_tokens": 7939.3,
+              "median_tokens": 8865.5,
+              "total_tokens": 238178,
+              "hitl_count": 24,
+              "mean_hitl": 0.8
+            },
+            "III_Infeasible": {
+              "count": 30,
+              "mean_latency": 14.91,
+              "median_latency": 15.17,
+              "mean_tokens": 8598.5,
+              "median_tokens": 8943.5,
+              "total_tokens": 257955,
+              "hitl_count": 28,
+              "mean_hitl": 0.93
+            },
+            "IV_Adversarial": {
+              "count": 30,
+              "mean_latency": 14.69,
+              "median_latency": 15.01,
+              "mean_tokens": 8596.1,
+              "median_tokens": 8855.5,
+              "total_tokens": 257883,
+              "hitl_count": 29,
+              "mean_hitl": 0.97
+            }
+          }
+        },
+        "pillar_4": {
+          "gda_rate": 88.33,
+          "correct_gate_count": 106,
+          "total_count": 120,
+          "fpr_rate": 10.0,
+          "false_positives_count": 9,
+          "selective_hitl_precision": 98.78,
+          "total_interrupted_count": 82
+        }
+      },
+      "class_metrics": {
+        "I_Nominal": {
+          "count": 30,
+          "mean_latency": 6.93,
+          "median_latency": 6.37,
+          "mean_tokens": 3951,
+          "median_tokens": 3833.5,
+          "total_tokens": 118530,
+          "hitl_count": 1,
+          "mean_hitl": 0.03
+        },
+        "II_Ambiguous": {
+          "count": 30,
+          "mean_latency": 13.07,
+          "median_latency": 14.09,
+          "mean_tokens": 7939.3,
+          "median_tokens": 8865.5,
+          "total_tokens": 238178,
+          "hitl_count": 24,
+          "mean_hitl": 0.8
+        },
+        "III_Infeasible": {
+          "count": 30,
+          "mean_latency": 14.91,
+          "median_latency": 15.17,
+          "mean_tokens": 8598.5,
+          "median_tokens": 8943.5,
+          "total_tokens": 257955,
+          "hitl_count": 28,
+          "mean_hitl": 0.93
+        },
+        "IV_Adversarial": {
+          "count": 30,
+          "mean_latency": 14.69,
+          "median_latency": 15.01,
+          "mean_tokens": 8596.1,
+          "median_tokens": 8855.5,
+          "total_tokens": 257883,
+          "hitl_count": 29,
+          "mean_hitl": 0.97
+        }
+      }
+    },
+    "always_on_hitl": {
+      "total_demands": 120,
+      "pillar_metrics": {
+        "pillar_1": {
+          "crr_rate": 91.21,
+          "operable_crr_rate": 94.59,
+          "total_explicit_constraints": 91,
+          "total_preserved_constraints": 83,
+          "operable_explicit": 74,
+          "operable_preserved": 70,
+          "cfg_pass_rate": 94.17,
+          "mean_semantic_agreement": 0.527,
+          "mean_well_formed_agreement": 0.483,
+          "ambiguity_catch_rate": 55.0
+        },
+        "pillar_2": {
+          "fpr_rate": 10.0,
+          "uar_rate": 22.22,
+          "unfeasible_approved_count": 2,
+          "total_approved_count": 9,
+          "piir_rate": 90.0,
+          "class_3_replan_count": 27,
+          "class_3_total": 30
+        },
+        "pillar_3": {
+          "task_completion_rate": 100.0,
+          "completed_demands_count": 120,
+          "timeout_demands_count": 0,
+          "max_turns_exceeded_count": 0,
+          "mean_e2e_latency_seconds": 14.05,
+          "median_e2e_latency_seconds": 14.33,
+          "total_tokens_consumed": 1000875,
+          "mean_tokens_per_intent": 8340.6,
+          "median_tokens_per_intent": 8703.0,
+          "total_hitl_interrupts": 111,
+          "mean_hitl_turns": 0.93,
+          "nominal_hitl_interrupts": 30,
+          "hitl_efficiency": 0.0,
+          "class_metrics": {
+            "I_Nominal": {
+              "count": 30,
+              "mean_latency": 13.54,
+              "median_latency": 13.4,
+              "mean_tokens": 8228.6,
+              "median_tokens": 8235.5,
+              "total_tokens": 246859,
+              "hitl_count": 30,
+              "mean_hitl": 1
+            },
+            "II_Ambiguous": {
+              "count": 30,
+              "mean_latency": 13.07,
+              "median_latency": 14.09,
+              "mean_tokens": 7939.3,
+              "median_tokens": 8865.5,
+              "total_tokens": 238178,
+              "hitl_count": 24,
+              "mean_hitl": 0.8
+            },
+            "III_Infeasible": {
+              "count": 30,
+              "mean_latency": 14.91,
+              "median_latency": 15.17,
+              "mean_tokens": 8598.5,
+              "median_tokens": 8943.5,
+              "total_tokens": 257955,
+              "hitl_count": 28,
+              "mean_hitl": 0.93
+            },
+            "IV_Adversarial": {
+              "count": 30,
+              "mean_latency": 14.69,
+              "median_latency": 15.01,
+              "mean_tokens": 8596.1,
+              "median_tokens": 8855.5,
+              "total_tokens": 257883,
+              "hitl_count": 29,
+              "mean_hitl": 0.97
+            }
+          }
+        },
+        "pillar_4": {
+          "gda_rate": 89.17,
+          "correct_gate_count": 107,
+          "total_count": 120,
+          "fpr_rate": 10.0,
+          "false_positives_count": 9,
+          "selective_hitl_precision": 72.97,
+          "total_interrupted_count": 111
+        }
+      },
+      "class_metrics": {
+        "I_Nominal": {
+          "count": 30,
+          "mean_latency": 13.54,
+          "median_latency": 13.4,
+          "mean_tokens": 8228.6,
+          "median_tokens": 8235.5,
+          "total_tokens": 246859,
+          "hitl_count": 30,
+          "mean_hitl": 1
+        },
+        "II_Ambiguous": {
+          "count": 30,
+          "mean_latency": 13.07,
+          "median_latency": 14.09,
+          "mean_tokens": 7939.3,
+          "median_tokens": 8865.5,
+          "total_tokens": 238178,
+          "hitl_count": 24,
+          "mean_hitl": 0.8
+        },
+        "III_Infeasible": {
+          "count": 30,
+          "mean_latency": 14.91,
+          "median_latency": 15.17,
+          "mean_tokens": 8598.5,
+          "median_tokens": 8943.5,
+          "total_tokens": 257955,
+          "hitl_count": 28,
+          "mean_hitl": 0.93
+        },
+        "IV_Adversarial": {
+          "count": 30,
+          "mean_latency": 14.69,
+          "median_latency": 15.01,
+          "mean_tokens": 8596.1,
+          "median_tokens": 8855.5,
+          "total_tokens": 257883,
+          "hitl_count": 29,
+          "mean_hitl": 0.97
+        }
+      }
+    },
+    "llm_only": {
+      "total_demands": 120,
+      "pillar_metrics": {
+        "pillar_1": {
+          "crr_rate": 92.31,
+          "operable_crr_rate": 93.24,
+          "total_explicit_constraints": 91,
+          "total_preserved_constraints": 84,
+          "operable_explicit": 74,
+          "operable_preserved": 69,
+          "cfg_pass_rate": 96.67,
+          "mean_semantic_agreement": 0.828,
+          "mean_well_formed_agreement": 0.973,
+          "ambiguity_catch_rate": 0.0
+        },
+        "pillar_2": {
+          "fpr_rate": 100.0,
+          "uar_rate": 75.0,
+          "unfeasible_approved_count": 90,
+          "total_approved_count": 120,
+          "piir_rate": 0.0,
+          "class_3_replan_count": 0,
+          "class_3_total": 30
+        },
+        "pillar_3": {
+          "task_completion_rate": 100.0,
+          "completed_demands_count": 120,
+          "timeout_demands_count": 0,
+          "max_turns_exceeded_count": 0,
+          "mean_e2e_latency_seconds": 18.27,
+          "median_e2e_latency_seconds": 21.17,
+          "total_tokens_consumed": 1511534,
+          "mean_tokens_per_intent": 12596.1,
+          "median_tokens_per_intent": 15261.5,
+          "total_hitl_interrupts": 90,
+          "mean_hitl_turns": 0.75,
+          "nominal_hitl_interrupts": 0,
+          "hitl_efficiency": 100.0,
+          "class_metrics": {
+            "I_Nominal": {
+              "count": 30,
+              "mean_latency": 6.37,
+              "median_latency": 6.45,
+              "mean_tokens": 3784.2,
+              "median_tokens": 3785.0,
+              "total_tokens": 113525,
+              "hitl_count": 0,
+              "mean_hitl": 0
+            },
+            "II_Ambiguous": {
+              "count": 30,
+              "mean_latency": 23.05,
+              "median_latency": 22.73,
+              "mean_tokens": 15550.8,
+              "median_tokens": 15506.0,
+              "total_tokens": 466523,
+              "hitl_count": 30,
+              "mean_hitl": 1
+            },
+            "III_Infeasible": {
+              "count": 30,
+              "mean_latency": 22.23,
+              "median_latency": 22.28,
+              "mean_tokens": 15591.9,
+              "median_tokens": 15599.5,
+              "total_tokens": 467757,
+              "hitl_count": 30,
+              "mean_hitl": 1
+            },
+            "IV_Adversarial": {
+              "count": 30,
+              "mean_latency": 21.45,
+              "median_latency": 21.05,
+              "mean_tokens": 15457.6,
+              "median_tokens": 15218.0,
+              "total_tokens": 463729,
+              "hitl_count": 30,
+              "mean_hitl": 1
+            }
+          }
+        },
+        "pillar_4": {
+          "gda_rate": 25.0,
+          "correct_gate_count": 30,
+          "total_count": 120,
+          "fpr_rate": 100.0,
+          "false_positives_count": 90,
+          "selective_hitl_precision": 100.0,
+          "total_interrupted_count": 90
+        }
+      },
+      "class_metrics": {
+        "I_Nominal": {
+          "count": 30,
+          "mean_latency": 6.37,
+          "median_latency": 6.45,
+          "mean_tokens": 3784.2,
+          "median_tokens": 3785.0,
+          "total_tokens": 113525,
+          "hitl_count": 0,
+          "mean_hitl": 0
+        },
+        "II_Ambiguous": {
+          "count": 30,
+          "mean_latency": 23.05,
+          "median_latency": 22.73,
+          "mean_tokens": 15550.8,
+          "median_tokens": 15506.0,
+          "total_tokens": 466523,
+          "hitl_count": 30,
+          "mean_hitl": 1
+        },
+        "III_Infeasible": {
+          "count": 30,
+          "mean_latency": 22.23,
+          "median_latency": 22.28,
+          "mean_tokens": 15591.9,
+          "median_tokens": 15599.5,
+          "total_tokens": 467757,
+          "hitl_count": 30,
+          "mean_hitl": 1
+        },
+        "IV_Adversarial": {
+          "count": 30,
+          "mean_latency": 21.45,
+          "median_latency": 21.05,
+          "mean_tokens": 15457.6,
+          "median_tokens": 15218.0,
+          "total_tokens": 463729,
+          "hitl_count": 30,
+          "mean_hitl": 1
+        }
+      }
+    }
+  }
+}

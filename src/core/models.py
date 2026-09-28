@@ -42,8 +42,18 @@ class Amplifier(BaseModel):
             from src.core.constants import AMPLIFIER
 
             gain_lin = 10 ** (self.gain_dB / 10.0)
-            nf_lin = AMPLIFIER.coeff_a + AMPLIFIER.coeff_b / (gain_lin - 1)
-            self.nf_dB = 10.0 * math.log10(nf_lin)
+            if self.amp_type == "preamp" and self.gain_dB >= AMPLIFIER.preamp_min_gain_dB:
+                coeff_a = AMPLIFIER.coeff_a_preamp
+                coeff_b = AMPLIFIER.coeff_b_preamp
+            else:
+                coeff_a = AMPLIFIER.coeff_a_booster
+                coeff_b = AMPLIFIER.coeff_b_booster
+
+            if gain_lin > 1.0:
+                nf_lin = coeff_a + coeff_b / (gain_lin - 1.0)
+                self.nf_dB = 10.0 * math.log10(nf_lin)
+            else:
+                self.nf_dB = 12.0
         return self
 
     def __getitem__(self, item: str) -> Any:

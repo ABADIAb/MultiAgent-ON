@@ -14,7 +14,27 @@ The translation of high-level operator intent into operational lightpaths requir
 The optical topology is abstracted as an undirected graph $G(V, E)$ populated by two data structures:
 
 1. **Network Nodes ($V$):** Represented by the `NetworkNode` model, each network element corresponds to a Reconfigurable Optical Add-Drop Multiplexer (ROADM) or optical cross-connect (OXC) hub.
-2. **Fiber Links ($E$):** Encapsulated by the `FiberLink` model, each edge represents an optical fiber transmission line connecting node pairs. To ensure physical fidelity during downstream Quality of Transmission (QoT) estimation, each link record stores structural and physical attributes, including the total span length in kilometers, the count of optical amplifiers, active WDM channels, port insertion loss, and the ordered chain of Erbium-Doped Fiber Amplifiers (EDFAs).
+2. **Fiber Links ($E$):** Encapsulated by the `FiberLink` model, each edge represents an optical fiber transmission line connecting node pairs. To ensure physical fidelity during downstream Quality of Transmission (QoT) estimation, each link record stores structural and physical attributes, including the total span length in kilometers, the count of optical amplifiers, active WDM channels, port insertion loss, and the ordered chain of Erbium-Doped Fiber Amplifiers (EDFAs: ingress booster, intermediate ILAs, egress pre-amplifier).
+
+```python
+# Listing 4.2: Optical Network Domain Models (Amplifier & FiberLink)
+class Amplifier(BaseModel):
+    position_km: float                        # Location along the link (km)
+    gain_dB: float                            # EDFA operational gain (dB)
+    nf_dB: Optional[float] = None             # Noise figure (dB, polynomial model)
+    amp_type: Literal["booster", "ila", "preamp"]
+    att_dB: float = 0.0                       # Pre-EDFA attenuator loss (dB)
+    power_out_dBm: Optional[float] = None     # Target regulated output power (dBm)
+
+class FiberLink(BaseModel):
+    link_id: str                              # Unique directional link identifier
+    source_node: str                          # Ingress ROADM node
+    target_node: str                          # Egress ROADM node
+    length_km: float                          # Total link physical length (km)
+    amplifiers: List[Amplifier]               # Ordered chain: booster -> ILAs -> preamp
+    active_channels: int = 0                  # Currently lit WDM channels
+    port_loss_dB: float = 0.0                 # ROADM port insertion loss (dB)
+```
 
 To establish an experimentally reproducible evaluation baseline, the primary topology utilized throughout this work is a simulated version of the **17-node German topology network** sourced from SNDlib \cite{noauthor_sndlib_nodate}. The topology comprises 17 nodes and 26 bidirectional physical fiber links. Physical network access is unified behind a client interface, which provides a static memory-backed topology for continuous benchmarking.
 

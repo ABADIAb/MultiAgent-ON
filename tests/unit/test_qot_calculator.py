@@ -136,6 +136,19 @@ class TestConstants:
         with pytest.raises(ValueError, match="Unsupported bitrate"):
             THRESHOLD.get_snr_threshold(800)
 
+    def test_amplifier_constants(self, amp_constants: AmplifierConstants) -> None:
+        """Validate characterized gain ranges and polynomial coefficients."""
+        assert amp_constants.booster_min_gain_dB == pytest.approx(10.0)
+        assert amp_constants.booster_max_gain_dB == pytest.approx(23.0)
+        assert amp_constants.ila_min_gain_dB == pytest.approx(10.0)
+        assert amp_constants.ila_max_gain_dB == pytest.approx(23.0)
+        assert amp_constants.preamp_min_gain_dB == pytest.approx(18.0)
+        assert amp_constants.preamp_max_gain_dB == pytest.approx(32.0)
+        assert amp_constants.coeff_a_booster == pytest.approx(2.793)
+        assert amp_constants.coeff_b_booster == pytest.approx(117.513)
+        assert amp_constants.coeff_a_preamp == pytest.approx(3.88)
+        assert amp_constants.coeff_b_preamp == pytest.approx(457.586)
+
 
 # ---------------------------------------------------------------------------
 # Data model validation
@@ -150,6 +163,25 @@ class TestModels:
         # NF for 20dB gain: NF_lin = 2.793 + 117.513/(100-1) = 3.98
         expected_nf_dB = 10.0 * math.log10(3.98)
         assert amp.nf_dB == pytest.approx(expected_nf_dB, rel=1e-4)
+
+    def test_preamp_nf_auto_computed(self) -> None:
+        """Preamp NF should use preamp coefficients (a=3.88, b=457.586)."""
+        # Min gain 18 dB: NF ≈ 10.5 dB
+        amp_18 = Amplifier(position_km=70, gain_dB=18.0, amp_type="preamp")
+        assert amp_18.nf_dB is not None
+        assert 10.4 <= amp_18.nf_dB <= 10.6
+
+        # Max gain 32 dB: NF ≈ 6.2 dB
+        amp_32 = Amplifier(position_km=70, gain_dB=32.0, amp_type="preamp")
+        assert amp_32.nf_dB is not None
+        assert 6.1 <= amp_32.nf_dB <= 6.3
+
+    def test_booster_nf_auto_computed(self) -> None:
+        """Booster NF should use booster coefficients (a=2.793, b=117.513)."""
+        # Min gain 10 dB: NF ≈ 12.0 dB
+        amp_10 = Amplifier(position_km=0, gain_dB=10.0, amp_type="booster")
+        assert amp_10.nf_dB is not None
+        assert 11.9 <= amp_10.nf_dB <= 12.1
 
     def test_amplifier_nf_explicit(self) -> None:
         """Explicit NF should not be overridden."""

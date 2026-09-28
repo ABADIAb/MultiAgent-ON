@@ -57,15 +57,30 @@ class NodeConstants:
 
 @dataclass(frozen=True)
 class AmplifierConstants:
-    """EDFA amplifier operating parameters and NF model coefficients."""
+    """EDFA amplifier operating parameters and NF model coefficients.
+
+    Characterized by:
+      - Booster and ILA: gain range [10, 24] dB (with 1 dB margin -> max 23 dB),
+        NF range [6, 12] dB via polynomial a=2.793, b=117.513.
+      - Pre-amp: gain range [18, 32] dB,
+        NF range [6.2, 10.5] dB via polynomial a=3.88, b=457.586.
+    """
 
     # Gain bounds [dB]
     booster_min_gain_dB: float = 10.0
     booster_max_gain_dB: float = 23.0  # 24 - 1 dB safety margin
-    preamp_min_gain_dB: float = 10.0
-    preamp_max_gain_dB: float = 23.0  # 24 - 1 dB safety margin
+    ila_min_gain_dB: float = 10.0
+    ila_max_gain_dB: float = 23.0  # 24 - 1 dB safety margin
+    preamp_min_gain_dB: float = 18.0
+    preamp_max_gain_dB: float = 32.0
 
     # Noise Figure polynomial model: NF_lin = a + b / (G_lin - 1)
+    coeff_a_booster: float = 2.793
+    coeff_b_booster: float = 117.513
+    coeff_a_preamp: float = 3.88
+    coeff_b_preamp: float = 457.586
+
+    # Legacy default aliases for backward compatibility
     coeff_a: float = 2.793
     coeff_b: float = 117.513
 

@@ -87,7 +87,7 @@ $$
 P_{ASE, m} = (G_m - 1) \cdot h \nu \cdot R_s \cdot NF_m
 $$
 
-where $h$ is Planck's constant ($6.626 \times 10^{-34} \text{ J}\cdot\text{s}$), $\nu$ represents the optical carrier frequency ($193.1 \text{ THz}$), $G_m$ dictates the linear amplifier gain compensating for span attenuation, and $NF_m$ is the specific amplifier noise figure. 
+where $h$ is Planck's constant ($6.626 \times 10^{-34} \text{ J}\cdot\text{s}$), $\nu$ represents the optical carrier central frequency ($193.4 \text{ THz}$, C-band center), $G_m$ dictates the linear amplifier gain compensating for span attenuation, and $NF_m$ is the operating noise figure computed via empirical polynomial models characterizing the amplifier type ($NF_{lin}(G) = a + b / (G_{lin} - 1)$, parameterizing booster/ILA units with $a = 2.793, b = 117.513$ and pre-amplifiers with $a = 3.88, b = 457.586$). 
 
 Consequently, the linear inverse Optical Signal-to-Noise Ratio attributable to ASE over link $e_{ij}$ containing $M$ discrete spans is:
 
@@ -109,7 +109,7 @@ $$
 P_{NLI, m} = \eta_0 L_{eff}^2 P_{ch}^3
 $$
 
-where $\gamma$ specifies the fiber non-linear coefficient, $\beta_2 = -\frac{\lambda^2}{2\pi c} D$ characterizes the group velocity dispersion parameter (directly linked to the topological chromatic dispersion $D$), $R_s$ is the transmitted symbol rate, $N_{ch}$ is the channel count, $\Delta f$ is the channel spacing, and $L_{eff} = \frac{1 - e^{-\alpha L_m}}{\alpha}$ represents the effective non-linear fiber length for linear attenuation $\alpha$. The associated non-linear signal-to-noise ratio contribution is thus formulated as:
+where $\gamma$ specifies the fiber non-linear coefficient, $\beta_2 = -\frac{\lambda^2}{2\pi c} D$ characterizes the group velocity dispersion parameter (directly linked to the topological chromatic dispersion $D$), $R_s$ is the transmitted symbol rate ($32\text{ GBaud}$), $N_{ch}$ is the channel count ($100$ in C-band), $\Delta f$ is the channel spacing ($50\text{ GHz}$), and $L_{eff} = \frac{1 - e^{-\alpha L_m}}{\alpha}$ represents the effective non-linear fiber length for linear attenuation $\alpha$. The associated non-linear signal-to-noise ratio contribution is thus formulated as:
 
 $$
 \text{SNR}_{NLI}^{-1}(e_{ij}) = \sum_{m=1}^M \frac{P_{NLI, m}}{P_{ch}}
@@ -117,13 +117,13 @@ $$
 
 ### Generalized SNR (GSNR) Accumulation
 
-The aggregate Generalized Signal-to-Noise Ratio characterizing a candidate path $\pi = (e_1, e_2, \dots, e_H)$ is calculated by combining both linear (ASE) and non-linear (NLI) inverse SNR contributions across all cascaded links:
+The aggregate Generalized Signal-to-Noise Ratio characterizing a candidate path $\pi = (e_1, e_2, \dots, e_H)$ is calculated by combining both linear (ASE) and non-linear (NLI) inverse SNR contributions across all cascaded links, anchored by the back-to-back transponder noise floor:
 
 $$
-\text{GSNR}(\pi)^{-1} = \sum_{h=1}^H \left( \text{OSNR}_{ASE}^{-1}(e_h) + \text{SNR}_{NLI}^{-1}(e_h) \right)
+\text{GSNR}(\pi)^{-1} = \text{SNR}_{trx}^{-1} + \sum_{h=1}^H \left( \text{OSNR}_{ASE}^{-1}(e_h) + \text{SNR}_{NLI}^{-1}(e_h) \right)
 $$
 
-Converted to a standard logarithmic decibel scale, the final measurement is expressed as:
+where $\text{SNR}_{trx}^{-1} = 10^{-\text{SNR}_{trx}/10}$ denotes the transponder back-to-back SNR limit ($\text{SNR}_{trx} = 26.0\text{ dB}$) establishing the asymptotic physical ceiling of the transmission line. Converted to a standard logarithmic decibel scale, the final measurement is expressed as:
 
 $$
 \text{GSNR}_{dB}(\pi) = 10 \log_{10}\left( \frac{1}{\text{GSNR}(\pi)^{-1}} \right)

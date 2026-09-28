@@ -414,6 +414,7 @@ class TestCreateConfiguredLLM:
         from src.core.llm import OpenRouterChatOpenAI, create_configured_llm
 
         monkeypatch.setenv("OPENAI_API_KEY", "test-openai-key")
+        monkeypatch.delenv("OPENAI_MODEL", raising=False)
         llm = create_configured_llm(provider="openai")
         assert isinstance(llm, ChatOpenAI)
         assert not isinstance(llm, OpenRouterChatOpenAI)
@@ -466,10 +467,11 @@ class TestCreateOpenAILLM:
         monkeypatch.setenv("OPENAI_MODELS", "gpt-6-luna, gpt-oss-120b , gpt-4o")
         assert get_supported_openai_models() == ("gpt-6-luna", "gpt-oss-120b", "gpt-4o")
 
-    def test_create_openai_llm_reasoning_model_defaults(self):
+    def test_create_openai_llm_reasoning_model_defaults(self, monkeypatch):
         """Reasoning models (gpt-6, o1) configure max_completion_tokens and reasoning_effort."""
         from src.core.llm import create_openai_llm
 
+        monkeypatch.delenv("OPENAI_REASONING_EFFORT", raising=False)
         llm = create_openai_llm(
             api_key="test-key",
             model="gpt-6-luna",

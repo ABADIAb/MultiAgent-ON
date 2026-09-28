@@ -72,23 +72,23 @@ The optical topology is abstracted as an undirected graph $G(V, E)$ populated by
     \item \textbf{Fiber Links ($E$):} Encapsulated by the \texttt{FiberLink} model, each edge represents an optical fiber transmission line connecting node pairs. To ensure physical fidelity during downstream Quality of Transmission (QoT) estimation, each link record stores structural and physical attributes, including the total span length in kilometers, the count of optical amplifiers, active WDM channels, port insertion loss, and the ordered chain of Erbium-Doped Fiber Amplifiers (EDFAs).
 \end{enumerate}
 
-\begin{academicbox}{Listing 4.2: Optical Network Domain Models (\texttt{NetworkNode} \& \texttt{FiberLink})}
-@dataclass(frozen=True)
-class NetworkNode:
-    node_id: str                              # Unique ROADM/OXC identifier
-    node_type: str                            # Node category (roadm, transponder)
-    location: Optional[Tuple[float, float]]   # Geographical coordinates
+\begin{academicbox}{Listing 4.2: Optical Network Domain Models (\texttt{Amplifier} \& \texttt{FiberLink})}
+class Amplifier(BaseModel):
+    position_km: float                        # Location along the link (km)
+    gain_dB: float                            # EDFA operational gain (dB)
+    nf_dB: Optional[float] = None             # Noise figure (dB, polynomial model)
+    amp_type: Literal["booster", "ila", "preamp"]
+    att_dB: float = 0.0                       # Pre-EDFA attenuator loss (dB)
+    power_out_dBm: Optional[float] = None     # Target regulated output power (dBm)
 
-@dataclass(frozen=True)
-class FiberLink:
-    source: str                               # Ingress ROADM node
-    target: str                               # Egress ROADM node
-    length_km: float                          # Physical span distance
-    amplifiers: Tuple[Amplifier, ...]         # Ordered chain of inline EDFAs
-    channels_active: int                      # Currently lit WDM channels
-    attenuation_db_km: float = 0.20           # Fiber attenuation coefficient (alpha)
-    dispersion_ps_nm_km: float = 16.7         # Chromatic dispersion (D)
-    nonlinear_coeff: float = 1.3              # Kerr nonlinear coefficient (gamma)
+class FiberLink(BaseModel):
+    link_id: str                              # Unique directional link identifier
+    source_node: str                          # Ingress ROADM node
+    target_node: str                          # Egress ROADM node
+    length_km: float                          # Total link physical length (km)
+    amplifiers: List[Amplifier]               # Ordered chain: booster -> ILAs -> preamp
+    active_channels: int = 0                  # Currently lit WDM channels
+    port_loss_dB: float = 0.0                 # ROADM port insertion loss (dB)
 \end{academicbox}
 
 To establish an experimentally reproducible evaluation baseline, the primary topology utilized throughout this work is a simulated version of the \textbf{17-node German topology network} sourced from SNDlib \cite{noauthor_sndlib_nodate}. The topology comprises 17 nodes and 26 bidirectional physical fiber links. Physical network access is unified behind a client interface, which provides a static memory-backed topology for continuous benchmarking.
@@ -215,22 +215,31 @@ When candidate lightpaths are extracted by the Symbolic Solver in Phase 4, their
 
 The software execution flow traces the continuous optical path across cascading spans and intermediate nodes:
 \begin{enumerate}
-    \item \textbf{Per-Span Evaluation:} The engine computes Amplified Spontaneous Emission (ASE) noise from EDFAs via Equation~\eqref{eq:ase_noise} and Non-Linear Interference (NLI) distortion via Equation~\eqref{eq:nli_noise}, parameterizing fiber attenuation $\alpha$, chromatic dispersion $D$, and the non-linear Kerr coefficient $\gamma$.
-    \item \textbf{End-to-End Accumulation:} The pipeline tracks signal degradation by accumulating inverse linear SNR contributions across all cascaded links via Equation~\eqref{eq:gsnr_accumulation}. The engine preserves unamplified fiber lengths across node boundaries to accurately model non-linear phase accumulation.
+    \item \textbf{Per-Span Evaluation:} The engine computes Amplified Spontaneous Emission (ASE) noise from EDFAs via Equation~\eqref{eq:ase_noise} and Non-Linear Interference (NLI) distortion via Equation~\eqref{eq:nli_noise}, parameterizing fiber attenuation $\alpha$, group velocity dispersion $|\beta_2|$ (equivalent to chromatic dispersion $D$), and the non-linear Kerr coefficient $\gamma$.
+    \item \textbf{End-to-End Accumulation:} The pipeline tracks signal degradation by accumulating inverse linear SNR contributions across all cascaded links and amplifiers, bounded by the transponder back-to-back noise floor $\text{SNR}_{trx}$ ($26.0$\,dB) via Equation~\eqref{eq:gsnr_accumulation}. The engine preserves unamplified fiber lengths across node boundaries to accurately model non-linear phase accumulation.
     \item \textbf{Power Calibration:} To prevent non-linear performance issues, the physics engine enforces operating limits matching industrial dense WDM transmission, keeping launch powers within the optimal linear regime.
 \end{enumerate}
 
 \begin{academicbox}{Listing 4.4: Analytical Gaussian Noise (GN) Physical Engine Calculation}
-def calculate_path_gsnr(path: List[str], topology: TopologySnapshot) -> float:
-    inv_snr_total = 0.0
-    for u, v in zip(path[:-1], path[1:]):
-        link = topology.get_link(u, v)
-        p_ase = sum((amp.gain_linear - 1) * PLANCK_H * OPTICAL_FREQ * 
-                    amp.noise_figure_linear * SYMBOL_RATE for amp in link.amplifiers)
-        eta_0 = calculate_nli_eta(link.alpha, link.dispersion, link.gamma)
-        p_nli = eta_0 * (link.effective_length ** 2) * (LAUNCH_POWER_WATTS ** 3)
-        inv_snr_total += (p_ase + p_nli) / LAUNCH_POWER_WATTS
-    return 10.0 * math.log10(1.0 / inv_snr_total)
+def calculate_demand_snr(path: List[FiberLink]) -> Tuple[float, float]:
+    """Analytical GN-model accumulation across cascaded fiber spans."""
+    total_nsr = 1.0 / db_to_lin(CHANNEL.snr_trx_dB)  # Transponder floor (26 dB)
+    power_dBm = CHANNEL.tx_power_dBm
+
+    for link in path:
+        power_dBm -= link.port_loss_dB
+        for amp in link.amplifiers:
+            # Span propagation loss and VOA pad
+            power_dBm -= (amp.span_length_km * FIBER.att_coeff_dB_km + amp.att_dB)
+            power_out = amp.power_out_dBm or (power_dBm + amp.gain_dB)
+
+            # Span noise accumulation: NSR_span = (P_ase + P_nli) / P_channel
+            p_ase = PLANCK_H * OPTICAL_FREQ * (db_to_lin(amp.gain_dB) - 1) * db_to_lin(amp.nf_dB) * SYMBOL_RATE
+            p_nli = CONSTANT_NLI * (amp.l_eff ** 2) * (db_to_watts(power_out) ** 3)
+            total_nsr += (p_ase + p_nli) / db_to_watts(power_out)
+            power_dBm = power_out
+
+    return lin_to_db(1.0 / total_nsr), power_dBm
 \end{academicbox}
 
 The top-level evaluation function compares the computed Generalized Signal-to-Noise Ratio (GSNR) against modulation-specific thresholds ($\text{GSNR}_{th}$). This calculation executes deterministically, providing physical validation before any configuration reaches the control plane.

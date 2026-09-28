@@ -135,3 +135,32 @@ class TestMockTopologyAmplifierPhysics:
             for amp in link.amplifiers:
                 assert amp["gain_dB"] > 0
 
+    def test_booster_gain_in_characterized_range(self) -> None:
+        """Every booster must operate within [10, 23] dB and have realistic NF."""
+        from src.core.constants import AMPLIFIER
+
+        topology = MockTestbedClient().get_topology()
+        for link in topology.links:
+            booster = link.amplifiers[0]
+            assert booster["amp_type"] == "booster"
+            assert AMPLIFIER.booster_min_gain_dB <= booster["gain_dB"] <= AMPLIFIER.booster_max_gain_dB
+
+    def test_preamp_gain_in_characterized_range(self) -> None:
+        """Every preamp must operate within [18, 32] dB."""
+        from src.core.constants import AMPLIFIER
+
+        topology = MockTestbedClient().get_topology()
+        for link in topology.links:
+            preamp = link.amplifiers[-1]
+            assert preamp["amp_type"] == "preamp"
+            assert AMPLIFIER.preamp_min_gain_dB <= preamp["gain_dB"] <= AMPLIFIER.preamp_max_gain_dB
+
+    def test_all_amplifiers_have_realistic_noise_figures(self) -> None:
+        """Auto-computed NF across all topology amplifiers must be in [5.0, 12.5] dB."""
+        topology = MockTestbedClient().get_topology()
+        for link in topology.links:
+            for amp in link.amplifiers:
+                assert amp.nf_dB is not None
+                assert 5.0 <= amp.nf_dB <= 12.5, f"Unrealistic NF {amp.nf_dB} on {amp}"
+
+

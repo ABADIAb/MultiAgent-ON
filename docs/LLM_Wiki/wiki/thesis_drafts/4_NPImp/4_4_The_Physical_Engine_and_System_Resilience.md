@@ -18,9 +18,32 @@ The solver executes Yen's $K$-Shortest Paths algorithm over the pruned context g
 When candidate lightpaths are extracted by the Symbolic Solver in Phase 4, their transmission feasibility must be verified against the physical optical layer. In our architecture, physical validation is isolated within an analytical software engine implementing the Gaussian Noise (GN) model derived in Section~\ref{subsec:qot_evaluation}.
 
 The software execution flow traces the continuous optical path across cascading spans and intermediate nodes:
-1. **Per-Span Evaluation:** The engine computes Amplified Spontaneous Emission (ASE) noise from EDFAs via Equation~\eqref{eq:ase_noise} and Non-Linear Interference (NLI) distortion via Equation~\eqref{eq:nli_noise}, parameterizing fiber attenuation $\alpha$, chromatic dispersion $D$, and the non-linear Kerr coefficient $\gamma$.
-2. **End-to-End Accumulation:** The pipeline tracks signal degradation by accumulating inverse linear SNR contributions across all cascaded links via Equation~\eqref{eq:gsnr_accumulation}. The engine preserves unamplified fiber lengths across node boundaries to accurately model non-linear phase accumulation.
+1. **Per-Span Evaluation:** The engine computes Amplified Spontaneous Emission (ASE) noise from EDFAs via Equation~\eqref{eq:ase_noise} and Non-Linear Interference (NLI) distortion via Equation~\eqref{eq:nli_noise}, parameterizing fiber attenuation $\alpha$, group velocity dispersion $|\beta_2|$ (equivalent to chromatic dispersion $D$), and the non-linear Kerr coefficient $\gamma$.
+2. **End-to-End Accumulation:** The pipeline tracks signal degradation by accumulating inverse linear SNR contributions across all cascaded links and amplifiers, bounded by the transponder back-to-back noise floor $\text{SNR}_{trx}$ ($26.0$\,dB) via Equation~\eqref{eq:gsnr_accumulation}. The engine preserves unamplified fiber lengths across node boundaries to accurately model non-linear phase accumulation.
 3. **Power Calibration:** To prevent non-linear performance issues, the physics engine enforces operating limits matching industrial dense WDM transmission, keeping launch powers within the optimal linear regime.
+
+```python
+# Listing 4.4: Analytical Gaussian Noise (GN) Physical Engine Calculation
+def calculate_demand_snr(path: List[FiberLink]) -> Tuple[float, float]:
+    """Analytical GN-model accumulation across cascaded fiber spans."""
+    total_nsr = 1.0 / db_to_lin(CHANNEL.snr_trx_dB)  # Transponder floor (26 dB)
+    power_dBm = CHANNEL.tx_power_dBm
+
+    for link in path:
+        power_dBm -= link.port_loss_dB
+        for amp in link.amplifiers:
+            # Span propagation loss and VOA pad
+            power_dBm -= (amp.span_length_km * FIBER.att_coeff_dB_km + amp.att_dB)
+            power_out = amp.power_out_dBm or (power_dBm + amp.gain_dB)
+
+            # Span noise accumulation: NSR_span = (P_ase + P_nli) / P_channel
+            p_ase = PLANCK_H * OPTICAL_FREQ * (db_to_lin(amp.gain_dB) - 1) * db_to_lin(amp.nf_dB) * SYMBOL_RATE
+            p_nli = CONSTANT_NLI * (amp.l_eff ** 2) * (db_to_watts(power_out) ** 3)
+            total_nsr += (p_ase + p_nli) / db_to_watts(power_out)
+            power_dBm = power_out
+
+    return lin_to_db(1.0 / total_nsr), power_dBm
+```
 
 The top-level evaluation function compares the computed Generalized Signal-to-Noise Ratio (GSNR) against modulation-specific thresholds ($\text{GSNR}_{th}$). This calculation executes deterministically, providing physical validation before any configuration reaches the control plane.
 

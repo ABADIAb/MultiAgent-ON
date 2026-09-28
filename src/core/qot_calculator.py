@@ -204,12 +204,12 @@ def calculate_demand_snr(path: list[FiberLink]) -> tuple[float, float]:
             # EDFA gain
             current_power_dBm += edfa.gain_dB
 
-            # Determine power_out for span_snr
-            power_out = (
-                edfa.power_out_dBm
-                if edfa.power_out_dBm is not None
-                else current_power_dBm
-            )
+            # Determine power_out for span_snr and sync current_power_dBm if regulated
+            if edfa.power_out_dBm is not None:
+                current_power_dBm = edfa.power_out_dBm
+                power_out = edfa.power_out_dBm
+            else:
+                power_out = current_power_dBm
 
             # Compute span SNR
             assert edfa.nf_dB is not None
