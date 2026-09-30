@@ -141,9 +141,17 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/3_SystemModel/3_2_Proposed_Neurosymbolic_Framework]]: Chapter 3 Section 3.2 — Proposed Neurosymbolic Framework, 7-phase fail-fast pipeline, and complexity bounds.
 - [[thesis_drafts/3_SystemModel/3_3_Strict_Neurosymbolic_Separation]]: Chapter 3 Section 3.3 — Strict Neurosymbolic Separation, CFG validator AST parsing, and token context bounds.
 - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gates (RADGs) decision function, GN model physics integration, and Formal HITL Reverse Prompting execution policies.
+- [[thesis_drafts/0_Abstract/abstract]]: Master's thesis English and Italian abstracts markdown format.
+- [[thesis_drafts/0_Abstract/abstract.txt]]: Complete Master's thesis English and Italian abstracts (Overleaf-ready).
+- [[thesis_drafts/1_Introduction/chapter_1_introduction]]: Chapter 1 Introduction markdown draft.
+- [[thesis_drafts/1_Introduction/chapter_1_introduction.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 1 (Overleaf-ready).
+- [[thesis_drafts/2_SOTA/chapter_2_sota.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 2 (Overleaf-ready).
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
 - [[thesis_drafts/4_NPImp/chapter_4_implementation.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 4 (Overleaf-ready).
+- [[thesis_drafts/5_Evaluation/chapter_5_experimental_evaluation]]: Chapter 5 Experimental Evaluation markdown draft.
 - [[thesis_drafts/5_Evaluation/chapter_5_experimental_evaluation.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 5 (Overleaf-ready).
+- [[thesis_drafts/6_Conclusion/chapter_6_conclusion]]: Chapter 6 Conclusion and Future Work markdown draft.
+- [[thesis_drafts/6_Conclusion/chapter_6_conclusion.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 6 (Overleaf-ready).
 - [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
 - [[thesis_drafts/4_NPImp/figs_NPImp/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 4 core figures, and bounding box specifications.
 - [[thesis_drafts/4_NPImp/4_1_The_LangGraph_Orchestrator]]: Chapter 4 Section 4.1 — LangGraph StateGraph pipeline architecture, AgentState channels, conditional routing, and HITL interrupt mechanics.
