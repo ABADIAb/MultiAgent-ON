@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -607,11 +608,11 @@ def plot_deployment_flow_sankey(results_data: dict[str, Any], output_prefix: Pat
     n_approved = sum(1 for d in demands if d.get("initial_action") == "approve")
 
     approved_demands = [d for d in demands if d.get("initial_action") == "approve"]
-    n_success = sum(1 for d in approved_demands if not d.get("controller_error", (d.get("class") != "I_Nominal")))
+    n_success = sum(1 for d in approved_demands if d.get("class") == "I_Nominal" and not d.get("controller_error", False))
 
-    n_fail_ambig = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "II_Ambiguous")
-    n_fail_infeas = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "III_Infeasible")
-    n_fail_adver = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "IV_Adversarial")
+    n_fail_ambig = sum(1 for d in approved_demands if d.get("class") == "II_Ambiguous")
+    n_fail_infeas = sum(1 for d in approved_demands if d.get("class") == "III_Infeasible" or (d.get("class") == "I_Nominal" and d.get("controller_error", False)))
+    n_fail_adver = sum(1 for d in approved_demands if d.get("class") == "IV_Adversarial")
     n_incidents = n_fail_ambig + n_fail_infeas + n_fail_adver
 
     fig, ax = plt.subplots(figsize=(13.5, 6.8), dpi=300)
@@ -2012,10 +2013,21 @@ def resolve_baseline_data(baseline_id: str, comparative_data: dict[str, Any]) ->
                 except Exception:
                     pass
 
-    # 2. Check matching comparative run_id
+    # 2. Check matching comparative run_id and model
     run_id = comparative_data.get("metadata", {}).get("run_id")
+    raw_model = comparative_data.get("metadata", {}).get("model", "")
+    clean_model = sanitize_model_name(raw_model) if raw_model else ""
     if run_id:
         clean_id = run_id.replace("run_", "")
+        if clean_model:
+            model_cand_dir = base_dir / clean_model / clean_id
+            if model_cand_dir.exists():
+                for cand in model_cand_dir.glob("evaluation_results*.json"):
+                    try:
+                        with open(cand, encoding="utf-8") as fp:
+                            return json.load(fp)
+                    except Exception:
+                        pass
         for cand in sorted(base_dir.glob(f"**/*{clean_id}*/*.json"), reverse=True):
             if "evaluation_results" in cand.name:
                 try:
@@ -2103,15 +2115,23 @@ def plot_comparative_deployment_flow_sankey(
         n_nominal = sum(1 for d in demands if d.get("class") == "I_Nominal")
         n_non_nominal = n_total - n_nominal
 
-        n_intercepted = sum(1 for d in demands if d.get("initial_action") in ["clarify", "replan"])
-        n_approved = sum(1 for d in demands if d.get("initial_action") == "approve")
+        # Breakdown of initial actions
+        nom_approved = sum(1 for d in demands if d.get("class") == "I_Nominal" and d.get("initial_action") == "approve")
+        nom_intercepted = sum(1 for d in demands if d.get("class") == "I_Nominal" and d.get("initial_action") in ["clarify", "replan"])
+
+        non_nom_intercepted = sum(1 for d in demands if d.get("class") != "I_Nominal" and d.get("initial_action") in ["clarify", "replan"])
+        non_nom_leaked = sum(1 for d in demands if d.get("class") != "I_Nominal" and d.get("initial_action") == "approve")
+
+        n_intercepted = nom_intercepted + non_nom_intercepted
+        n_approved = nom_approved + non_nom_leaked
 
         approved_demands = [d for d in demands if d.get("initial_action") == "approve"]
-        n_success = sum(1 for d in approved_demands if not d.get("controller_error", (d.get("class") != "I_Nominal")))
+        n_success = sum(1 for d in approved_demands if d.get("class") == "I_Nominal" and not d.get("controller_error", False))
 
-        n_fail_ambig = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "II_Ambiguous")
-        n_fail_infeas = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "III_Infeasible")
-        n_fail_adver = sum(1 for d in approved_demands if d.get("controller_error", True) and d.get("class") == "IV_Adversarial")
+        n_fail_ambig = sum(1 for d in approved_demands if d.get("class") == "II_Ambiguous")
+        n_fail_infeas = sum(1 for d in approved_demands if d.get("class") == "III_Infeasible" or (d.get("class") == "I_Nominal" and d.get("controller_error", False)))
+        n_fail_adver = sum(1 for d in approved_demands if d.get("class") == "IV_Adversarial")
+        n_incidents = n_fail_ambig + n_fail_infeas + n_fail_adver
 
         # Coordinates for 3 stages
         x0, x1, x2 = 0.12, 0.49, 0.85
@@ -2144,32 +2164,107 @@ def plot_comparative_deployment_flow_sankey(
             y_fwd_target = y_center + 0.14
             y_int_target = y_center - 0.16
 
-            # Flow Nominal (Gray) -> Stage 2 Forwarded
-            draw_flow(ax, x0 + bar_w / 2, y_nom_start, h_nom, x1 - bar_w / 2, y_fwd_target, h_fwd, color_nom_gray, alpha=0.48)
+            h_nom_app = height_total * (nom_approved / n_total)
+            h_leaked = height_total * (non_nom_leaked / n_total)
+            h_non_nom_int = height_total * (non_nom_intercepted / n_total)
+
+            # Positions within Stage 2 Forwarded bar
+            y_fwd_nom = (y_fwd_target + h_fwd / 2) - h_nom_app / 2
+            y_fwd_leak = (y_fwd_target - h_fwd / 2) + h_leaked / 2
+
+            # Positions within Stage 1 Non-Nominal bar
+            y_non_nom_leak_start = (y_non_nom_start + h_non_nom / 2) - h_leaked / 2
+            y_non_nom_int_start = (y_non_nom_start - h_non_nom / 2) + h_non_nom_int / 2
+
+            # Flow Nominal (Gray) -> Stage 2 Forwarded (Top portion)
+            draw_flow(ax, x0 + bar_w / 2, y_nom_start, h_nom_app, x1 - bar_w / 2, y_fwd_nom, h_nom_app, color_nom_gray, alpha=0.48)
+
             # Flow Non-Nominal (Amber) -> Stage 2 Intercept
-            draw_flow(ax, x0 + bar_w / 2, y_non_nom_start, h_non_nom, x1 - bar_w / 2, y_int_target, h_int, color_non_nom_flow, alpha=0.58)
+            draw_flow(ax, x0 + bar_w / 2, y_non_nom_int_start, h_non_nom_int, x1 - bar_w / 2, y_int_target, h_non_nom_int, color_non_nom_flow, alpha=0.58)
+
+            # Flow Leaked Non-Nominal (Amber) -> Stage 2 Forwarded (Bottom portion)
+            if h_leaked > 0:
+                draw_flow(ax, x0 + bar_w / 2, y_non_nom_leak_start, h_leaked, x1 - bar_w / 2, y_fwd_leak, h_leaked, color_non_nom_flow, alpha=0.58)
+                y_leak_mid = (y_non_nom_leak_start + y_fwd_leak) / 2
+                ax.text(x_badge + 0.08, y_leak_mid + 0.04, f"Leak ({non_nom_leaked})", ha="center", va="center", fontsize=8.6, fontweight="bold", color="#B45309",
+                        bbox=dict(boxstyle="round,pad=0.20", facecolor="white", edgecolor="#B45309", alpha=0.90, lw=0.8), zorder=6)
 
             # Stage 1 -> 2 Badges
-            y_nom_mid = (y_nom_start + y_fwd_target) / 2
-            y_non_nom_mid = (y_non_nom_start + y_int_target) / 2
+            y_nom_mid = (y_nom_start + y_fwd_nom) / 2
+            y_non_nom_mid = (y_non_nom_int_start + y_int_target) / 2
             ax.text(x_badge, y_nom_mid, "Nominal", ha="center", va="center", fontsize=9.8, fontweight="bold", color=COLOR_DARK_SLATE,
                     bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=color_nom_gray, alpha=0.88, lw=0.9), zorder=5)
             ax.text(x_badge, y_non_nom_mid, "Non-Nominal", ha="center", va="center", fontsize=9.8, fontweight="bold", color="#78350F",
                     bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor=color_non_nom_flow, alpha=0.88, lw=0.9), zorder=5)
 
-            # Stage 2: Admission (Forwarded in Navy, Intercepted in Amber)
-            ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_fwd_target - h_fwd / 2), bar_w, h_fwd, color=COLOR_PROPOSED_PRIMARY, zorder=3))
+            # Stage 2: Admission (Forwarded: Navy for Nominal, Amber for Leaked)
+            if non_nom_leaked > 0:
+                ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_fwd_nom - h_nom_app / 2), bar_w, h_nom_app, color=COLOR_PROPOSED_PRIMARY, zorder=3))
+                ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_fwd_leak - h_leaked / 2), bar_w, h_leaked, color=color_non_nom_flow, zorder=3))
+            else:
+                ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_fwd_target - h_fwd / 2), bar_w, h_fwd, color=COLOR_PROPOSED_PRIMARY, zorder=3))
+
             ax.text(x1, y_fwd_target + h_fwd / 2 + 0.045, f"Stage 2: Admission\nForwarded: {n_approved} ({n_approved / n_total * 100:.0f}%)", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_PROPOSED_PRIMARY)
 
             ax.add_patch(mpatches.Rectangle((x1 - bar_w / 2, y_int_target - h_int / 2), bar_w, h_int, color=color_non_nom_flow, zorder=3))
             ax.text(x1, y_int_target - h_int / 2 - 0.045, f"Pre-Deployment Interception\n{n_intercepted} ({n_intercepted / n_total * 100:.0f}%)", ha="center", va="top", fontsize=10.2, fontweight="bold", color="#92400E")
 
-            # Stage 3: Pass (100% of forwarded demands pass cleanly)
+            # Stage 3: SDON Controller Outcomes
             ax.text(x2, y_center + height_total / 2 + 0.045, "Stage 3: SDON Controller\nDeployment Outcomes", ha="center", va="bottom", fontsize=10.8, fontweight="bold", color=COLOR_DARK_SLATE)
-            draw_flow(ax, x1 + bar_w / 2, y_fwd_target, h_fwd, x2 - bar_w / 2, y_fwd_target, h_fwd, COLOR_APPROVE, alpha=0.55)
-            ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y_fwd_target - h_fwd / 2), bar_w, h_fwd, color=COLOR_APPROVE, zorder=3))
-            ax.text(x2, y_fwd_target, f"{n_approved}", ha="center", va="center", color="white", fontweight="bold", fontsize=10.8, zorder=4)
-            ax.text((x1 + x2) / 2, y_fwd_target, f"Pass ({n_approved})", ha="center", va="center", fontsize=10.5, fontweight="bold", color=color_approve_dark, zorder=5)
+
+            # Nominal -> Pass (Green)
+            h_success = height_total * (n_success / n_total)
+            y_succ_end = y_fwd_target if non_nom_leaked == 0 else y_fwd_nom
+            draw_flow(ax, x1 + bar_w / 2, y_fwd_nom, h_success, x2 - bar_w / 2, y_succ_end, h_success, COLOR_APPROVE, alpha=0.55)
+            ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y_succ_end - h_success / 2), bar_w, h_success, color=COLOR_APPROVE, zorder=3))
+            ax.text(x2, y_succ_end, f"{n_success}", ha="center", va="center", color="white", fontweight="bold", fontsize=10.8, zorder=4)
+            ax.text((x1 + x2) / 2, y_succ_end, f"Pass ({n_success})", ha="center", va="center", fontsize=10.5, fontweight="bold", color=color_approve_dark, zorder=5)
+
+            # Leaked Non-Nominal -> Incident Flows (Red)
+            if n_incidents > 0:
+                h_f1 = height_total * (n_fail_ambig / n_total)
+                h_f2 = height_total * (n_fail_infeas / n_total)
+                h_f3 = height_total * (n_fail_adver / n_total)
+
+                curr_y_start = y_fwd_leak + h_leaked / 2
+                y3_f1 = y_center + 0.04
+                y3_f2 = y_center - 0.10
+                y3_f3 = y_center - 0.24
+
+                # 1. Syntax/Ambig (Light Red)
+                if h_f1 > 0:
+                    y_f1_start = curr_y_start - h_f1 / 2
+                    draw_flow(ax, x1 + bar_w / 2, y_f1_start, h_f1, x2 - bar_w / 2, y3_f1, h_f1, color_red_light, alpha=0.62)
+                    bar_h1 = max(h_f1, 0.034)
+                    ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y3_f1 - bar_h1 / 2), bar_w, bar_h1, color=color_red_light, zorder=3))
+                    ax.text(x2, y3_f1, f"{n_fail_ambig}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.2, zorder=4)
+                    y_label1 = (y_f1_start + y3_f1) / 2
+                    ax.text((x1 + x2) / 2, y_label1, f"Syntax/Ambig ({n_fail_ambig})", ha="center", va="center", fontsize=9.2, fontweight="bold", color=color_red_light_text,
+                            bbox=dict(boxstyle="round,pad=0.20", facecolor="white", edgecolor=color_red_light, alpha=0.92, lw=0.8), zorder=6)
+                    curr_y_start -= h_f1
+
+                # 2. QoT/Reach (Mid Red)
+                if h_f2 > 0:
+                    y_f2_start = curr_y_start - h_f2 / 2
+                    draw_flow(ax, x1 + bar_w / 2, y_f2_start, h_f2, x2 - bar_w / 2, y3_f2, h_f2, color_red_mid, alpha=0.62)
+                    bar_h2 = max(h_f2, 0.034)
+                    ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y3_f2 - bar_h2 / 2), bar_w, bar_h2, color=color_red_mid, zorder=3))
+                    ax.text(x2, y3_f2, f"{n_fail_infeas}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.2, zorder=4)
+                    y_label2 = (y_f2_start + y3_f2) / 2
+                    ax.text((x1 + x2) / 2, y_label2, f"QoT/Reach ({n_fail_infeas})", ha="center", va="center", fontsize=9.2, fontweight="bold", color=color_red_mid_text,
+                            bbox=dict(boxstyle="round,pad=0.20", facecolor="white", edgecolor=color_red_mid, alpha=0.92, lw=0.8), zorder=6)
+                    curr_y_start -= h_f2
+
+                # 3. Conflict (Dark Red)
+                if h_f3 > 0:
+                    y_f3_start = curr_y_start - h_f3 / 2
+                    draw_flow(ax, x1 + bar_w / 2, y_f3_start, h_f3, x2 - bar_w / 2, y3_f3, h_f3, color_red_dark, alpha=0.62)
+                    bar_h3 = max(h_f3, 0.034)
+                    ax.add_patch(mpatches.Rectangle((x2 - bar_w / 2, y3_f3 - bar_h3 / 2), bar_w, bar_h3, color=color_red_dark, zorder=3))
+                    ax.text(x2, y3_f3, f"{n_fail_adver}", ha="center", va="center", color="white", fontweight="bold", fontsize=9.2, zorder=4)
+                    y_label3 = (y_f3_start + y3_f3) / 2
+                    ax.text((x1 + x2) / 2, y_label3, f"Conflict ({n_fail_adver})", ha="center", va="center", fontsize=9.2, fontweight="bold", color=color_red_dark_text,
+                            bbox=dict(boxstyle="round,pad=0.20", facecolor="white", edgecolor=color_red_dark, alpha=0.92, lw=0.8), zorder=6)
 
         else:
             # LLM-ONLY BASELINE
@@ -2835,11 +2930,71 @@ plot_comparative_safety_pillars = plot_comparative_integrity_pillars
 # Cross-Model Comparison Figures
 # ---------------------------------------------------------------------------
 
+def _extract_efficiency_data(
+    comp_data: dict[str, Any],
+) -> tuple[dict[str, list[dict[str, Any]]], dict[str, dict[str, float]], dict[str, dict[str, float]], dict[str, dict[str, float]]]:
+    """Helper to extract baseline demands, class token medians, useful, and wasted tokens."""
+    B_KEYS = ["proposed_radg", "always_on_hitl", "llm_only"]
+    CLASS_NAMES = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
+    baselines_info = comp_data.get("baselines", {})
+    baseline_demands: dict[str, list[dict[str, Any]]] = {}
+    baseline_class_toks: dict[str, dict[str, float]] = {}
+
+    for k in B_KEYS:
+        b_data = resolve_baseline_data(k, comp_data)
+        b_demands = b_data.get("demands", []) if b_data else []
+        baseline_demands[k] = b_demands
+
+        b_cm = baselines_info.get(k, {}).get("class_metrics") or baselines_info.get(k, {}).get("pillar_metrics", {}).get("pillar_3", {}).get("class_metrics")
+        if not b_cm:
+            b_cm = {}
+            for c in CLASS_NAMES:
+                c_d = [d for d in b_demands if d.get("class") == c]
+                toks = [d.get("total_tokens", 0) for d in c_d]
+                b_cm[c] = {"median_tokens": float(np.median(toks)) if toks else 0.0}
+        baseline_class_toks[k] = {c: float(b_cm.get(c, {}).get("median_tokens", 0.0)) for c in CLASS_NAMES}
+
+    useful_toks: dict[str, dict[str, float]] = {k: {} for k in B_KEYS}
+    wasted_toks: dict[str, dict[str, float]] = {k: {} for k in B_KEYS}
+    p_tok = baseline_class_toks.get("proposed_radg", {})
+
+    for c in CLASS_NAMES:
+        for k in B_KEYS:
+            tot_t = baseline_class_toks[k].get(c, 0.0)
+            if k == "proposed_radg":
+                useful_toks[k][c] = tot_t
+                wasted_toks[k][c] = 0.0
+            elif k == "always_on_hitl":
+                if c == "I_Nominal":
+                    pt = p_tok.get(c, 0.0)
+                    useful_toks[k][c] = min(tot_t, pt) if pt > 0 else tot_t
+                    wasted_toks[k][c] = max(0.0, tot_t - pt) if pt > 0 else 0.0
+                else:
+                    useful_toks[k][c] = tot_t
+                    wasted_toks[k][c] = 0.0
+            elif k == "llm_only":
+                if c != "I_Nominal":
+                    pt = p_tok.get(c, 0.0)
+                    useful_toks[k][c] = min(tot_t, pt) if pt > 0 else tot_t
+                    wasted_toks[k][c] = max(0.0, tot_t - pt) if pt > 0 else 0.0
+                else:
+                    useful_toks[k][c] = tot_t
+                    wasted_toks[k][c] = 0.0
+
+    return baseline_demands, baseline_class_toks, useful_toks, wasted_toks
+
+
 def plot_cross_model_efficiency(
     models_data: list[dict[str, Any]],
     output_prefix: Path,
 ) -> None:
-    """Generate cross-model efficiency comparison (latency + token footprint).
+    """Generate cross-model efficiency comparison with stacked rows per model.
+
+    Each model has a row displaying:
+      - Left: Turnaround Latency Boxplots across risk classes and baselines.
+      - Right: Token Footprint Stacked Bars (Useful compute vs. Wasted overhead).
+    All models share the same x-axis, unified top legends, and dynamic y-axes
+    (with latency dynamically scaled to box sizes and capped at 160s).
 
     Args:
         models_data: List of dicts with keys:
@@ -2847,7 +3002,261 @@ def plot_cross_model_efficiency(
             - 'comparative_data': dict  (same shape as comparative_results JSON)
         output_prefix: Output path prefix (without extension).
     """
-    if not models_data:
+    n_models = len(models_data)
+    if n_models == 0:
+        return
+
+    B_KEYS = ["proposed_radg", "always_on_hitl", "llm_only"]
+    B_LABELS = {
+        "proposed_radg": "Proposed RADG",
+        "always_on_hitl": "Always-On HITL",
+        "llm_only": "LLM-Only",
+    }
+    CLASS_NAMES = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
+    CLASS_LABELS_MAP = {
+        "I_Nominal": "Nominal",
+        "II_Ambiguous": "Ambiguous",
+        "III_Infeasible": "Infeasible",
+        "IV_Adversarial": "Adversarial",
+    }
+
+    model_extracted = []
+    for m in models_data:
+        b_demands, b_toks, u_toks, w_toks = _extract_efficiency_data(m["comparative_data"])
+
+        # Dynamic Latency Y-Limit per model (Point 3)
+        m_lats: list[float] = []
+        for k in B_KEYS:
+            for d in b_demands.get(k, []):
+                val = float(d.get("total_elapsed_seconds", 0.0))
+                if val > 0:
+                    m_lats.append(val)
+        m_max_lat = max(m_lats) if m_lats else 10.0
+        if m_max_lat > 160.0:
+            m_y_max_lat = 160.0
+            m_lat_capped = True
+        else:
+            m_y_max_lat = min(160.0, max(15.0, float(np.ceil((m_max_lat * 1.25) / 5.0) * 5.0)))
+            m_lat_capped = False
+
+        # Dynamic Token Y-Limit per model
+        m_toks = [b_toks[k][c] / 1000.0 for k in B_KEYS for c in CLASS_NAMES]
+        m_max_tok = max(m_toks) if m_toks else 10.0
+        m_y_max_tok = max(10.0, float(np.ceil((m_max_tok * 1.20) / 5.0) * 5.0))
+
+        model_extracted.append({
+            "label": m["label"],
+            "baseline_demands": b_demands,
+            "baseline_class_toks": b_toks,
+            "useful_toks": u_toks,
+            "wasted_toks": w_toks,
+            "y_max_lat": m_y_max_lat,
+            "lat_capped": m_lat_capped,
+            "y_max_tok": m_y_max_tok,
+        })
+
+    fig_w = 12.8
+    row_h = 2.65  # compact height
+    header_space = 1.3
+    fig_h = header_space + row_h * n_models
+
+    fig = plt.figure(figsize=(fig_w, fig_h), dpi=300)
+    fig.patch.set_facecolor(COLOR_BG)
+
+    top_margin = 1.0 - (1.10 / fig_h)
+    bottom_margin = 0.08
+    gs = fig.add_gridspec(
+        n_models, 2,
+        left=0.15, right=0.98,
+        top=top_margin, bottom=bottom_margin,
+        wspace=0.18, hspace=0.28
+    )
+
+    x = np.arange(len(B_KEYS))
+    labels = [B_LABELS[k] for k in B_KEYS]
+    bw_cls = 0.18
+    c_offsets = [-1.5 * bw_cls, -0.5 * bw_cls, 0.5 * bw_cls, 1.5 * bw_cls]
+
+    for row_idx, m_info in enumerate(model_extracted):
+        m_label = m_info["label"]
+        b_demands = m_info["baseline_demands"]
+        b_toks = m_info["baseline_class_toks"]
+        u_toks = m_info["useful_toks"]
+        w_toks = m_info["wasted_toks"]
+        y_max_lat = m_info["y_max_lat"]
+        lat_capped = m_info["lat_capped"]
+        y_max_tok = m_info["y_max_tok"]
+
+        ax_lat = fig.add_subplot(gs[row_idx, 0])
+        ax_tok = fig.add_subplot(gs[row_idx, 1])
+
+        ax_lat.set_facecolor(COLOR_CARD_BG)
+        ax_tok.set_facecolor(COLOR_CARD_BG)
+
+        # Far left label representing the entire row
+        bbox = gs[row_idx, 0].get_position(fig)
+        row_y_center = (bbox.y0 + bbox.y1) / 2.0
+        fig.text(
+            0.02, row_y_center, f"Model:\n{m_label}",
+            fontsize=10.0, fontweight="bold", color=COLOR_NAVY,
+            ha="left", va="center",
+            bbox=dict(boxstyle="round,pad=0.4", facecolor="white", edgecolor=COLOR_CARD_BORDER, linewidth=1.1)
+        )
+
+        # 1. Latency Boxplots
+        for j, c in enumerate(CLASS_NAMES):
+            class_positions = [x[i] + c_offsets[j] for i in range(len(B_KEYS))]
+            class_data = []
+            for k in B_KEYS:
+                demands = b_demands.get(k, [])
+                lats = [d.get("total_elapsed_seconds", 0.0) for d in demands if d.get("class") == c]
+                class_data.append(lats if lats else [0.0])
+
+            bp1 = ax_lat.boxplot(
+                class_data,
+                positions=class_positions,
+                widths=bw_cls * 0.85,
+                patch_artist=True,
+                showmeans=True,
+                meanprops=dict(marker="o", markeredgecolor=COLOR_DARK_SLATE, markerfacecolor="white", markersize=3.8),
+                medianprops=dict(color="white", linewidth=1.5),
+                whiskerprops=dict(color=COLOR_DARK_SLATE, linewidth=1.0),
+                capprops=dict(color=COLOR_DARK_SLATE, linewidth=1.0),
+                flierprops=dict(marker=".", markerfacecolor="#475569", markeredgecolor="none", markersize=3.5, alpha=0.45),
+            )
+            for i_box, patch in enumerate(bp1["boxes"]):
+                k = B_KEYS[i_box]
+                box_col = BASELINE_CLASS_SHADES.get(k, {}).get(c, COLOR_MUTED)
+                patch.set_facecolor(box_col)
+                patch.set_edgecolor(COLOR_DARK_SLATE)
+                patch.set_linewidth(0.9)
+                patch.set_alpha(0.88)
+
+        lat_ylabel = "Turnaround Latency (s)" + ("\n(Capped at 160s)" if lat_capped else "")
+        ax_lat.set_ylabel(lat_ylabel, fontsize=9.0, fontweight="bold", color=COLOR_NAVY)
+        ax_lat.tick_params(axis="y", labelsize=8.5)
+        ax_lat.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
+        ax_lat.set_xlim(-0.55, 2.55)
+        ax_lat.set_ylim(0, y_max_lat)
+
+        # 2. Token Stacked Bars
+        for j, c in enumerate(CLASS_NAMES):
+            bar_positions = [x[i] + c_offsets[j] for i in range(len(B_KEYS))]
+            u_vals = [u_toks[k][c] / 1000.0 for k in B_KEYS]
+            w_vals = [w_toks[k][c] / 1000.0 for k in B_KEYS]
+            tot_vals = [b_toks[k][c] / 1000.0 for k in B_KEYS]
+
+            u_cols = [BASELINE_CLASS_SHADES.get(k, {}).get(c, COLOR_MUTED) for k in B_KEYS]
+            w_cols = [BASELINE_OVERHEAD_SHADES.get(k, {}).get(c, COLOR_MUTED) for k in B_KEYS]
+
+            ax_tok.bar(
+                bar_positions, u_vals, bw_cls * 0.85,
+                color=u_cols, edgecolor=COLOR_DARK_SLATE, linewidth=0.7,
+                alpha=0.88,
+            )
+            ax_tok.bar(
+                bar_positions, w_vals, bw_cls * 0.85,
+                bottom=u_vals, color=w_cols, edgecolor=COLOR_DARK_SLATE, linewidth=0.7,
+                hatch="//", alpha=0.92,
+            )
+
+            for bx, tot_val in zip(bar_positions, tot_vals):
+                if tot_val > 0:
+                    ax_tok.text(
+                        bx, tot_val + 0.25, f"{tot_val:.1f}",
+                        ha="center", va="bottom", fontsize=7.0, fontweight="bold", color=COLOR_DARK_SLATE
+                    )
+
+        ax_tok.set_ylabel("Token Footprint (kTok)", fontsize=9.0, fontweight="bold", color=COLOR_NAVY)
+        ax_tok.tick_params(axis="y", labelsize=8.5)
+        ax_tok.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
+        ax_tok.set_xlim(-0.55, 2.55)
+        ax_tok.set_ylim(0, y_max_tok)
+
+        # Column titles ONLY on row 0
+        if row_idx == 0:
+            ax_lat.set_title("Turnaround Latency by Risk Class", fontsize=11.0, fontweight="bold", color=COLOR_NAVY, pad=8)
+            ax_tok.set_title("Token Footprint (Useful vs. Wasted)", fontsize=11.0, fontweight="bold", color=COLOR_NAVY, pad=8)
+
+        # X-tick labels ONLY on bottom row
+        if row_idx == n_models - 1:
+            ax_lat.set_xticks(x)
+            ax_lat.set_xticklabels(labels, fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
+            ax_tok.set_xticks(x)
+            ax_tok.set_xticklabels(labels, fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
+        else:
+            ax_lat.set_xticks(x)
+            ax_lat.set_xticklabels([])
+            ax_lat.tick_params(axis="x", length=0)
+            ax_tok.set_xticks(x)
+            ax_tok.set_xticklabels([])
+            ax_tok.tick_params(axis="x", length=0)
+
+        for ax in (ax_lat, ax_tok):
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            ax.spines["left"].set_color(COLOR_CARD_BORDER)
+            ax.spines["bottom"].set_color(COLOR_CARD_BORDER)
+
+    # Top Legends (Centered above each column to avoid any overlap)
+    SHADE_ICONS = ["#1E293B", "#475569", "#94A3B8", "#CBD5E1"]
+    class_patches = [
+        patches.Patch(facecolor=SHADE_ICONS[idx], edgecolor=COLOR_DARK_SLATE, label=CLASS_LABELS_MAP[c])
+        for idx, c in enumerate(CLASS_NAMES)
+    ]
+    overhead_patch = patches.Patch(facecolor="#475569", edgecolor=COLOR_DARK_SLATE, hatch="//", label="Wasted Tokens")
+    mean_marker = mlines.Line2D([], [], color=COLOR_DARK_SLATE, marker="o", markerfacecolor="white", linestyle="None", markersize=4.5, label="Mean")
+    median_line = mlines.Line2D([], [], color="white", linewidth=1.8, label="Median")
+
+    leg_y = 1.0 - (0.42 / fig_h)
+    fig.legend(
+        handles=class_patches + [median_line, mean_marker],
+        loc="upper center",
+        bbox_to_anchor=(0.315, leg_y),
+        ncol=6,
+        fontsize=7.8,
+        columnspacing=0.7,
+        handletextpad=0.3,
+        borderaxespad=0.2,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor=COLOR_CARD_BORDER,
+        title="Risk Classes (Dark -> Light) & Latency Stats",
+        title_fontsize=8.5,
+    )
+    fig.legend(
+        handles=class_patches + [overhead_patch],
+        loc="upper center",
+        bbox_to_anchor=(0.815, leg_y),
+        ncol=5,
+        fontsize=7.8,
+        columnspacing=0.8,
+        handletextpad=0.3,
+        borderaxespad=0.2,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor=COLOR_CARD_BORDER,
+        title="Risk Classes & Compute Overhead",
+        title_fontsize=8.5,
+    )
+
+    fig.suptitle(
+        "Cross-Model Comparative Efficiency: Turnaround Latency & Token Footprint",
+        fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=0.98,
+    )
+
+    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
+    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
+    plt.close()
+
+
+def plot_cross_model_efficiency_alternative(
+    models_data: list[dict[str, Any]],
+    output_prefix: Path,
+) -> None:
+    """Alternative Idea: Side-by-side model comparison grouped by baseline (Single 16:9 view)."""
+    n_models = len(models_data)
+    if n_models == 0:
         return
 
     B_KEYS = ["proposed_radg", "always_on_hitl", "llm_only"]
@@ -2857,118 +3266,173 @@ def plot_cross_model_efficiency(
         "llm_only": "LLM-Only",
     }
 
-    n_models = len(models_data)
-    n_baselines = 3
-    group_width = 0.72
-    bar_w = group_width / n_baselines
-    # Offsets within each model group, centered at 0
-    b_offsets = [(-group_width / 2 + bar_w * i + bar_w / 2) for i in range(n_baselines)]
+    MODEL_PALETTES = [
+        {"primary": "#1E40AF", "light": "#93C5FD", "dark": "#1E3A8A"},
+        {"primary": "#0D9488", "light": "#99F6E4", "dark": "#115E59"},
+        {"primary": "#D97706", "light": "#FDE68A", "dark": "#92400E"},
+        {"primary": "#7C3AED", "light": "#DDD6FE", "dark": "#4C1D95"},
+    ]
 
-    x = np.arange(n_models)
     model_labels = [m["label"] for m in models_data]
+    n_baselines = len(B_KEYS)
 
-    # Pre-compute median latency and median tokens per (model, baseline)
-    # We take the overall median across all demands for simplicity
-    med_latency: list[list[float]] = []  # [model_idx][baseline_idx]
-    med_tokens: list[list[float]] = []   # [model_idx][baseline_idx] in kTokens
+    model_b_latencies: list[list[list[float]]] = []
+    model_b_useful_tok: list[list[float]] = []
+    model_b_wasted_tok: list[list[float]] = []
 
-    for m_entry in models_data:
-        comp = m_entry["comparative_data"]
-        row_lat = []
-        row_tok = []
-        for b_key in B_KEYS:
-            b_data = resolve_baseline_data(b_key, comp)
-            demands = b_data.get("demands", []) if b_data else []
-            lats = [d.get("total_elapsed_seconds", 0.0) for d in demands]
-            toks = [d.get("total_tokens", 0) for d in demands]
-            row_lat.append(float(np.median(lats)) if lats else 0.0)
-            row_tok.append(float(np.median(toks)) / 1000.0 if toks else 0.0)
-        med_latency.append(row_lat)
-        med_tokens.append(row_tok)
+    all_lats: list[float] = []
+    for m in models_data:
+        b_demands, b_toks, u_toks, w_toks = _extract_efficiency_data(m["comparative_data"])
+        m_lats: list[list[float]] = []
+        m_u_tok: list[float] = []
+        m_w_tok: list[float] = []
+        for k in B_KEYS:
+            demands = b_demands.get(k, [])
+            lats = [float(d.get("total_elapsed_seconds", 0.0)) for d in demands]
+            m_lats.append(lats)
+            all_lats.extend(lats)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.0, 5.4), dpi=300)
+            u_sum = sum(u_toks[k].values()) / 1000.0
+            w_sum = sum(w_toks[k].values()) / 1000.0
+            m_u_tok.append(u_sum)
+            m_w_tok.append(w_sum)
+
+        model_b_latencies.append(m_lats)
+        model_b_useful_tok.append(m_u_tok)
+        model_b_wasted_tok.append(m_w_tok)
+
+    # Dynamic Latency Y-Limit capped at 160s
+    max_lat = max(all_lats) if all_lats else 10.0
+    if max_lat > 160.0:
+        y_max_lat = 160.0
+        lat_capped = True
+    else:
+        y_max_lat = min(160.0, max(15.0, float(np.ceil((max_lat * 1.20) / 5.0) * 5.0)))
+        lat_capped = False
+
+    max_tok = max(
+        model_b_useful_tok[m_i][b_i] + model_b_wasted_tok[m_i][b_i]
+        for m_i in range(n_models) for b_i in range(n_baselines)
+    )
+    y_max_tok = max(10.0, float(np.ceil((max_tok * 1.20) / 5.0) * 5.0))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.5, 5.6), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
-
-    # ------------------------------------------------------------------ #
-    # Panel 1: Median End-to-End Latency grouped by model
-    # ------------------------------------------------------------------ #
     ax1.set_facecolor(COLOR_CARD_BG)
+    ax2.set_facecolor(COLOR_CARD_BG)
 
-    max_lat = 0.0
+    x = np.arange(n_baselines)
+    group_w = 0.70
+    sub_w = group_w / n_models
+    m_offsets = [(-group_w / 2 + sub_w * i + sub_w / 2) for i in range(n_models)]
+
+    # 1. Left Subplot: Latency Distributions juxtaposed by baseline
     for m_idx in range(n_models):
-        for b_idx, b_key in enumerate(B_KEYS):
-            val = med_latency[m_idx][b_idx]
-            bar_x = x[m_idx] + b_offsets[b_idx]
-            col = BASELINE_COLORS.get(b_key, COLOR_MUTED)
-            ax1.bar(bar_x, val, bar_w * 0.88, color=col, edgecolor="white", linewidth=0.9, alpha=0.92)
-            if val > 0:
-                ax1.text(
-                    bar_x, val + 0.4, f"{val:.1f}s",
-                    ha="center", va="bottom", fontsize=7.5, fontweight="bold", color=COLOR_DARK_SLATE,
-                    rotation=0,
-                )
-            max_lat = max(max_lat, val)
+        pal = MODEL_PALETTES[m_idx % len(MODEL_PALETTES)]
+        positions = [x[b_idx] + m_offsets[m_idx] for b_idx in range(n_baselines)]
+        data_to_plot = [model_b_latencies[m_idx][b_idx] for b_idx in range(n_baselines)]
+
+        bp = ax1.boxplot(
+            data_to_plot,
+            positions=positions,
+            widths=sub_w * 0.82,
+            patch_artist=True,
+            showmeans=True,
+            meanprops=dict(marker="o", markeredgecolor=COLOR_DARK_SLATE, markerfacecolor="white", markersize=4.2),
+            medianprops=dict(color="white", linewidth=1.6),
+            whiskerprops=dict(color=COLOR_DARK_SLATE, linewidth=1.1),
+            capprops=dict(color=COLOR_DARK_SLATE, linewidth=1.1),
+            flierprops=dict(marker=".", markerfacecolor=pal["dark"], markeredgecolor="none", markersize=4.5, alpha=0.4),
+        )
+        for patch in bp["boxes"]:
+            patch.set_facecolor(pal["primary"])
+            patch.set_edgecolor(COLOR_DARK_SLATE)
+            patch.set_linewidth(1.0)
+            patch.set_alpha(0.88)
+
+        for b_idx in range(n_baselines):
+            l_list = model_b_latencies[m_idx][b_idx]
+            med_val = float(np.median(l_list)) if l_list else 0.0
+            pos = positions[b_idx]
+            ax1.text(
+                pos, min(med_val + 2.0, y_max_lat - 5.0),
+                f"{med_val:.1f}s",
+                ha="center", va="bottom", fontsize=7.5, fontweight="bold", color=COLOR_DARK_SLATE
+            )
 
     ax1.set_xticks(x)
-    ax1.set_xticklabels(model_labels, fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax1.set_ylabel("Median End-to-End Latency (s)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
-    ax1.set_ylim(0, max_lat * 1.32 if max_lat > 0 else 10.0)
-    ax1.set_title("Median Latency by Model & Baseline", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE, pad=10)
-    ax1.grid(axis="y", linestyle=":", alpha=0.55, color=COLOR_CARD_BORDER)
+    ax1.set_xticklabels([B_LABELS[k] for k in B_KEYS], fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_ylabel("Turnaround Latency (Seconds)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax1.set_ylim(0, y_max_lat)
+    ax1.set_title("Turnaround Latency Distribution by Baseline", fontsize=11.5, fontweight="bold", color=COLOR_NAVY, pad=10)
+    ax1.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
     ax1.set_axisbelow(True)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
 
-    # ------------------------------------------------------------------ #
-    # Panel 2: Median Token Footprint grouped by model
-    # ------------------------------------------------------------------ #
-    ax2.set_facecolor(COLOR_CARD_BG)
-
-    max_tok = 0.0
+    # 2. Right Subplot: Token Footprint & Wasted Overhead juxtaposed by baseline
     for m_idx in range(n_models):
-        for b_idx, b_key in enumerate(B_KEYS):
-            val = med_tokens[m_idx][b_idx]
-            bar_x = x[m_idx] + b_offsets[b_idx]
-            col = BASELINE_COLORS.get(b_key, COLOR_MUTED)
-            ax2.bar(bar_x, val, bar_w * 0.88, color=col, edgecolor="white", linewidth=0.9, alpha=0.92)
-            if val > 0:
+        pal = MODEL_PALETTES[m_idx % len(MODEL_PALETTES)]
+        positions = [x[b_idx] + m_offsets[m_idx] for b_idx in range(n_baselines)]
+        u_vals = [model_b_useful_tok[m_idx][b_idx] for b_idx in range(n_baselines)]
+        w_vals = [model_b_wasted_tok[m_idx][b_idx] for b_idx in range(n_baselines)]
+        tot_vals = [u + w for u, w in zip(u_vals, w_vals)]
+
+        ax2.bar(
+            positions, u_vals, sub_w * 0.82,
+            color=pal["primary"], edgecolor=COLOR_DARK_SLATE, linewidth=0.9, alpha=0.88,
+        )
+        ax2.bar(
+            positions, w_vals, sub_w * 0.82,
+            bottom=u_vals, color=pal["dark"], edgecolor=COLOR_DARK_SLATE, linewidth=0.9,
+            hatch="//", alpha=0.92,
+        )
+
+        for b_idx in range(n_baselines):
+            tot = tot_vals[b_idx]
+            pos = positions[b_idx]
+            if tot > 0:
                 ax2.text(
-                    bar_x, val + 0.05, f"{val:.1f}k",
-                    ha="center", va="bottom", fontsize=7.5, fontweight="bold", color=COLOR_DARK_SLATE,
+                    pos, tot + 0.6, f"{tot:.1f}k",
+                    ha="center", va="bottom", fontsize=7.8, fontweight="bold", color=COLOR_DARK_SLATE
                 )
-            max_tok = max(max_tok, val)
 
     ax2.set_xticks(x)
-    ax2.set_xticklabels(model_labels, fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
-    ax2.set_ylabel("Median Token Footprint (kTokens)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
-    ax2.set_ylim(0, max_tok * 1.32 if max_tok > 0 else 5.0)
-    ax2.set_title("Median Token Footprint by Model & Baseline", fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE, pad=10)
-    ax2.grid(axis="y", linestyle=":", alpha=0.55, color=COLOR_CARD_BORDER)
+    ax2.set_xticklabels([B_LABELS[k] for k in B_KEYS], fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax2.set_ylabel("Total Token Footprint (kTokens)", fontsize=10.5, fontweight="bold", color=COLOR_NAVY)
+    ax2.set_ylim(0, y_max_tok)
+    ax2.set_title("Token Footprint Breakdown: Useful vs. Wasted Overhead", fontsize=11.5, fontweight="bold", color=COLOR_NAVY, pad=10)
+    ax2.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
     ax2.set_axisbelow(True)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
 
-    # Shared legend (one per baseline color)
-    legend_handles = [
-        patches.Patch(facecolor=BASELINE_COLORS.get(k, COLOR_MUTED), edgecolor="white", label=B_LABELS[k])
-        for k in B_KEYS
+    model_handles = [
+        patches.Patch(facecolor=MODEL_PALETTES[i % len(MODEL_PALETTES)]["primary"], edgecolor=COLOR_DARK_SLATE, label=f"Model: {model_labels[i]}")
+        for i in range(n_models)
     ]
+    useful_h = patches.Patch(facecolor="#64748B", edgecolor=COLOR_DARK_SLATE, label="Useful Compute")
+    overhead_h = patches.Patch(facecolor="#1E293B", edgecolor=COLOR_DARK_SLATE, hatch="//", label="Wasted Overhead")
+    mean_marker = mlines.Line2D([], [], color=COLOR_DARK_SLATE, marker="o", markerfacecolor="white", linestyle="None", markersize=5, label="Mean Latency")
+    median_line = mlines.Line2D([], [], color="white", linewidth=2.0, label="Median Latency")
+
     fig.legend(
-        handles=legend_handles,
+        handles=model_handles + [useful_h, overhead_h, median_line, mean_marker],
         loc="lower center",
-        ncol=3,
-        fontsize=9.5,
+        bbox_to_anchor=(0.5, -0.06),
+        ncol=len(model_handles) + 4,
+        fontsize=8.5,
         framealpha=0.95,
         facecolor="white",
         edgecolor=COLOR_CARD_BORDER,
-        bbox_to_anchor=(0.5, -0.01),
     )
 
+    cap_note = f" (Latency Capped at {y_max_lat:.0f}s)" if lat_capped else ""
     plt.suptitle(
-        "Cross-Model Computational Efficiency: Latency & Token Footprint",
-        fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=1.01,
+        f"Cross-Model Efficiency Comparison by Architecture Baseline{cap_note}",
+        fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=0.98,
     )
-    plt.tight_layout(rect=[0, 0.06, 1, 1.0], w_pad=2.0)
+    plt.tight_layout(rect=[0, 0.05, 1, 0.94], w_pad=2.0)
 
     plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG, bbox_inches="tight")
     plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG, bbox_inches="tight")
@@ -2978,134 +3442,314 @@ def plot_cross_model_efficiency(
 def plot_cross_model_gate_accuracy_heatmap(
     models_data: list[dict[str, Any]],
     output_prefix: Path,
+    right_panel_style: str = "lollipop",
 ) -> None:
-    """Generate a GDA% heatmap and FPR summary table across models.
+    """Generate multi-model Gate Interception breakdown chart (Action Matrix + Overall GDA/FPR).
+
+    Left Column: Stacked Action Matrix per model across risk classes
+                 (Approve, Clarify, Replan, Timeout/Aborted).
+    Right Column: Overall GDA (%) and FPR (%) using either Cleveland Lollipop Plot (default)
+                  or Broken-Axis Horizontal Bar chart.
 
     Args:
         models_data: Same structure as plot_cross_model_efficiency.
         output_prefix: Output path prefix (without extension).
+        right_panel_style: 'lollipop' for Cleveland dot plot (88-100%) or 'broken_axis' (0 // 85-100%).
     """
-    if not models_data:
+    n_models = len(models_data)
+    if n_models == 0:
         return
 
-    CLASS_NAMES = ["I_Nominal", "II_Ambiguous", "III_Infeasible", "IV_Adversarial"]
-    CLASS_DISPLAY = ["Nominal", "Ambiguous", "Infeasible", "Adversarial"]
+    # Extract action distribution for each model's proposed_radg
+    extracted = []
+    for m in models_data:
+        p_data = resolve_baseline_data("proposed_radg", m["comparative_data"])
+        demands = p_data.get("demands", []) if p_data else []
+        counts = {c: {"approve": 0, "clarify": 0, "replan": 0, "timeout": 0} for c in CLASS_SHORT_NAMES}
+        gda_hits = 0
+        total_eval = len(demands)
+        fpr_violations = 0
+        total_risky = 0
 
-    model_labels = [m["label"] for m in models_data]
-    n_models = len(models_data)
+        for d in demands:
+            c = d.get("class", "")
+            status = str(d.get("execution_status", "")).lower()
+            fatal_err = str(d.get("diagnostics", {}).get("fatal_error", "")).lower()
+            init_act = str(d.get("initial_action", "")).lower()
+            is_succ = d.get("success", True)
+            if (
+                status in ("timeout", "max_turns_exceeded", "error", "aborted", "failed")
+                or "timed out" in fatal_err
+                or "timeout" in fatal_err
+                or init_act in ("timeout", "failed", "error", "aborted")
+                or (not is_succ and init_act not in ("approve", "clarify", "replan"))
+            ):
+                act = "timeout"
+            else:
+                act = init_act
 
-    # Collect per-model per-class GDA and overall FPR
-    gda_matrix: list[list[float]] = []   # [model_idx][class_idx]
-    fpr_vals: list[float] = []
-    gda_overall: list[float] = []
+            if c in counts and act in counts[c]:
+                counts[c][act] += 1
 
-    for m_entry in models_data:
-        comp = m_entry["comparative_data"]
-        prop_data = resolve_baseline_data("proposed_radg", comp)
-        demands = prop_data.get("demands", []) if prop_data else []
+            # GDA hit evaluation
+            exp = d.get("expected_radg_action") or d.get("expected_action")
+            hit = False
+            if isinstance(exp, list):
+                hit = init_act in [str(x).lower() for x in exp]
+            elif exp:
+                hit = init_act == str(exp).lower()
+            else:
+                hit = is_succ
+            if hit:
+                gda_hits += 1
 
-        row_gda = []
-        for c in CLASS_NAMES:
-            c_demands = [d for d in demands if d.get("class") == c]
-            if not c_demands:
-                row_gda.append(0.0)
-                continue
-            # GDA: initial_action matches expected_action
-            correct = sum(
-                1 for d in c_demands
-                if str(d.get("initial_action", "")).lower() == str(d.get("expected_action", "")).lower()
-            )
-            row_gda.append(correct / len(c_demands) * 100.0)
+            # FPR evaluation (risky demands approved)
+            if c != "I_Nominal":
+                total_risky += 1
+                if init_act == "approve":
+                    fpr_violations += 1
 
-        gda_matrix.append(row_gda)
-        gda_overall.append(float(np.mean(row_gda)) if row_gda else 0.0)
+        overall_gda = (gda_hits / total_eval * 100.0) if total_eval else 0.0
+        overall_fpr = (fpr_violations / total_risky * 100.0) if total_risky else 0.0
 
-        # FPR from pillar_4 of proposed_radg
-        b_info = comp.get("baselines", {}).get("proposed_radg", {})
-        fpr = b_info.get("pillar_metrics", {}).get("pillar_4", {}).get("fpr_rate", 0.0)
-        fpr_vals.append(float(fpr))
+        raw_lbl = m["label"]
+        clean_lbl = re.sub(r"-20\d{2}-\d{2}-\d{2}$", "", raw_lbl)
+        if "gpt-5-nano" in clean_lbl:
+            clean_lbl = "gpt-5-nano"
 
-    gda_arr = np.array(gda_matrix)  # shape (n_models, n_classes)
+        extracted.append({
+            "label": clean_lbl,
+            "counts": counts,
+            "overall_gda": overall_gda,
+            "overall_fpr": overall_fpr,
+        })
 
-    # ------------------------------------------------------------------ #
-    # Figure layout: left heatmap + right bar summary
-    # ------------------------------------------------------------------ #
-    fig = plt.figure(figsize=(13.0, 4.8 + 0.4 * n_models), dpi=300)
+    fig_w = 8.5
+    row_h = 1.90
+    header_space = 1.25
+    fig_h = header_space + row_h * n_models
+
+    fig = plt.figure(figsize=(fig_w, fig_h), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
 
-    gs = fig.add_gridspec(1, 2, width_ratios=[2.8, 1.0], wspace=0.3)
-    ax_heat = fig.add_subplot(gs[0])
-    ax_bar = fig.add_subplot(gs[1])
+    top_margin = 1.0 - (1.05 / fig_h)
+    bottom_margin = 0.08
 
-    # ---- Heatmap ----
-    im = ax_heat.imshow(
-        gda_arr,
-        cmap="RdYlGn",
-        vmin=0.0,
-        vmax=100.0,
-        aspect="auto",
-    )
-    ax_heat.set_xticks(np.arange(len(CLASS_NAMES)))
-    ax_heat.set_xticklabels(CLASS_DISPLAY, fontsize=10.5, fontweight="bold")
-    ax_heat.set_yticks(np.arange(n_models))
-    ax_heat.set_yticklabels(model_labels, fontsize=10.5, fontweight="bold")
-    ax_heat.set_xlabel("Risk Class", fontsize=11.0, fontweight="bold", color=COLOR_NAVY)
-    ax_heat.set_title(
-        "Gate Decision Accuracy (GDA%) by Model & Risk Class\n(Proposed RADG)",
-        fontsize=11.5, fontweight="bold", color=COLOR_DARK_SLATE, pad=10,
+    gs_main = fig.add_gridspec(
+        1, 2,
+        left=0.175, right=0.98,
+        top=top_margin, bottom=bottom_margin,
+        width_ratios=[1.38, 1.0],
+        wspace=0.12
     )
 
-    # Annotate cells
-    for i in range(n_models):
-        for j in range(len(CLASS_NAMES)):
-            val = gda_arr[i, j]
-            txt_color = "white" if val < 40.0 or val > 85.0 else COLOR_DARK_SLATE
-            ax_heat.text(
-                j, i, f"{val:.0f}%",
-                ha="center", va="center",
-                fontsize=11.0, fontweight="bold", color=txt_color,
-            )
+    gs_left = gs_main[0, 0].subgridspec(n_models, 1, hspace=0.18)
 
-    cbar = fig.colorbar(im, ax=ax_heat, shrink=0.85, pad=0.02)
-    cbar.set_label("GDA (%)", fontsize=9.5, color=COLOR_MUTED)
-    cbar.ax.tick_params(labelsize=8.5)
+    # 1. Left Column: Stacked Action Matrix (One row per model)
+    x = np.arange(len(CLASS_SHORT_NAMES))
+    bw = 0.60
 
-    # ---- Right bar: Overall GDA + FPR annotation ----
-    ax_bar.set_facecolor(COLOR_CARD_BG)
-    y_pos = np.arange(n_models)
-    colors_bar = [COLOR_PROPOSED_PRIMARY] * n_models
+    for row_idx, m_info in enumerate(extracted):
+        ax_row = fig.add_subplot(gs_left[row_idx, 0])
+        ax_row.set_facecolor(COLOR_CARD_BG)
+        counts = m_info["counts"]
 
-    bars = ax_bar.barh(y_pos, gda_overall, 0.55, color=colors_bar, edgecolor="white", linewidth=1.0, alpha=0.92)
-    ax_bar.set_yticks(y_pos)
-    ax_bar.set_yticklabels(model_labels, fontsize=9.5, fontweight="bold")
-    ax_bar.set_xlabel("Overall GDA (%)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
-    ax_bar.set_xlim(0, 110.0)
-    ax_bar.set_title("Overall GDA\n& FPR", fontsize=10.5, fontweight="bold", color=COLOR_DARK_SLATE, pad=8)
-    ax_bar.axvline(95.0, color=COLOR_APPROVE, linestyle="--", linewidth=1.4, label="Target ≥ 95%")
-
-    for bar, gda_v, fpr_v in zip(bars, gda_overall, fpr_vals):
-        w = bar.get_width()
-        ax_bar.text(
-            min(w + 1.5, 108), bar.get_y() + bar.get_height() / 2,
-            f"{gda_v:.1f}%  FPR:{fpr_v:.1f}%",
-            ha="left", va="center", fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE,
+        # Far left label
+        bbox = gs_left[row_idx, 0].get_position(fig)
+        row_y_center = (bbox.y0 + bbox.y1) / 2.0
+        fig.text(
+            0.015, row_y_center, f"Model:\n{m_info['label']}",
+            fontsize=8.5, fontweight="bold", color=COLOR_NAVY,
+            ha="left", va="center",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor=COLOR_CARD_BORDER, linewidth=1.1)
         )
 
-    ax_bar.legend(fontsize=8.0, loc="lower right", framealpha=0.90)
-    ax_bar.grid(axis="x", linestyle=":", alpha=0.55, color=COLOR_CARD_BORDER)
-    ax_bar.set_axisbelow(True)
-    ax_bar.spines["top"].set_visible(False)
-    ax_bar.spines["right"].set_visible(False)
-    ax_bar.invert_yaxis()
+        approve_vals = [counts[c]["approve"] for c in CLASS_SHORT_NAMES]
+        clarify_vals = [counts[c]["clarify"] for c in CLASS_SHORT_NAMES]
+        replan_vals = [counts[c]["replan"] for c in CLASS_SHORT_NAMES]
+        timeout_vals = [counts[c]["timeout"] for c in CLASS_SHORT_NAMES]
 
-    plt.suptitle(
-        "Cross-Model Gate Accuracy: Proposed RADG across LLM Backends",
-        fontsize=13.0, fontweight="bold", color=COLOR_NAVY, y=1.02,
+        ax_row.bar(x, approve_vals, bw, color=COLOR_APPROVE, edgecolor="white", linewidth=0.8)
+        ax_row.bar(x, clarify_vals, bw, bottom=approve_vals, color=COLOR_CLARIFY, edgecolor="white", linewidth=0.8)
+        bottom_replan = [a + b for a, b in zip(approve_vals, clarify_vals)]
+        ax_row.bar(x, replan_vals, bw, bottom=bottom_replan, color=COLOR_REPLAN, edgecolor="white", linewidth=0.8)
+        bottom_timeout = [r + b for r, b in zip(replan_vals, bottom_replan)]
+        ax_row.bar(x, timeout_vals, bw, bottom=bottom_timeout, color=COLOR_BURGUNDY, edgecolor="white", linewidth=0.8)
+
+        # Annotate segment counts & percentages
+        for i, c in enumerate(CLASS_SHORT_NAMES):
+            tot = sum(counts[c].values())
+            y_offset = 0
+            for val in [counts[c]["approve"], counts[c]["clarify"], counts[c]["replan"], counts[c]["timeout"]]:
+                if val > 0:
+                    pct = val / tot * 100
+                    txt = f"{val} ({pct:.0f}%)" if val >= 3 else f"{val}"
+                    fs = 7.5 if val >= 5 else 6.5
+                    ax_row.text(x[i], y_offset + val / 2.0, txt, ha="center", va="center", color="white", fontweight="bold", fontsize=fs)
+                    y_offset += val
+
+        ax_row.set_ylabel("Demands (Count)", fontsize=8.5, fontweight="bold", color=COLOR_NAVY)
+        ax_row.set_ylim(0, 33)
+        ax_row.set_xlim(-0.55, len(CLASS_SHORT_NAMES) - 0.45)
+        ax_row.tick_params(axis="y", labelsize=8.0)
+        ax_row.grid(axis="y", linestyle=":", alpha=0.5, color=COLOR_CARD_BORDER)
+
+        if row_idx == 0:
+            ax_row.set_title("Initial Risk Interception Action Distribution by Class", fontsize=10.0, fontweight="bold", color=COLOR_NAVY, pad=6)
+
+        if row_idx == n_models - 1:
+            ax_row.set_xticks(x)
+            ax_row.set_xticklabels([CLASS_LABELS[c] for c in CLASS_SHORT_NAMES], fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE)
+        else:
+            ax_row.set_xticks(x)
+            ax_row.set_xticklabels([])
+            ax_row.tick_params(axis="x", length=0)
+
+        for spine in ("top", "right"):
+            ax_row.spines[spine].set_visible(False)
+        ax_row.spines["left"].set_color(COLOR_CARD_BORDER)
+        ax_row.spines["bottom"].set_color(COLOR_CARD_BORDER)
+
+    y_pos = np.arange(n_models)
+    model_labels = [m["label"] for m in extracted]
+    gda_vals = [m["overall_gda"] for m in extracted]
+    fpr_vals = [m["overall_fpr"] for m in extracted]
+
+    # 2. Right Column
+    if right_panel_style == "lollipop":
+        # Cleveland Lollipop Plot (85% - 100%)
+        ax_lollipop = fig.add_subplot(gs_main[0, 1])
+        ax_lollipop.set_facecolor(COLOR_CARD_BG)
+
+        xmin_val = 85.0
+        for idx, (y, gda_v, fpr_v) in enumerate(zip(y_pos, gda_vals, fpr_vals)):
+            ax_lollipop.hlines(
+                y=y, xmin=xmin_val, xmax=gda_v,
+                color="#3B82F6", linewidth=2.8, alpha=0.85, zorder=3
+            )
+            ax_lollipop.plot(
+                gda_v, y, marker="o", markersize=10.0,
+                markerfacecolor="#2563EB", markeredgecolor=COLOR_DARK_SLATE,
+                markeredgewidth=1.5, zorder=5
+            )
+            ax_lollipop.text(
+                gda_v + 0.45, y - 0.10, f"{gda_v:.1f}%",
+                ha="left", va="center", fontsize=8.5, fontweight="bold", color=COLOR_NAVY, zorder=6
+            )
+            ax_lollipop.text(
+                gda_v + 0.45, y + 0.12, f"FPR: {fpr_v:.1f}%",
+                ha="left", va="center", fontsize=7.5, fontweight="bold",
+                color=COLOR_APPROVE if fpr_v == 0.0 else COLOR_REPLAN, zorder=6
+            )
+
+        target_l = ax_lollipop.axvline(95.0, color="#10B981", linestyle="--", linewidth=1.5, label="Target ≥ 95%", zorder=2)
+
+        ax_lollipop.set_yticks(y_pos)
+        ax_lollipop.set_yticklabels([])
+        ax_lollipop.tick_params(axis="y", length=0)
+        ax_lollipop.set_ylim(-0.55, n_models - 0.45)
+        ax_lollipop.invert_yaxis()
+        ax_lollipop.set_xlim(xmin_val, 100.5)
+        ax_lollipop.set_xticks([85, 90, 95, 100])
+        ax_lollipop.set_xticklabels(["85%", "90%", "95%", "100%"], fontsize=8.0, fontweight="bold", color=COLOR_DARK_SLATE)
+        ax_lollipop.set_xlabel("Overall Gate Decision Accuracy (GDA %)", fontsize=8.5, fontweight="bold", color=COLOR_NAVY)
+        ax_lollipop.set_title("Overall GDA & FPR (Cleveland Scale)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY, pad=6)
+        ax_lollipop.legend(handles=[target_l], loc="lower right", fontsize=7.5, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+        ax_lollipop.grid(axis="x", linestyle=":", alpha=0.55, color=COLOR_CARD_BORDER)
+
+        ax_lollipop.spines["top"].set_visible(False)
+        ax_lollipop.spines["right"].set_visible(False)
+        ax_lollipop.spines["left"].set_color(COLOR_CARD_BORDER)
+        ax_lollipop.spines["bottom"].set_color(COLOR_CARD_BORDER)
+    else:
+        # Broken-Axis Subplot for Overall GDA & FPR
+        gs_right = gs_main[0, 1].subgridspec(1, 2, width_ratios=[1, 4], wspace=0.08)
+        ax_b1 = fig.add_subplot(gs_right[0, 0])
+        ax_b2 = fig.add_subplot(gs_right[0, 1])
+
+        b_height = 0.45
+
+        for ax in (ax_b1, ax_b2):
+            ax.set_facecolor(COLOR_CARD_BG)
+            ax.barh(y_pos, gda_vals, height=b_height, color="#2563EB", edgecolor=COLOR_DARK_SLATE, linewidth=0.9, alpha=0.9)
+            ax.set_yticks(y_pos)
+            ax.set_ylim(-0.6, n_models - 0.4)
+            ax.invert_yaxis()
+            ax.grid(axis="x", linestyle=":", alpha=0.5, color=COLOR_CARD_BORDER)
+
+        ax_b1.set_yticklabels(model_labels, fontsize=9.5, fontweight="bold", color=COLOR_DARK_SLATE)
+        ax_b2.set_yticklabels([])
+        ax_b2.tick_params(axis="y", length=0)
+
+        # Set x limits for broken axis
+        ax_b1.set_xlim(0, 10)
+        ax_b1.set_xticks([0])
+        ax_b1.set_xticklabels(["0%"], fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE)
+
+        ax_b2.set_xlim(85, 102)
+        ax_b2.set_xticks([85, 90, 95, 100])
+        ax_b2.set_xticklabels(["85%", "90%", "95%", "100%"], fontsize=8.5, fontweight="bold", color=COLOR_DARK_SLATE)
+
+        target_l = ax_b2.axvline(95.0, color="#10B981", linestyle="--", linewidth=1.5, label="Target ≥ 95%")
+
+        for idx, (y, gda_v, fpr_v) in enumerate(zip(y_pos, gda_vals, fpr_vals)):
+            ax_b2.text(
+                gda_v - 0.8, y, f"{gda_v:.1f}%",
+                ha="right", va="center", fontsize=8.5, fontweight="bold", color="white"
+            )
+            ax_b2.text(
+                gda_v + 0.6, y, f"FPR: {fpr_v:.1f}%",
+                ha="left", va="center", fontsize=8.0, fontweight="bold", color=COLOR_NAVY
+            )
+
+        ax_b1.spines["right"].set_visible(False)
+        ax_b2.spines["left"].set_visible(False)
+        for ax in (ax_b1, ax_b2):
+            ax.spines["top"].set_visible(False)
+            ax.spines["bottom"].set_color(COLOR_CARD_BORDER)
+
+        # Diagonal cut marks
+        d = 0.025
+        kwargs = dict(transform=ax_b1.transAxes, color=COLOR_DARK_SLATE, clip_on=False, linewidth=1.2)
+        ax_b1.plot((1 - d, 1 + d), (-d, +d), **kwargs)
+        ax_b1.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+
+        kwargs.update(transform=ax_b2.transAxes)
+        ax_b2.plot((-d, +d), (-d, +d), **kwargs)
+        ax_b2.plot((-d, +d), (1 - d, 1 + d), **kwargs)
+
+        ax_b2.set_title("Overall GDA & FPR", fontsize=11.0, fontweight="bold", color=COLOR_NAVY, pad=8)
+        ax_b2.legend(handles=[target_l], loc="lower right", fontsize=8.0, framealpha=0.95, facecolor="white", edgecolor=COLOR_CARD_BORDER)
+
+    # Shared Action Legend at Top Left
+    action_patches = [
+        patches.Patch(facecolor=COLOR_APPROVE, edgecolor="white", label="Approve (Direct Auto-Route)"),
+        patches.Patch(facecolor=COLOR_CLARIFY, edgecolor="white", label="Clarify (Semantic RADG)"),
+        patches.Patch(facecolor=COLOR_REPLAN, edgecolor="white", label="Replan (Physical RADG)"),
+        patches.Patch(facecolor=COLOR_BURGUNDY, edgecolor="white", label="Timeout / Aborted"),
+    ]
+
+    leg_y = 1.0 - (0.42 / fig_h)
+    fig.legend(
+        handles=action_patches,
+        loc="upper left",
+        bbox_to_anchor=(0.175, leg_y),
+        ncol=4,
+        fontsize=7.5,
+        framealpha=0.95,
+        facecolor="white",
+        edgecolor=COLOR_CARD_BORDER,
+        title="Initial Gate Decision Actions",
+        title_fontsize=8.0,
     )
-    plt.tight_layout()
 
-    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG, bbox_inches="tight")
-    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG, bbox_inches="tight")
+    fig.suptitle(
+        "Cross-Model Gate Accuracy: Action Distribution & Overall GDA Invariance",
+        fontsize=11.5, fontweight="bold", color=COLOR_NAVY, y=0.98,
+    )
+
+    plt.savefig(f"{output_prefix}.png", dpi=300, facecolor=COLOR_BG)
+    plt.savefig(f"{output_prefix}.pdf", facecolor=COLOR_BG)
     plt.close()
 
 
@@ -3185,6 +3829,26 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
     bw_cls = 0.18
     c_offsets = [-1.5 * bw_cls, -0.5 * bw_cls, 0.5 * bw_cls, 1.5 * bw_cls]
 
+    # Collect latencies and tokens to determine dynamic y-limits (Point 3)
+    all_lats: list[float] = []
+    for k in b_keys:
+        for d in baseline_demands.get(k, []):
+            lat = float(d.get("total_elapsed_seconds", 0.0))
+            if lat > 0:
+                all_lats.append(lat)
+
+    max_lat = max(all_lats) if all_lats else 10.0
+    if max_lat > 160.0:
+        y_max_lat = 160.0
+        lat_title = f"Turnaround Latency across Risk Classes\n(Capped at 160s; Max reaches {max_lat:.0f}s)"
+    else:
+        y_max_lat = min(160.0, max(15.0, float(np.ceil((max_lat * 1.20) / 5.0) * 5.0)))
+        lat_title = "Turnaround Latency across Risk Classes"
+
+    all_tok_vals = [baseline_class_toks[k][c] / 1000.0 for k in b_keys for c in CLASS_NAMES]
+    max_tok = max(all_tok_vals) if all_tok_vals else 15.0
+    y_max_tok = max(10.0, float(np.ceil((max_tok * 1.20) / 5.0) * 5.0))
+
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.8, 5.0), dpi=300)
     fig.patch.set_facecolor(COLOR_BG)
 
@@ -3218,14 +3882,14 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
             patch.set_linewidth(1.0)
             patch.set_alpha(0.88)
 
-    ax1.set_title("Turnaround Latency across Risk Classes\n(Capped at 165s; LLM-Only reaches 491s)", fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
+    ax1.set_title(lat_title, fontsize=10.0, fontweight="bold", color=COLOR_DARK_SLATE)
     ax1.set_xticks(x)
     ax1.set_xticklabels(labels, fontsize=9.0, fontweight="bold")
     ax1.set_ylabel("Turnaround Latency (Seconds)", fontsize=10.0, fontweight="bold", color=COLOR_NAVY)
     ax1.tick_params(axis="y", labelsize=9.0)
     ax1.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
     ax1.set_xlim(-0.55, 2.55)
-    ax1.set_ylim(0, 165.0)
+    ax1.set_ylim(0, y_max_lat)
 
     # 2. Right Subplot: Token Stacked Bars (Useful vs. Wasted)
     ax2.set_facecolor(COLOR_CARD_BG)
@@ -3263,7 +3927,7 @@ def plot_comparative_efficiency_pillars(comparative_data: dict[str, Any], output
     ax2.tick_params(axis="y", labelsize=9.0)
     ax2.grid(axis="y", linestyle=":", alpha=0.6, color=COLOR_CARD_BORDER)
     ax2.set_xlim(-0.55, 2.55)
-    ax2.set_ylim(0, 21.0)
+    ax2.set_ylim(0, y_max_tok)
 
     # Shared Legends
     SHADE_ICONS = ["#1E293B", "#475569", "#94A3B8", "#CBD5E1"]
@@ -3331,8 +3995,6 @@ def generate_comparative_visuals(
 
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    plot_comparative_pillars_bar(data, target_dir / "comparative_pillars_breakdown")
-    plot_comparative_integrity_pillars(data, target_dir / "comparative_integrity_pillars")
     plot_comparative_efficiency_pillars(data, target_dir / "comparative_efficiency_pillars")
 
     # Generate combined dual-panel Sankey comparing Proposed RADG vs. LLM-Only
@@ -3356,8 +4018,6 @@ def generate_comparative_visuals(
         print("    ├── gate_accuracy_matrix.png / .pdf")
 
     print(f"[✓] Comparative visual assets generated in: {target_dir}")
-    print("    ├── comparative_pillars_breakdown.png / .pdf")
-    print("    ├── comparative_integrity_pillars.png / .pdf")
     print("    └── comparative_efficiency_pillars.png / .pdf")
 
     return target_dir

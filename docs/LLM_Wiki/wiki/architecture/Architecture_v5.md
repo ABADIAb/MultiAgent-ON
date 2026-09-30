@@ -11,7 +11,7 @@ supersedes:
 
 ## 1. Executive Summary
 
-This document defines the V5 system architecture for the **LLM-Assisted Risk-Adaptive Decision Gates** of Software-Defined Optical Networks (SDON). Building upon the V4 neurosymbolic foundation, V5 introduces the **Risk-Adaptive Decision Gates (RADGs)** mechanism designed fundamentally to **optimize Human-in-the-Loop (HITL) operator interventions**. It acts as a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent, minimizing cognitive overload while ensuring absolute network safety.
+This document defines the system architecture for the **LLM-Assisted Risk-Adaptive Decision Gates** of Intent Based Optical Networks (IBON). This version introduces the **Risk-Adaptive Decision Gates (RADGs)** mechanism designed fundamentally to **optimize Human-in-the-Loop (HITL) operator interventions**. It acts as a pre-deployment, fail-fast mechanism that sequentially evaluates semantic uncertainty and physical-layer QoT risk to determine the appropriate action for each operator intent, minimizing cognitive overload while ensuring absolute network safety.
 
 The system translates natural language intent into PDDL. Before executing expensive symbolic solvers and physical simulations, the **Semantic RADG** evaluates if the intent is clear, triggering a targeted HITL request for missing data if it is not. Once semantically clear, the system filters valid topologies, validates physical feasibility, and applies the **Physical RADG** to decide whether the plan should be **auto-approved**, **suggest replanning** with alternative paths, or **rejected** to prevent unfeasible deployments.
 

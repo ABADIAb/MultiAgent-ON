@@ -59,23 +59,28 @@ LLM-Assisted Risk-Adaptive Neurosymbolic Intent Planning for Optical Networks: A
    - Implemented two new cross-model publication figures: `plot_cross_model_efficiency()` (2-panel grouped bar: median latency + median token footprint by model per baseline) and `plot_cross_model_gate_accuracy_heatmap()` (RdYlGn GDA% heatmap by model × risk class, paired with FPR-annotated overall GDA bar).
    - Outputs persisted to `tests/evaluation/results/cross_model/<timestamp>/` with a companion `.md` metadata report. Structural/invariant figures (Sankey, Pillars) excluded by design — they capture pipeline architecture, not LLM backend effects.
 
+7. **Chapter 5 Evaluation Consolidation & Full Architectural Roadmap Realignment:**
+   - Synthesized the complete, publication-grade LaTeX draft for Chapter 5 ([`chapter_5_experimental_evaluation.txt`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/5_Evaluation/chapter_5_experimental_evaluation.txt)) incorporating 120-intent empirical benchmarks across `qwen2.5:3b`, `gpt-5-nano`, and `gpt-6-luna`, with 6 empirical tables and 5 comparative figures.
+   - Synchronized [`Thesis_Outline_v4.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/Thesis_Outline_v4.md) and [`Writing_Roadmap_v1.md`](file:///home/felipeab/MultiAgentON/docs/LLM_Wiki/wiki/thesis_drafts/Writing_Roadmap_v1.md) with exact subsection hierarchies, listings (3.1–3.3, 4.1–4.5), formal grammar specifications (Spec 3.1), and table references across Chapters 3, 4, and 5.
+   - Hardened cross-model visualization generation against matplotlib layout edge cases, maintaining 364 passing unit tests and clean static analysis.
+
 ---
 
 ## 3. What do I plan to accomplish next week?
 
-1. **Draft Thesis Chapter 5 (Experimental Results & Evaluation):** Formally draft Chapter 5 incorporating empirical benchmark tables, Four Pillars radar charts, multi-class breakdowns, and comparative ablation figures.
-2. **Multi-Model Cross-LLM Benchmarks:** Execute full-corpus runs on a second model (e.g., `phi4-mini:latest` or a cloud API) and trigger the new **Comparative LLMs Mode** to generate the first real cross-model efficiency and gate accuracy figures.
-3. **Academic Presentation Rehearsal:** Review the full-corpus comparative baseline outcomes and updated slide deck with academic advisor Prof. Massimo Tornatore.
+1. **Draft Thesis Chapter 2 (State of the Art & Theoretical Foundations):** Systematize optical intent networking, neurosymbolic orchestration, and LLM-assisted control literature to draft Chapter 2.
+2. **Draft Thesis Chapter 1 (Introduction & Research Objectives):** Formally articulate the thesis problem, industrial motivation, and specific contributions.
+3. **Academic Presentation Rehearsal:** Review the complete empirical results, LaTeX drafts (Chapters 3, 4, 5), and updated slide deck with academic advisor Prof. Massimo Tornatore.
 
 ---
 
 ## 4. Do You Need Support?
 
-- **Current Status:** Comparative baselines, segregated telemetry architecture, cross-baseline and cross-model visual generators, OpenAI multi-model provider, and interactive CLI navigation are fully functional with 358 passing unit tests.
-- **Advisor Review:** Ready to schedule presentation rehearsal and benchmark review with Prof. Massimo Tornatore based on the empirical comparative data.
+- **Current Status:** Comparative baselines, segregated telemetry architecture, cross-baseline and cross-model visual generators, Chapter 3–5 LaTeX drafts, and synchronized structural roadmaps are complete with 364 passing unit tests.
+- **Advisor Review:** Ready to schedule presentation rehearsal and draft review with Prof. Massimo Tornatore based on the consolidated Overleaf chapters.
 
 ---
 
 ## 5. One-Sentence Summary
 
-I engineered a modular comparative evaluation suite with hierarchical telemetry and publication-ready visuals, integrated OpenAI provider and bidirectional CLI navigation, enforced adversarial invariants with 358 passing unit tests, and implemented a Cross-Model Comparative LLMs Mode that automatically surfaces eligible runs and generates cross-model efficiency and gate accuracy figures.
+I completed the publication-grade LaTeX draft of Chapter 5 incorporating multi-model empirical benchmarks across 120 intents, synchronized the thesis outline and writing roadmap across Chapters 3–5, hardened cross-model visualization generation, and maintained full test suite health with 364 passing unit tests.

@@ -19,6 +19,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -696,9 +697,9 @@ def run_comparative_mode(
             f"[bold white]Output Directory:[/bold white] [cyan]{common_output_dir}[/cyan]\n"
             f"  ├── comparative_results_{run_id}.json\n"
             f"  ├── comparative_summary_{run_id}.md\n"
-            f"  ├── comparative_pillars_breakdown.png / .pdf\n"
             f"  ├── comparative_deployment_flow_sankey.png / .pdf\n"
             f"  ├── comparative_scalability_projection.png / .pdf\n"
+            f"  ├── comparative_efficiency_pillars.png / .pdf\n"
             f"  └── gate_accuracy_matrix.png / .pdf",
             title="🏆 Comparison Synthesized Successfully",
             border_style="green",
@@ -752,7 +753,6 @@ def run_cross_model_comparison(selected: list[dict[str, str]]) -> None:
         selected: List of {"model": sanitized_model, "timestamp": ts} dicts.
     """
     from tests.evaluation.generate_visuals import (
-        plot_cross_model_efficiency,
         plot_cross_model_gate_accuracy_heatmap,
     )
 
@@ -811,8 +811,13 @@ def run_cross_model_comparison(selected: list[dict[str, str]]) -> None:
                 except Exception:
                     pass
 
-        models_data.append({"label": raw_model, "comparative_data": comp_data})
-        meta_entries.append({"model_label": raw_model, "model_dir": model_seg, "timestamp": ts})
+        # Clean model label (remove verbose snapshot suffixes like -2025-08-07)
+        clean_model_label = re.sub(r"-20\d{2}-\d{2}-\d{2}$", "", raw_model)
+        if "gpt-5-nano" in clean_model_label:
+            clean_model_label = "gpt-5-nano"
+
+        models_data.append({"label": clean_model_label, "comparative_data": comp_data})
+        meta_entries.append({"model_label": clean_model_label, "model_dir": model_seg, "timestamp": ts})
 
     if len(models_data) < 2:
         console.print("[red]Need at least 2 models with complete data to generate cross-model figures.[/red]")
@@ -824,10 +829,7 @@ def run_cross_model_comparison(selected: list[dict[str, str]]) -> None:
 
     console.print(f"\n[dim]Generating cross-model figures in {out_dir}...[/dim]")
 
-    plot_cross_model_efficiency(models_data, out_dir / "cross_model_efficiency")
-    console.print("  [green]✓[/green] cross_model_efficiency.png / .pdf")
-
-    plot_cross_model_gate_accuracy_heatmap(models_data, out_dir / "cross_model_gate_accuracy")
+    plot_cross_model_gate_accuracy_heatmap(models_data, out_dir / "cross_model_gate_accuracy", right_panel_style="lollipop")
     console.print("  [green]✓[/green] cross_model_gate_accuracy.png / .pdf")
 
     # Write metadata markdown
@@ -848,7 +850,7 @@ def run_cross_model_comparison(selected: list[dict[str, str]]) -> None:
         "## Models & Runs",
         "",
         "| # | Model Label | Directory | Timestamp |",
-        "|---|-------------|-----------|-----------|" ,
+        "|---|-------------|-----------|-----------|",
     ]
     for i, me in enumerate(meta_entries, 1):
         md_lines.append(f"| {i} | `{me['model_label']}` | `{me['model_dir']}` | `{me['timestamp']}` |")
@@ -858,9 +860,8 @@ def run_cross_model_comparison(selected: list[dict[str, str]]) -> None:
         "## Generated Figures",
         "",
         "| File | Description |",
-        "|------|-------------|" ,
-        "| `cross_model_efficiency.png/.pdf` | 2-panel grouped bar: Median Latency & Token Footprint per model per baseline. Captures LLM-dependent efficiency variability while holding baseline architecture constant. |",
-        "| `cross_model_gate_accuracy.png/.pdf` | GDA% heatmap (model × risk class) + overall GDA & FPR summary bar for Proposed RADG. Validates model-agnostic integrity guarantees. |",
+        "|------|-------------|",
+        "| `cross_model_gate_accuracy.png/.pdf` | Action Distribution Matrix per model + Overall GDA & FPR summary (Cleveland Lollipop scale, 85%–100%). Validates model-agnostic integrity guarantees. |",
         "",
         "## Methodology Notes",
         "",
@@ -879,7 +880,6 @@ def run_cross_model_comparison(selected: list[dict[str, str]]) -> None:
         Panel(
             f"[bold green]✓ Cross-Model Comparison Complete![/bold green]\n\n"
             f"[bold white]Output Directory:[/bold white] [cyan]{out_dir}[/cyan]\n"
-            f"  ├── cross_model_efficiency.png / .pdf\n"
             f"  ├── cross_model_gate_accuracy.png / .pdf\n"
             f"  └── cross_model_comparison_{run_id}.md",
             title="🏆 Cross-Model Analysis Complete",
