@@ -1,28 +1,10 @@
 \chapter{System Model and Neurosymbolic Architecture}
 \label{chap:system_model}
 
-This chapter establishes the formal problem definition, system model, and theoretical architecture for the Risk-Adaptive Neurosymbolic Intent Planning framework in Intent-Based Optical Networks (IBON). Section~\ref{sec:problem_definition} analyzes the architectural vulnerabilities of pure generative models and formulates the intent-to-configuration lifecycle as a pre-deployment constrained optimization problem. Section~\ref{sec:proposed_framework} introduces the proposed 7-phase neurosymbolic pipeline and its append-only state transaction lifecycle. Section~\ref{sec:neurosymbolic_separation} formalizes the strict neurosymbolic separation boundary, detailing the Planning Domain Definition Language (PDDL) optical routing domain and Context-Free Grammar (CFG) Abstract Syntax Tree (AST) validation. Finally, Section~\ref{sec:radg} details the Risk-Adaptive Decision Gates (RADGs), deriving the two-layer semantic uncertainty quantification metric ($U_{\text{sem}}$), the coherent Gaussian Noise (GN) physical-layer feasibility equations, and multi-turn convergence guarantees.
+This chapter establishes the formal problem definition, system model, and theoretical architecture for the Risk-Adaptive Neurosymbolic Intent Planning framework in Intent-Based Optical Networks (IBON). Section~\ref{sec:problem_definition} formulates the intent-to-configuration lifecycle as a pre-deployment constrained optimization problem. Section~\ref{sec:proposed_framework} introduces the proposed 7-phase neurosymbolic pipeline and its append-only state transaction lifecycle. Section~\ref{sec:neurosymbolic_separation} formalizes the strict neurosymbolic separation boundary, detailing the Planning Domain Definition Language (PDDL) optical routing domain and Context-Free Grammar (CFG) Abstract Syntax Tree (AST) validation. Finally, Section~\ref{sec:radg} details the Risk-Adaptive Decision Gates (RADGs), deriving the two-layer semantic uncertainty quantification metric ($U_{\text{sem}}$), the Gaussian Noise (GN) physical-layer feasibility equations, and multi-turn convergence guarantees.
 
 \section{Formal Problem Definition}
 \label{sec:problem_definition}
-
-\subsection{Architectural Vulnerabilities in LLM-Driven Optical Intent Planning}
-\label{subsec:architectural_vulnerabilities}
-
-The translation of high-level operator intent into physical-layer configurations in Intent-Based Optical Networks (IBON) presents critical operational risks when relying solely on Large Language Models (LLMs) \cite{bekri_bridging_2025, hachimi_flow-rule_2025, zacarias_enhancing_2026}. Optical transport networks operate under strict physical-layer limitations governed by nonlinear propagation physics. Configuration errors can cause severe transmission degradation, optical amplifier saturation, or irreversible transponder damage \cite{soumplis_network_2017, cruzes_telemetry_2026, damico_gnpy_2026}. Purely generative approaches present five fundamental failure modes that undermine operational integrity:
-
-\begin{enumerate}
-    \item \textbf{Token Budget Saturation and Attention Degradation:} Modern optical topologies described via standard Network Configuration Protocol (NETCONF) or Representational State Transfer Configuration Protocol (RESTCONF) data models, or Transport API (T-API) northbound interfaces, generate extensive JSON/YANG payloads \cite{cruzes_telemetry_2026, gharbaoui_assurance_2026, ahmadian_t-api-compliant_2026}. Injecting complete network state representations into the LLM context window exhausts token budgets ($T_{\text{context}} \ge T_{\max}$) and triggers attention degradation—commonly characterized as the ``lost-in-the-middle'' phenomenon \cite{ahmadian_t-api-compliant_2026, di_cicco_open_2024}. Consequently, long-horizon dependency constraints and intermediate node attributes are omitted during prompt synthesis \cite{du_memory_2026}.
-    \item \textbf{Hallucinated Physical Feasibility:} Generative autoregressive models operate as probabilistic token predictors trained on textual distributions; they lack internal mathematical physics engines and cannot solve wave propagation equations. When tasked with route determination, the LLM hallucinates topological paths that appear syntactically plausible but violate Generalized Signal-to-Noise Ratio (GSNR) margins \cite{bekri_bridging_2025, zhang_autoonbench_2026}.
-    \item \textbf{Semantic Drift in Iterative Intent Refinement:} Unconstrained multi-turn conversational interaction for intent disambiguation lacks formal convergence bounds \cite{bekri_bridging_2025, hachimi_flow-rule_2025}. When an operator introduces modifications in turn $t_k$, standard conversational memory may drop or mutate immutable boundary constraints established in turn $t_0$, causing semantic drift and unbounded negotiation cycles \cite{wang_intent-driven_nodate, bekri_bridging_2025}.
-    \item \textbf{Reactive Post-Deployment Failure Latency:} Automated networking frameworks frequently rely on trial-and-error post-deployment execution. In such architectures, an unverified candidate configuration is pushed directly to the network controller or southbound interface (SBI); only after hardware or controller-level rejection does the system invoke an LLM retry loop \cite{hachimi_flow-rule_2025}. In high-capacity optical backbones, pushing unverified configurations introduces control-plane latency and risks transient link disruptions \cite{cruzes_telemetry_2026}.
-    \item \textbf{Suboptimal Human-in-the-Loop Engagement:} Operational paradigms present a rigid binary interaction model: either mandatory operator review for every transaction (\textit{always-on HITL}), causing cognitive fatigue, or fully autonomous unverified deployment (\textit{no-HITL}), exposing the transport layer to configuration faults \cite{zhang_ai_2026, zhang_autoonbench_2026, cruzes_telemetry_2026}. Generative LLMs also fail to ``fail early'' deterministically \cite{wang_intent-driven_nodate}. When presented with ambiguous inputs, rather than safely stopping and initiating a structured clarification loop, the model frequently fabricates parameters to force a deployment \cite{wang_intent-driven_nodate, bekri_bridging_2025}. Without mechanisms to dynamically assess the operational risk of a control command, the agent cannot adapt its gating threshold to engage operators solely when calculated risks exceed acceptable boundaries \cite{cruzes_telemetry_2026, zhang_autoonbench_2026, liu_field_2026}.
-\end{enumerate}
-
-To resolve these vulnerabilities, we formulate the intent-to-configuration lifecycle as a pre-deployment optimization problem that evaluates linguistic ambiguity and physical transmission feasibility prior to network actuation.
-
-\subsection{Formal Mathematical Formulation}
-\label{subsec:mathematical_formulation}
 
 Given an unstructured natural language intent ($\mathcal{I}_{NL}$), an active topological and physical network state ($G, \mathbf{P}$), and a physical-layer feasibility threshold ($\text{GSNR}_{th}$), the system decides the formal symbolic specification ($\mathcal{S}_{PDDL}$), the optimal lightpath ($\pi^*$), and the pre-deployment control action ($a \in \mathcal{A}$), with the objective of minimizing the aggregated operational and computational friction ($\mathcal{J}$).
 
@@ -137,7 +119,7 @@ The planning engine must determine:
 The objective function aims to minimize both operational friction and computational overhead, where physical feasibility and semantic certainty are enforced as hard pre-deployment constraints:
 \begin{equation}
 \label{eq:objective_function}
-\min_{\mathcal{S}_{PDDL}, \pi^*} \mathcal{J} = \alpha \cdot N_{hitl}(\mathcal{I}_{NL}) + \beta \cdot T_{tokens}(\mathcal{I}_{NL})
+\min_{\mathcal{S}_{PDDL}, \pi^*} \mathcal{J} = w_{1} \cdot N_{hitl}(\mathcal{I}_{NL}) + w_{2} \cdot T_{tokens}(\mathcal{I}_{NL})
 \end{equation}
 \begin{equation}
 \text{subject to:} \quad D\left( U_{sem}, \text{QoT}_{valid}(\pi^*) \right) = \text{approve}
@@ -149,7 +131,7 @@ where:
 \begin{itemize}
     \item $N_{hitl} \in \mathbb{N}_0$ denotes the number of operator interruptions triggered during the planning lifecycle.
     \item $T_{tokens} \in \mathbb{N}^+$ represents the total cumulative LLM token consumption.
-    \item $\alpha \in \mathbb{R}^+$ and $\beta \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs (OPEX normalization factors). These parameters inform the baseline evaluations analyzed in Chapter~\ref{chap:implementation} (Always-HITL vs. No-HITL).
+    \item $w_{1} \in \mathbb{R}^+$ and $w_{2} \in \mathbb{R}^+$ are weighting coefficients balancing human operator cognitive workload against computational inference costs (OPEX normalization factors). These parameters inform the baseline evaluations analyzed in Chapter~\ref{chap:implementation} (Always-HITL vs. No-HITL).
     \item $D(U_{sem}, \text{QoT}_{valid}) = \text{approve}$ enforces that no lightpath configuration reaches the network provisioning layer unless both semantic ambiguity and physical transmission infeasibility have been evaluated and resolved.
 \end{itemize}
 
@@ -298,7 +280,8 @@ To guarantee that the neural translation output contains zero structural or synt
 S_0 &\to \texttt{(:goal } \text{GoalExpr}\texttt{)} \\[3pt]
 \text{GoalExpr} &\to \texttt{(and } \text{PredicateList}\texttt{)} \;\mid\; \text{Predicate} \\[3pt]
 \text{PredicateList} &\to \text{Predicate} \;\text{PredicateList} \;\mid\; \text{Predicate} \\[3pt]
-\text{Predicate} &\to \texttt{(route } \text{Node} \;\text{Node}\texttt{)} \\
+\text{Predicate} &\to \texttt{(connected } \text{Node} \;\text{Node}\texttt{)} \\
+                 &\;\mid\; \texttt{(route } \text{Node} \;\text{Node}\texttt{)} \\
                  &\;\mid\; \texttt{(avoid-node } \text{Node}\texttt{)} \\
                  &\;\mid\; \texttt{(avoid-link } \text{Node} \;\text{Node}\texttt{)} \\
                  &\;\mid\; \texttt{(max-hops } \text{Integer}\texttt{)} \\
@@ -425,12 +408,12 @@ Following semantic validation, physical feasibility is assessed deterministicall
 
 \subsubsection{Amplified Spontaneous Emission (ASE)}
 
-Within each fiber span $m$ comprising link $e_{ij}$, Erbium-Doped Fiber Amplifiers (EDFAs) introduce Amplified Spontaneous Emission (ASE) noise to compensate for fiber attenuation. This represents the primary linear noise contribution to the signal. The ASE noise power within the optical reference bandwidth (set to symbol rate $R_s$) is defined as:
+Within each fiber span $m$ comprising link $e_{ij}$, Erbium-Doped Fiber Amplifiers (EDFAs) are used to compensate for fiber attenuation. However, EDFAs introduce Amplified Spontaneous Emission (ASE) noise, which represents the dominant linear noise contribution to the signal in the GN-model. The ASE noise power within the optical reference bandwidth (set to symbol rate $R_s$) is defined as:
 \begin{equation}
 \label{eq:ase_noise}
 P_{ASE, m} = (G_m - 1) \cdot h \nu \cdot R_s \cdot NF_m
 \end{equation}
-where $h$ is Planck's constant ($6.626 \times 10^{-34} \text{ J}\cdot\text{s}$), $\nu$ represents optical carrier central frequency ($193.4 \text{ THz}$, C-band center), $G_m$ dictates linear amplifier gain, and $NF_m$ is the operating noise figure computed via empirical polynomial models characterizing the amplifier type ($NF_{lin}(G) = a + b / (G_{lin} - 1)$, parameterizing booster/ILA units with $a = 2.793, b = 117.513$ and pre-amplifiers with $a = 3.88, b = 457.586$).
+where $h$ is Planck's constant ($6.626 \times 10^{-34} \text{ J}\cdot\text{s}$), $\nu$ represents optical carrier frequency ($193.1 \text{ THz}$), $G_m$ dictates linear amplifier gain, and $NF_m$ is amplifier noise figure.
 
 Consequently, the linear inverse Optical Signal-to-Noise Ratio attributable to ASE over link $e_{ij}$ containing $M$ discrete spans is:
 \begin{equation}
@@ -440,13 +423,12 @@ Consequently, the linear inverse Optical Signal-to-Noise Ratio attributable to A
 where $P_{ch}$ denotes launch channel power in Watts.
 
 \subsubsection{Non-Linear Interference (NLI)}
-
 Using the GN model, Non-Linear Interference (NLI) generated by Kerr non-linearities (Self-Phase Modulation and Cross-Phase Modulation) is approximated as an additive Gaussian noise disturbance that degrades performance at high transmission powers:
 \begin{equation}
 \label{eq:nli_noise}
 \eta_0 = \frac{8}{27} \frac{\alpha \gamma^2}{\pi |\beta_2| R_s^2} \ln\left( \frac{\pi^2 |\beta_2| R_s^2 N_{ch}^{2 R_s / \Delta f}}{\alpha} \right), \quad P_{NLI, m} = \eta_0 L_{eff}^2 P_{ch}^3
 \end{equation}
-where $\gamma$ is the nonlinear Kerr coefficient, $\beta_2 = -\frac{\lambda^2}{2\pi c} D$ is group velocity dispersion, $R_s$ is symbol rate ($32\text{ GBaud}$), $N_{ch}$ is channel count ($100$ in C-band), $\Delta f$ is channel spacing ($50\text{ GHz}$), and $L_{eff} = \frac{1 - e^{-\alpha L_m}}{\alpha}$ is effective nonlinear length. The non-linear SNR contribution is:
+where $\gamma$ is the nonlinear Kerr coefficient, $\beta_2 = -\frac{\lambda^2}{2\pi c} D$ is group velocity dispersion, $R_s$ is symbol rate, $N_{ch}$ is channel count, $\Delta f$ is channel spacing, and $L_{eff} = \frac{1 - e^{-\alpha L_m}}{\alpha}$ is effective nonlinear length. The non-linear SNR contribution is:
 \begin{equation}
 \label{eq:snr_nli}
 \text{SNR}_{NLI}^{-1}(e_{ij}) = \sum_{m=1}^M \frac{P_{NLI, m}}{P_{ch}}
@@ -457,21 +439,22 @@ where $\gamma$ is the nonlinear Kerr coefficient, $\beta_2 = -\frac{\lambda^2}{2
 The aggregate Generalized Signal-to-Noise Ratio characterizing candidate path $\pi = (e_1, e_2, \dots, e_H)$ is calculated by combining both linear (ASE) and non-linear (NLI) inverse SNR contributions across all cascaded links, anchored by the back-to-back transponder noise floor:
 \begin{equation}
 \label{eq:gsnr_accumulation}
-\text{GSNR}(\pi)^{-1} = \text{SNR}_{trx}^{-1} + \sum_{h=1}^H \left( \text{OSNR}_{ASE}^{-1}(e_h) + \text{SNR}_{NLI}^{-1}(e_h) \right)
+\text{GSNR}(\pi)^{-1} = \text{SNR}_{tx,lin}^{-1} + \sum_{h=1}^H \left( \text{OSNR}_{ASE}^{-1}(e_h) + \text{SNR}_{NLI}^{-1}(e_h) \right)
 \end{equation}
-where $\text{SNR}_{trx}^{-1} = 10^{-\text{SNR}_{trx}/10}$ denotes the transponder back-to-back SNR limit ($\text{SNR}_{trx} = 26.0\text{ dB}$) establishing the asymptotic physical ceiling of the transmission line. Converted to logarithmic decibels:
+where $\text{SNR}_{tx,lin}^{-1} = 10^{-\text{SNR}_{trx,dB}/10}$ denotes the transponder back-to-back SNR limit ($\text{SNR}_{trx,dB} = 26.0\text{ dB}$) establishing the asymptotic physical ceiling of the transmission line. Converted to logarithmic decibels:
 \begin{equation}
 \label{eq:gsnr_db}
 \text{GSNR}_{dB}(\pi) = 10 \log_{10}\left( \frac{1}{\text{GSNR}(\pi)^{-1}} \right)
 \end{equation}
 
+
 \subsubsection{Power Allocation and Launch Strategy}
 
-It is worth noting that this evaluation assumes a fixed channel launch power ($P_{ch}$) across all spans, reflecting a static, unoptimized provisioning profile. Advanced launch power optimization strategies, such as the Local Optimization Global Optimization (LoGO) approach, are intentionally deferred. The objective of the Physical RADG is not to perform dynamic power allocation, but rather to deterministically evaluate the feasibility of a baseline configuration to rapidly inform the neurosymbolic reasoning loop.
+It is worth noting that this evaluation assumes a fixed channel launch power ($P_{ch}$) across all spans, reflecting a static, unoptimized provisioning profile. Advanced launch power optimization strategies, such as the Local Optimization Global Optimization (LOGO) approach, are intentionally deferred. The objective of the Physical RADG is not to perform dynamic power allocation, but rather to deterministically evaluate the feasibility of a baseline configuration to rapidly inform the neurosymbolic reasoning loop.
 
 \subsubsection{Binary QoT Feasibility Indicator}
 
-The final physical viability of the proposed paths is evaluated against hardware thresholds:
+The final feasibility of the proposed routing paths is evaluated based on defined SNR thresholds and the power sensitivity at the receiver side:
 \begin{equation}
 \label{eq:qot_valid_binary}
 \text{QoT}_{valid} = \begin{cases} 

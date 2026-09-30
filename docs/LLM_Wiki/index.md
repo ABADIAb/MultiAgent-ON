@@ -143,6 +143,7 @@ Content-oriented catalog of everything in the wiki.
 - [[thesis_drafts/3_SystemModel/3_4_Risk_Adaptive_Decision_Gates]]: Chapter 3 Section 3.4 — Risk-Adaptive Decision Gates (RADGs) decision function, GN model physics integration, and Formal HITL Reverse Prompting execution policies.
 - [[thesis_drafts/3_SystemModel/chapter_3_system_model.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 3 (Overleaf-ready).
 - [[thesis_drafts/4_NPImp/chapter_4_implementation.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 4 (Overleaf-ready).
+- [[thesis_drafts/5_Evaluation/chapter_5_experimental_evaluation.txt]]: Complete merged $\text{\LaTeX}$ source for Chapter 5 (Overleaf-ready).
 - [[thesis_drafts/3_SystemModel/figs_SystemModel/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 3 core figures, and academicbox/formalbox environment usage.
 - [[thesis_drafts/4_NPImp/figs_NPImp/README]]: Vector figures catalog, Overleaf $\text{\LaTeX}$ snippet guide for Chapter 4 core figures, and bounding box specifications.
 - [[thesis_drafts/4_NPImp/4_1_The_LangGraph_Orchestrator]]: Chapter 4 Section 4.1 — LangGraph StateGraph pipeline architecture, AgentState channels, conditional routing, and HITL interrupt mechanics.

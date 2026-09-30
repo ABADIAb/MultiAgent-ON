@@ -10,6 +10,7 @@ wheels/
 
 # Virtual environments
 .venv
+openspec
 
 # Environment variables & secrets
 .env
@@ -38,6 +39,15 @@ htmlcov/
 .agents/
 .atl/
 docs/LLM_Wiki/raw/
+docs/LLM_Wiki/wiki/concepts
+docs/LLM_Wiki/wiki/issues
+docs/LLM_Wiki/wiki/literature
+docs/LLM_Wiki/wiki/presentations
+docs/LLM_Wiki/wiki/session_summary
+docs/LLM_Wiki/wiki/thesis_drafts
+docs/LLM_Wiki/wiki/tools_wiki
+docs/LLM_Wiki/wiki/transcriptions
+docs/LLM_Wiki/wiki/weekly_reports
 
 # Draw.io temporary lock & backup files
 .\$*.drawio*

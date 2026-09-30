@@ -741,7 +741,9 @@ class TestComparativeVisualsGeneration:
         assert (out_dir / "gate_accuracy_matrix.png").exists()
         assert (out_dir / "gate_accuracy_matrix.pdf").exists()
         assert (out_dir / "comparative_scalability_projection.png").exists()
-        assert (out_dir / "comparative_pillars_breakdown.png").exists()
+        assert (out_dir / "comparative_efficiency_pillars.png").exists()
+        assert not (out_dir / "comparative_pillars_breakdown.png").exists()
+        assert not (out_dir / "comparative_integrity_pillars.png").exists()
 
 
 

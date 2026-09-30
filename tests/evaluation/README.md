@@ -174,15 +174,14 @@ Results are persisted in timestamped folders organized hierarchically by sanitiz
 When running comparative mode or full multi-baseline evaluations, cross-baseline analytics and gate diagnostics are generated in `tests/evaluation/results/<LLM>/<timestamp>/`:
 - `comparative_results_<timestamp>.json`: Combined cross-baseline raw traces and pillar metrics.
 - `comparative_summary_<timestamp>.md`: Side-by-side executive comparison matrix across all baselines.
-- `comparative_integrity_pillars.png / .pdf`: 2-panel standalone comparison for Pre-Deployment Integrity & Operator Burden (Pillars 2 & 3: FPR rate and Operator Interventions count).
 - `comparative_efficiency_pillars.png / .pdf`: 2-panel standalone comparison for Computational Efficiency (Pillar 3: Latency Boxplot distributions on left, Token Footprint Stacked Bars highlighting useful vs. wasted compute on right).
-- `comparative_pillars_breakdown.png / .pdf`: 4-panel comprehensive breakdown covering Integrity, Friction, Latency, and Tokens in a single grid.
 - `comparative_deployment_flow_sankey.png / .pdf`: Publication-grade dual-panel Sankey flow contrasting autonomous gating against un-gated Controller Integrity Collapse.
 - `comparative_scalability_projection.png / .pdf`: Scalability projection modeling cumulative operator interventions ($N_{hitl}$ cognitive fatigue) across the 120-demand diurnal operational stream, comparing Proposed RADG against Always-On HITL.
 - `gate_accuracy_matrix.png / .pdf`: Multi-class confusion matrix and gate decision accuracy breakdown for Proposed RADG across all 4 risk classes, tracking first-try gating accuracy and timeout mitigation.
+*(Note: Legacy `comparative_pillars_breakdown` and `comparative_integrity_pillars` figures have been retired to the `archive/` subfolder).*
 
 ### Cross-Model Comparison Figures (`tests/evaluation/results/cross_model/<timestamp>/`)
 When running **Comparative LLMs Mode**, cross-model figures are saved in a shared `cross_model/` directory (model-agnostic by design):
-- `cross_model_efficiency.png / .pdf`: 2-panel grouped bar chart showing Median End-to-End Latency (left) and Median Token Footprint (right) grouped by model, with the 3 baselines as colored sub-bars inside each group. Captures LLM-dependent efficiency variability while holding baseline architecture constant.
-- `cross_model_gate_accuracy.png / .pdf`: GDA% heatmap (model × risk class) using a Red–Yellow–Green colormap, paired with a horizontal bar summary showing overall GDA and annotated FPR per model. Validates the FPR ≈ 0% model-agnostic integrity invariant of the Proposed RADG.
+- `cross_model_gate_accuracy.png / .pdf`: Multi-panel visualization combining a GDA% heatmap (model × risk class) on the left with a Cleveland Lollipop plot on the right showing overall GDA (colored circle) vs. FPR (dark triangle). Validates the model-agnostic physical integrity invariant alongside semantic discrimination across LLM backends.
+*(Note: Legacy `cross_model_efficiency`, `cross_model_efficiency_alternative`, and broken-axis gate accuracy figures have been retired to the `archive/` subfolder).*
 - `cross_model_comparison_<timestamp>.md`: Metadata report listing compared models, their run timestamps, figure descriptions, and methodology notes explaining which figures are structural (invariant across models) vs. model-sensitive.

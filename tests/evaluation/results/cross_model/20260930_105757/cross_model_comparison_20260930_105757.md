@@ -1,21 +1,22 @@
 ---
-title: "Cross-Model LLM Comparison — 20260927_161020"
-date: 2026-09-27 16:10:22
+title: "Cross-Model LLM Comparison — 20260930_105757"
+date: 2026-09-30 10:57:58
 tags: [cross-model, evaluation, radg, comparative]
 status: active
 ---
 
-# Cross-Model Comparison Report — `20260927_161020`
+# Cross-Model Comparison Report — `20260930_105757`
 
-**Generated:** 2026-09-27 16:10:22  
-**Models compared:** 2  
+**Generated:** 2026-09-30 10:57:58  
+**Models compared:** 3  
 
 ## Models & Runs
 
 | # | Model Label | Directory | Timestamp |
 |---|-------------|-----------|-----------|
-| 1 | `gpt-6-luna` | `gpt-6-luna` | `20260927_144208` |
-| 2 | `qwen2.5:3b` | `qwen2.5_3b` | `20260926_175018` |
+| 1 | `gpt-6-luna` | `gpt-6-luna` | `20260928_111332` |
+| 2 | `gpt-5-nano-2025-08-07` | `gpt-5-nano-2025-08-07` | `20260928_124751` |
+| 3 | `qwen2.5:3b` | `qwen2.5_3b` | `20260930_070116` |
 
 ## Generated Figures
 
